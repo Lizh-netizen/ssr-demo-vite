@@ -1,0 +1,40 @@
+/* color palette from <https://github.com/vuejs/theme> */
+body,
+html {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 14px;
+}
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+.icon {
+  width: 1em;
+}
+
+.el-radio-button:hover .el-radio-button__inner {
+  color: #2e6ce4;
+}
+.el-checkbox-button:hover .el-checkbox-button__inner {
+  color: #2e6ce4;
+}
+.el-radio-button {
+  .el-radio-button__inner {
+    font-weight: normal;
+  }
+}
+
+img {
+  object-fit: cover;
+  background-size: 100% 100%;
+}
+.el-radio__input.is-checked + .el-radio__label {
+  --el-color-primary: #2e6ce4;
+}
+.el-input {
+  height: 30px;
+}

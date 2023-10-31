@@ -1,0 +1,31 @@
+:root {
+  --el-bg-color: rgba(248, 250, 255, 1);
+}
+
+$text: #ffffff;
+$text1: #1d2129;
+$text2: #4e5969;
+$text3: #86909c;
+
+$Alarm: rgba(247, 101, 96, 1);
+$Warning: rgba(255, 154, 46, 1);
+$Success: rgba(35, 195, 67, 1);
+$Neutral: rgba(46, 108, 228, 1);
+$Disabled: rgba(130, 132, 138, 1);
+$Noble: rgba(167, 126, 241, 1);
+
+$Alarm10: rgba(247, 101, 96, 0.1);
+$Warning10: rgba(255, 154, 46, 0.1);
+$Success10: rgba(35, 195, 67, 0.1);
+$Neutral10: rgba(241, 245, 255, 1);
+$Disabled10: rgba(130, 132, 138, 0.1);
+$Noble10: rgba(167, 126, 241, 0.1);
+
+$Alarm05: rgba(247, 101, 96, 0.05);
+$Warning05: rgba(255, 154, 46, 0.05);
+$Success05: rgba(35, 195, 67, 0.05);
+$Neutral05: rgba(248, 250, 255, 1);
+$Disabled05: rgba(130, 132, 138, 0.05);
+$Noble05: rgba(167, 126, 241, 0.05);
+
+$filter-bg: #f2f3f5;

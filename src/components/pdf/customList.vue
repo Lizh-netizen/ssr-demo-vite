@@ -1,0 +1,62 @@
+<template>
+  <div class="list1">
+    <div
+      class="list__item"
+      v-for="a in list"
+      :key="a.id"
+      :data-serious="a.serious"
+    >
+      <div class="list__item__desc">
+        {{ a.title_name }}:{{ a.option_names }}
+        <img
+          class="seriousIcon"
+          src="../../assets/svg/serious.svg"
+          v-show="a.serious == '1'"
+          :style="{
+            'margin-left': '8px'
+          }"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { defineProps } from 'vue'
+defineProps(['list'])
+</script>
+
+<style lang="scss" scoped>
+.list1 {
+  display: flex;
+  flex-wrap: wrap;
+  .list__item {
+    margin-bottom: 16px;
+    display: flex;
+    // align-items: center;
+    &:before {
+      display: inline-block;
+      content: '';
+      min-width: 8px;
+      height: 8px;
+      background: #404682;
+      margin-right: 8px;
+      border-radius: 50%;
+      position: relative;
+      top: 6px;
+    }
+    &__desc {
+      margin-right: 4px;
+      // display: flex;
+      align-items: center;
+    }
+    .seriousIcon {
+      position: relative;
+      top: 1px;
+      // display: block;
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+</style>

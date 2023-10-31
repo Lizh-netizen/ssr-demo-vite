@@ -1,0 +1,11 @@
+@mixin caption {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.16em;
+  color: #ffffff;
+  position: absolute;
+  padding: 4px 12px;
+  background: #2e6ce4;
+  border-radius: 12px 0px 12px 0px;
+}

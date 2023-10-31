@@ -1,0 +1,213 @@
+@mixin span($c) {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: $c;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+@mixin after_befor($h, $radius) {
+  display: block;
+  width: 17px;
+  height: 17px;
+  background-color: white;
+  position: absolute;
+  span {
+    width: 36px;
+    height: $h;
+    background-color: white;
+    position: absolute;
+    border-radius: $radius;
+  }
+  @media (width: 1309.09px) {
+    span {
+      bottom: 1.05px !important;
+    }
+  }
+  @media (width: 1600px) {
+    span {
+      bottom: 1.05px !important;
+    }
+  }
+  @media (width: 2160px) {
+    span {
+      bottom: 1.5px !important;
+    }
+  }
+  @media (width: 4320px) {
+    span {
+      bottom: 2px !important;
+    }
+  }
+}
+
+@mixin taskCardItem($color, $color10) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 179px;
+  flex: 1;
+  width: 0;
+  border-radius: 12px;
+  padding: 16px 24px;
+  position: relative;
+  background: $text;
+  box-sizing: border-box;
+  :global {
+    .title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .image {
+      display: flex;
+      align-items: end;
+      .svg-icon {
+        width: 48px;
+        height: 48px;
+        margin-right: 20px;
+        border-radius: 50%;
+        background: $color10;
+      }
+      span {
+        font-family: DIN_Alternate;
+        &:nth-child(2) {
+          font-size: 48px;
+          color: $text1;
+          margin-right: 12px;
+          line-height: 1;
+        }
+        &:nth-child(3) {
+          font-size: 24px;
+          color: $text2;
+        }
+      }
+    }
+    .progress {
+      .el-progress {
+        position: relative;
+        .el-progress-bar__outer {
+          height: 8px !important;
+          overflow: inherit !important;
+          background-color: $color10;
+        }
+        .el-progress-bar__inner {
+          background-color: $color;
+          position: relative;
+          &::before {
+            display: block;
+            content: '';
+            width: 3px;
+            height: 14px;
+            border-radius: 2px;
+            background-color: $color;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9;
+          }
+        }
+        .el-progress__text {
+          min-width: 0;
+        }
+      }
+      .span {
+        margin-top: 12px;
+        font-size: 12px;
+        display: flex;
+        overflow: hidden;
+        span {
+          white-space: nowrap;
+          &:first-child {
+            margin-right: 16px;
+            &::before {
+              content: '';
+              @include span($color);
+            }
+          }
+          &:last-child {
+            &::before {
+              content: '';
+              @include span($color10);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+// 待开发
+.taskCardItemDesable {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: #f7f8fa;
+  height: 179px;
+  flex: 1;
+  width: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  img {
+    width: auto;
+    height: 100%;
+  }
+}
+
+// 未选中没挤压状态
+.taskCardItem {
+  @include taskCardItem($Neutral, $Neutral10);
+  border: 2px solid #f2f3f5;
+  background-color: #f2f3f5;
+  &:hover {
+    background-color: #eeeeee;
+    border: 2px solid #eeeeee;
+  }
+}
+
+// 被选中
+.taskCardItemActive {
+  @include taskCardItem($Neutral, $Neutral10);
+  border: 2px solid $Neutral;
+  border-bottom-color: $text;
+  height: 197px;
+  padding-bottom: 34px;
+  border-radius: 12px 12px 0 0;
+  min-width: 328px;
+  background: linear-gradient(180deg, #e8f0ff 0%, #ffffff);
+  :global {
+    .after {
+      @include after_befor(17px, 0 0 17px 0);
+      background-color: white;
+      bottom: -2px;
+      left: -16px;
+      span {
+        left: -20px;
+        bottom: 1px;
+        border-bottom: 2px solid $Neutral;
+        border-right: 2px solid $Neutral;
+      }
+    }
+    .befor {
+      @include after_befor(30px, 0 0 0 17px);
+      bottom: -2px;
+      right: -16px;
+      span {
+        width: 20px;
+        left: 1px;
+        bottom: 1px;
+        border-bottom: 2px solid $Neutral;
+        border-left: 2px solid $Neutral;
+      }
+    }
+  }
+}
+
+// 被选中内容被挤压状态
+.taskCardItemSmall {
+  @include taskCardItem($Neutral, $Neutral10);
+  border: 2px solid #f2f3f5;
+  background-color: #f2f3f5;
+  &:hover {
+    background-color: #eeeeee;
+  }
+}

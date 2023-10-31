@@ -1,0 +1,171 @@
+<template>
+  <div class="task-card">
+    <renderTabBar />
+    <renderTaskCardContent />
+  </div>
+</template>
+
+<script setup lang="jsx">
+import { useSlots, ref, onMounted } from 'vue'
+import elementResizeDetectorMaker from 'element-resize-detector'
+import style from './index.module.scss'
+// tsx没有识别到vue组件，单独引入
+import SvgIcon from '../svg-icon/svg-icon.vue'
+// 待开发戳章
+import devalop from '../../assets/imgs/develop.png'
+import { ElProgress } from 'element-plus'
+/**
+ * @default 默认展示的
+ */
+const props = defineProps({
+  default: {
+    type: String
+  }
+})
+// slot实例
+const slots = useSlots()
+// 当前选中的tab
+const currntTab = ref(props.default)
+// 插槽内容长度
+const slotLen = slots.default && slots.default()[0].children.length
+// 监听元素宽度变化
+onMounted(() => {
+  const erd = elementResizeDetectorMaker()
+  erd.listenTo(document.getElementsByClassName(style.taskCardItem), (ele) => {
+    if (ele.offsetWidth < 334) isSmall.value = true
+    else isSmall.value = false
+  })
+})
+// 每一项
+const isSmall = ref(false)
+const renderTaskCardItem = (data) => {
+  const taskCardItem = {
+    marginRight: slotLen < 3 || data.index !== slotLen - 1 ? '20px' : '0'
+  }
+  const isBefor = data.index !== slotLen - 1 || data.index < 2
+
+  return (
+    <>
+      {currntTab.value === data.name ? (
+        <div
+          class={style.taskCardItemActive}
+          style={taskCardItem}
+          onClick={() => (currntTab.value = data.name)}
+        >
+          {/* 显示title */}
+          <div class="title">{data.name}</div>
+          {/* 图片和数量 */}
+          <div class="image">
+            <SvgIcon name={data.svg_name} />
+            <span>{data.left_num}</span>
+            <span>/ {data.right_num}</span>
+          </div>
+          {/* 被选中的进度条 */}
+          <div class="progress">
+            <ElProgress percentage={Math.floor((data.left_num / data.right_num) * 100)} />
+            <div class="span">
+              <span>{data.left_text}</span>
+              <span>{data.right_text}</span>
+            </div>
+          </div>
+          {data.index !== 0 && (
+            <>
+              <div class="after">
+                <span />
+              </div>
+            </>
+          )}
+          {isBefor && (
+            <>
+              <div class="befor">
+                <span />
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div
+          class={!isSmall.value ? style.taskCardItem : style.taskCardItemSmall}
+          style={taskCardItem}
+          onClick={() => (currntTab.value = data.name)}
+        >
+          {/* 显示title */}
+          <div class="title">{data.name}</div>
+          {/* 图片和数量 */}
+          <div class="image">
+            <SvgIcon name={data.svg_name} />
+            <span>{data.left_num}</span>
+            <span>/ {data.right_num}</span>
+          </div>
+          {/* 没被选中的进度条 */}
+          <div class="progress">
+            <ElProgress percentage={Math.floor((data.left_num / data.right_num) * 100)} />
+            <div class="span">
+              {!isSmall.value && (
+                <>
+                  <span>{data.left_text}</span>
+                  <span>{data.right_text}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+// tab拦
+const renderTabBar = () => {
+  const list = slots.default && (slots.default()[0].children || slots.default())
+  const createElement = (n) => {
+    const elements = []
+    for (var i = 0; i < n; i++) {
+      elements.push(
+        <div class={style.taskCardItemDesable}>
+          {/* 待开发 */}
+          <img src={devalop} />
+        </div>
+      )
+    }
+    return elements
+  }
+  return (
+    <div class="task-card-tabbar">
+      {list?.map((it, index) => {
+        return renderTaskCardItem({ ...it.props, index })
+      })}
+      {slotLen - 3 < 0 && createElement(3 - slotLen)}
+    </div>
+  )
+}
+// 内容渲染
+const renderTaskCardContent = () => {
+  return (slots.default && (slots.default()[0].children || slots.default())).find((it) => {
+    return it.props?.name === currntTab.value
+  })
+}
+</script>
+
+<style scoped lang="scss">
+.task-card {
+  width: 100vw;
+  padding: 16px 20px;
+}
+.task-card-tabbar {
+  height: 196px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid transparent;
+  background-image: linear-gradient(#fff, #fff),
+    linear-gradient(
+      270deg,
+      rgba(46, 108, 228, 0.09) 0%,
+      $Neutral 31%,
+      $Neutral 72%,
+      rgba(46, 108, 228, 0.06) 98%
+    );
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+}
+</style>

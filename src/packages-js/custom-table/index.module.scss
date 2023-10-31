@@ -1,0 +1,148 @@
+.table {
+  position: relative;
+  .set {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: 10px;
+    z-index: 3;
+    .el-icon {
+      cursor: pointer;
+      &:hover {
+        color: $Neutral;
+      }
+    }
+    .list {
+      position: absolute;
+      right: 0;
+      width: 240px;
+      top: 40px;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      box-shadow: 0px 2px 10px 0px rgba(58, 62, 83, 0.14);
+      .list-item {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 2px solid transparent;
+        *:hover {
+          background-color: transparent;
+        }
+        &.moving {
+          border: 2px dashed $Neutral;
+          * {
+            opacity: 0;
+          }
+        }
+        span {
+          margin-left: 10px;
+        }
+      }
+      :hover {
+        background-color: $Disabled10;
+      }
+    }
+  }
+  @media (max-width: 737.78px) {
+    .set {
+      height: 62px;
+    }
+  }
+  .el-table {
+    border-radius: 8px 8px 0 0;
+    ::v-deep {
+      .el-table__body-wrapper tr:nth-child(2n) td.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:nth-child(2n) td.el-table-fixed-column--right,
+      .el-table__body-wrapper tr:nth-child(2n) th.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:nth-child(2n) th.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:nth-child(2n) td.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:nth-child(2n) td.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:nth-child(2n) th.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:nth-child(2n) th.el-table-fixed-column--right,
+      .el-table__header-wrapper tr:nth-child(2n) td.el-table-fixed-column--left,
+      .el-table__header-wrapper tr:nth-child(2n) td.el-table-fixed-column--right {
+        background-color: $Neutral05;
+      }
+      .el-table__body-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--right,
+      .el-table__body-wrapper tr:nth-child(2n-1) th.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:nth-child(2n-1) th.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:nth-child(2n-1) th.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:nth-child(2n-1) th.el-table-fixed-column--right,
+      .el-table__header-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--left,
+      .el-table__header-wrapper tr:nth-child(2n-1) td.el-table-fixed-column--right {
+        background: $text;
+      }
+      .el-table__inner-wrapper::before {
+        background-color: transparent;
+      }
+      .el-table__body-wrapper tr:hover td.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:hover td.el-table-fixed-column--right,
+      .el-table__body-wrapper tr:hover th.el-table-fixed-column--left,
+      .el-table__body-wrapper tr:hover th.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:hover td.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:hover td.el-table-fixed-column--right,
+      .el-table__footer-wrapper tr:hover th.el-table-fixed-column--left,
+      .el-table__footer-wrapper tr:hover th.el-table-fixed-column--right,
+      .el-table__header-wrapper tr:hover td.el-table-fixed-column--left,
+      .el-table__header-wrapper tr:hover td.el-table-fixed-column--right {
+        background: #f2f3f5;
+        transition: all 0;
+      }
+      .hover-row {
+        background: #fff;
+      }
+      .el-table__cell {
+        padding: 0;
+      }
+      // title颜色
+      th.el-table__cell {
+        color: $text1;
+        background-color: $Neutral10;
+        &.is-leaf {
+          border-bottom: none;
+        }
+      }
+      // 去除表格下边框
+      td.el-table__cell {
+        border-bottom: none;
+      }
+      // 2n行颜色
+      tr {
+        color: $text1;
+        height: 48px;
+        &.hover-row:hover > td {
+          background-color: #f2f3f5;
+          transition: all 0;
+        }
+        &:nth-child(2n) {
+          background-color: $Neutral05;
+        }
+      }
+    }
+  }
+  // 分页器
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    ::v-deep {
+      // 左右切换button和页码
+      button.ant-pagination-item-link,
+      .ant-pagination-item {
+        border: 1px solid #dedfe0;
+        border-radius: 8px;
+      }
+      .ant-pagination-item-active {
+        background-color: #eaf0fc;
+        border: 1px solid transparent;
+        color: $Neutral;
+      }
+    }
+  }
+}
