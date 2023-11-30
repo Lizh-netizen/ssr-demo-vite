@@ -1,10 +1,8 @@
 <template>
   <div class="stepTwo">
-    <div class="button" @click="openImgDialog">
-      <img src="../../assets/svg/arrange.svg" />影像管理
-    </div>
+    <div class="button" @click="openImgDialog"><img src="@/assets/svg/arrange.svg" />影像管理</div>
     <Header text="面型评估" backgroundColor="#f4f7fd" />
-    <div class="content">
+    <div class="content" :style="{ 'min-height': '700px' }">
       <template v-for="(item, index) in faceAccessData" :key="item.id">
         <ImageItem
           :imageCaption="item.className"
@@ -19,10 +17,11 @@
               </template>
               <template v-else>
                 <img
-                  :src="item.imageUrl"
+                  v-lazy="item.imageUrl"
                   :style="{
                     height: '240px',
-                    'object-fit': 'cover'
+                    'object-fit': 'cover',
+                    'max-width': '320px'
                   }"
                 />
               </template> </template
@@ -51,7 +50,7 @@
                     {{ option.optionName }}
                     <img
                       class="aiFlagImg"
-                      src="../../assets/svg/AIFlagForFront.svg"
+                      src="@/assets/svg/AIFlagForFront.svg"
                       v-show="title.aiFlag == '1' && index == 0 && option.choosen"
                     />
                   </el-radio-button>
@@ -72,8 +71,8 @@
                     :label="option.id"
                   >
                     {{ option.optionName }}
-                    <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="../../assets/svg/abnormalChecked.svg"
+                    <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                      src="@/assets/svg/abnormalChecked.svg"
                       v-else
                     />
                   </el-checkbox-button>
@@ -86,67 +85,73 @@
     </div>
 
     <Header text="口内照" />
-    <div class="content">
+    <div class="content mouth">
       <template v-for="item in mouthData" :key="item.id">
         <ImageItem :imageCaption="item.className"
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
-                :src="item.imageUrl"
+                v-lazy="item.imageUrl"
                 :style="{
                   width: '320px',
                   height: '240px',
-                  'object-fit': 'cover'
+                  'object-fit': 'cover',
+                  'border-radius': '10px'
                 }" /></template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
                 <img :src="imgUrl" class="addPic" />
               </div> </template></template
           ><template #content>
-            <template v-for="title in item.orthTitleList" :key="title.id">
-              <form-item :label="title.titleName" width="100px">
-                <el-radio-group
-                  v-if="title.type == 1"
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title)"
-                >
-                  <el-radio-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-                </el-radio-group>
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  v-if="title.type == 2"
-                  @change="handleChangeOption(title.optionId, title)"
-                >
-                  <el-checkbox-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="../../assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </el-checkbox-group>
-              </form-item>
+            <template v-if="item.className == '正面咬合'">
+              <img :src="FrontalSmileImageUrl" alt="" />
             </template>
+            <div>
+              <template v-for="title in item.orthTitleList" :key="title.id">
+                <form-item :label="title.titleName" width="100px">
+                  <el-radio-group
+                    v-if="title.type == 1"
+                    v-model="title.optionId"
+                    @change="handleChangeOption(title.optionId, title)"
+                  >
+                    <el-radio-button
+                      :disabled="!item.hasImage"
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      v-for="option in title.orthOptionsList"
+                      :key="option.id"
+                      :label="option.id"
+                    >
+                      {{ option.optionName }}
+                    </el-radio-button>
+                  </el-radio-group>
+                  <el-checkbox-group
+                    v-model="title.optionId"
+                    v-if="title.type == 2"
+                    @change="handleChangeOption(title.optionId, title)"
+                  >
+                    <el-checkbox-button
+                      :disabled="!item.hasImage"
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      v-for="option in title.orthOptionsList"
+                      :key="option.id"
+                      :label="option.id"
+                    >
+                      {{ option.optionName }}
+                      <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="@/assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </el-checkbox-group>
+                </form-item>
+              </template>
+            </div>
           </template>
         </ImageItem>
       </template>
@@ -220,10 +225,10 @@
                           :label="option.id"
                         >
                           {{ option.optionName }}
-                          <img
-                            src="../../assets/svg/checked.svg"
-                            v-if="option.serious == '0'"
-                          /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                            src="@/assets/svg/abnormalChecked.svg"
+                            v-else
+                          />
                         </el-checkbox-button>
                       </el-checkbox-group>
                     </form-item>
@@ -268,10 +273,10 @@
                           :label="option.id"
                         >
                           {{ option.optionName }}
-                          <img
-                            src="../../assets/svg/checked.svg"
-                            v-if="option.serious == '0'"
-                          /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                            src="@/assets/svg/abnormalChecked.svg"
+                            v-else
+                          />
                         </el-checkbox-button>
                       </el-checkbox-group>
                     </form-item>
@@ -542,12 +547,13 @@
                   effect="light"
                   placement="top"
                   :content="title.titlePrompt"
-                  ><img src="../../assets/svg/questionMark.svg"
+                  v-if="!['SNA', 'SNB', '扁桃体', '腺样体', '颈椎分期'].includes(title.titleName)"
+                  ><img src="@/assets/svg/questionMark.svg"
                 /></el-tooltip>
 
                 <div class="formItem__content">
                   <img
-                    src="../../assets/svg/../../assets/svg/AI.svg"
+                    src="@/assets/svg/AI.svg"
                     :style="{ opacity: `${title.aiFlag == '1' ? 1 : 0}` }"
                   />
                   <div
@@ -566,14 +572,14 @@
                       :class="{ measured: title.measured === true }"
                     ></el-input>
                     <img
-                      src="../../assets/svg/downwards.svg"
+                      src="@/assets/svg/downwards.svg"
                       v-show="
                         title.orthOptionsList.findIndex((option) => option.id == title.optionId) ==
                         0
                       "
                     />
                     <img
-                      src="../../assets/svg/upwards.svg"
+                      src="@/assets/svg/upwards.svg"
                       v-show="
                         title.orthOptionsList.findIndex((option) => option.id == title.optionId) ==
                         2
@@ -605,7 +611,7 @@
                   {{ title.titleName }}
                 </div>
                 <el-tooltip class="box-item" effect="light" placement="top"
-                  ><img src="../../assets/svg/questionMark.svg"
+                  ><img src="@/assets/svg/questionMark.svg"
                 /></el-tooltip>
                 <div class="formItem__content">
                   <el-radio-group
@@ -631,6 +637,7 @@
       </div>
     </div>
   </div>
+  <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
   <el-dialog
     v-model="imgDialogVisible"
@@ -644,7 +651,7 @@
         <div class="title">
           <div class="title__left">图库</div>
           <div class="title__middle">
-            <img src="../../assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
+            <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
             可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～
           </div>
           <div class="title__right file-upload">
@@ -663,7 +670,7 @@
         >
           <img
             class="imgContainer__empty"
-            src="../../assets/svg/empty__image.svg"
+            src="@/assets/svg/empty__image.svg"
             v-if="imageArr.length == 0"
           />
           <template v-else>
@@ -699,7 +706,7 @@
                       @click="handleToggleChoose(img)"
                     />
                     <img
-                      src="../../assets/svg/imageChecked.svg"
+                      src="@/assets/svg/imageChecked.svg"
                       :style="{
                         position: 'absolute',
                         right: '6px',
@@ -720,7 +727,7 @@
                 @click="handleLoadPic"
                 v-if="!item.file && index === imageArr.length - 1"
               >
-                <span>加载上次影像</span><img src="../../assets/svg/morePic.svg" />
+                <span>加载上次影像</span><img src="@/assets/svg/morePic.svg" />
               </div>
             </div>
           </template>
@@ -745,7 +752,9 @@
               :style="{
                 position: 'relative',
                 border: '1px solid #e5e6eb',
-                'border-radius': '12px'
+                'border-radius': '12px',
+                overflow: 'hidden',
+                height: '80px'
               }"
             >
               <img
@@ -777,7 +786,7 @@
                 <img
                   :style="{ cursor: 'pointer' }"
                   class="deleteImage"
-                  src="../../assets/svg/deleteImage.svg"
+                  src="@/assets/svg/deleteImage.svg"
                   v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
                 />
               </template>
@@ -806,7 +815,7 @@
     />
     <canvas id="myZoomCanvas" @click="handleZoomOutPic" v-if="!zoomPano"></canvas>
     <img
-      src="../../assets/svg/close.svg"
+      src="@/assets/svg/close.svg"
       :style="{
         position: 'fixed',
         right: '20px',
@@ -825,7 +834,16 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch, defineProps } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  ref,
+  watch,
+  defineProps,
+  defineExpose,
+  onBeforeMount
+} from 'vue'
 import Header from '@/components/list/header.vue'
 import ImageItem from '@/components/list/imageItem.vue'
 import FormItem from '@/components/list/formItem.vue'
@@ -844,13 +862,28 @@ import {
 } from '@/utils/calculate'
 import { GetSymptom } from '@/utils/tooth'
 import { WarningFilled } from '@element-plus/icons-vue'
-
 import { useRoute } from 'vue-router'
 import 'animate.css'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
-import img from '../../assets/svg/addPic.svg'
+import img from '@/assets/svg/addPic.svg'
+import blueBgUrl from '@/assets/svg/blueBg.svg'
+import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
+const route = useRoute()
+const appId = route.params.appId
+const patientId = route.params.patientId
+onBeforeMount(() => {
+  const link = document.createElement('link')
+  link.href = img
+  link.rel = 'preload'
+  link.as = 'image'
+  document.head.appendChild(link)
+})
+const clicked = ref(false)
+defineExpose({
+  clicked
+})
 const props = defineProps({
   pdfId: String
 })
@@ -1029,13 +1062,13 @@ const handleDeleteImage1 = (img) => {
     Delete(`/prod-api/business/orthImage/${img.id}`).then((res) => {
       if (res.code == 200) {
         const found = imageList.value.find((image) => img == image)
-        found.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+        found.fileUrl = placeholderUrl
         found.id = undefined
         // getAllData()
       }
     })
   } else {
-    img.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    img.fileUrl = placeholderUrl
   }
 }
 // 影像管理逻辑
@@ -1045,7 +1078,7 @@ const totalArr = ref([])
 const openImgDialog = () => {
   imgDialogVisible.value = true
   imageList.value.forEach((a) => {
-    a.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    a.fileUrl = placeholderUrl
   })
   getClassifiedImgList()
 }
@@ -1077,84 +1110,85 @@ const imageList = ref([
   {
     caption: '正面像',
     typeName: 'FrontalRepose',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '正面微笑像',
     typeName: 'FrontalSmile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '90度侧面像',
     typeName: 'LeftProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '90度侧面微笑像',
     typeName: 'RightProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '45度侧面像',
     typeName: 'LeftSideProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '45度侧面微笑像',
     typeName: 'RightSideProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '口内照（左侧）',
     typeName: '',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '口内照（右侧）',
     typeName: '',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '磨牙关系（左侧）',
     typeName: 'Left',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '磨牙关系（右侧）',
     typeName: 'Right',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '正面咬合',
     typeName: 'Anterior',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '前牙覆盖',
     typeName: 'Cover',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '上颌',
     typeName: 'Upper',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '下颌',
     typeName: 'Lower',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '全景片',
     typeName: 'Panoramic',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '侧位片',
     typeName: 'Cephalometric',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   }
 ])
+
 // 图片分类
 async function getToken() {
   let token
@@ -1291,7 +1325,7 @@ const handleDrop = (e, image) => {
     } else {
       // 否则只要替换掉fileUrl就可以了
       const found = imageList.value.find((image) => dragFile.value.fileUrl == image.fileUrl)
-      found.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+      found.fileUrl = placeholderUrl
     }
     // 已经上传过的有id
     if (image.id) {
@@ -1339,13 +1373,12 @@ async function handleSingleImage(file, image) {
       })
     )
   }
-
   const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
   if (res.code == 200 && res.data[0].fileUrl) {
     image.fileUrl = res.data[0].fileUrl
     image.imageId = res.data[0].fileId
   } else {
-    image.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    image.fileUrl = placeholderUrl
     if (failCount.value == 0) {
       failCount.value++
       ElMessage({
@@ -1364,9 +1397,7 @@ async function handleSingleImage(file, image) {
 async function handleSavePics() {
   imgDialogVisible.value = false
   imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter(
-    (item) => item.fileUrl !== '../../assets/ortho/imagePlaceholder.png'
-  )
+  const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
@@ -1376,26 +1407,25 @@ async function handleSavePics() {
     apmtId: appId,
     orthImageList: arr
   }).then(() => {
-    // if (res.code == 200) {
     getAllData()
-    // }
   })
 }
 const handleDragOver = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = '../../assets/svg/blueBg.svg'
+    e.target.src = blueBgUrl
     e.target.classList.add('hover')
   }
 }
 const handleDragLeave = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = '../../assets/ortho/imagePlaceholder.png'
+    e.target.src = placeholderUrl
   }
   e.target.classList.remove('hover')
 }
+
 function getAllData() {
-  getOrthCephaList()
   getOrthFaceAccessList()
+  getOrthCephaList()
   getOrthMouthList()
   getOrthPanoramicList()
 }
@@ -1403,9 +1433,7 @@ const handleCloseImgDialog = () => {
   imageList.value.forEach((image) => (image.reminder = false))
 }
 // 获取照片和相关信息
-const route = useRoute()
-const appId = route.params.appId
-const patientId = route.params.patientId
+
 const faceAccessData = ref([])
 const savedTitleList = ref([])
 const FrontalRose = [
@@ -1419,6 +1447,7 @@ const FrontalRose = [
 ]
 const frontalCanvasWidth = ref(0)
 const frontalCanvasHeight = ref(0)
+const frontalRatio = ref(0)
 function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
   const image = new Image() // 创建 img 元素
   const canvas = document.getElementById(canvasId)
@@ -1430,16 +1459,16 @@ function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
 
     let width = imgWidth
     let height = imgHeight
-    aspectRatio.value = imgWidth / imgHeight
+    frontalRatio.value = imgWidth / imgHeight
     // 等比例缩放计算
     if (width > maxWidth) {
       width = maxWidth
-      height = width / aspectRatio.value
+      height = width / frontalRatio.value
     }
 
     if (height > maxHeight) {
       height = maxHeight
-      width = height * aspectRatio.value
+      width = height * frontalRatio.value
     }
     canvas.width = width
     frontalCanvasWidth.value = width
@@ -1450,10 +1479,7 @@ function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
     ctx.drawImage(image, 0, 0, width, height)
-    faceSet.value.forEach((a) => {
-      a.x = a.x * frontalCanvasHeight.value
-      a.y = a.y * frontalCanvasHeight.value
-    })
+
     drawPointsOnCanvas(ctx, image, canvas, faceSet.value)
   }
   image.src = imageUrl // 设置图片源地址
@@ -1473,55 +1499,61 @@ function drawPointsOnCanvas(ctx, image, canvas, pointList) {
   })
   drawLineOnCanvas(ctx, canvas)
 }
-function calculateFront(pointList) {
-  calculateFrontal(pointList).then(() => {
-    AiTest.value = true
-    getOrthFaceAccessList()
-  })
-}
-const AiTest = ref(false)
-async function calculateFrontal(pointList) {
+// 计算正貌
+async function calculateFrontal1(pointList) {
   const leftDistance = perpendicularDistance(pointList[6], pointList[0], pointList[3])
   const rightDistance = perpendicularDistance(pointList[5], pointList[0], pointList[3])
-  const bottomDistance = calculateDistanceEffect(pointList[3], pointList[4])
-  const middleDistance = perpendicularDistance(pointList[3], pointList[2], pointList[1])
-  const averageDistance = averageThreeCourts(pointList)
   const frontTitle = faceAccessData.value[0].orthTitleList[0]
-  // 计算之后为1，其他情况都为0了
   frontTitle.aiFlag = '1'
   frontTitle.aiTest = true
+  if (leftDistance < rightDistance) {
+    const optionId = frontTitle.orthOptionsList[2].id
+    await useUpdateOption(optionId, frontTitle, '', appId)
+  } else if (leftDistance > rightDistance) {
+    const optionId = frontTitle.orthOptionsList[1].id
+    await useUpdateOption(optionId, frontTitle, '', appId)
+  } else {
+    const optionId = frontTitle.orthOptionsList[0].id
+    await useUpdateOption(optionId, frontTitle, '', appId)
+  }
+}
+// 计算面中
+async function calculateFrontal2(pointList) {
   const middleTitle = faceAccessData.value[0].orthTitleList[3]
   middleTitle.aiFlag = '1'
   middleTitle.aiTest = true
+  const middleDistance = perpendicularDistance(pointList[3], pointList[2], pointList[1])
+  const averageDistance = averageThreeCourts(pointList)
+  compareThreeCourts(middleDistance, averageDistance, middleTitle)
+}
+// 计算面下
+async function calculateFrontal3(pointList) {
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
-  if (leftDistance < rightDistance) {
-    const optionId = frontTitle.orthOptionsList[2].id
-    // await useChangeOption(optionId, frontTitle);
-    await useUpdateOption(optionId, frontTitle, '', appId)
-  } else {
-    const optionId = frontTitle.orthOptionsList[1].id
-    // await useChangeOption(optionId, frontTitle);
-    await useUpdateOption(optionId, frontTitle, '', appId)
-  }
-  compareThreeCourts(middleDistance, averageDistance, middleTitle)
+  const bottomDistance = calculateDistanceEffect(pointList[3], pointList[4])
+  const averageDistance = averageThreeCourts(pointList)
   compareThreeCourts(bottomDistance, averageDistance, bottomTitle)
 }
+async function calculateFront(pointList) {
+  await calculateFrontal1(pointList)
+  await calculateFrontal2(pointList)
+  await calculateFrontal3(pointList)
+  getOrthFaceAccessList()
+}
+const AiTest = ref(false)
 async function compareThreeCourts(distance, averageDistance, title) {
   if (distance > averageDistance) {
     const optionId = title.orthOptionsList[2].id
-    // await useChangeOption(optionId, title);
     await useUpdateOption(optionId, title, '', appId)
   } else if (distance < averageDistance) {
     const optionId = title.orthOptionsList[1].id
-    // await useChangeOption(optionId, title);
     await useUpdateOption(optionId, title, '', appId)
   } else {
     const optionId = title.orthOptionsList[0].id
-    // await useChangeOption(optionId, title);
     await useUpdateOption(optionId, title, '', appId)
   }
+  getOrthFaceAccessList()
 }
 function drawLineOnCanvas(ctx, canvas) {
   ctx.strokeStyle = 'green'
@@ -1552,6 +1584,7 @@ async function addFaceset(list) {
 
 const faceSet = ref([])
 const FrontalReposeImageUrl = ref()
+const FrontalSmileImageUrl = ref()
 async function getOrthFaceAccessList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
@@ -1561,11 +1594,20 @@ async function getOrthFaceAccessList() {
       item.hasImage = false
     } else {
       item.hasImage = true
+      const preloadLink = document.createElement('link')
+      preloadLink.href = item.imageUrl
+      preloadLink.rel = 'preload'
+      preloadLink.as = 'image'
+      document.head.appendChild(preloadLink)
       if (item.className === '正面像') {
         const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
         const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
         const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
-        AiTest.value = title1.aiFlag == '1' && title2.aiFlag == '1' && title3.aiFlag == '1'
+        // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
+        const isTitle1Test = title1.orthOptionsList.some((option) => option.choosen == true)
+        const isTitle2Test = title2.orthOptionsList.some((option) => option.choosen == true)
+        const isTitle3Test = title3.orthOptionsList.some((option) => option.choosen == true)
+        AiTest.value = !isTitle1Test || !isTitle2Test || !isTitle3Test
         FrontalReposeImageUrl.value = item.imageUrl
         const formData = new FormData()
         formData.append('imageUrl', item.imageUrl)
@@ -1573,10 +1615,10 @@ async function getOrthFaceAccessList() {
           if (res.data.length > 0) {
             faceSet.value = res.data.map((item) => ({
               label: item.pointName,
-              x: item.xCoordinate,
-              y: item.yCoordinate
+              x: item.xcoordinate,
+              y: item.ycoordinate
             }))
-            if (!AiTest.value) {
+            if (AiTest.value) {
               calculateFront(faceSet.value)
             }
             nextTick(() => {
@@ -1586,16 +1628,22 @@ async function getOrthFaceAccessList() {
             Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
               (res) => {
                 const data = res.data.face_list[0].landmark201
-                faceSet.value = FrontalRose.map((a) => ({
-                  label: a,
-                  x: data[a].x / 1000,
-                  y: data[a].y / 1000
-                }))
-                if (!AiTest.value) {
+                const image = new Image()
+                image.onload = () => {
+                  const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
+                  // 比例缩放的因子
+                  const scaleFactorWidth = width / image.width
+                  const scaleFactorHeight = height / image.height
+                  faceSet.value = FrontalRose.map((a) => ({
+                    label: a,
+                    x: data[a].x * scaleFactorWidth,
+                    y: data[a].y * scaleFactorHeight
+                  }))
                   calculateFront(faceSet.value)
+                  const set = faceSet.value.map((item) => [item.label, item.x, item.y])
+                  addFaceset(set)
                 }
-                const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                addFaceset(set)
+                image.src = FrontalReposeImageUrl.value
                 nextTick(() => {
                   loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
                 })
@@ -1603,6 +1651,9 @@ async function getOrthFaceAccessList() {
             )
           }
         })
+      }
+      if (item.className == '正面微笑像') {
+        FrontalSmileImageUrl.value = item.imageUrl
       }
     }
     if (item.className == '90度侧面像') {
@@ -1643,8 +1694,24 @@ async function getOrthFaceAccessList() {
   })
   loadingTarget.value.style.display = 'block'
 }
-getOrthFaceAccessList()
 
+function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
+  let ratio = 0
+  let width = imgWidth
+  let height = imgHeight
+  ratio = imgWidth / imgHeight
+  // 等比例缩放计算
+  if (width > maxWidth) {
+    width = maxWidth
+    height = width / ratio
+  }
+
+  if (height > maxHeight) {
+    height = maxHeight
+    width = height * ratio
+  }
+  return { width, height, ratio }
+}
 const mouthData = ref([])
 async function getOrthMouthList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/口内照/${appId}`)
@@ -1680,7 +1747,37 @@ async function getOrthMouthList() {
     })
   })
 }
-getOrthMouthList()
+function yieldNewTask() {
+  return new Promise((resolve) => {
+    setTimeout(resolve, 0)
+  })
+}
+
+const tasks = [
+  getOrthFaceAccessList,
+  getOrthMouthList,
+  getOrthPanoramicList,
+  getOrthCephaList,
+  getImageList
+]
+async function main() {
+  // 创建要运行的函数数组
+
+  while (tasks.length > 0) {
+    // 从任务数组中取出第一个任务
+
+    const task = tasks.shift()
+
+    // Run the task:
+    await task()
+  }
+  // 运行任务
+  // await task()
+}
+
+// getAllData()
+main()
+
 // 获取全景片
 const panoImageUrl = ref()
 const panoramicData = ref([])
@@ -1763,7 +1860,8 @@ async function getOrthPanoramicList() {
       const obj = {
         sourceApmtId: sourceApmtId.value,
         apmtId: appId,
-        classId: classId.value
+        classId: classId.value,
+        location: '2'
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
@@ -1785,7 +1883,6 @@ async function getOrthPanoramicList() {
   }
 }
 
-getOrthPanoramicList()
 // 上传侧面微笑像并自动分类
 const imgUrl = ref()
 imgUrl.value = img
@@ -1843,7 +1940,7 @@ async function getOrthCephaList() {
 async function imageUrlToBlob(imageUrl) {
   return fetch(imageUrl).then((response) => response.blob()) // 将响应内容转换为Blob
 }
-getOrthCephaList()
+
 // 点击侧位片方法逻辑
 const overlayRef = ref(null)
 // 记录放大后的图片宽高比例
@@ -1899,6 +1996,7 @@ const initZoomCanvas = () => {
   canvas.addEventListener('mousedown', (e) => handleMouseDown(e, canvas))
   canvas.addEventListener('mouseup', handleMouseUp)
   image.src = cephaImage.value
+  image.crossOrigin = 'anonymous'
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
@@ -2049,7 +2147,7 @@ function handleMouseMove(event, image, canvas, ctx, w, h) {
         const L1 = coordinatesLarge.value.find((item) => item.label == 'LI')
         const U6 = coordinatesLarge.value.find((item) => item.label == 'U6')
         const L6 = coordinatesLarge.value.find((item) => item.label == 'L6')
-        const distance = calculateWits(A, B, U1, L1, U6, L6)
+        const distance = calculateWits(A, B, U1, L1, U6, L6, w0.value, h0.value)
         calculateSinglePoint(distance, 'Wits', true)
       }
     }
@@ -2234,7 +2332,9 @@ const pointsToFind = [
   'ANS',
   'PNS'
 ]
-
+let ratio1
+let ratio2
+let standardDistance
 async function getPoints(file) {
   const formData = new FormData()
   formData.append('file', file)
@@ -2259,6 +2359,9 @@ async function getPoints(file) {
         x: point[1],
         y: point[2]
       }))
+      ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
+      ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
+      standardDistance = calculateDistanceEffect(ratio1, ratio2)
     }
   }
 }
@@ -2504,7 +2607,7 @@ async function getClassifiedImgList() {
   if (res.code == 200 && res.data.length > 0) {
     res.data.forEach((item) => {
       imageList.value.forEach((a) => {
-        // a.fileUrl = ('../../assets/ortho/imagePlaceholder.png')
+        // a.fileUrl = placeholderUrl
         if (item.imageType == a.caption) {
           a.fileUrl = item.imageUrl
           a.id = item.id
@@ -2513,11 +2616,10 @@ async function getClassifiedImgList() {
     })
   } else {
     imageList.value.forEach((a) => {
-      a.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+      a.fileUrl = placeholderUrl
     })
   }
 }
-getImageList()
 
 const angleListWithThreePoints = [
   'ANB',
@@ -2560,14 +2662,19 @@ function calculateAllPoints() {
   // const ODI = calculateODI(coordinatesSmall.value);
   // console.log(ODI);
   // calculateAPDI()
-  const A = coordinatesSmall.value.find((item) => item.label == 'A')
-  const B = coordinatesSmall.value.find((item) => item.label == 'B')
-  const U1 = coordinatesSmall.value.find((item) => item.label == 'UI')
-  const L1 = coordinatesSmall.value.find((item) => item.label == 'LI')
-  const U6 = coordinatesSmall.value.find((item) => item.label == 'U6')
-  const L6 = coordinatesSmall.value.find((item) => item.label == 'L6')
+  coordinatesBase.value = coordinatesBase.value.map((point) => ({
+    label: point.label,
+    x: point.x * 1,
+    y: point.y * 1
+  }))
+  const A = coordinatesBase.value.find((item) => item.label == 'A')
+  const B = coordinatesBase.value.find((item) => item.label == 'B')
+  const U1 = coordinatesBase.value.find((item) => item.label == 'UI')
+  const L1 = coordinatesBase.value.find((item) => item.label == 'LI')
+  const U6 = coordinatesBase.value.find((item) => item.label == 'U6')
+  const L6 = coordinatesBase.value.find((item) => item.label == 'L6')
 
-  const distance = calculateWits(A, B, U1, L1, U6, L6)
+  const distance = calculateWits(A, B, U1, L1, U6, L6, standardDistance)
   calculateSinglePoint(distance, 'Wits', false)
 }
 async function updateResult() {
@@ -2639,7 +2746,7 @@ const getAIResult = () => {
   })
   loading.value = true
   if (cephaImage.value) {
-    imageUrlToBlob(cephaImage.value + `?random=${Math.random()}`)
+    imageUrlToBlob(cephaImage.value)
       .then((blob) => {
         getPoints(blob).then(() => {
           hasPoints.value = true
@@ -2744,6 +2851,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
     }
   }
   image.src = cephaImage.value // 设置图片源地址
+  image.crossOrigin = 'anonymous'
 }
 
 onMounted(() => {
@@ -2778,7 +2886,6 @@ const handleChangeOption = (optionId, title, className) => {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       useUpdateOption([], title2, '', appId)
-      // getOrthFaceAccessList()
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
@@ -2835,10 +2942,6 @@ const openPop = (title, item) => {
 }
 
 const handleSubmitTooth = (title) => {
-  // symptomList.value.forEach((row) =>
-  //   row.forEach((item) => (item.active = false))
-  // )
-  console.log(title.submitAble)
   if (!title.submitAble) {
     return
   }
@@ -2882,15 +2985,24 @@ const handleSubmit = (optionId, title) => {
   height: 100%;
   cursor: pointer;
 }
-.el-dialog__body {
-  padding: 0;
+.el-dialog {
+  border-radius: 12px;
 }
-
+/* .el-dialog__body {
+  padding: 0;
+} */
+.el-dialog__body {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 .el-input.measured .el-input__wrapper {
   box-shadow: none;
 }
 .el-input.measured .el-input__wrapper:hover {
   box-shadow: 0 0 0 1px #dcdfe6;
+}
+div.el-input__wrapper {
+  width: 100%;
 }
 </style>
 <style lang="scss" scoped>
@@ -2981,10 +3093,7 @@ const handleSubmit = (optionId, title) => {
   opacity: 1;
   z-index: 10;
   /* 自动布局 */
-  // display: flex;
-  // flex-direction: column;
-  // align-items: center;
-  // padding: 0px;
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3052,9 +3161,7 @@ const handleSubmit = (optionId, title) => {
           color: #fff;
         }
       }
-      // &:nth-child(2n + 1) {
-      //   border-right: 1px solid #d8d8d8;
-      // }
+
       &.marginTop {
         margin-top: 16px;
       }
@@ -3112,9 +3219,8 @@ const handleSubmit = (optionId, title) => {
   }
 }
 .imageManagement {
-  padding: 24px;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
+  /* padding: 24px; */
+
   position: relative;
   display: flex;
   .title {
@@ -3146,7 +3252,6 @@ const handleSubmit = (optionId, title) => {
 
       color: #3d3d3d;
       margin-left: 12px;
-      // margin-right: 32px;
     }
     &__right {
       top: 3px;
@@ -3172,12 +3277,13 @@ const handleSubmit = (optionId, title) => {
     overflow: auto;
   }
   &__images {
-    // position: relative;
+    /* position: relative; */
     margin-right: 16px;
 
     .imgContainer {
       margin-top: 12px;
       display: flex;
+      flex-wrap: wrap;
       img.choose {
         border: 2px solid #2e6ce4;
         box-sizing: border-box;
@@ -3187,11 +3293,7 @@ const handleSubmit = (optionId, title) => {
         top: 167px;
         left: 200px;
       }
-      // .imageWrapper {
-      display: flex;
-      flex-wrap: wrap;
-      //  height: 316px;
-      //  padding: 20px 0;
+
       .item {
         position: relative;
         width: 25%;
@@ -3209,15 +3311,15 @@ const handleSubmit = (optionId, title) => {
         .deleteImage {
           position: absolute;
           top: 0;
-          right: 16px;
+          right: 15px;
         }
         &__caption {
           display: flex;
           justify-content: center;
           color: #4e5969;
+          margin-top: 10px;
         }
       }
-      // }
     }
     &__button {
       position: absolute;
@@ -3246,7 +3348,7 @@ const handleSubmit = (optionId, title) => {
         box-sizing: border-box;
         margin-bottom: 16px;
         .img {
-          width: 120px;
+          width: 100%;
           height: 80px;
           border-radius: 12px;
           box-sizing: border-box;
@@ -3263,21 +3365,21 @@ const handleSubmit = (optionId, title) => {
           display: flex;
           justify-content: center;
           color: #4e5969;
+          margin-top: 6px;
         }
       }
     }
   }
   .classifyWrapper {
-    width: 558px;
-    right: 601px;
-    bottom: 25px;
+    width: 554px;
+    right: 580px;
+    bottom: 1px;
     position: absolute;
     height: 50px;
 
     text-align: right;
 
     background: #fff;
-    // box-shadow: 0px -3px 6px 0px rgba(145, 145, 158, 0.3);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -3291,8 +3393,10 @@ const handleSubmit = (optionId, title) => {
   display: flex;
   height: 316px;
   padding: 20px 0;
-  border-bottom: 1px dashed #e5e6eb;
-
+  border-bottom: 1.4px dashed #e5e6eb;
+  &:last-child {
+    border-bottom: none;
+  }
   .image {
     width: 320px;
     height: 240px;
@@ -3387,7 +3491,6 @@ const handleSubmit = (optionId, title) => {
   }
   .header {
     display: flex;
-    // width: 1640px;
     height: 47px;
     display: flex;
     align-items: center;
@@ -3463,7 +3566,6 @@ const handleSubmit = (optionId, title) => {
               flex-direction: row;
               justify-content: center;
               align-items: center;
-              // padding: 6px 20px;
 
               background: #2e6ce4;
             }
@@ -3553,7 +3655,6 @@ const handleSubmit = (optionId, title) => {
       box-shadow: none;
     }
     .el-checkbox-button {
-      // border: 1px solid #2e6ce4;
       &.is-focus {
         border: none;
       }
@@ -3610,8 +3711,28 @@ const handleSubmit = (optionId, title) => {
   .el-radio-button__original-radio:checked + .el-radio-button__inner {
     box-shadow: none;
     border: none;
-    // background: #f2f3f5;
     background: #fdebeb;
+  }
+}
+.content.mouth {
+  .imageItem:first-child {
+    &:last-child {
+      display: flex;
+    }
+    :deep(.imageItem__content) {
+      display: flex;
+      img {
+        height: 240px;
+        max-width: 320px;
+        object-fit: cover;
+        border-radius: 12px;
+      }
+    }
+  }
+}
+img {
+  &:hover {
+    transform: scale(1.1);
   }
 }
 </style>

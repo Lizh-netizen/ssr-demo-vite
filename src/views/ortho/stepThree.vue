@@ -3,11 +3,9 @@
     <Header text="模型分析" backgroundColor="#f4f7fd" />
     <div class="content">
       <form-item
-        :label="index <= 1 ? title.titleName : index < 4 ? title.titleName.slice(0, 8) : ''"
+        :label="title.titleName"
         width="110px"
-        :showMark="title.titleName === 'Bolton指数（前牙比）'"
-        :content="title.prompt"
-        v-for="(title, index) in modelData.orthTitleList"
+        v-for="(title, index) in modelData.orthTitleList.slice(0, 2)"
         :key="title.id"
       >
         <template v-if="index <= 1">
@@ -28,29 +26,44 @@
             </template>
           </el-radio-group>
         </template>
-        <template v-else>
+      </form-item>
+
+      <template v-if="dentitionType == '恒牙列'">
+        <form-item
+          :label="index <= 1 ? title.titleName.slice(0, 8) : ''"
+          width="110px"
+          :showMark="title.titleName === 'Bolton指数（前牙比）'"
+          :content="title.prompt"
+          v-for="(title, index) in modelData.orthTitleList.slice(2)"
+          :key="title.id"
+        >
           <ModelAnalysis
             :titleName="title.titleName"
             v-bind="title"
             @change="(val) => handleChange(val, title)"
           />
-        </template>
-      </form-item>
+        </form-item>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 import ModelAnalysis from '@/components/list/modelAnalysis.vue'
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, defineExpose } from 'vue'
 import Header from '@/components/list/header.vue'
 import FormItem from '@/components/list/customFormItem.vue'
 import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
+const clicked = ref(false)
+defineExpose({
+  clicked
+})
 const props = defineProps({
-  pdfId: String
+  pdfId: String,
+  dentitionType: String
 })
 // 获取数据
 const route = useRoute()
@@ -64,6 +77,7 @@ async function getOrthModelList() {
   modelData.value = result.data[0]
 
   modelData.value.orthTitleList.forEach((title, index) => {
+    clicked.value = title.orthOptionsList.some((option) => option.choosen == true)
     title.hasVal = title.cephalometricsContent ? true : false
     if (index <= 1) {
       title.optionId = ''
@@ -149,6 +163,7 @@ const handleChange = (val, title) => {
   Post('/prod-api/business/optionsResult', obj)
 }
 const handleChangeOption = (optionId, title) => {
+  clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }

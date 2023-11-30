@@ -3,59 +3,16 @@
     <Header text="方案" backgroundColor="#f4f7fd" />
     <div class="content plan">
       <template v-for="item in planData" :key="item.id">
-        <form-item :label="title.titleName" v-for="title in item.orthTitleList" :key="title.id">
-          <!-- <div class="optionContainer"> -->
-          <el-radio-group
-            v-if="title.type == 1"
-            v-model="title.optionId"
-            @change="handleChangeOption(title.optionId, title)"
-          >
-            <el-radio-button
-              :class="{
-                serious: option.serious == '1',
-                checked: option.choosen === true
-              }"
-              v-for="option in title.orthOptionsList"
-              :key="option.id"
-              :label="option.id"
-            >
-              {{ option.optionName }}
-            </el-radio-button>
-          </el-radio-group>
-          <el-checkbox-group
-            v-model="title.optionId"
-            v-if="title.type == 2"
-            @change="handleChangeOption(title.optionId, title)"
-          >
-            <el-checkbox-button
-              :class="{
-                serious: option.serious == '1',
-                checked: option.choosen === true
-              }"
-              v-for="option in title.orthOptionsList"
-              :key="option.id"
-              :label="option.id"
-            >
-              {{ option.optionName }}
-              <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                src="../../assets/svg/abnormalChecked.svg"
-                v-else
-              />
-            </el-checkbox-button>
-          </el-checkbox-group>
-          <!-- </div> -->
-        </form-item>
-      </template>
-    </div>
-    <Header text="目标" backgroundColor="#f4f7fd" />
-    <div class="content">
-      <template v-for="item in goalData" :key="item.id">
-        <template v-for="title in item.orthTitleList" :key="title.id">
-          <form-item :label="title.titleName" width="72px">
+        <form-item
+          :label="title.titleName"
+          v-for="(title, index) in item.orthTitleList"
+          :key="title.id"
+        >
+          <template v-if="index == 0">
             <el-radio-group
               v-if="title.type == 1"
               v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title, item.className)"
+              @change="handleChangeOption(title.optionId, title)"
             >
               <el-radio-button
                 :class="{
@@ -72,7 +29,57 @@
             <el-checkbox-group
               v-model="title.optionId"
               v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title, item.className)"
+              @change="handleChangeOption(title.optionId, title)"
+            >
+              <el-checkbox-button
+                :class="{
+                  serious: option.serious == '1',
+                  checked: option.choosen === true
+                }"
+                v-for="option in title.orthOptionsList"
+                :key="option.id"
+                :label="option.id"
+              >
+                {{ option.optionName }}
+                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                  src="../../assets/svg/abnormalChecked.svg"
+                  v-else
+                />
+              </el-checkbox-button> </el-checkbox-group
+          ></template>
+          <!-- <div class="optionContainer"> -->
+
+          <template v-else> </template>
+          <!-- </div> -->
+        </form-item>
+      </template>
+    </div>
+    <Header text="目标" backgroundColor="#f4f7fd" />
+    <div class="content">
+      <template v-for="item in goalData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <form-item :label="title.titleName" width="72px">
+            <el-radio-group
+              v-if="title.type == 1"
+              v-model="title.optionId"
+              @change="handleChangeOption(title.optionId, title, item.className, '', '目标')"
+            >
+              <el-radio-button
+                :class="{
+                  serious: option.serious == '1',
+                  checked: option.choosen === true
+                }"
+                v-for="option in title.orthOptionsList"
+                :key="option.id"
+                :label="option.id"
+              >
+                {{ option.optionName }}
+              </el-radio-button>
+            </el-radio-group>
+            <el-checkbox-group
+              v-model="title.optionId"
+              v-if="title.type == 2"
+              @change="handleChangeOption(title.optionId, title, item.className, '', '目标')"
             >
               <el-checkbox-button
                 :class="{
@@ -98,12 +105,12 @@
     <div class="content">
       <template v-for="item in methodData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
-          <template v-if="title.titleName !== '品牌'">
+          <template v-if="title.titleName !== '品牌' && title.titleName !== '预计矫正周期'">
             <form-item :label="title.titleName" width="86px">
               <el-radio-group
                 v-if="title.type == 1"
                 v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
+                @change="handleChangeOption(title.optionId, title, '', '', '方法')"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -166,7 +173,13 @@
                       <el-radio-group
                         v-model="option.otherContent"
                         @change="
-                          handleChangeOption(option.otherContent, option.brand, option, title)
+                          handleChangeOption(
+                            option.otherContent,
+                            option.brand,
+                            option,
+                            title,
+                            '方法'
+                          )
                         "
                       >
                         <el-radio-button
@@ -187,7 +200,7 @@
               <el-checkbox-group
                 v-model="title.optionId"
                 v-if="title.type == 2"
-                @change="handleChangeOption(title.optionId, title)"
+                @change="handleChangeOption(title.optionId, title, '', '', '方法')"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <el-checkbox-button
@@ -302,280 +315,334 @@
               </el-checkbox-group>
             </form-item>
           </template>
+          <template v-if="title.titleName == '预计矫正周期'">
+            <form-item :label="title.titleName" width="100px">
+              <el-input
+                :style="{ width: '100px' }"
+                v-model="title.cephalometricsContent"
+                @blur="handleSubmitAddtionalContent(title)"
+              ></el-input
+              ><span :style="{ color: '#4e5969' }"> 个月</span>
+            </form-item>
+          </template>
         </template>
       </template>
     </div>
-    <Header text="风险" backgroundColor="#f4f7fd" />
+    <Header text="周期" backgroundColor="#f4f7fd" />
     <div class="content">
+      <template v-for="item in periodData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <form-item :label="title.titleName"
+            ><el-input
+              :style="{ width: '100px' }"
+              v-model="title.cephalometricsContent"
+              @blur="handleSubmitAddtionalContent(title)"
+            ></el-input
+            ><span :style="{ color: '#4e5969', 'margin-left': '8px' }"> 个月</span></form-item
+          ></template
+        ></template
+      >
+    </div>
+    <Header text="风险" backgroundColor="#f4f7fd" />
+    <div class="content risk">
       <template v-for="item in riskData" :key="item.id">
-        <form-item :label="title.titleName" v-for="title in item.orthTitleList" :key="title.id">
-          <el-checkbox-group
-            v-model="title.optionId"
-            @change="handleChangeOption(title.optionId, title)"
-          >
-            <template v-for="option in title.orthOptionsList" :key="option.id">
-              <template v-if="!option.optionSuffix"
-                ><el-checkbox-button
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                  :label="option.id"
-                >
-                  {{ option.optionName }}
-                  <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                    src="../../assets/svg/abnormalChecked.svg"
-                    v-else
-                  />
-                </el-checkbox-button>
-              </template>
-              <template v-else>
-                <template v-if="option.fdiToothCode == null">
-                  <el-popover
-                    placement="right"
-                    :width="490"
-                    trigger="click"
-                    @show="handleBeforeEnterPopover(option)"
-                    @after-leave="handleSubmitTooth(option, title)"
-                  >
-                    <template #reference>
-                      <el-checkbox-button
-                        @click="option.visible = true"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        :label="option.id"
-                        @mouseenter="option.hover = true"
-                        @mouseleave="option.hover = false"
-                      >
-                        {{ option.optionName
-                        }}<svg
-                          v-if="option.optionSuffix"
-                          xmlns="http://www.w3.org/2000/svg"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          fill="none"
-                          version="1.1"
-                          width="9.999975204467773"
-                          height="9.999975204467773"
-                          viewBox="0 0 9.999975204467773 9.999975204467773"
-                        >
-                          <g>
-                            <path
-                              d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                              fill-rule="evenodd"
-                              :fill="
-                                option.clicked
-                                  ? option.seriousColor
-                                  : option.hover
-                                  ? option.hoverColor
-                                  : option.fillColor
-                              "
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </svg>
-                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                      </el-checkbox-button>
-                    </template>
-                    <div class="selectContainer" id="selectContainer">
-                      <div class="container">
-                        <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                          <div
-                            class="symptomBox"
-                            :class="{
-                              itemAlignRight:
-                                rowindex === 2 ||
-                                rowindex === 4 ||
-                                rowindex === 0 ||
-                                rowindex === 6,
-                              marginTop: rowindex == 4 || rowindex == 5,
-                              marginBottom: rowindex == 2 || rowindex == 3,
-                              marginRight:
-                                rowindex === 2 ||
-                                rowindex === 4 ||
-                                rowindex === 0 ||
-                                rowindex === 6,
-                              marginLeft:
-                                rowindex === 1 || rowindex === 3 || rowindex === 5 || rowindex === 7
-                            }"
-                          >
-                            <div
-                              class="symptomItem"
-                              :class="{ selected: item.active === true }"
-                              :id="item.value"
-                              v-for="(item, index) in row"
-                              :key="index"
-                              @click="handleSelectTooth(item, option)"
-                            >
-                              {{ item.label }}
-                            </div>
-                          </div>
-                        </template>
-                      </div>
-                      <div class="left">右</div>
-                      <div class="right">左</div>
-                    </div>
-                  </el-popover>
-                </template>
-                <template v-else>
-                  <el-popover
-                    popper-class="myPopper"
-                    :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                    placement="top-start"
-                    :width="200"
-                    :visible="option.visible"
-                  >
-                    <template #reference>
-                      <el-checkbox-button
-                        @mouseenter="handleMouseEnterBtn(option)"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        :label="option.id"
-                        @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
-                      >
-                        {{ option.optionName
-                        }}<svg
-                          v-if="option.optionSuffix"
-                          xmlns="http://www.w3.org/2000/svg"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          fill="none"
-                          version="1.1"
-                          width="9.999975204467773"
-                          height="9.999975204467773"
-                          viewBox="0 0 9.999975204467773 9.999975204467773"
-                        >
-                          <g>
-                            <path
-                              d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                              fill-rule="evenodd"
-                              :fill="
-                                option.clicked
-                                  ? option.seriousColor
-                                  : option.hover
-                                  ? option.hoverColor
-                                  : option.fillColor
-                              "
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </svg>
-                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                      </el-checkbox-button>
-                    </template>
-                    <el-popover
-                      placement="right"
-                      :width="490"
-                      trigger="click"
-                      @show="handleBeforeEnterPopover(option)"
-                      @after-leave="handleSubmitTooth(option, title)"
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <template v-if="title.titleName !== '备注'"
+            ><form-item :label="title.titleName">
+              <el-checkbox-group
+                v-model="title.optionId"
+                @change="handleChangeOption(title.optionId, title)"
+              >
+                <template v-for="option in title.orthOptionsList" :key="option.id">
+                  <template v-if="!option.optionSuffix"
+                    ><el-checkbox-button
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      :label="option.id"
                     >
-                      <template #reference>
-                        <div class="diagramWrapper">
-                          <div class="diagram">
-                            <div class="diagramBox">
-                              <div class="toothItem1">
-                                {{
-                                  option.topLeft
-                                    .sort((a, b) => a.sort - b.sort)
-                                    .map((a) => a.value)
-                                    .join('')
-                                }}
-                              </div>
-                              <div class="toothItem2">
-                                {{
-                                  option.topRight
-                                    .sort((a, b) => a.sort - b.sort)
-                                    .map((a) => a.value)
-                                    .join('')
-                                }}
-                              </div>
-                            </div>
-                            <div class="diagramBox">
-                              <div class="toothItem3">
-                                {{
-                                  option.bottomLeft
-                                    .sort((a, b) => a.sort - b.sort)
-                                    .map((a) => a.value)
-                                    .join('')
-                                }}
-                              </div>
-                              <div class="toothItem4">
-                                {{
-                                  option.bottomRight
-                                    .sort((a, b) => a.sort - b.sort)
-                                    .map((a) => a.value)
-                                    .join('')
-                                }}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </template>
-                      <div class="selectContainer" id="selectContainer">
-                        <div class="container">
-                          <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                            <div
-                              class="symptomBox"
-                              :class="{
-                                itemAlignRight:
-                                  rowindex === 2 ||
-                                  rowindex === 4 ||
-                                  rowindex === 0 ||
-                                  rowindex === 6,
-                                marginTop: rowindex == 4 || rowindex == 5,
-                                marginBottom: rowindex == 2 || rowindex == 3,
-                                marginRight:
-                                  rowindex === 2 ||
-                                  rowindex === 4 ||
-                                  rowindex === 0 ||
-                                  rowindex === 6,
-                                marginLeft:
-                                  rowindex === 1 ||
-                                  rowindex === 3 ||
-                                  rowindex === 5 ||
-                                  rowindex === 7
-                              }"
+                      {{ option.optionName }}
+                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="../../assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </template>
+                  <template v-else>
+                    <template v-if="option.fdiToothCode == null">
+                      <el-popover
+                        placement="right"
+                        :width="490"
+                        trigger="click"
+                        @show="handleBeforeEnterPopover(option)"
+                        @after-leave="handleSubmitTooth(option, title)"
+                      >
+                        <template #reference>
+                          <el-checkbox-button
+                            @click="option.visible = true"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :label="option.id"
+                            @mouseenter="option.hover = true"
+                            @mouseleave="option.hover = false"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
                             >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                      ? option.hoverColor
+                                      : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <div class="selectContainer" id="selectContainer">
+                          <div class="container">
+                            <template v-for="(row, rowindex) in symptomList" :key="rowindex">
                               <div
-                                class="symptomItem"
-                                :class="{ selected: item.active === true }"
-                                :id="item.value"
-                                v-for="(item, index) in row"
-                                :key="index"
-                                @click="handleSelectTooth(item, option)"
+                                class="symptomBox"
+                                :class="{
+                                  itemAlignRight:
+                                    rowindex === 2 ||
+                                    rowindex === 4 ||
+                                    rowindex === 0 ||
+                                    rowindex === 6,
+                                  marginTop: rowindex == 4 || rowindex == 5,
+                                  marginBottom: rowindex == 2 || rowindex == 3,
+                                  marginRight:
+                                    rowindex === 2 ||
+                                    rowindex === 4 ||
+                                    rowindex === 0 ||
+                                    rowindex === 6,
+                                  marginLeft:
+                                    rowindex === 1 ||
+                                    rowindex === 3 ||
+                                    rowindex === 5 ||
+                                    rowindex === 7
+                                }"
                               >
-                                {{ item.label }}
+                                <div
+                                  class="symptomItem"
+                                  :class="{ selected: item.active === true }"
+                                  :id="item.value"
+                                  v-for="(item, index) in row"
+                                  :key="index"
+                                  @click="handleSelectTooth(item, option)"
+                                >
+                                  {{ item.label }}
+                                </div>
+                              </div>
+                            </template>
+                          </div>
+                          <div class="left">右</div>
+                          <div class="right">左</div>
+                        </div>
+                      </el-popover>
+                    </template>
+                    <template v-else>
+                      <el-popover
+                        popper-class="myPopper"
+                        :popper-style="{ width: 'auto', 'min-width': '100px' }"
+                        placement="top-start"
+                        :width="200"
+                        :visible="option.visible"
+                      >
+                        <template #reference>
+                          <el-checkbox-button
+                            @mouseenter="handleMouseEnterBtn(option)"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :label="option.id"
+                            @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
+                            >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                      ? option.hoverColor
+                                      : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <el-popover
+                          placement="right"
+                          :width="490"
+                          trigger="click"
+                          @show="handleBeforeEnterPopover(option)"
+                          @after-leave="handleSubmitTooth(option, title)"
+                        >
+                          <template #reference>
+                            <div class="diagramWrapper">
+                              <div class="diagram">
+                                <div class="diagramBox">
+                                  <div class="toothItem1">
+                                    {{
+                                      option.topLeft
+                                        .sort((a, b) => a.sort - b.sort)
+                                        .map((a) => a.value)
+                                        .join('')
+                                    }}
+                                  </div>
+                                  <div class="toothItem2">
+                                    {{
+                                      option.topRight
+                                        .sort((a, b) => a.sort - b.sort)
+                                        .map((a) => a.value)
+                                        .join('')
+                                    }}
+                                  </div>
+                                </div>
+                                <div class="diagramBox">
+                                  <div class="toothItem3">
+                                    {{
+                                      option.bottomLeft
+                                        .sort((a, b) => a.sort - b.sort)
+                                        .map((a) => a.value)
+                                        .join('')
+                                    }}
+                                  </div>
+                                  <div class="toothItem4">
+                                    {{
+                                      option.bottomRight
+                                        .sort((a, b) => a.sort - b.sort)
+                                        .map((a) => a.value)
+                                        .join('')
+                                    }}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </template>
-                        </div>
-                        <div class="left">右</div>
-                        <div class="right">左</div>
-                      </div>
-                    </el-popover>
-                  </el-popover>
+                          <div class="selectContainer" id="selectContainer">
+                            <div class="container">
+                              <template v-for="(row, rowindex) in symptomList" :key="rowindex">
+                                <div
+                                  class="symptomBox"
+                                  :class="{
+                                    itemAlignRight:
+                                      rowindex === 2 ||
+                                      rowindex === 4 ||
+                                      rowindex === 0 ||
+                                      rowindex === 6,
+                                    marginTop: rowindex == 4 || rowindex == 5,
+                                    marginBottom: rowindex == 2 || rowindex == 3,
+                                    marginRight:
+                                      rowindex === 2 ||
+                                      rowindex === 4 ||
+                                      rowindex === 0 ||
+                                      rowindex === 6,
+                                    marginLeft:
+                                      rowindex === 1 ||
+                                      rowindex === 3 ||
+                                      rowindex === 5 ||
+                                      rowindex === 7
+                                  }"
+                                >
+                                  <div
+                                    class="symptomItem"
+                                    :class="{ selected: item.active === true }"
+                                    :id="item.value"
+                                    v-for="(item, index) in row"
+                                    :key="index"
+                                    @click="handleSelectTooth(item, option)"
+                                  >
+                                    {{ item.label }}
+                                  </div>
+                                </div>
+                              </template>
+                            </div>
+                            <div class="left">右</div>
+                            <div class="right">左</div>
+                          </div>
+                        </el-popover>
+                      </el-popover>
+                    </template>
+                  </template>
                 </template>
-              </template>
-            </template>
-          </el-checkbox-group>
-        </form-item>
+              </el-checkbox-group>
+            </form-item>
+          </template>
+
+          <template v-else-if="title.titleName == '备注'">
+            <form-item :label="title.titleName" width="72px">
+              <el-input
+                :style="{ width: '100px' }"
+                v-model="title.cephalometricsContent"
+                @blur="handleSubmitAddtionalContent(title)"
+              ></el-input>
+            </form-item>
+          </template>
+        </template>
       </template>
+    </div>
+    <Header text="备注" backgroundColor="#f4f7fd" />
+    <div class="content">
+      <template v-for="item in remarkData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <form-item :label="title.titleName">
+            <el-input
+              :style="{ width: '400px' }"
+              v-model="title.cephalometricsContent"
+              @blur="handleSubmitAddtionalContent(title)"
+            ></el-input> </form-item></template
+      ></template>
     </div>
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/list/header.vue'
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, defineExpose } from 'vue'
 import { Get, Post } from '@/utils/request'
 import FormItem from '@/components/list/formItem.vue'
 import { GetSymptom } from '@/utils/tooth'
@@ -583,6 +650,12 @@ import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
+const goalClicked = ref(false)
+const methodClicked = ref(false)
+defineExpose({
+  goalClicked,
+  methodClicked
+})
 const props = defineProps({
   pdfId: String
 })
@@ -660,6 +733,7 @@ const goalData = ref([])
 async function getOrthGoalList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/目标/${appId}`)
   goalData.value = result.data
+  goalClicked.value = result.data[0].classFlag
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
@@ -691,6 +765,7 @@ const methodData = ref([])
 async function getOrthMethodList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/方法/${appId}`)
   methodData.value = result.data
+  methodClicked.value = result.data[0].classFlag
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
@@ -749,6 +824,32 @@ async function getOrthMethodList() {
   })
 }
 getOrthMethodList()
+const periodData = ref([])
+async function getPeriod() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/周期/${appId}`)
+  periodData.value = result.data
+}
+const remarkData = ref([])
+async function getRemark() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/备注/${appId}`)
+  remarkData.value = result.data
+}
+getPeriod()
+getRemark()
+const handleSubmitAddtionalContent = (title) => {
+  if (title.cephalometricsContent) {
+    const obj = {
+      apmtId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: '',
+      cephalometricsContent: title.cephalometricsContent,
+      fdiToothCode: '',
+      showPosition: ''
+    }
+    Post('/prod-api/business/optionsResult', obj)
+  }
+}
 const riskData = ref([])
 async function getOrthRiskList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/风险/${appId}`)
@@ -926,7 +1027,14 @@ const handleSelectTooth = (item, option) => {
   useSelectTooth(item, option)
 }
 const requestAgain = ref(false)
-async function handleChangeOption(optionId, title, option, title1) {
+async function handleChangeOption(optionId, title, option, title1, className) {
+  if (className == '目标') {
+    console.log(className)
+    goalClicked.value = true
+  }
+  if (className == '方法') {
+    methodClicked.value = true
+  }
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -984,6 +1092,12 @@ const handleBeforeEnterPopover = (title) => {
 </script>
 
 <style lang="scss" scoped>
+.formItem__content {
+  display: flow-root;
+  :deep .el-checkbox-group {
+    width: 100%;
+  }
+}
 .content {
   padding: 20px;
   padding-bottom: 0;
@@ -991,7 +1105,6 @@ const handleBeforeEnterPopover = (title) => {
     --el-checkbox-button-checked-border-color: #dcdfe6;
   }
   :deep .el-checkbox-button {
-    // border: 1px solid #2e6ce4;
     &.is-focus {
       border: none;
     }
@@ -1026,7 +1139,6 @@ const handleBeforeEnterPopover = (title) => {
     }
   }
   :deep .el-checkbox-button.checked {
-    // border: 1px solid #2e6ce4;
     background: #ffffff;
     --el-checkbox-button-checked-bg-color: none;
     --el-checkbox-button-checked-border-color: none;
@@ -1042,7 +1154,6 @@ const handleBeforeEnterPopover = (title) => {
       box-shadow: none;
     }
     .el-checkbox-button {
-      // border: 1px solid #2e6ce4;
       &.is-focus {
         border: none;
       }
@@ -1053,6 +1164,11 @@ const handleBeforeEnterPopover = (title) => {
         --el-border: none;
         color: #f44c4c;
       }
+    }
+  }
+  &.risk {
+    :deep .el-checkbox-button {
+      margin-bottom: 12px;
     }
   }
 }
@@ -1114,9 +1230,6 @@ const handleBeforeEnterPopover = (title) => {
           color: #fff;
         }
       }
-      // &:nth-child(2n + 1) {
-      //   border-right: 1px solid #d8d8d8;
-      // }
       &.marginTop {
         margin-top: 16px;
       }

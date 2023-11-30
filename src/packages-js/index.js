@@ -1,21 +1,19 @@
-// 组件注册
-import CustomTable from './custom-table/custom-table.vue'
-import CustomTableItem from './custom-table-item/custom-table-item.vue'
-import DatePicker from './date-picker/date-picker.vue'
-import FilterSearch from './filter-search/filter-search.vue'
-import SvgIcon from './svg-icon/svg-icon.vue'
-import TaskCard from './task-card/task-card.vue'
-import TaskCardItem from './task-card-item/task-card-item.vue'
-import ToothBitmap from './tooth-bitmap/tooth-bitmap.vue'
+import { defineAsyncComponent } from 'vue'
+
+// 获取所有组件，该方法返回一个对象
+const components = import.meta.glob('./*/*.vue')
 export default {
   install(app) {
-    app.component('CustomTable', CustomTable)
-    app.component('CustomTableItem', CustomTableItem)
-    app.component('DatePicker', DatePicker)
-    app.component('FilterSearch', FilterSearch)
-    app.component('SvgIcon', SvgIcon)
-    app.component('TaskCard', TaskCard)
-    app.component('TaskCardItem', TaskCardItem)
-    app.component('ToothBitmap', ToothBitmap)
+    // 遍历对象并注册异步组件
+    for (const [key, value] of Object.entries(components)) {
+      const componentName = capitalizeFirstLetter(key.replace('./', '').split('/')[0].split('-'))
+      app.component(componentName, defineAsyncComponent(value))
+    }
   }
+}
+// 处理注册的组件名
+const capitalizeFirstLetter = (arr) => {
+  return arr.reduce((sum, item) => {
+    return sum + item.charAt(0).toUpperCase() + item.slice(1)
+  }, '')
 }

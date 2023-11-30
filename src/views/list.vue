@@ -8,11 +8,7 @@
       reserve-keyword
       clearable
       :remote-method="remoteMethod"
-      ><el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
+      ><el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"
     /></el-select>
     诊所：<el-select
       v-model="tanent"
@@ -42,12 +38,10 @@
       cell-class-name="table_cell"
     >
       <el-table-column prop="patientName" label="患者姓名" width="250"></el-table-column>
-      <el-table-column prop="doctorName" label="责任医生"  width="250"> </el-table-column>
+      <el-table-column prop="doctorName" label="责任医生" width="250"> </el-table-column>
       <el-table-column prop="sex" label="性别" width="250">
         <template #default="scope"
-          >{{
-            scope.row['Sex'] == 1 ? '男' : scope.row['Sex'] == 2 ? '女' : '未知'
-          }}
+          >{{ scope.row['Sex'] == 1 ? '男' : scope.row['Sex'] == 2 ? '女' : '未知' }}
         </template></el-table-column
       >
       <el-table-column prop="StartTime" label="预约时间" width="250">
@@ -57,15 +51,9 @@
       >
       <el-table-column prop="operation" label="操作">
         <template #default="scope">
-          <el-button @click="handleViewOrth(scope.row)"
-            >查看正畸检查表</el-button
-          >
-          <el-button @click="handleCompareOrth(scope.row)"
-            >对比正畸报告</el-button
-          >
-          <el-button @click="handleEvaluateOrth(scope.row)"
-            >录入面型发育评估</el-button
-          >
+          <el-button @click="handleEvaluateOrth(scope.row)">录入面型发育评估</el-button>
+          <el-button @click="handleViewOrth(scope.row)">查看正畸检查表</el-button>
+          <el-button @click="handleCompareOrth(scope.row)">对比正畸报告</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -127,9 +115,7 @@ const options = ref([])
 const remoteMethod = (query) => {
   if (query) {
     loading.value = true
-    options.value = allOptions.value.filter((option) =>
-      option.label.includes(query)
-    )
+    options.value = allOptions.value.filter((option) => option.label.includes(query))
   }
 }
 

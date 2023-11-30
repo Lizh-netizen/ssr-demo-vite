@@ -75,7 +75,7 @@ watchEffect(() => emit('dataTime', time.value))
     line-height: 32px;
     font-size: 16px;
   }
-  ::v-deep .el-date-picker {
+  :deep .el-date-picker {
     position: absolute;
     left: 160px;
     width: 173px;

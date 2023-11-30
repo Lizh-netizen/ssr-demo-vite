@@ -1,11 +1,16 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
 const routes = [
-  { path: '/', redirect: '/list' },
+  { path: '/', redirect: '/index' },
   {
     path: '/index',
     name: 'index',
     component: () => import('../views/index.vue')
+  },
+  {
+    path: '/test',
+    name: 'test',
+    component: () => import('../views/test.vue')
   },
   {
     path: '/ortho/:appId/:patientId',

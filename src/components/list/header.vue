@@ -1,12 +1,15 @@
 <template>
-  <div class="header" :style="{'background-color': backgroundColor}">
-    <div class="line"></div>
-    <div class="text">{{text}}</div>
+  <div class="header" :style="{ 'background-color': backgroundColor }">
+    <div :style="{ display: 'flex','align-items': 'center' }">  
+      <div class="line"></div>
+      <div class="text">{{ text }}</div>
+    </div>
+    <slot></slot>
   </div>
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps } from 'vue'
 defineProps({
   text: String,
   backgroundColor: String
@@ -21,6 +24,7 @@ defineProps({
   display: flex;
   align-items: center;
   padding: 12px 20px;
+  justify-content: space-between;
   /* 主色-5% */
   border-radius: 8px;
   box-sizing: border-box;

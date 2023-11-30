@@ -3,8 +3,12 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
+// import importToCDN from 'vite-plugin-cdn-import'
+// import viteCompression from 'vite-plugin-compression';
 // svg矢量图全局配置
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import path from 'path'
@@ -17,7 +21,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
     build: {
-      outDir: env.VITE_BUILD_FILE // 打包的默认路径
+      outDir: env.VITE_BUILD_FILE,// 打包的默认路径
     },
     plugins: [
       vue({
@@ -34,7 +38,14 @@ export default defineConfig(({ mode }) => {
       createSvgIconsPlugin({
         // 指定图标文件夹，绝对路径
         iconDirs: [path.join(__dirname, 'src/assets/icons')]
-      })
+      }),
+      AutoImport({
+        resolvers: [ElementPlusResolver()],
+      }),
+      Components({
+        resolvers: [ElementPlusResolver()],
+      }),
+      // viteCompression()
     ],
     resolve: {
       alias: {
@@ -44,7 +55,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/prod-api': {
-          target: 'http://test.aiorange.com',
+          target: 'http://orangetest.aiorange.com',
           changeOrigin: true
         }
       }

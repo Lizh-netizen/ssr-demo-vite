@@ -144,156 +144,169 @@
       </div>
     </div>
     <div class="image section">
-      <Header text="图像分析" backgroundColor="#EAF0FC" />
-      <div class="content">
+      <Header text="图像分析" backgroundColor="#EAF0FC"
+        ><div
+          :style="{
+            display: 'flex',
+            'align-items': 'center',
+            color: '#2E6CE4',
+            gap: '4px',
+            cursor: 'pointer'
+          }"
+          @click="openImgDialog"
+        >
+          <img src="../../assets/svg/imageUpload.svg" />图像管理
+        </div></Header
+      >
+      <div class="content" :style="{ 'padding-top': '0' }">
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
             >面型评估</span
           >
         </div>
-        <template v-for="item in faceAccessData" :key="item.id">
-          <ImageItem
-            :imageCaption="item.className"
-            :class="{
-              removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
-            }"
-            ><template #img
-              ><template v-if="item.imageUrl"
-                ><img
-                  :src="item.imageUrl"
-                  :style="{
-                    height: '240px',
-                    'object-fit': 'cover'
-                  }" /></template
-              ><template v-else>
-                <div
-                  class="imageItem__placeholder"
-                  @click="handleOpenImageDialogue(item.className)"
-                >
-                  <img :src="imgUrl" class="addPic" />
-                </div> </template></template
-            ><template #content>
-              <template v-for="title in item.orthTitleList" :key="title.id">
-                <form-item :label="title.titleName" width="120px">
-                  <el-radio-group
-                    v-if="title.type == 1"
-                    v-model="title.optionId"
-                    @change="handleChangeOption(title.optionId, title, item.className, item)"
+        <div class="container">
+          <template v-for="item in faceAccessData" :key="item.id">
+            <ImageItem :imageCaption="item.className"
+              ><template #img
+                ><template v-if="item.imageUrl"
+                  ><img
+                    :src="item.imageUrl"
+                    :style="{
+                      height: '240px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div
+                    class="imageItem__placeholder"
+                    @click="handleOpenImageDialogue(item.className)"
                   >
-                    <el-radio-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
+                    <img :src="imgUrl" class="addPic" />
+                  </div> </template></template
+              ><template #content>
+                <template v-for="title in item.orthTitleList" :key="title.id">
+                  <form-item :label="title.titleName" width="120px">
+                    <el-radio-group
+                      v-if="title.type == 1"
+                      v-model="title.optionId"
+                      @change="handleChangeOption(title.optionId, title, item.className, item)"
                     >
-                      {{ option.optionName }}
-                    </el-radio-button>
-                  </el-radio-group>
-                  <el-checkbox-group
-                    v-model="title.optionId"
-                    v-if="title.type == 2"
-                    @change="handleChangeOption(title.optionId, title, item.className, item)"
-                  >
-                    <el-checkbox-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
+                      <el-radio-button
+                        :disabled="!item.hasImage"
+                        :class="{
+                          serious: option.serious == '1',
+                          checked: option.choosen === true
+                        }"
+                        v-for="option in title.orthOptionsList"
+                        :key="option.id"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                      </el-radio-button>
+                    </el-radio-group>
+                    <el-checkbox-group
+                      v-model="title.optionId"
+                      v-if="title.type == 2"
+                      @change="handleChangeOption(title.optionId, title, item.className, item)"
                     >
-                      {{ option.optionName }}
-                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                        src="../../assets/svg/abnormalChecked.svg"
-                        v-else
-                      />
-                    </el-checkbox-button>
-                  </el-checkbox-group>
-                </form-item>
+                      <el-checkbox-button
+                        :disabled="!item.hasImage"
+                        :class="{
+                          serious: option.serious == '1',
+                          checked: option.choosen === true
+                        }"
+                        v-for="option in title.orthOptionsList"
+                        :key="option.id"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                          src="../../assets/svg/abnormalChecked.svg"
+                          v-else
+                        />
+                      </el-checkbox-button>
+                    </el-checkbox-group>
+                  </form-item>
+                </template>
               </template>
-            </template>
-          </ImageItem>
-        </template>
+            </ImageItem>
+          </template>
+        </div>
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
             >口内照</span
           >
         </div>
-        <template v-for="item in mouthData" :key="item.id">
-          <ImageItem
-            :imageCaption="item.className"
-            :class="{
-              removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
-            }"
-            ><template #img
-              ><template v-if="item.imageUrl"
-                ><img
-                  :src="item.imageUrl"
-                  :style="{
-                    height: '240px',
-                    'object-fit': 'cover'
-                  }" /></template
-              ><template v-else>
-                <div
-                  class="imageItem__placeholder"
-                  @click="handleOpenImageDialogue(item.className)"
-                >
-                  <img :src="imgUrl" class="addPic" />
-                </div> </template></template
-            ><template #content>
-              <template v-for="title in item.orthTitleList" :key="title.id">
-                <form-item :label="title.titleName" width="120px">
-                  <el-radio-group
-                    v-if="title.type == 1"
-                    v-model="title.optionId"
-                    @change="handleChangeOption(title.optionId, title, item.className, item)"
+        <div class="container">
+          <template v-for="item in mouthData" :key="item.id">
+            <ImageItem
+              :imageCaption="item.className"
+              :class="{
+                removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
+              }"
+              ><template #img
+                ><template v-if="item.imageUrl"
+                  ><img
+                    :src="item.imageUrl"
+                    :style="{
+                      height: '240px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div
+                    class="imageItem__placeholder"
+                    @click="handleOpenImageDialogue(item.className)"
                   >
-                    <el-radio-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
+                    <img :src="imgUrl" class="addPic" />
+                  </div> </template></template
+              ><template #content>
+                <template v-for="title in item.orthTitleList" :key="title.id">
+                  <form-item :label="title.titleName" width="120px">
+                    <el-radio-group
+                      v-if="title.type == 1"
+                      v-model="title.optionId"
+                      @change="handleChangeOption(title.optionId, title, item.className, item)"
                     >
-                      {{ option.optionName }}
-                    </el-radio-button>
-                  </el-radio-group>
-                  <el-checkbox-group
-                    v-model="title.optionId"
-                    v-if="title.type == 2"
-                    @change="handleChangeOption(title.optionId, title, item.className, item)"
-                  >
-                    <el-checkbox-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
+                      <el-radio-button
+                        :disabled="!item.hasImage"
+                        :class="{
+                          serious: option.serious == '1',
+                          checked: option.choosen === true
+                        }"
+                        v-for="option in title.orthOptionsList"
+                        :key="option.id"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                      </el-radio-button>
+                    </el-radio-group>
+                    <el-checkbox-group
+                      v-model="title.optionId"
+                      v-if="title.type == 2"
+                      @change="handleChangeOption(title.optionId, title, item.className, item)"
                     >
-                      {{ option.optionName }}
-                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                        src="../../assets/svg/abnormalChecked.svg"
-                        v-else
-                      />
-                    </el-checkbox-button>
-                  </el-checkbox-group>
-                </form-item>
+                      <el-checkbox-button
+                        :disabled="!item.hasImage"
+                        :class="{
+                          serious: option.serious == '1',
+                          checked: option.choosen === true
+                        }"
+                        v-for="option in title.orthOptionsList"
+                        :key="option.id"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                          src="../../assets/svg/abnormalChecked.svg"
+                          v-else
+                        />
+                      </el-checkbox-button>
+                    </el-checkbox-group>
+                  </form-item>
+                </template>
               </template>
-            </template>
-          </ImageItem>
-        </template>
+            </ImageItem>
+          </template>
+        </div>
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
             >全景片</span
@@ -330,7 +343,7 @@
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index <= 2">
+                    <template v-if="index <= 1">
                       <form-item :label="title.titleName" width="120px">
                         <el-radio-group
                           v-if="title.type == 1"
@@ -382,167 +395,12 @@
                     </template>
                   </template>
                 </div>
-                <div class="right-column">
-                  <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList"
-                    :key="title.id"
-                  >
-                    <template v-if="index <= 5 && index >= 3">
-                      <form-item :label="title.titleName" width="120px">
-                        <el-radio-group
-                          v-if="title.type == 1"
-                          v-model="title.optionId"
-                          @change="handleChangeOption(title.optionId, title)"
-                        >
-                          <el-radio-button
-                            :disabled="!panoramicData[0].hasImage"
-                            :class="{
-                              serious: option.serious == '1',
-                              checked: option.choosen === true
-                            }"
-                            v-for="option in title.orthOptionsList"
-                            :key="option.id"
-                            :label="option.id"
-                          >
-                            {{ option.optionName }}
-                          </el-radio-button>
-                        </el-radio-group>
-                        <el-checkbox-group
-                          v-model="title.optionId"
-                          v-if="title.type == 2"
-                          @change="handleChangeOption(title.optionId, title)"
-                        >
-                          <el-checkbox-button
-                            :disabled="!panoramicData[0].hasImage"
-                            :class="{
-                              serious: option.serious == '1',
-                              checked: option.choosen === true
-                            }"
-                            v-for="option in title.orthOptionsList"
-                            :key="option.id"
-                            :label="option.id"
-                          >
-                            {{ option.optionName }}
-                            <img
-                              src="../../assets/svg/checked.svg"
-                              v-if="option.serious == '0'"
-                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
-                          </el-checkbox-button>
-                        </el-checkbox-group>
-                      </form-item>
-                    </template>
-                  </template>
-                </div>
                 <div class="leftLower-column">
                   <template
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index >= 6 && index <= 12">
-                      <form-item :label="title.titleName" width="120px">
-                        <el-popover
-                          :width="490"
-                          :visible="title.popVisible"
-                          @show="handleBeforeEnterPopover(title)"
-                          @after-leave="handleSubmitTooth(title)"
-                        >
-                          <template #reference>
-                            <div
-                              class="diagramWrapper"
-                              @click.stop="openPop(title, panoramicData[0])"
-                            >
-                              <div class="diagram">
-                                <div class="diagramBox">
-                                  <div class="toothItem1">
-                                    {{
-                                      title.topLeft
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem2">
-                                    {{
-                                      title.topRight
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                                <div class="diagramBox">
-                                  <div class="toothItem3">
-                                    {{
-                                      title.bottomLeft
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem4">
-                                    {{
-                                      title.bottomRight
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </template>
-                          <div class="selectContainer" id="selectContainer">
-                            <div class="container">
-                              <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                                <div
-                                  class="symptomBox"
-                                  :class="{
-                                    itemAlignRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginTop: rowindex == 4 || rowindex == 5,
-                                    marginBottom: rowindex == 2 || rowindex == 3,
-                                    marginRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginLeft:
-                                      rowindex === 1 ||
-                                      rowindex === 3 ||
-                                      rowindex === 5 ||
-                                      rowindex === 7
-                                  }"
-                                >
-                                  <div
-                                    class="symptomItem"
-                                    :class="{ selected: item.active === true }"
-                                    :id="item.value"
-                                    v-for="(item, index) in row"
-                                    :key="index"
-                                    @click.stop="handleSelectTooth(item, title)"
-                                  >
-                                    {{ item.label }}
-                                  </div>
-                                </div>
-                              </template>
-                            </div>
-                            <div class="left">右</div>
-                            <div class="right">左</div>
-                          </div>
-                        </el-popover>
-                      </form-item>
-                    </template>
-                  </template>
-                </div>
-                <div class="leftLower-column">
-                  <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList"
-                    :key="title.id"
-                  >
-                    <template v-if="index >= 13">
+                    <template v-if="index >= 2">
                       <form-item :label="title.titleName" width="120px">
                         <el-popover
                           :width="490"
@@ -647,10 +505,40 @@
         </template>
       </div>
     </div>
+    <!-- <div class="model section">
+      <Header text="模型分析" backgroundColor="#EAF0FC" />
+      <div class="content">
+        <form-item
+          v-for="title in modelData.orthTitleList"
+          :key="title.id"
+          :label="title.titleName"
+          width="110px"
+          :showMark="title.titleName === 'Bolton指数（前牙比）'"
+          :content="title.prompt"
+        >
+          <el-radio-group
+            v-model="title.optionId"
+            @change="handleChangeOption(title.optionId, title)"
+          >
+            <template v-for="option in title.orthOptionsList" :key="option.id">
+              <el-radio-button
+                :class="{
+                  serious: option.serious == '1',
+                  checked: option.choosen === true
+                }"
+                :label="option.id"
+              >
+                {{ option.optionName }}
+              </el-radio-button>
+            </template>
+          </el-radio-group>
+        </form-item>
+      </div>
+    </div> -->
     <div class="footer">
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleConfirmAddPatient"> 确认 </el-button>
+        <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
       </span>
     </div>
   </div>
@@ -823,23 +711,99 @@
       opacity: 0
     }"
   />
+  <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
+    <div style="margin-top: 20px" class="advice__state">
+      状态选择：
+      <el-radio-group v-model="advice">
+        <el-radio-button label="立即矫正" />
+        <el-radio-button label="后续面评" />
+        <el-radio-button label="后续矫正" />
+        <el-radio-button label="无需矫正" />
+      </el-radio-group>
+    </div>
+    <div v-if="advice === '后续面评' || advice === '后续矫正'">
+      时间选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
+    </div>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="adviceVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleAdvice"> 确定 </el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import Header from '@/components/list/header.vue'
-import { Get, Post, Delete, Put } from '@/utils/request'
-import formItem from '@/components/list/formItem.vue'
-import ImageItem from '@/components/list/imageItem.vue'
+import { ref, computed, onMounted } from 'vue'
+import Header from '../../components/list/header.vue'
+import { Get, Post, Delete, Put } from '../../utils/request'
+import formItem from '../../components/list/formItem.vue'
+import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
-import { GetSymptom } from '@/utils/tooth'
+import useUpdateOption from '../../effects/updateOption'
+import useSelectTooth from '../../effects/selectTooth'
+import { GetSymptom } from '../../utils/tooth'
+import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
+import blueBgUrl from '@/assets/svg/blueBg.svg'
 const route = useRoute()
-const imgUrl = ref()
 const appId = route.params.appId
 const patientId = route.params.patientId
+// 面评弹窗逻辑
+const adviceVisible = ref(false)
+const advice = ref()
+const time = ref()
+async function handleConfirm() {
+  adviceVisible.value = true
+}
+const id = ref()
+async function getId() {
+  const res = await Get(`/prod-api/business/orthBase/${appId}`)
+  id.value = res.data.id
+}
+getId()
+async function handleAdvice() {
+  try {
+    let remark = ''
+    if (advice.value === '立即矫正' || advice.value === '无需矫正') {
+      remark = advice.value
+    } else {
+      remark = time.value + '个月后' + advice.value.slice(2)
+    }
+    const res = await Put('/prod-api/business/orthBase', {
+      id: id.value,
+      remark: remark
+    })
+    adviceVisible.value = false
+    if (res.code === 200) {
+      ElMessage.success(res.msg)
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', (e) => {
+    // 点击空白处，弹窗消失
+    const popover = document.querySelector('.el-popper.el-popover')
+    if (popover) {
+      if (e.target !== popover && !popover.contains(e.target)) {
+        const index = panoramicData.value[0].orthTitleList.findIndex(
+          (title) => title.popVisible === true
+        )
+        if (index !== -1) {
+          panoramicData.value[0].orthTitleList[index].popVisible = false
+        }
+      }
+    }
+  })
+})
+
+const imgUrl = ref()
+
 imgUrl.value = img
 // 全景片牙位图逻辑
 const symptomList = ref([])
@@ -853,59 +817,6 @@ const handleBeforeEnterPopover = (title) => {
       }
     })
   })
-}
-const handleSelectTooth = (item, title) => {
-  title.submitAble = true
-  item.active = !item.active
-  if (item.active) {
-    title.toothCode.push(item.value + '')
-    if ((item.value + '').startsWith('1') || (item.value + '').startsWith('5')) {
-      title.topLeft.push({ value: item.label, sort: item.sort })
-    }
-    if ((item.value + '').startsWith('2') || (item.value + '').startsWith('6')) {
-      title.topRight.push({ value: item.label, sort: item.sort })
-    }
-    if ((item.value + '').startsWith('4') || (item.value + '').startsWith('8')) {
-      title.bottomLeft.push({ value: item.label, sort: item.sort })
-    }
-    if ((item.value + '').startsWith('3') || (item.value + '').startsWith('7')) {
-      title.bottomRight.push({ value: item.label, sort: item.sort })
-    }
-    title.position.push([{ value: item.label, sort: item.sort }])
-  } else {
-    title.toothCode.splice(
-      title.toothCode.findIndex((a) => a == item.value + ''),
-      1
-    )
-    if ((item.value + '').startsWith('1') || (item.value + '').startsWith('5')) {
-      title.topLeft.splice(
-        title.topLeft.findIndex((a) => a.value == item.label),
-        1
-      )
-    }
-    if ((item.value + '').startsWith('2') || (item.value + '').startsWith('6')) {
-      title.topRight.splice(
-        title.topRight.findIndex((a) => a.value == item.label),
-        1
-      )
-    }
-    if ((item.value + '').startsWith('4') || (item.value + '').startsWith('8')) {
-      title.bottomLeft.splice(
-        title.bottomLeft.findIndex((a) => a.value == item.label),
-        1
-      )
-    }
-    if ((item.value + '').startsWith('3') || (item.value + '').startsWith('7')) {
-      title.bottomRight.splice(
-        title.bottomRight.findIndex((a) => a.value == item.label),
-        1
-      )
-    }
-    title.position.splice(
-      title.position.findIndex((a) => a[0].value == item.label),
-      1
-    )
-  }
 }
 
 // 获取数据
@@ -1069,23 +980,52 @@ async function getMouthList() {
 
 const panoImageUrl = ref()
 const panoramicData = ref([])
+const requestMouth = ref(false)
+// 需要输入牙位的全景片title
+const codeTitleList = ref([])
+const sourceApmtId = ref()
+const classId = ref()
 async function getPanoramicList() {
   const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
+    sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
+    classId.value = item.id
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
       item.hasImage = true
       panoImageUrl.value = item.imageUrl
     }
-
+    // flag为false再请求一次接口
+    if (!item.flag) {
+      requestMouth.value = true
+      const obj = {
+        sourceApmtId: sourceApmtId.value,
+        apmtId: appId,
+        classId: classId.value,
+        location: '1'
+      }
+      Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
+        if (res.code == 200) {
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
+          codeTitleList.value = res.data.slice(6)
+          panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
+          // 获取牙位数据是异步操作，需要分情况处理全景片数据
+          handlePanoData(panoramicData)
+        }
+      })
+    }
     item.orthTitleList.forEach((title) => {
       title.showInput = false
       title.popVisible = false
     })
   })
-
+  if (!requestMouth.value) {
+    handlePanoData(panoramicData)
+  }
+}
+function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
       a.topLeft = []
@@ -1115,7 +1055,7 @@ async function getPanoramicList() {
     })
   })
 
-  result.data.forEach((item) => {
+  panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
         title.optionId = ''
@@ -1139,7 +1079,6 @@ async function getPanoramicList() {
     })
   })
 }
-
 // const modelData = ref([])
 // async function getModelList() {
 //   const result = await Get(
@@ -1219,97 +1158,104 @@ async function updateOption(optionId, title) {
       showPosition: ''
     }
   }
-  await Post('/prod-api/business/optionsResult', obj)
+  await Post('/prod-api/business/facialResult', obj)
 }
 const imgDialogVisible = ref(false)
 const imageList = ref([
   {
     caption: '正面像',
     typeName: 'FrontalRepose',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '正面微笑像',
     typeName: 'FrontalSmile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '90度侧面像',
     typeName: 'LeftProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '90度侧面微笑像',
     typeName: 'RightProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '45度侧面像',
     typeName: 'LeftSideProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '45度侧面微笑像',
     typeName: 'RightSideProfile',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '口内照（左侧）',
     typeName: '',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '口内照（右侧）',
     typeName: '',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '磨牙关系（左侧）',
     typeName: 'Left',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '磨牙关系（右侧）',
     typeName: 'Right',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '正面咬合',
     typeName: 'Anterior',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '前牙覆盖',
     typeName: 'Cover',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '上颌',
     typeName: 'Upper',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '下颌',
     typeName: 'Lower',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '全景片',
     typeName: 'Panoramic',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   },
   {
     caption: '侧位片',
     typeName: 'Cephalometric',
-    fileUrl: '../../assets/ortho/imagePlaceholder.png'
+    fileUrl: placeholderUrl
   }
 ])
-
+const openImgDialog = () => {
+  imgDialogVisible.value = true
+  imageList.value.forEach((a) => {
+    a.fileUrl = placeholderUrl
+  })
+  getClassifiedImgList()
+}
 async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
   if (res.code == 200 && res.data.length > 0) {
     res.data.forEach((item) => {
       imageList.value.forEach((a) => {
+        // a.fileUrl = placeholderUrl
         if (item.imageType == a.caption) {
           a.fileUrl = item.imageUrl
           a.id = item.id
@@ -1318,7 +1264,7 @@ async function getClassifiedImgList() {
     })
   } else {
     imageList.value.forEach((a) => {
-      a.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+      a.fileUrl = placeholderUrl
     })
   }
 }
@@ -1389,13 +1335,13 @@ const handleDeleteImage1 = (img) => {
     Delete(`/prod-api/business/orthImage/${img.id}`).then((res) => {
       if (res.code == 200) {
         const found = imageList.value.find((image) => img == image)
-        found.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+        found.fileUrl = placeholderUrl
         found.id = undefined
         // getAllData()
       }
     })
   } else {
-    img.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    img.fileUrl = placeholderUrl
   }
 }
 // 影像管理逻辑
@@ -1405,7 +1351,7 @@ const totalArr = ref([])
 const handleOpenImageDialogue = () => {
   imgDialogVisible.value = true
   imageList.value.forEach((a) => {
-    a.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    a.fileUrl = placeholderUrl
   })
   getClassifiedImgList()
 }
@@ -1556,7 +1502,7 @@ const handleDrop = (e, image) => {
     } else {
       // 否则只要替换掉fileUrl就可以了
       const found = imageList.value.find((image) => dragFile.value.fileUrl == image.fileUrl)
-      found.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+      found.fileUrl = placeholderUrl
     }
     // 已经上传过的有id
     if (image.id) {
@@ -1574,13 +1520,13 @@ const handleDrop = (e, image) => {
 }
 const handleDragOver = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = '../../assets/svg/blueBg.svg'
+    e.target.src = blueBgUrl
     e.target.classList.add('hover')
   }
 }
 const handleDragLeave = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = '../../assets/ortho/imagePlaceholder.png'
+    e.target.src = placeholderUrl
   }
   e.target.classList.remove('hover')
 }
@@ -1615,12 +1561,12 @@ async function handleSingleImage(file, image) {
       })
     )
   }
-
+  console.log(file, formData)
   const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
   if (res.code == 200 && res.data[0].fileUrl) {
     image.fileUrl = res.data[0].fileUrl
   } else {
-    image.fileUrl = '../../assets/ortho/imagePlaceholder.png'
+    image.fileUrl = placeholderUrl
     if (failCount.value == 0) {
       failCount.value++
       ElMessage({
@@ -1635,13 +1581,51 @@ async function handleSingleImage(file, image) {
     }
   }
 }
+const openPop = (title, item) => {
+  if (!item.hasImage) {
+    return
+  } else {
+    // 点击下一个十字牙位时，先吧之前的清空
+    panoramicData.value[0].orthTitleList.forEach((t) => {
+      if (title !== t) {
+        t.popVisible = false
+      }
+    })
+    title.popVisible = !title.popVisible
+  }
+}
+const handleSubmitTooth = (title) => {
+  // symptomList.value.forEach((row) =>
+  //   row.forEach((item) => (item.active = false))
+  // )
+  if (!title.submitAble) {
+    return
+  }
+
+  let obj = {
+    apmtId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: '',
+    fdiToothCode: title.toothCode.join(),
+    showPosition: JSON.stringify(title.position)
+  }
+  Post('/prod-api/business/optionsResult', obj).then(() => {
+    title.submitAble = false
+  })
+}
+const handleSubmit = (optionId, title) => {
+  useUpdateOption(optionId, title, '', appId)
+}
+const handleSelectTooth = (item, title) => {
+  useSelectTooth(item, title)
+}
 // 保存图片
 async function handleSavePics() {
   imgDialogVisible.value = false
   imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter(
-    (item) => item.fileUrl !== '../../assets/ortho/imagePlaceholder.png'
-  )
+  const orthImageList = imageList.value.filter((item) => item.fileUrl !== placeholderUrl)
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl
@@ -1666,6 +1650,27 @@ const handleCloseImgDialog = () => {
 }
 </script>
 <style>
+.el-dialog {
+  border-radius: 12px;
+}
+.el-dialog__body {
+  padding: 24px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.advice.el-dialog {
+  .el-dialog__body {
+    padding: 0 24px;
+  }
+  .el-input {
+    width: 40px;
+    margin-left: 0;
+  }
+  .el-input__wrapper.is-focus {
+    --el-input-focus-border-color: #2e6ce4;
+    box-shadow: #2e6ce4;
+  }
+}
 .el-input {
   width: 150px;
   margin-left: 10px;
@@ -1691,9 +1696,6 @@ const handleCloseImgDialog = () => {
   height: 100%;
   cursor: pointer;
 }
-.el-dialog__body {
-  padding: 0;
-}
 
 .el-input.measured .el-input__wrapper {
   box-shadow: none;
@@ -1703,6 +1705,19 @@ const handleCloseImgDialog = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
+.advice {
+  &__state {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+}
 .imageItem {
   .img {
     img {
@@ -1812,21 +1827,25 @@ const handleCloseImgDialog = () => {
   border-color: red;
   --el-radio-button-checked-border-color: red;
 }
+
 .drawer {
   box-sizing: border-box;
   font-family: 思源黑体;
-
+  padding: 20px;
   .section {
-    .imageItem {
-      width: auto;
-      box-sizing: border-box;
+    .content {
+      .imageItem {
+        width: auto;
+        box-sizing: border-box;
+        border-bottom: 1.4px dashed #e5e6eb;
+      }
     }
+
     &.image {
       .questionItem__header {
         display: flex;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #e5e6eb;
+        padding-top: 20px;
         &__title {
           margin-left: 9px;
           font-weight: 500;
@@ -1841,6 +1860,9 @@ const handleCloseImgDialog = () => {
   .content {
     padding: 20px;
     padding-bottom: 4px;
+    :deep .el-input {
+      height: 32px;
+    }
   }
 
   .result {
@@ -1871,29 +1893,10 @@ const handleCloseImgDialog = () => {
 }
 
 .imageManagement {
-  padding: 24px;
-  border-top: 1px solid #f0f0f0;
-  border-bottom: 1px solid #f0f0f0;
+  /* padding: 24px; */
+
   position: relative;
   display: flex;
-  .classifyWrapper {
-    width: 558px;
-    right: 601px;
-    bottom: 25px;
-    position: absolute;
-    height: 50px;
-
-    text-align: right;
-
-    background: #fff;
-    // box-shadow: 0px -3px 6px 0px rgba(145, 145, 158, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 10px;
-    box-sizing: border-box;
-    border-radius: 0 0px 12px 12px;
-  }
   .title {
     width: 557px;
     height: 50px;
@@ -1923,7 +1926,6 @@ const handleCloseImgDialog = () => {
 
       color: #3d3d3d;
       margin-left: 12px;
-      // margin-right: 32px;
     }
     &__right {
       top: 3px;
@@ -1949,12 +1951,13 @@ const handleCloseImgDialog = () => {
     overflow: auto;
   }
   &__images {
-    // position: relative;
+    /* position: relative; */
     margin-right: 16px;
 
     .imgContainer {
       margin-top: 12px;
       display: flex;
+      flex-wrap: wrap;
       img.choose {
         border: 2px solid #2e6ce4;
         box-sizing: border-box;
@@ -1964,11 +1967,7 @@ const handleCloseImgDialog = () => {
         top: 167px;
         left: 200px;
       }
-      // .imageWrapper {
-      display: flex;
-      flex-wrap: wrap;
-      //  height: 316px;
-      //  padding: 20px 0;
+
       .item {
         position: relative;
         width: 25%;
@@ -1986,15 +1985,15 @@ const handleCloseImgDialog = () => {
         .deleteImage {
           position: absolute;
           top: 0;
-          right: 16px;
+          right: 15px;
         }
         &__caption {
           display: flex;
           justify-content: center;
           color: #4e5969;
+          margin-top: 10px;
         }
       }
-      // }
     }
     &__button {
       position: absolute;
@@ -2023,7 +2022,7 @@ const handleCloseImgDialog = () => {
         box-sizing: border-box;
         margin-bottom: 16px;
         .img {
-          width: 120px;
+          width: 100%;
           height: 80px;
           border-radius: 12px;
           box-sizing: border-box;
@@ -2040,9 +2039,145 @@ const handleCloseImgDialog = () => {
           display: flex;
           justify-content: center;
           color: #4e5969;
+          margin-top: 6px;
         }
       }
     }
+  }
+  .classifyWrapper {
+    width: 554px;
+    right: 580px;
+    bottom: 1px;
+    position: absolute;
+    height: 50px;
+
+    text-align: right;
+
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    box-sizing: border-box;
+    border-radius: 0 0px 12px 12px;
+  }
+}
+.container .imageItem:last-child {
+  border-bottom: 1.4px solid #e5e6eb !important;
+}
+.diagramWrapper {
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .diagram {
+    position: relative;
+    .diagramBox {
+      width: 122px;
+      height: 25px;
+      display: flex;
+      div {
+        height: 25px;
+        width: 61px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        box-sizing: border-box;
+      }
+      &:nth-child(1) {
+        border-bottom: 1px solid #d8d8d8;
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+      &:nth-child(2) {
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+    }
+  }
+}
+.selectContainer {
+  .container {
+    display: grid;
+    grid-template-columns: auto auto;
+    .symptomBox {
+      display: flex;
+      .symptomItem {
+        width: 24px;
+        height: 24px;
+        /* border: solid 1px #ccc; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2px 2px;
+        cursor: pointer;
+        border: 0.5px solid #e9e9eb;
+        box-sizing: border-box;
+        &.selected {
+          background-color: #0081cc;
+          border-color: #0081cc;
+          color: #fff;
+        }
+      }
+
+      &.marginTop {
+        margin-top: 16px;
+      }
+      &.marginBottom {
+        margin-bottom: 16px;
+      }
+      &.marginRight {
+        margin-right: 12px;
+      }
+      &.marginLeft {
+        margin-left: 12px;
+      }
+      &.itemAlignRight {
+        justify-content: end;
+      }
+    }
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 138px;
+    left: 247px;
+    top: 16px;
+    background: #d8d8d8;
+  }
+  &:before {
+    content: '';
+    position: absolute;
+    width: 465px;
+    height: 1px;
+    left: 20px;
+    top: 82px;
+    background: #d8d8d8;
+  }
+  .left {
+    position: absolute;
+    width: 26px;
+    height: 20px;
+    z-index: 6;
+    left: 120px;
+    background: #ffffff;
+    top: 72px;
+    text-align: center;
+  }
+  .right {
+    position: absolute;
+    width: 26px;
+    height: 20px;
+    z-index: 6;
+    right: 120px;
+    background: #ffffff;
+    top: 72px;
+    text-align: center;
   }
 }
 </style>

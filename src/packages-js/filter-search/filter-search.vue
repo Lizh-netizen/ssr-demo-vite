@@ -3,23 +3,60 @@
     <div class="filter-input" ref="filterinput">
       <ArcoSpace wrap size="medium">
         <template v-for="(item, index) in list" :key="index">
+          <!-- 日期选中 -->
           <template v-if="item.type === 'date'">
             <div class="date-time">
               <div class="title">{{ item.name }}</div>
-              <ArcoRangePicker
-                :allow-clear="false"
-                v-model="modelVal[item.prop]"
-                format="YYYY-MM-DD"
-                shortcuts-position="left"
-                :shortcuts="shortcuts"
-              >
-                <template #suffix-icon>
-                  <SvgIcon name="date_time" size="16px" />
-                </template>
-              </ArcoRangePicker>
+              <template v-if="item.dateType === 'date' || item.dateType === undefined">
+                <ArcoDatePicker
+                  :defaultValue="item.defaultDate"
+                  :allow-clear="false"
+                  v-model="modelVal[item.prop]"
+                  format="YYYY-MM-DD"
+                  position="bottom"
+                >
+                  <template #suffix-icon>
+                    <i class="svg-icon iconfont icon-date_time" />
+                  </template>
+                </ArcoDatePicker>
+                <div class="dateBtn" v-if="item?.showBtn">
+                  <ElButton color="#E5E6EB" @click="preNextDate('pre', item.prop)">
+                    <template #default>
+                      <div class="svg-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+                          <path fill="currentColor" d="M672 192 288 511.936 672 832z"></path>
+                        </svg>
+                      </div>
+                    </template>
+                  </ElButton>
+                  <ElButton color="#E5E6EB" @click="preNextDate('next', item.prop)">
+                    <template #default>
+                      <div class="svg-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+                          <path fill="currentColor" d="M384 192v640l384-320.064z"></path>
+                        </svg>
+                      </div>
+                    </template>
+                  </ElButton>
+                </div>
+              </template>
+              <template v-if="item.dateType === 'range'">
+                <ArcoRangePicker
+                  :defaultValue="item.defaultDate"
+                  :allow-clear="false"
+                  v-model="modelVal[item.prop]"
+                  format="YYYY-MM-DD"
+                  shortcuts-position="left"
+                  :shortcuts="shortcuts"
+                >
+                  <template #suffix-icon>
+                    <i class="svg-icon iconfont icon-date_time" />
+                  </template>
+                </ArcoRangePicker>
+              </template>
             </div>
           </template>
-          <template v-if="item.type === 'select'">
+          <template v-else-if="item.type === 'select'">
             <div class="select" :data-multiple="item.multiple" :data-prop="item.prop">
               <div class="title">{{ item.name }}</div>
               <ArcoSelect
@@ -28,6 +65,7 @@
                 :options="item.options"
                 :multiple="item.multiple"
                 :max-tag-count="1"
+                allow-clear
                 :allow-search="item.allowSearch"
               >
                 <template #option="{ data }">
@@ -40,14 +78,14 @@
                       color: item.multiple && item.selectType === 'switch' ? '#1d2129' : ''
                     }"
                   >
-                    <span>{{ data.value }}</span>
+                    <span>{{ data.label }}</span>
                   </span>
-                  <SvgIcon
-                    name="check"
+                  <i
+                    class="svg-icon iconfont icon-check"
                     v-if="
-                      modelVal[item.prop]?.includes(data.value) &&
                       item.multiple &&
-                      item.selectType !== 'switch'
+                      item.selectType !== 'switch' &&
+                      modelVal[item.prop]?.includes(data.value)
                     "
                   />
                   <ArcoSwitch
@@ -60,87 +98,152 @@
               </ArcoSelect>
             </div>
           </template>
-          <template v-if="item.type === 'search'">
+          <template v-else-if="item.type === 'search'">
             <div class="search">
               <ArcoInputSearch placeholder="请搜索" v-model="modelVal[item.prop]" />
             </div>
           </template>
-          <template v-if="item.type === 'radio'">
+          <template v-else-if="item.type === 'radio'">
             <div class="radio">
               <div class="title">{{ item.name }}</div>
               <div class="radio-select">
-                <ArcoRadio />
-                <ArcoRadio />
-                <ArcoRadio />
+                <ArcoRadioGroup v-model="modelVal[item.prop]">
+                  <ArcoRadio
+                    :value="radio.value"
+                    v-for="radio in item.radioOptions"
+                    :disabled="false || radio.disabled"
+                  >
+                    <template #radio="{ checked }">
+                      <div class="radio-item" :class="{ 'radio-item-checked': checked }">
+                        {{ radio.label }}
+                      </div>
+                    </template>
+                  </ArcoRadio>
+                </ArcoRadioGroup>
               </div>
             </div>
           </template>
+          <template v-else-if="item.type === 'checkbox'">
+            <div class="checkbox">
+              <div class="title">{{ item.name }}</div>
+              <div class="checkbox-select">
+                <ArcoCheckboxGroup v-model="modelVal[item.prop]">
+                  <ArcoCheckbox
+                    :value="checkbox.value"
+                    v-for="checkbox in item.checkboxOptions"
+                    :disabled="false || checkbox.disabled"
+                  >
+                    <template #checkbox="{ checked }">
+                      <div class="checkbox-item" :class="{ 'checkbox-item-checked': checked }">
+                        {{ checkbox.label }}
+                        <i class="svg-icon iconfont icon-select-checkbox" v-show="checked" />
+                      </div>
+                    </template>
+                  </ArcoCheckbox>
+                </ArcoCheckboxGroup>
+              </div>
+            </div>
+          </template>
+          <template v-else-if="item.type === 'tab'"> </template>
         </template>
       </ArcoSpace>
     </div>
-    <div class="btn">
+    <div class="btn" v-if="showFilterBtn">
       <ArcoSpace size="medium">
         <ArcoButton @click="reset">重置</ArcoButton>
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
-        <template v-if="isShowUnfold">
+        <!-- <template v-if="isShowUnfold">
           <ArcoButton type="text" @click="isspread = !isspread">
             <span>展开</span>
-            <icon-down v-show="!isspread" />
-            <icon-up v-show="isspread" />
+            <i class="iconfont icon-xiangshang" v-show="!isspread" />
+            <i class="iconfont icon-xiangxia" v-show="isspread" />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </ArcoButton>
-        </template>
+        </template> -->
       </ArcoSpace>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted, defineProps, defineEmits } from 'vue'
+import { ref, watch, onMounted, onBeforeMount } from 'vue'
 import dayjs from 'dayjs'
 import weekday from 'dayjs/plugin/weekday'
+import {
+  Space as ArcoSpace,
+  Button as ArcoButton,
+  InputSearch as ArcoInputSearch,
+  DatePicker as ArcoDatePicker,
+  CheckboxGroup as ArcoCheckboxGroup,
+  Checkbox as ArcoCheckbox,
+  Radio as ArcoRadio,
+  RadioGroup as ArcoRadioGroup,
+  RangePicker as ArcoRangePicker,
+  Select as ArcoSelect,
+  Switch as ArcoSwitch
+} from '@arco-design/web-vue'
+import { ElButton } from 'element-plus'
 dayjs.extend(weekday)
 dayjs.locale('zh-cn')
-/**
- * @list 所包含的内容数组
- * @name 选择器title
- * @prop 选择器的key值 @注意 prop没一条请不要一样，否则多条绑定数据会只有一个
- * @type 组件类型
- * @options 下拉框option
- * @multiple 是否开启多选
- * @allowSearch 是否允许搜索 多选默认可以，单选默认不可以
- * @selectType 下拉框的类型
- */
-const { list } = defineProps({
-  list: {
-    type: Array
-  }
-})
+// 接收
+const {
+  list,
+  showFilterBtn = true,
+  storageName
+} = defineProps(['list', 'showFilterBtn', 'storageName'])
 const emit = defineEmits()
 // 展开
 const isspread = ref(false)
 // 筛选的响应式条件
-const modelVal = ref(
-  list.reduce((sum, item) => {
-    sum[item.prop] = null
-    return sum
-  }, {})
-)
-// // 内容
+const modelVal = ref()
+onBeforeMount(() => {
+  const storageList = JSON.parse(sessionStorage.getItem(storageName))
+  if (storageList) {
+    modelVal.value = storageList
+  } else {
+    modelVal.value = list.reduce((sum, item) => {
+      if (item.type === 'date' && item.defaultDate) {
+        if (item.dateType === 'range') {
+          sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
+        } else {
+          sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
+        }
+      } else {
+        sum[item.prop] = null
+      }
+      return sum
+    }, {})
+  }
+})
+// 内容
 const total = ref(0)
-// // 是否展示展开按钮
+// 是否展示展开按钮
 const isShowUnfold = ref(false)
 const totalVal = () => {
   const totalList = ref([])
   const htmlList = document.querySelectorAll('.filter-input .arco-space .arco-space-item')
   htmlList.forEach((item, index) => item.offsetTop > 438 && totalList.value.push(index))
-  isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > 438)
-  total.value = Object.values(modelVal.value).filter((item, index) => {
-    return item !== null && totalList.value.includes(index)
-  }).length
+  isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > 232)
+  isShowUnfold.value &&
+    (total.value = Object.values(modelVal.value).filter((item, index) => {
+      return (
+        JSON.stringify(item) !== 'null' &&
+        JSON.stringify(item) !== '[]' &&
+        totalList.value.includes(index)
+      )
+    }).length)
 }
 // data变化时更新total
-watch(modelVal, () => totalVal(), { deep: true })
+watch(modelVal, () => totalVal(), { deep: true, immediate: true })
+watch(
+  () => storageName,
+  () => {
+    const storageList = JSON.parse(sessionStorage.getItem(storageName))
+    if (storageList) {
+      modelVal.value = storageList
+    }
+  }
+)
 // 视图变化时更新total
 window.addEventListener('resize', () => totalVal())
 // 监听元素宽度变化
@@ -149,9 +252,9 @@ onMounted(() => {
   setStyle()
   totalVal()
 })
-const filterinput = ref(null)
+const filterinput = ref()
 const setStyle = () => {
-  if (!isspread.value) {
+  if (!isspread.value && showFilterBtn) {
     filterinput.value.style.height = '56px'
   } else {
     filterinput.value.style.height = 'auto'
@@ -188,39 +291,88 @@ const shortcuts = [
 const reset = () => {
   // 数据恢复初始化 全部null
   modelVal.value = list.reduce((sum, item) => {
-    sum[item.prop] = null
+    if (item.type === 'date' && item.defaultDate) {
+      sum[item.prop] = item.defaultDate
+    } else {
+      sum[item.prop] = null
+    }
     return sum
   }, {})
+  emit('reset')
 }
 // 查询
+const filterData = ref({})
 const filter = () => {
-  const filterData = {}
   for (const key in modelVal.value) {
     if (modelVal.value[key]) {
-      filterData[key] = modelVal.value[key]
+      filterData.value[key] = modelVal.value[key]
+    } else {
+      delete filterData.value[key]
     }
   }
-  emit('filter', filterData)
+  sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
+  emit('filter', filterData.value)
+}
+// 数据改变的事件
+watch(
+  () => modelVal.value,
+  (val) => {
+    for (const key in val) {
+      if (val[key]) {
+        filterData.value[key] = val[key]
+      } else {
+        delete filterData.value[key]
+      }
+    }
+    if (val) {
+      sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
+    }
+    emit('changeData', filterData.value)
+  },
+  { deep: true, immediate: true }
+)
+
+// 前进/后退天数
+const date = ref()
+const preNextDate = (str, prop) => {
+  if (str === 'pre') {
+    if (!modelVal.value[prop]) {
+      date.value = new Date()
+    } else {
+      date.value = new Date(modelVal.value[prop])
+      // 上一天
+      date.value.setDate(date.value.getDate() - 1)
+    }
+  } else if (str === 'next') {
+    if (!modelVal.value[prop]) {
+      date.value = new Date()
+    } else {
+      date.value = new Date(modelVal.value[prop])
+      // 下一天
+      date.value.setDate(date.value.getDate() + 1)
+    }
+  }
+  modelVal.value[prop] = dayjs(date.value).format('YYYY-MM-DD')
 }
 </script>
 
 <style scoped lang="scss">
 .isselect {
-  color: $Neutral;
+  color: rgba(46, 108, 228, 1);
 }
 @import './index.module.scss';
 </style>
 <style lang="scss">
 .Neutral {
-  color: $Neutral !important;
+  color: rgba(46, 108, 228, 1) !important;
 }
 .arco-select-dropdown {
   border-radius: 8px;
   .arco-select-option-active {
-    background-color: $text;
+    background-color: #ffffff;
   }
   .arco-checkbox-checked .arco-checkbox-label {
-    color: $Neutral;
+    color: rgba(46, 108, 228, 1);
   }
   .arco-icon-hover {
     display: none;
@@ -277,9 +429,37 @@ const filter = () => {
 }
 
 .el-badge__content--danger {
-  background-color: $Alarm;
+  background-color: rgba(247, 101, 96, 1);
   width: 20px;
   height: 20px;
   border-radius: 50%;
+}
+
+.arco-trigger-popup {
+  .arco-trigger-popup-wrapper {
+    .arco-trigger-content {
+      .arco-picker-container {
+        .arco-picker-panel-wrapper {
+          .arco-panel-date {
+            .arco-panel-date-inner {
+              .arco-picker-header {
+                .arco-picker-header-icon {
+                  .arco-icon.arco-icon-double-left {
+                    display: none;
+                  }
+                  .arco-icon.arco-icon-double-right {
+                    display: none;
+                  }
+                }
+              }
+            }
+          }
+          .arco-picker-footer {
+            display: none;
+          }
+        }
+      }
+    }
+  }
 }
 </style>

@@ -7,10 +7,9 @@ html {
   height: 100%;
   font-size: 14px;
 }
-#app {
-  width: 100%;
-  height: 100%;
-}
+// #app {
+//   width: 100%;
+// }
 
 .icon {
   width: 1em;
@@ -37,4 +36,19 @@ img {
 }
 .el-input {
   height: 30px;
+}
+
+.el-popconfirm span {
+  font-size: 14px;
+}
+.el-checkbox-group {
+}
+
+.el-checkbox-button {
+  .el-checkbox-button__inner {
+    border-left-color: #dcdfe6;
+  }
+}
+.el-dialog{
+  border-radius: 12px;
 }

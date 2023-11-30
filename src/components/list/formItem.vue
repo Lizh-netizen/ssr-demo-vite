@@ -61,6 +61,7 @@ const enterTool = () => {
   &__content {
     flex: 1;
     display: flex;
+    align-items: center;
     input {
       width: 100px;
       height: 32px;

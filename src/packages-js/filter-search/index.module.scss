@@ -1,5 +1,5 @@
 @mixin filter {
-  background-color: $filter-bg;
+  background-color: #f2f3f5;
   border-radius: 8px;
   height: 40px;
 }
@@ -23,13 +23,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: $text2;
+  color: #4e5969;
   z-index: 1;
   &::before {
     content: '';
     width: 1px;
     height: 20px;
-    background: $Disabled10;
+    background: rgba(130, 132, 138, 0.1);
     position: absolute;
     right: 0;
   }
@@ -64,18 +64,18 @@
     }
     .arco-btn-text {
       width: 48px;
-      color: $text1;
+      color: #1d2129;
       position: relative;
       &:hover {
         background-color: transparent;
-        color: $Neutral;
+        color: rgba(46, 108, 228, 1);
       }
-      svg {
-        margin-left: 8px;
+      .iconfont {
+        margin-left: 4px;
         margin-top: 2px;
       }
       .total {
-        background-color: $Alarm;
+        background-color: rgba(247, 101, 96, 1);
         width: 20px;
         height: 20px;
         display: flex;
@@ -84,7 +84,7 @@
         border-radius: 50%;
         position: absolute;
         font-weight: 500;
-        color: $text;
+        color: #ffffff;
         right: -5px;
       }
     }
@@ -93,29 +93,61 @@
 
 .date-time {
   @include wrapper;
+  :deep .arco-picker {
+    width: 100%;
+  }
   &:hover {
-    ::v-deep {
+    :deep {
       .arco-picker {
-        border: 1px solid $Neutral;
+        border: 1px solid rgba(46, 108, 228, 1);
       }
     }
   }
-  ::v-deep {
+  :deep {
     .arco-picker {
       @include filter;
       padding-left: 80px;
       .arco-picker-suffix-icon {
         display: flex;
+        margin-right: 5px;
       }
     }
     .arco-picker-input {
       input {
-        color: $text1;
+        color: #1d2129;
       }
     }
     .arco-picker-focused {
-      border: 1px solid $Neutral;
+      border: 1px solid rgba(46, 108, 228, 1);
       box-shadow: 0px 0px 0px 1px rgba(46, 108, 228, 0.3);
+    }
+  }
+  &:hover .dateBtn {
+    display: block;
+  }
+  .dateBtn {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    right: 16px;
+    bottom: 50%;
+    transform: translateY(50%);
+    .svg-icon {
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+    .el-button {
+      width: 28px;
+      height: 20px;
+      margin: 2px;
+      &:nth-child(1) {
+        border-radius: 4px 0px 0px 4px;
+      }
+      &:nth-child(2) {
+        border-radius: 0px 4px 4px 0px;
+      }
     }
   }
 }
@@ -123,17 +155,23 @@
 .select {
   @include wrapper;
   &:hover {
-    ::v-deep {
+    :deep {
       .arco-select {
-        border-color: $Neutral;
+        border-color: rgba(46, 108, 228, 1);
       }
     }
   }
-  ::v-deep {
+  :deep {
     .arco-select {
       @include filter;
       padding-left: 92px;
       position: relative;
+    }
+    .arco-select-view:hover {
+      .arco-select-view-clear-btn {
+        position: absolute;
+        right: 18px;
+      }
     }
     .arco-select-view-suffix {
       padding-left: 0;
@@ -147,7 +185,7 @@
     }
     .arco-select-view-single.arco-select-view-focus,
     .arco-select-view-single:focus-within {
-      border-color: $Neutral;
+      border-color: rgba(46, 108, 228, 1);
       box-shadow: 0px 0px 0px 1px rgba(46, 108, 228, 0.3);
     }
     // 多选
@@ -156,7 +194,7 @@
       align-items: center;
       .arco-select-view-tag {
         height: 24px;
-        background: $text;
+        background: #ffffff;
         box-shadow: 0px 1px 1px 0px rgba(84, 87, 97, 0.3);
         border-radius: 4px;
       }
@@ -166,12 +204,12 @@
 
 .search {
   @include wrapper;
-  ::v-deep {
+  :deep {
     .arco-input-wrapper {
       @include filter;
       position: relative;
       &:hover {
-        border-color: $Neutral;
+        border-color: rgba(46, 108, 228, 1);
       }
       input {
         padding-right: 30px;
@@ -197,12 +235,110 @@
   display: flex;
   justify-content: space-between;
   .radio-select {
+    display: flex;
     position: absolute;
     right: 0;
     width: calc(100% - 80px);
     height: 40px;
-    .arco-radio{
-      
+    .arco-radio-group {
+      display: flex;
+      width: 100%;
+      .arco-radio {
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        .radio-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          width: 100%;
+          font-size: 14px;
+          font-weight: 500;
+          &:hover {
+            background-color: #e5e6eb;
+          }
+        }
+        .radio-item-checked {
+          border: 1px solid rgba(46, 108, 228, 1);
+          background-color: rgba(241, 245, 255, 1);
+          color: rgba(46, 108, 228, 1);
+        }
+        &:last-child {
+          .radio-item {
+            border-radius: 0 8px 8px 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+.checkbox {
+  @include wrapper;
+  background-color: #f2f3f5;
+  display: flex;
+  justify-content: space-between;
+  .checkbox-select {
+    display: flex;
+    position: absolute;
+    right: 0;
+    width: calc(100% - 80px);
+    height: 40px;
+    .arco-checkbox-group {
+      display: flex;
+      width: 100%;
+      .arco-checkbox {
+        padding: 0;
+        margin: 0;
+        flex: 1;
+        .checkbox-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 40px;
+          width: 100%;
+          font-size: 14px;
+          font-weight: 500;
+          &:hover {
+            background-color: #e5e6eb;
+          }
+        }
+        .checkbox-item-checked {
+          border: 1px solid rgba(46, 108, 228, 1);
+          background-color: rgba(241, 245, 255, 1);
+          color: rgba(46, 108, 228, 1);
+          position: relative;
+          overflow: hidden;
+          &::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 19px solid transparent;
+            border-right: 19px solid rgba(46, 108, 228, 1);
+            border-top: 18px solid transparent;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+          }
+          .svg-icon {
+            transform: scale(0.5);
+            position: absolute;
+            right: -2px;
+            bottom: -1px;
+            font-size: 12px;
+            z-index: 2;
+            &.icon-select-checkbox {
+              color: #ffffff;
+            }
+          }
+        }
+        &:last-child {
+          .checkbox-item {
+            border-radius: 0 8px 8px 0;
+          }
+        }
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 const instance = axios.create({
     baseURL: '/',
     timeout: 100000,
@@ -7,7 +8,7 @@ const instance = axios.create({
   }
 })
 instance.interceptors.request.use((config) => {
-    const token = 'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiJmYWZiOTgwZC1lMTdiLTExZWQtOTY3ZS03Y2QzMGFlYjE1YmEiLCJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjQ2NGQ0MzJkLTQwNmQtNDM3Yi1hYTQ0LWM1ZGMxMmM5OWYxMyIsInVzZXJuYW1lIjoiYWRtaW4ifQ.y46hvt-_IvjeMP0J7BIbvWjYyc_Z94Y0skcsIfdx-LMFtjqBLRjqNDrN1bbHA00CczRELbJskZ0L_wi7YaogWg'
+    const token = 'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyNzksInVzZXJfa2V5IjoiMWU0MTdkMjUtZDU2Ny00ZWIyLTg2ZTktYzBkNGJmM2JlMzM2IiwidXNlcm5hbWUiOiJhZG1pbiJ9.gdJpn1QL_h6aC0s9xvTNKJA6ONZlaiow7vJoUgy4TngZYpwApUT5a2UqCATVe7EOT5BUTtXWuAtt2VASC_LfDQ'
     // const token = localStorage.getItem('jc_odos_token')
     if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -18,7 +19,18 @@ instance.interceptors.request.use((config) => {
 instance.interceptors.response.use((response) => {
     return response
 }, (error) => {
-    console.error(' Error:', error);
+    // 在响应错误时做一些操作
+    if (error.response) {
+      // 服务器返回错误状态码
+      const status = error.response.status;
+      if (status === 400 || status === 500) {
+        // 提示请求失败
+        ElMessage({
+          type: 'error',
+          message: '请求失败，请稍后重试',
+        });
+      }
+    }
     return Promise.reject(error)
 })
 export function Post(url, data, isMultipart =false){
@@ -31,8 +43,15 @@ export function Post(url, data, isMultipart =false){
     }
     return new Promise((resolve, reject) => {   
         instance.post(url, data
-        ).then((response) => {
-        resolve(response.data)
+        ).then((res) => {
+            // 请求本身成功，但是业务逻辑错误
+        if (res.data.code && res.data.code !== 200) {
+            ElMessage({
+            type: 'error',
+            // 状态码500，未知错误
+            message: res.data.msg ? res.data.msg: '发生未知错误'})
+        }
+        resolve(res.data)
     }).catch((err) => {
         reject(err)
     })
@@ -67,8 +86,14 @@ export function Put(url, data){
     instance.defaults.headers['Content-Type'] = 'application/json';
     return new Promise((resolve, reject) => {
         instance.put(url, data
-        ).then((response) => {
-        resolve(response.data)
+        ).then((res) => {
+             if (res.data.code && res.data.code !== 200) {
+            ElMessage({
+            type: 'error',
+            // 状态码500，未知错误
+            message: res.data.msg ? res.data.msg: '发生未知错误'})
+        }
+        resolve(res.data)
     }).catch((err) => {
         reject(err)
     })

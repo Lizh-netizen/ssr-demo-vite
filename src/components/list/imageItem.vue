@@ -21,9 +21,10 @@ defineProps({
 .imageItem {
   position: relative;
   display: flex;
-  height: 316px;
+  height: 308px;
   padding: 20px 0;
-  border-bottom: 1px dashed #e5e6eb;
+  border-bottom: 1.4px dashed #e5e6eb;
+
   .img {
     width: 320px;
     height: 240px;
@@ -90,4 +91,5 @@ defineProps({
     }
   }
 }
+
 </style>

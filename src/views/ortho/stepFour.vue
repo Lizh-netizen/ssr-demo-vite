@@ -2,7 +2,7 @@
   <div class="stepFour">
     <Header text="问题列表" backgroundColor="#f4f7fd" />
     <template v-if="questionData.length > 0">
-      <div class="content">
+      <div class="content" :style="{ 'padding-top': '4px' }">
         <div class="questionItem" v-for="item in questionData" :key="item.id">
           <div class="questionItem__header">
             <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title">{{
@@ -32,7 +32,7 @@
         无
       </div></template
     >
-    <Header text="诊断" backgroundColor="#f4f7fd" />
+    <Header text="诊断" backgroundColor="#f4f7fd" :style="{ 'margin-top': '20px' }" />
     <div class="content diagnose">
       <template v-for="item in diagnoseData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
@@ -84,12 +84,16 @@
 
 <script setup>
 import Header from '@/components/list/header.vue'
-import { ref, defineProps } from 'vue'
+import { ref, defineProps, defineExpose } from 'vue'
 import FormItem from '@/components/list/formItem.vue'
 import { Get } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
+const clicked = ref(false)
+defineExpose({
+  clicked
+})
 const props = defineProps({
   pdfId: String
 })
@@ -148,6 +152,9 @@ const diagnoseData = ref([])
 async function getOrthDiagnoseList() {
   const result = await Get(`/prod-api/business/orthClass/list/2/诊断/${appId}`)
   diagnoseData.value = result.data
+  if (result.data[0].classFlag) {
+    clicked.value = true
+  }
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
@@ -175,6 +182,7 @@ async function getOrthDiagnoseList() {
 }
 getOrthDiagnoseList()
 const handleChangeOption = (optionId, title) => {
+  clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -194,7 +202,7 @@ const handleChangeOption = (optionId, title) => {
         display: flex;
         align-items: center;
         padding: 12px 0;
-        // border-bottom: 1px solid #e5e6eb;
+
         &__title {
           margin-left: 9px;
           font-weight: 500;
@@ -205,8 +213,6 @@ const handleChangeOption = (optionId, title) => {
         }
       }
       &__content {
-        // display: flex;
-        // flex-wrap: wrap;
         padding: 20px;
         padding-bottom: 4px;
         .singleQuestionItem {
@@ -225,7 +231,7 @@ const handleChangeOption = (optionId, title) => {
           &__label {
             color: #4e5969;
             margin-right: 16px;
-            // 防止换行
+
             white-space: nowrap;
           }
           &__content {
@@ -248,10 +254,11 @@ const handleChangeOption = (optionId, title) => {
               margin-bottom: 16px;
             }
           }
+          &:last-child {
+            margin-bottom: 4px;
+          }
         }
-        // * + * {
-        //   margin-top: 16px;
-        // }
+
         &.content {
           padding: 0;
         }
@@ -278,7 +285,6 @@ const handleChangeOption = (optionId, title) => {
       }
     }
     :deep .el-checkbox-button.checked {
-      // border: 1px solid #2e6ce4;
       background: #ffffff;
       --el-checkbox-button-checked-bg-color: none;
       --el-checkbox-button-checked-border-color: none;
@@ -294,7 +300,6 @@ const handleChangeOption = (optionId, title) => {
         box-shadow: none;
       }
       .el-checkbox-button {
-        // border: 1px solid #2e6ce4;
         &.is-focus {
           border: none;
         }

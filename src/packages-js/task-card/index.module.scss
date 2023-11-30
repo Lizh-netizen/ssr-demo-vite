@@ -2,6 +2,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
+  color: #4e5969;
   background-color: $c;
   border-radius: 50%;
   margin-right: 6px;
@@ -19,14 +20,19 @@
     position: absolute;
     border-radius: $radius;
   }
-  @media (width: 1309.09px) {
+  @media (width: 1308.89px) {
     span {
-      bottom: 1.05px !important;
+      bottom: 1.5px !important;
     }
   }
   @media (width: 1600px) {
     span {
-      bottom: 1.05px !important;
+      bottom: 1.5px !important;
+    }
+  }
+  @media (width: 1680px) {
+    span {
+      bottom: 1.5px !important;
     }
   }
   @media (width: 2160px) {
@@ -41,7 +47,7 @@
   }
 }
 
-@mixin taskCardItem($color, $color10) {
+@mixin taskCardItem($color) {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -51,7 +57,7 @@
   border-radius: 12px;
   padding: 16px 24px;
   position: relative;
-  background: $text;
+  background: #ffffff;
   box-sizing: border-box;
   :global {
     .title {
@@ -66,19 +72,20 @@
         height: 48px;
         margin-right: 20px;
         border-radius: 50%;
-        background: $color10;
+        background: #d6d6d6;
       }
       span {
         font-family: DIN_Alternate;
-        &:nth-child(2) {
+        &.left_num,
+        &.num {
           font-size: 48px;
-          color: $text1;
+          color: #1d2129;
           margin-right: 12px;
           line-height: 1;
         }
-        &:nth-child(3) {
+        &.right_num {
           font-size: 24px;
-          color: $text2;
+          color: #4e5969;
         }
       }
     }
@@ -88,9 +95,10 @@
         .el-progress-bar__outer {
           height: 8px !important;
           overflow: inherit !important;
-          background-color: $color10;
+          background-color: #d6d6d6;
         }
         .el-progress-bar__inner {
+          max-width: 100%;
           background-color: $color;
           position: relative;
           &::before {
@@ -128,7 +136,7 @@
           &:last-child {
             &::before {
               content: '';
-              @include span($color10);
+              @include span(#d6d6d6);
             }
           }
         }
@@ -147,6 +155,10 @@
   width: 0;
   border-radius: 12px;
   overflow: hidden;
+  margin-right: 20px;
+  &:last-child {
+    margin-right: 0;
+  }
   img {
     width: auto;
     height: 100%;
@@ -155,9 +167,9 @@
 
 // 未选中没挤压状态
 .taskCardItem {
-  @include taskCardItem($Neutral, $Neutral10);
-  border: 2px solid #f2f3f5;
-  background-color: #f2f3f5;
+  @include taskCardItem(rgba(46, 108, 228, 1));
+  border: 2px solid transparent;
+  background-color: #f7f8fa;
   &:hover {
     background-color: #eeeeee;
     border: 2px solid #eeeeee;
@@ -166,9 +178,9 @@
 
 // 被选中
 .taskCardItemActive {
-  @include taskCardItem($Neutral, $Neutral10);
-  border: 2px solid $Neutral;
-  border-bottom-color: $text;
+  @include taskCardItem(rgba(46, 108, 228, 1));
+  border: 2px solid rgba(46, 108, 228, 1);
+  border-bottom-color: #ffffff;
   height: 197px;
   padding-bottom: 34px;
   border-radius: 12px 12px 0 0;
@@ -183,8 +195,8 @@
       span {
         left: -20px;
         bottom: 1px;
-        border-bottom: 2px solid $Neutral;
-        border-right: 2px solid $Neutral;
+        border-bottom: 2px solid rgba(46, 108, 228, 1);
+        border-right: 2px solid rgba(46, 108, 228, 1);
       }
     }
     .befor {
@@ -195,17 +207,17 @@
         width: 20px;
         left: 1px;
         bottom: 1px;
-        border-bottom: 2px solid $Neutral;
-        border-left: 2px solid $Neutral;
+        border-bottom: 2px solid rgba(46, 108, 228, 1);
+        border-left: 2px solid rgba(46, 108, 228, 1);
       }
     }
   }
 }
 
-// 被选中内容被挤压状态
+// 未被选中内容被挤压状态
 .taskCardItemSmall {
-  @include taskCardItem($Neutral, $Neutral10);
-  border: 2px solid #f2f3f5;
+  @include taskCardItem(rgba(46, 108, 228, 1));
+  border: 2px solid transparent;
   background-color: #f2f3f5;
   &:hover {
     background-color: #eeeeee;

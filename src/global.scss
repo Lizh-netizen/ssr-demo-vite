@@ -1,7 +1,4 @@
-// arco-design css
-@import '@arco-design/web-vue/dist/arco.css';
-// ant-design css
-@import 'ant-design-vue/dist/reset.css';
+
 // element css
 @import 'element-plus/dist/index.css';
 // 清除浏览器默认样式
@@ -10,11 +7,13 @@
 @font-face {
   font-family: SourceHanSansCN;
   src: url(./assets/font/SourceHanSansCN-Regular.otf);
+  font-display: swap;
 }
 
 @font-face {
   font-family: DIN_Alternate;
   src: url(./assets/font/DIN-Alternate-Bold.ttf);
+  font-display: swap;
 }
 
 // 导航条颜色
@@ -25,7 +24,7 @@
 * {
   margin: 0;
   padding: 0;
-  flex-shrink: 0;
+  // flex-shrink: 0;
   box-sizing: border-box;
 }
 

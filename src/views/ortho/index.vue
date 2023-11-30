@@ -1,12 +1,20 @@
 <template>
-  <div class="ortho-page">
+  <div
+    :style="{
+      background: '#f2f3f5'
+    }"
+  >
+    <div class="gap"></div>
+
     <div class="header">
       <div
         :style="{
           display: 'flex',
           'align-items': 'center',
           'margin-right': '40px',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          width: '100px',
+          'margin-left': '20px'
         }"
         @click="handleBackToList"
       >
@@ -15,163 +23,184 @@
       <div
         :style="{
           display: 'flex',
-          'justify-content': 'center'
+          'justify-content': 'center',
+          flex: 1
         }"
       >
-        <div class="step" :class="{ active: active === 1 }" @click="active = 1">
-          <template v-if="active == 1"><span class="step-num">1</span></template
-          ><template v-else-if="active > 1"
+        <div
+          class="step"
+          @click="handleChangeStep(step.num)"
+          :class="{ active: active === step.num }"
+          v-for="step in steps"
+          :key="step.num"
+        >
+          <template v-if="editStep < step.num || active === step.num"
+            ><span class="step-num">{{ step.num }}</span></template
+          ><template v-else-if="editStep >= step.num"
             ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg" /></template
-          ><span class="step-text" :class="{ finished: active > 1 }">基础信息</span>
-        </div>
-        <el-divider :class="{ finished: active > 1 }" />
-        <div class="step" :class="{ active: active === 2 }" @click="active = 2">
-          <template v-if="active > 2"
-            ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg" /></template
-          ><span v-else class="step-num">2</span>
-          <span class="step-text" :class="{ finished: active > 2 }">图像分析</span>
-        </div>
-        <el-divider :class="{ finished: active > 2 }" />
-        <div class="step" :class="{ active: active === 3 }" @click="active = 3">
-          <template v-if="active > 3"
-            ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg" /></template
-          ><span v-else class="step-num">3</span
-          ><span class="step-text" :class="{ finished: active > 3 }">模型分析</span>
-        </div>
-        <el-divider :class="{ finished: active > 3 }" />
-        <div class="step" :class="{ active: active === 4 }" @click="active = 4">
-          <template v-if="active > 4"
-            ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg"
-          /></template>
-          <template v-else><span class="step-num">4</span></template
-          ><span class="step-text" :class="{ finished: active > 4 }">问题列表</span>
-        </div>
-        <el-divider :class="{ finished: active > 4 }" />
-        <div class="step step5" :class="{ active: active === 5 }" @click="active = 5">
-          <template v-if="active > 5"
-            ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg" /></template
-          ><template v-else><span class="step-num">5</span></template
-          ><span class="step-text" :class="{ finished: active > 5 }">方案目标</span>
-        </div>
-        <el-divider :class="{ finished: active > 5 }" />
-        <div class="step step6" :class="{ active: active === 6 }" @click="active = 6">
-          <!-- <template v-if="active > 5"
-            ><img
-              :style="{ 'margin-right': '12px' }"
-              src="../../assets/svg/Steps.svg" />
-              </template
-          > -->
-          <!-- <template v-else>
-            
-            </template
-          > -->
-          <span class="step-num">6</span>
-          <span class="step-text" :class="{ finished: active > 5 }">报告预览</span>
+          ><span
+            class="step-text"
+            :class="{ finished: active === step.num || step.num <= editStep }"
+            >{{ step.desc }}</span
+          >
+          <el-divider :class="{ finished: active === step.num || step.num <= editStep }" />
         </div>
       </div>
     </div>
-    <div class="information">
-      <stepOne v-if="active === 1" :pdfId="pdfId" /><stepTwo
-        v-if="active === 2"
-        :pdfId="pdfId"
-      /><stepThree v-if="active === 3" :pdfId="pdfId" /><stepFour
-        v-if="active === 4"
-        :pdfId="pdfId"
-      />
-      <stepFive v-if="active === 5" :id="id" :pdfId="pdfId" />
-      <pdf1 v-if="active === 6" @getPdfResult="getPdfResult" :id="id" />
+
+    <div class="ortho-page">
+      <div class="information">
+        <stepOne v-if="active === 1" :pdfId="pdfId" ref="step1" /><stepTwo
+          v-if="active === 2"
+          :pdfId="pdfId"
+          ref="step2"
+        /><stepThree
+          v-if="active === 3"
+          :pdfId="pdfId"
+          ref="step3"
+          :dentitionType="dentitionType"
+        /><stepFour v-if="active === 4" :pdfId="pdfId" ref="step4" />
+        <stepFive v-if="active === 5" :id="id" :pdfId="pdfId" ref="step5" />
+        <pdf1 v-if="active === 6" @getPdfResult="getPdfResult" :id="id" ref="pdfComp" />
+      </div>
+      <div class="footer">
+        <el-button v-if="active >= 2 && active <= 5" @click="handlePreStep">上一步</el-button>
+        <el-button v-if="active == 6" @click="downloadPdf"> 下载报告 </el-button>
+        <el-button type="primary" v-if="active < 5" @click="handleNextStep">下一步</el-button>
+        <el-button type="primary" v-if="active == 5" @click="handleGeneratePdf">生成报告</el-button>
+        <el-button
+          type="primary"
+          v-if="active == 5 && hasConfirmApproval == true"
+          @click="checkApproval"
+          >查看审批流</el-button
+        >
+        <el-button type="primary" v-if="active == 6" @click="initiateApproval">发起审批</el-button>
+        <el-button
+          type="primary"
+          v-if="active == 6 && hasConfirmApproval == true"
+          @click="backToList"
+          >返回列表</el-button
+        >
+      </div>
     </div>
-    <div class="footer">
-      <el-button v-if="active >= 2 && active <= 5" @click="handlePreStep">上一步</el-button>
-      <el-button v-if="active == 6" @click="downloadPdf"> 下载报告 </el-button>
-      <el-button type="primary" v-if="active < 5" @click="handleNextStep">下一步</el-button>
-      <el-button type="primary" v-if="active == 5" @click="handleGeneratePdf">生成报告</el-button>
-      <el-button
-        type="primary"
-        v-if="active == 5 && hasConfirmApproval == true"
-        @click="checkApproval"
-        >查看审批流</el-button
-      >
-      <el-button type="primary" v-if="active == 6" @click="initiateApproval">发起审批</el-button>
-      <el-button type="primary" v-if="active == 6 && hasConfirmApproval == true" @click="backToList"
-        >返回列表</el-button
-      >
-    </div>
+    <el-dialog
+      v-model="dialogVisible"
+      :close-on-press-escape="false"
+      title="确认审批"
+      class="confirmApproval"
+    >
+      <template v-for="(labelObj, index) in labelList" :key="labelObj.label">
+        <template v-if="index <= 6"
+          ><form-item :label="labelObj.label" width="128px"
+            ><span class="desc">{{ orthContent[labelObj.value] }}</span></form-item
+          ></template
+        >
+        <template v-if="index == 7"
+          ><form-item :label="labelObj.label" width="128px"
+            ><span class="desc uploadDesc">
+              <a :href="pdf" target="_blank">{{ pdf.split('/')[pdf.split('/').length - 1] }}</a>
+            </span></form-item
+          ></template
+        >
+        <template v-else-if="index == 8">
+          <form-item :label="labelObj.label" width="128px">
+            <el-radio-group v-model="orthContent['riskValue']" disabled>
+              <el-radio
+                v-for="(riskVal, index) in ['低', '中', '高']"
+                :key="index"
+                :label="riskVal"
+              ></el-radio> </el-radio-group
+            ><span :style="{ 'margin-left': '20px' }" v-if="orthContent['ruleText']"
+              >风险规则说明：{{ orthContent['ruleText'] }}</span
+            ></form-item
+          >
+        </template>
+        <template v-else-if="index == 9">
+          <form-item :label="labelObj.label" width="128px">
+            <el-radio-group v-model="orthContent['riskValueSystem']">
+              <el-radio
+                v-for="(riskVal, index) in ['低', '中', '高']"
+                :key="index"
+                :label="riskVal"
+              ></el-radio> </el-radio-group
+          ></form-item>
+        </template>
+        <template v-else-if="index == 10">
+          <form-item :label="labelObj.label" width="128px">
+            {{ orthContent['correctionPeriod'] ? orthContent['correctionPeriod'] + '个月' : '' }}
+          </form-item>
+        </template>
+        <template v-else-if="index == 11">
+          <form-item :label="labelObj.label" width="128px">
+            {{ orthContent['explain'] }}
+          </form-item>
+        </template>
+      </template>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="confirmApproval"> 确认 </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
-  <el-dialog v-model="dialogVisible" title="确认审批">
-    <template v-for="(labelObj, index) in labelList" :key="labelObj.label">
-      <template v-if="index <= 6"
-        ><form-item :label="labelObj.label" width="128px"
-          ><span class="desc">{{ orthContent[labelObj.value] }}</span></form-item
-        ></template
-      >
-      <template v-if="index == 7"
-        ><form-item :label="labelObj.label" width="128px"
-          ><span class="desc uploadDesc">
-            <a :href="pdf" target="_blank">{{ pdf.split('/')[pdf.split('/').length - 1] }}</a>
-          </span></form-item
-        ></template
-      >
-      <template v-else-if="index == 8">
-        <form-item :label="labelObj.label" width="128px">
-          <el-radio-group v-model="orthContent['riskValue']">
-            <el-radio
-              v-for="(riskVal, index) in ['低', '中', '高']"
-              :key="index"
-              :label="riskVal"
-            ></el-radio> </el-radio-group
-        ></form-item>
-      </template>
-      <template v-else-if="index == 9">
-        <form-item :label="labelObj.label" width="128px">
-          <el-radio-group v-model="orthContent['riskValueSystem']">
-            <el-radio
-              v-for="(riskVal, index) in ['低', '中', '高']"
-              :key="index"
-              :label="riskVal"
-            ></el-radio> </el-radio-group
-        ></form-item>
-      </template>
-      <template v-else-if="index == 10">
-        <form-item :label="labelObj.label" width="128px">
-          <el-input v-model="orthContent['correctionPeriod']"></el-input>
-        </form-item>
-      </template>
-      <template v-else-if="index == 11">
-        <form-item :label="labelObj.label" width="128px">
-          <el-input v-model="orthContent['explain']"></el-input>
-        </form-item>
-      </template>
-    </template>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmApproval"> 确认 </el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
-import * as dd from 'dingtalk-jsapi'
+// 这里非动态导入，不是路由
 import stepOne from './stepOne.vue'
 import stepTwo from './stepTwo.vue'
 import stepThree from './stepThree.vue'
 import stepFour from './stepFour.vue'
 import stepFive from './stepFive.vue'
 import pdf1 from './pdf1.vue'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { ElLoading, ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
+import formatTime from '../../utils/formatTime'
+const doctorId = ref()
+window.addEventListener('message', function (event) {
+  if (event.origin === 'https://odostest.orangedental.cn:4403') {
+    doctorId.value = event.data
+  }
+})
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
-
+// 切换步骤条
+const steps = [
+  { num: 1, desc: '基础信息' },
+  { num: 2, desc: '图像分析' },
+  { num: 3, desc: '模型分析' },
+  { num: 4, desc: '问题列表' },
+  { num: 5, desc: '方案目标' },
+  { num: 6, desc: '报告预览' }
+]
+const editStep = ref(0)
+const step = []
+const step1 = ref(null)
+const step2 = ref(null)
+const step3 = ref(null)
+const step4 = ref(null)
+const step5 = ref(null)
+const pdfComp = ref(null)
+const handleChangeStep = (num) => {
+  if (num > editStep.value) {
+    ElMessage({
+      message: '请点击下一步哦',
+      type: 'warning'
+    })
+    return
+  } else {
+    active.value = num
+  }
+}
 // 生成pdf逻辑
 onMounted(() => {
+  step.push(step1, step2, step3, step4, step5)
   const page = document.querySelector('.ortho-page')
   page.addEventListener('mousewheel', function (e) {
     if (e.deltaX !== 0) {
@@ -183,20 +212,47 @@ const loading = ref()
 const id = ref(0)
 const pdf = ref()
 const pdfId = ref()
+// const handleGeneratePdf = () => {
+//   // router.push(`/pdf1/${appId}/${patientId}`)
+//   // if (!pdf.value) {
+//   //   loading.value = ElLoading.service({
+//   //     lock: true,
+//   //     text: '报告生成中',
+//   //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
+//   //     background: 'rgba(37, 38, 38, 1)'
+//   //   })
+//   // }
+//   // // 但是需要有延迟，否则还是会看到pdfTemp的内容闪一下
+//   setTimeout(() => {
+//     active.value = 6
+//   }, 200)
+// }
 const handleGeneratePdf = () => {
-  // router.push(`/pdf1/${appId}/${patientId}`)
-  if (!pdf.value) {
-    loading.value = ElLoading.service({
-      lock: true,
-      text: '报告生成中',
-      // 把颜色改成不透明的，就看不到后面的pdf的内容了
-      background: 'rgba(37, 38, 38, 1)'
+  if (
+    active.value == 5 &&
+    !step[active.value - 1].value.goalClicked &&
+    !step[active.value - 1].value.methodClicked
+  ) {
+    ElMessage({ message: '请检查目标和方法是否填写完毕哦', type: 'error' })
+  } else if (active.value == 5 && !step[active.value - 1].value.goalClicked) {
+    ElMessage({ message: '请检查目标是否填写完毕哦', type: 'error' })
+    return
+  } else if (active.value == 5 && !step[active.value - 1].value.methodClicked) {
+    ElMessage({ message: '请检查方法是否填写完毕哦', type: 'error' })
+    return
+  } else {
+    nextTick(() => {
+      editStep.value = active.value
+      active.value++
+      Put('/prod-api/business/orthBase', {
+        id: progressRes.value.id,
+        pdfUrl: '',
+        pdfTime: '',
+        progress: active.value
+      })
+      window.scrollTo(0, 0)
     })
   }
-  // 但是需要有延迟，否则还是会看到pdfTemp的内容闪一下
-  setTimeout(() => {
-    active.value++
-  }, 200)
 }
 const getPdfResult = (val) => {
   if (val) {
@@ -204,22 +260,25 @@ const getPdfResult = (val) => {
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: val,
-      pdfTime:  formatTime(),
+      pdfTime: formatTime(),
       progress: active.value
     })
+    pdf.value = val
   }
 }
 const active = ref(0)
 const progressRes = ref()
-
+const dentitionType = ref()
 function getOrthBase() {
   Get(`/prod-api/business/orthBase/${appId}`).then((res) => {
     if (res.code === 200) {
       progressRes.value = res.data
       active.value = res.data?.progress ? res.data.progress : 1
+      editStep.value = active.value
       id.value = progressRes.value?.id
+      dentitionType.value = res.data.dentitionType
       // 返回的有pdf, 那就直接跳转到pdf页面了
-      if (progressRes.value.pdfUrl) {
+      if (progressRes.value && progressRes.value.pdfUrl) {
         // router.push(`/pdf1/${appId}/${patientId}`)
         sessionStorage.setItem(`pdfUrl${id.value}`, progressRes.value.pdfUrl)
         pdfId.value = `pdfUrl${id.value}`
@@ -233,28 +292,43 @@ function getOrthBase() {
 }
 getOrthBase()
 const handleNextStep = () => {
-  active.value++
-  Put('/prod-api/business/orthBase', {
-    id: progressRes.value.id,
-    pdfUrl: '',
-    pdfTime: '',
-    progress: active.value
+  if (active.value == 4 && !step[active.value - 1].value.clicked) {
+    ElMessage({
+      message: '还未填写诊断哦',
+      type: 'error'
+    })
+    return
+  }
+  nextTick(() => {
+    editStep.value = active.value
+    active.value++
+    Put('/prod-api/business/orthBase', {
+      id: progressRes.value.id,
+      pdfUrl: '',
+      pdfTime: '',
+      progress: active.value
+    })
+    window.scrollTo(0, 0)
   })
 }
 const handlePreStep = () => {
   if (active.value == 1) {
     return
   }
-  active.value--
-  Put('/prod-api/business/orthBase', {
-    id: progressRes.value.id,
-    pdfUrl: '',
-    pdfTime: '',
-    progress: active.value
+  nextTick(() => {
+    editStep.value = active.value
+    active.value--
+    Put('/prod-api/business/orthBase', {
+      id: progressRes.value.id,
+      pdfUrl: '',
+      pdfTime: '',
+      progress: active.value
+    })
+    window.scrollTo(0, 0)
   })
 }
 const handleBackToList = () => {
-  router.push('/list')
+  router.push('/index')
 }
 // 下载PDF
 const downloadPdf = () => {
@@ -278,42 +352,44 @@ async function initiateApproval() {
     apmtId: appId
   })
   orthContent.value = res.data
+  orthContent.value['dentitionType'] = res.data.dentitionType || '无'
   orthContent.value['riskValueSystem'] = ''
-  orthContent.value['explain'] = ''
-  orthContent.value['correctionPeriod'] = ''
   orthContent.value['riskValue'] = orthContent.value['riskValue'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
-// const dingSpaceData = ref()
+
 const hasConfirmApproval = ref(false)
-function saveFileToDingSpace() {
-  if (dd.env.platform !== 'notInDingTalk') {
-    dd.ready(function () {
-      dd.runtime.permission.requestAuthCode({
-        corpId,
-        onSuccess(res) {
-          console.log(res)
-        },
-        onFail() {}
-      })
-    })
-  }
-}
+
 async function confirmApproval() {
-  saveFileToDingSpace()
-  orthContent.value['pdfUrl'] = pdf.value
-  const res = await Post('/prod-api/business/orthBase/sendApproval', orthContent.value)
-  if (res.code == 200) {
-    dialogVisible.value = false
-    ElMessage({
-      message: res.msg,
-      type: 'success'
+  try {
+    const loading = ElLoading.service({
+      lock: true,
+      text: '发起审批中',
+      background: 'rgba(0, 0, 0, 0.7)'
     })
-  }
+    orthContent.value['pdfUrl'] = pdf.value
+    orthContent.value['riskValueSystem'] = orthContent.value['riskValueSystem']
+      ? orthContent.value['riskValueSystem']
+      : '无'
+    const res = await Post('/prod-api/business/orthBase/sendApproval', {
+      patientId: patientId,
+      apmtId: appId,
+      ...orthContent.value
+    })
+    dialogVisible.value = false
+    loading.close()
+    if (res.code === 200) {
+      ElMessage({
+        type: 'success',
+        message: res.msg
+      })
+    }
+  } catch {}
 }
 const backToList = () => {
   router.push('/list')
 }
+
 const labelList = [
   { label: '患者姓名', value: 'patientName' },
   { label: '病例号', value: 'privateId' },
@@ -337,8 +413,8 @@ const labelList = [
 .finished.el-divider--horizontal {
   --el-border-color: #2e6ce4;
 }
-.el-dialog__body {
-  padding: 24px;
+
+.el-dialog.confirmApproval {
 }
 </style>
 <style lang="scss" scoped>
@@ -353,7 +429,63 @@ const labelList = [
     text-align: left;
   }
 }
-
+.gap {
+  height: 16px;
+  background: #f2f3f5;
+}
+.header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  height: 72px;
+  background: #ffffff;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  .step {
+    display: flex;
+    width: 15%;
+    align-items: center;
+    color: #86909c;
+    .step-num {
+      border-radius: 50px;
+      border: 2px solid #c9cdd4;
+      margin-right: 12px;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .step-text {
+      margin-right: 11.5px;
+      &.finished {
+        color: #2e6ce4;
+      }
+    }
+    &.active {
+      .step-num {
+        color: #ffffff;
+        background: #2e6ce4;
+        border: 2px solid #2e6ce4;
+      }
+    }
+    &.finished {
+      .step-text {
+        color: #2e6ce4;
+      }
+    }
+    &:last-child {
+      :deep .el-divider.el-divider--horizontal {
+        display: none;
+      }
+    }
+  }
+}
 .ortho-page {
   overflow: hidden;
   display: flex;
@@ -366,48 +498,7 @@ const labelList = [
   box-sizing: border-box;
   padding: 20px;
   background: #f2f3f5;
-  // background: #f2f3f5;
-  .header {
-    display: flex;
-    width: 100%;
-    height: 72px;
-    background: #ffffff;
-    border-radius: 12px;
-    justify-content: center;
-    align-items: center;
-    .step {
-      // flex-basis: 0;
-      display: flex;
-      align-items: center;
-      color: #86909c;
-      .step-num {
-        border-radius: 50px;
-        border: 2px solid #c9cdd4;
-        margin-right: 12px;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .step-text {
-        margin-right: 11.5px;
-        &.finished {
-          color: #2e6ce4;
-        }
-      }
-      &.active {
-        .step-num {
-          color: #ffffff;
-          background: #2e6ce4;
-          border: 2px solid #2e6ce4;
-        }
-        .step-text {
-          color: #2e6ce4;
-        }
-      }
-    }
-  }
+
   @media screen and (min-width: 1000px) and (max-width: 1440px) {
   }
   .information {
@@ -416,7 +507,6 @@ const labelList = [
     padding: 20px;
     border-radius: 12px;
     opacity: 1;
-    margin-top: 16px;
     background: #ffffff;
   }
   .footer {

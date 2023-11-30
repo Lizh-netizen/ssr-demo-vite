@@ -7,7 +7,7 @@
       :data-serious="a.serious"
     >
       <div class="list__item__desc">
-        {{ a.title_name }}:{{ a.option_names }}
+        {{ a.title_name }}：{{ a.option_names }}
         <img
           class="seriousIcon"
           src="../../assets/svg/serious.svg"

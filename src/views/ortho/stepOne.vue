@@ -23,9 +23,9 @@
       </div>
     </div>
     <Header text="问诊" backgroundColor="#f4f7fd" />
-    <div class="content inquiry">
+    <div class="content inquiry" :style="{'min-height' : '600px'}">
       <form-item label="主诉" width="58px"><el-input v-model="input1"></el-input></form-item>
-      <form-item label="现病史"><el-input v-model="input2"></el-input></form-item>
+      <form-item label="现病史" width="58px"><el-input v-model="input2"></el-input></form-item>
       <template v-for="item in inquiryData" :key="item.id">
         <template v-if="item.className">
           <form-item :label="item.className" class="specialFormItem">
@@ -309,11 +309,16 @@
 <script setup>
 import Header from '@/components/list/header.vue'
 import FormItem from '@/components/list/formItem.vue'
-import { nextTick, ref, defineProps } from 'vue'
+import { nextTick, ref, defineProps,defineExpose } from 'vue'
 import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
+
+const clicked = ref(false)
+defineExpose({
+  clicked
+})
 const props = defineProps({
   pdfId: String
 })
@@ -495,7 +500,7 @@ getOrthCheckList()
 const isShow = ref(false)
 
 async function handleChangeOption(optionId, title) {
-  console.log(props.pdfId)
+  clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -587,7 +592,6 @@ const handleSubmit = (optionId, title) => {
 }
 .myPopper {
   width: unset;
-  // width: auto;
   min-width: 100px !important;
   background: red;
   .el-input {
@@ -619,7 +623,6 @@ const handleSubmit = (optionId, title) => {
   }
   .inquiry {
     .innerContent {
-      // height: 352px;
       border-radius: 12px;
       opacity: 1;
       width: 100%;
@@ -632,11 +635,7 @@ const handleSubmit = (optionId, title) => {
         }
       }
     }
-    .formItem {
-      &:last-child {
-        margin-left: 120px;
-      }
-    }
+    
   }
 }
 

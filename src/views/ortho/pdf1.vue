@@ -1,6 +1,6 @@
 <template>
   <template v-if="!src">
-    <div class="pdfContent">
+    <div class="pdfContent" :style="{ display: 'none' }">
       <div class="pdfPage">
         <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
         <div class="title">
@@ -17,7 +17,7 @@
             </div>
             <div class="item">
               <div class="label">诊所</div>
-              <div class="value"></div>
+              <div class="value">{{ patientInfo.Abbreviation }}</div>
             </div>
           </div>
         </div>
@@ -38,7 +38,7 @@
               </div>
               <div class="item">
                 <div class="label">出生日期</div>
-                <!-- {{ patientInfo.age?.split('(')?.[0] }} -->
+                {{ patientInfo.Birth?.split('T')?.[0] }}
               </div>
               <div class="item">
                 <div class="label">评估日期</div>
@@ -60,7 +60,7 @@
                         :data-serious="i.serious"
                       >
                         <div>
-                          {{ i.title_name }}:{{ i.option_names }}
+                          {{ i.title_name }}：{{ i.option_names }}
                           <img
                             src="../../assets/svg/serious.svg"
                             v-show="i.serious == '1'"
@@ -75,9 +75,14 @@
                 </div>
               </div>
             </template>
-            <div class="subTitle">临床检查</div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule == '临床检查')">
+              临床检查
+            </div>
             <div class="content">
-              <list :list="data.find((item) => item.owningModule == '临床检查').list" />
+              <list
+                :list="data.find((item) => item.owningModule == '临床检查').list"
+                v-if="data.find((item) => item.owningModule == '临床检查')"
+              />
             </div>
           </div>
         </template>
@@ -86,7 +91,7 @@
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="评估结果" />
-            <div class="subTitle">问题列表</div>
+            <div class="subTitle" v-if="issuesList.length > 0">问题列表</div>
             <div class="content">
               <list :list="issuesList" />
             </div>
@@ -94,9 +99,12 @@
             <div class="content">
               <list :list="item.list" />
             </div>
-            <div class="subTitle">方案</div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule == '方案')">方案</div>
             <div class="content">
-              <list :list="data.find((item) => item.owningModule == '方案').list" />
+              <list
+                :list="data.find((item) => item.owningModule == '方案').list"
+                v-if="data.find((item) => item.owningModule == '方案')"
+              />
             </div>
           </div>
         </template>
@@ -118,7 +126,7 @@
                   v-for="image in item.imageList1"
                   :key="image.className"
                 >
-                  <div class="imageCaption">{{ image.className }}</div>
+                  <div class="imageCaption" v-if="image.imageUrl">{{ image.className }}</div>
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
@@ -142,7 +150,7 @@
                 v-for="image in item.imageList2"
                 :key="image.className"
               >
-                <div class="imageCaption">{{ image.className }}</div>
+                <div class="imageCaption" v-if="image.imageUrl">{{ image.className }}</div>
                 <img
                   crossOrigin="anonymous"
                   :style="{ width: '100%' }"
@@ -164,7 +172,7 @@
             <div class="middle section">
               <div class="imageList1">
                 <div class="image1" :style="{ position: 'relative' }">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList1[0]?.imageUrl">
                     {{ item.imageList1[0]?.className }}
                   </div>
                   <img
@@ -174,7 +182,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }" class="image2">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList1[1]?.imageUrl">
                     {{ item.imageList1[1]?.className }}
                   </div>
                   <img
@@ -184,7 +192,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList1[2]?.imageUrl">
                     {{ item.imageList1[2]?.className }}
                   </div>
                   <img
@@ -204,7 +212,7 @@
               </div>
               <div class="imageList2">
                 <div :style="{ position: 'relative' }" class="image1">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
                     {{ item.imageList2[0]?.className }}
                   </div>
                   <img
@@ -214,7 +222,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }" class="image2">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList2[1]?.imageUrl">
                     {{ item.imageList2[1]?.className }}
                   </div>
                   <img
@@ -224,7 +232,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList2[2]?.imageUrl">
                     {{ item.imageList2[2]?.className }}
                   </div>
                   <img
@@ -234,7 +242,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList2[3]?.imageUrl">
                     {{ item.imageList2[3]?.className }}
                   </div>
                   <img
@@ -244,7 +252,7 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }">
-                  <div class="imageCaption">
+                  <div class="imageCaption" v-if="item.imageList2[4]?.imageUrl">
                     {{ item.imageList2[4]?.className }}
                   </div>
                   <img
@@ -262,7 +270,7 @@
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
             <div class="imgBox">
-              <div class="imageCaption">{{ item.className }}</div>
+              <div class="imageCaption" v-if="item.fileUrl">{{ item.className }}</div>
               <img
                 :src="item.fileUrl + `?random=${Math.random()}`"
                 crossOrigin="anonymous"
@@ -288,9 +296,12 @@
                 <list :list="item.method.list" />
               </div>
             </template>
-            <div class="subTitle">风险</div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
             <div class="content">
-              <list :list="data.find((item) => item.owningModule == '风险').list" />
+              <list
+                :list="data.find((item) => item.owningModule == '风险').list"
+                v-if="data.find((item) => item.owningModule == '风险')"
+              />
             </div>
           </div>
         </template>
@@ -307,11 +318,11 @@
 import html2pdf from 'html2pdf.js'
 import { onMounted, ref, defineEmits, defineProps } from 'vue'
 import { useRoute } from 'vue-router'
-import { Get } from '@/utils/request'
+import { Get, Post } from '@/utils/request'
 import Header from '@/components/customHeader.vue'
 import list from '@/components/pdf/list.vue'
 import customList from '@/components/pdf/customList.vue'
-import axios from 'axios'
+
 import { ElLoading } from 'element-plus'
 const props = defineProps(['id'])
 const patientName = ref()
@@ -333,7 +344,7 @@ const day = today.getDate()
 if (month < 10) {
   month = '0' + month
 }
-const formattedDate = `${year}${month}${day}`
+const formattedDate = `${year}-${month}-${day}`
 const data = ref([])
 const order = [
   '问诊',
@@ -361,6 +372,10 @@ function sort(a, b) {
   return indexA - indexB // 根据order中的位置进行比较
 }
 // 获取非问题列表页面的数据
+const faceImageList1 = ['正面像', '正面微笑像']
+const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
+const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
+const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
 async function getDataList() {
   const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&location=2`)
   if (result.data?.length > 0) {
@@ -416,7 +431,7 @@ async function getDataList() {
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
         if (acc[cur.owningModule]) {
-          if (cur.className == '正面微笑像') {
+          if (faceImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
               imageUrl: cur.image_url
@@ -431,20 +446,21 @@ async function getDataList() {
           }
         } else {
           acc[cur.owningModule] = cur
-          if (cur.className == '正面像') {
-            acc[cur.owningModule].imageList1 = []
+          acc[cur.owningModule].list1 = []
+          acc[cur.owningModule].imageList1 = []
+          acc[cur.owningModule].imageList2 = []
+          acc[cur.owningModule].list2 = []
+          if (faceImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
               imageUrl: cur.image_url
             })
             acc[cur.owningModule].list1 = cur.list
-            acc[cur.owningModule].imageList2 = []
-            acc[cur.owningModule].list2 = []
           }
         }
       } else if (cur.owningModule == '口内照') {
         if (acc[cur.owningModule]) {
-          if (cur.className.startsWith('口内照')) {
+          if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
               imageUrl: cur.image_url
@@ -459,10 +475,11 @@ async function getDataList() {
           }
         } else {
           acc[cur.owningModule] = cur
-          if (cur.className == '正面咬合') {
-            acc[cur.owningModule].imageList1 = []
-            acc[cur.owningModule].imageList2 = []
-            acc[cur.owningModule].list2 = []
+          acc[cur.owningModule].list1 = []
+          acc[cur.owningModule].imageList1 = []
+          acc[cur.owningModule].imageList2 = []
+          acc[cur.owningModule].list2 = []
+          if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
               imageUrl: cur.image_url
@@ -495,28 +512,24 @@ async function getClassifiedImgList() {
     // const molar = res.data.find((item) => item.imageType === '磨牙关系（左侧）')
     const face = data.value.find((d) => d.owningModule === '面型评估')
     const mouth = data.value.find((d) => d.owningModule === '口内照')
-    // 没有症状的，也给显示图片，按照pdf的布局分成两组
-    const faceImageList1 = ['正面像', '正面微笑像']
-    const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
+
     faceImageList1.forEach((item) => {
-      if (!face.imageList1.some((image) => image.className === item)) {
+      if (face && !face.imageList1.some((image) => image.className === item)) {
         face.imageList1.push({ className: item })
       }
     })
     faceImageList2.forEach((item) => {
-      if (!face.imageList2.some((image) => image.className === item)) {
+      if (face && !face.imageList2.some((image) => image.className === item)) {
         face.imageList2.push({ className: item })
       }
     })
-    const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
-    const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
     mouthImageList1.forEach((item) => {
-      if (!mouth.imageList1.some((image) => image.className === item)) {
+      if (mouth && !mouth.imageList1.some((image) => image.className === item)) {
         mouth.imageList1.push({ className: item })
       }
     })
     mouthImageList2.forEach((item) => {
-      if (!mouth.imageList2.some((image) => image.className === item)) {
+      if (mouth && !mouth.imageList2.some((image) => image.className === item)) {
         mouth.imageList2.push({ className: item })
       }
     })
@@ -581,44 +594,60 @@ src.value = pdf ? pdf : ''
 
 const emit = defineEmits(['getPdfResult'])
 const generatePDF = () => {
-  const options = {
-    filename: `${patientInfo.value.Name}__正畸报告__${formattedDate}.pdf`,
-    margin: 0,
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2, useCORS: true, dpi: 96 },
-    pagebreak: { mode: 'css' },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }
-  const element = document.querySelector('.pdfContent')
-  // html2pdf().set(options).from(element).save()
+  try {
+    const options = {
+      filename: `${patientInfo.value.Name}__正畸报告__${formattedDate}.pdf`,
+      margin: 0,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, dpi: 96 },
+      pagebreak: { mode: 'css' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }
+    const element = document.querySelector('.pdfContent')
+    // html2pdf().set(options).from(element).save()
 
-  html2pdf()
-    .set(options)
-    .from(element)
-    .toPdf()
-    .get('pdf')
-    .then((pdfObj) => {
-      const token =
-        'Bearer eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VyX2tleSI6IjU5MzRhODE3LTNjYzktNDFjYS04Zjg3LWVlNmExY2QxMGQ2MCIsInVzZXJuYW1lIjoiYWRtaW4ifQ.H9QPm6ruxpcoVEF06NS8YtKSTWb_pVvCYuo2WjNBluqcGDE_MK_rrH01zY0ULybg0LEK4fsmV3a7krWS4Ym0Yg'
-      const formData = new FormData()
-      const perBlob = pdfObj.output('blob')
-      formData.append('file', perBlob, `${patientInfo.value.Name}__正畸报告__${formattedDate}.pdf`)
-      axios({
-        url: ' http://101.132.64.84:31085/prod-api/file/upload',
-        method: 'post',
-        data: formData,
-        headers: {
-          Authorization: `${token}`,
-          'content-type': 'application/pdf'
-        }
-      }).then((res) => {
-        src.value = res.data.data.url
-        sessionStorage.setItem(`pdfUrl${props.id}`, src.value)
-        emit('getPdfResult', src.value)
-        loading.value?.close()
+    html2pdf()
+      .set(options)
+      .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdfObj) => {
+        const formData = new FormData()
+        const perBlob = pdfObj.output('blob')
+        formData.append(
+          'file',
+          perBlob,
+          `${patientInfo.value.Name}__正畸报告__${formattedDate}.pdf`
+        )
+        Post('/prod-api/emr/upload', formData, true)
+          .then((res) => {
+            if (res.data.code == 200) {
+              src.value = res.data.data.url
+              sessionStorage.setItem(`pdfUrl${props.id}`, src.value)
+              emit('getPdfResult', src.value)
+              ElMessage({
+                type: 'success',
+                message: '报告生成成功'
+              })
+            } else {
+              ElMessage({
+                type: 'error',
+                message: res.data.msg
+              })
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            loading.value?.close()
+          })
       })
-    })
+  } catch (err) {
+    console.log(err)
+  }
 }
+
 async function main() {
   // 依次执行这三个请求
   await getDataList()
@@ -626,9 +655,13 @@ async function main() {
   await getIssuesList()
   await getPatientInfo()
   // 所有请求完成后执行生成PDF
-  await generatePDF()
+  // 刚开始不可见，要生成之前可见就可以，
+  const pdfContent = document.querySelector('.pdfContent')
+  pdfContent.style.display = 'block'
+  generatePDF()
 }
 const loading = ref()
+
 onMounted(() => {
   if (!src.value) {
     loading.value = ElLoading.service({
@@ -637,6 +670,7 @@ onMounted(() => {
       // 把颜色改成不透明的，就看不到后面的pdf的内容了
       background: 'rgba(37, 38, 38, 1)'
     })
+
     main()
   }
 })
@@ -667,7 +701,6 @@ body {
   margin: 0;
 }
 .pic {
-  // margin-top: 20px;
   margin-bottom: 0;
   width: 100%;
   border-radius: 12px;
@@ -703,13 +736,10 @@ body {
   position: relative;
   width: 210mm;
   /* 页面宽度 */
-  // height: 100%; /* 页面高度 */
-  // font-family: 思源黑体;
   .last-page {
     width: 210mm; /* 页面宽度 */
     height: 296.8mm;
     position: relative;
-    // page-break-after: avoid;
     .background {
       width: 100%; /* 图片宽度与页面宽度相同 */
       height: 100%; /* 图片高度与页面高度相同 */
@@ -726,7 +756,7 @@ body {
     position: relative;
     width: 210mm; /* 页面宽度 */
     height: 297mm; /* 页面高度 */
-    // page-break-after: always; /* 在每个.pdfPage元素之后进行分页 */
+
     page-break-inside: avoid;
     padding: 50px 30px;
     .listType {
@@ -783,7 +813,6 @@ body {
 
         &.content {
           .list1 {
-            // background: red;
             width: 100%;
             display: block;
           }
@@ -844,7 +873,7 @@ body {
       }
       .middle {
         margin-top: 16px;
-        // height: 168px;
+
         .imageList1 {
           display: grid;
           grid-gap: 10px;
@@ -1114,7 +1143,7 @@ body {
           position: absolute;
           top: 0;
           left: 0;
-          // width: 79px;
+
           height: 28px;
           padding: 4px 16px;
           background: #fdb32c;
