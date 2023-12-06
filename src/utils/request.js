@@ -81,24 +81,23 @@ instance.interceptors.request.use(
 )
 instance.interceptors.response.use(
   (response) => {
-
     // axiosCanceler.removePending(response.config)
     return response
   },
   (error) => {
     // axiosCanceler.removePending(error.config)
-    // // 在响应错误时做一些操作
-    // if (error.response) {
-    //   // 服务器返回错误状态码
-    //   const status = error.response.status
-    //   if (status === 400 || status === 500) {
-    //     // 提示请求失败
-    //     ElMessage({
-    //       type: 'error',
-    //       message: '请求失败，请稍后重试'
-    //     })
-    //   }
-    // }
+    // 在响应错误时做一些操作
+    if (error.response) {
+      // 服务器返回错误状态码
+      const status = error.response.status
+      if (status === 400 || status === 500) {
+        // 提示请求失败
+        ElMessage({
+          type: 'error',
+          message: '请求失败，请稍后重试'
+        })
+      }
+    }
     return Promise.reject(error)
   }
 )
@@ -153,7 +152,7 @@ export function Get(url, params) {
         // if (err.name === 'AbortError') {
         //   console.log('Request aborted:', err.message)
         // }
-        // 在这里处理
+        // // 在这里处理
       })
   })
 }

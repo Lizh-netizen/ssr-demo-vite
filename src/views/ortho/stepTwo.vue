@@ -1443,6 +1443,9 @@ async function getOrthFaceAccessList() {
               calculateFront(faceSet.value)
             }
             nextTick(() => {
+              if (!interruptSignal) {
+                return
+              }
               loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
             })
           } else {
@@ -1466,6 +1469,9 @@ async function getOrthFaceAccessList() {
                 }
                 image.src = FrontalReposeImageUrl.value
                 nextTick(() => {
+                  if (!interruptSignal) {
+                    return
+                  }
                   loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
                 })
               }
@@ -1582,9 +1588,11 @@ const tasks = [
   getImageList
 ]
 // mayCancelList(tasks)
+let interruptSignal = false
 onBeforeUnmount(() => {
-  // mayCancelList(tasks).forEach((task) => task.abort())
+  interruptSignal = true
 })
+
 async function main() {
   // 创建要运行的函数数组
 
@@ -1594,6 +1602,9 @@ async function main() {
     const task = tasks.shift()
 
     // Run the task:
+    if (interruptSignal) {
+      break
+    }
     await task()
   }
   // 运行任务
