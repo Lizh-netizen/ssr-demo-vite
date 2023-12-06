@@ -136,7 +136,7 @@ export function calculateFourPointsAngle(str, coordinates) {
     b = coordinates.find(a => a.label == 'B')
     c = coordinates.find(a => a.label == 'Go')
     d = coordinates.find(a => a.label == 'Gn')
-    console.log(a, b, c, d)
+  
 
   }
   if (str == 'APDIAngle1') {
@@ -191,7 +191,7 @@ function findFootPointCoordinates(A, B, C) {
   return { x: footPointX, y: footPointY };
 }
 export function calculateWits (A, B, U1, L1, U6, L6, standardDistance) {
-console.log(A, B, U1, L1, U6, L6)
+
   const M_U6L6 = {
     x: (U6.x + L6.x) / 2,
     y: (U6.y + L6.y) / 2,

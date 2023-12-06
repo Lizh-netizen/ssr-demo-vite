@@ -19,6 +19,8 @@ app.use(lazyPlugin, {
   loading: imgPlaceholder,
   error: 'error.png'
 })
+app.config.globalProperties.axiosPromiseArr = []
+
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

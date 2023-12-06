@@ -1,17 +1,12 @@
 <template>
   <div class="list1">
-    <div
-      class="list__item"
-      v-for="a in list"
-      :key="a.id"
-      :data-serious="a.serious"
-    >
+    <div class="list__item" v-for="a in list" :key="a.id" :data-serious="a.serious">
       <div class="list__item__desc">
         {{ a.title_name }}:{{ a.option_names }}
         <img
           class="seriousIcon"
           src="../../assets/svg/serious.svg"
-          v-show="a.serious == '1'"
+          v-show="a.serious == '1' && moduleName !== '问题列表'"
           :style="{
             'margin-left': '8px'
           }"
@@ -23,7 +18,7 @@
 
 <script setup>
 import { defineProps } from 'vue'
-defineProps(['list'])
+defineProps(['list', 'moduleName'])
 </script>
 
 <style lang="scss" scoped>

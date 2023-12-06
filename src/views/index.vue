@@ -31,7 +31,12 @@
           options: options1,
           allowSearch: true
         },
-        { name: '就诊日期', type: 'date', prop: 'date', defaultDate: formatTime() }
+        {
+          name: '就诊日期',
+          dateType: currentTab == '面评矫正预约率' ? 'range' : undefined,
+          type: 'date',
+          prop: 'date'
+        }
       ]"
     ></filter-search>
 
@@ -44,12 +49,12 @@
       @change-page="changePage"
       @change-note="changeNote"
     >
-      <template #filterRemark="{ row }">
+      <template #voice_text="{ row }">
         <div :style="{ display: 'flex', alignItems: 'center' }">
-          <div>
-            123这是大段的文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文
+          <div :style="{ marginRight: '2px' }">
+            {{ row.voice_text }}
           </div>
-          <div id="playPauseButton" @click="togglePlayPause">
+          <div :style="{ display: 'flex' }" id="playPauseButton" @click="togglePlayPause(row)">
             <img src="@/assets/svg/play.svg" v-if="!isPlaying" /><img
               v-else
               src="@/assets/svg/pause.svg"
@@ -57,11 +62,20 @@
           </div>
         </div>
       </template>
-
+      <template #orthDoctorName="{ row }">
+        <div>
+          <span
+            :style="{ padding: '4px 8px', display: 'inline-block' }"
+            :class="{ notHasAptm: row.orthDoctorName === '未预约' }"
+          >
+            {{ row.orthDoctorName }}</span
+          >
+        </div>
+      </template>
       <template #responsibleDoctor="{ row }">
-        <el-select>
+        <el-select @change="handleSaveOrthDoctor(row)" v-model="row.transformDoctorName">
           <el-option
-            v-for="item in options"
+            v-for="item in orthDoctorList"
             :key="item.value"
             :label="item.label"
             :value="item.value"
@@ -71,15 +85,17 @@
               :style="{
                 marginRight: '10px'
               }"
+              v-if="item.value !== row.doctorId"
             />{{ item.label }}
           </el-option>
         </el-select>
       </template>
-
+      <template #note="{ row }">
+        <div>
+          {{ row.note }}
+        </div>
+      </template>
       <template #operation="{ row }">
-        <el-button @click="handleEvaluate(row)" v-if="currentTab == '面评矫正预约率'"
-          >录入矫正方案评估</el-button
-        >
         <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
           >录入面型发育评估</el-button
         >
@@ -92,22 +108,22 @@
         <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
           >对比矫正方案报告</el-button
         >
+        <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评矫正预约率'"
+          >去预约</el-button
+        >
       </template>
     </CustomTable>
+    <audio
+      id="audioPlayer"
+      controls
+      :style="{
+        opacity: 0
+      }"
+      @canplay="handleCanPlay"
+    >
+      <source id="audioSource" type="audio/mp3" :src="voiceUrl" />
+    </audio>
   </div>
-  <audio
-    id="audioPlayer"
-    controls
-    :style="{
-      opacity: 0
-    }"
-  >
-    <source
-      id="audioSource"
-      type="audio/mp3"
-      src="https://orange-odos.oss-cn-hangzhou.aliyuncs.com/2023/11/28/record_20231128120133A111.mp3"
-    />
-  </audio>
 </template>
 <script setup>
 import { ref, watchEffect, watch, nextTick, onMounted } from 'vue'
@@ -120,16 +136,21 @@ import filterSearch from '../packages-js/filter-search/filter-search.vue'
 import taskCardItem from '../packages-js/task-card-item/task-card-item.vue'
 import taskCard from '../packages-js/task-card/task-card.vue'
 import datePicker from '../packages-js/date-picker/date-picker.vue'
+import { ElTableColumn, ElMessage } from 'element-plus'
+import customList from '@/components/pdf/customList.vue'
 
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
 
 // 切换卡片
+// 首次渲染的时候也执行了
 const changeTab = (val) => {
   currentTab.value = val
   sessionStorage.setItem('currentTab', val)
+  // 添加缓存
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
+
   const args = getCache(currentTab)
   strategy[val].request(args)
 }
@@ -153,6 +174,7 @@ const strategy = {
     request: getAptmList
   }
 }
+
 const total = ref(0)
 const date = ref('')
 // 默认是今天的日期
@@ -225,26 +247,37 @@ async function getOrthoList(val) {
     }
   }
 }
-async function getAptmList() {}
-const aptmList = ref([
-  {
-    patientName: 'Magvian Vivi',
-    doctorName: '顾晓倩',
-    apmtId: 3419404,
-    patientId: 525855,
-    Sex: 2,
-    StartTime: '2023-11-24T10:00:00',
-    filterStatus: 0,
-    facialAdvise: '',
-    Birth: '2016-02-19T00:00:00',
-    Mobile: '15121049773',
-    age: '2016-02-19 (7岁)',
-    filterRemark: '这是备注',
-    responsibleDoctor: '顾晓倩',
-    note: '备注',
-    noteList: [{ time: '', name: '', content: 'content' }]
+const aptmList = ref([])
+async function getAptmList(val) {
+  const res = await Post('/prod-api/emr/public/api/v1/assessment/list', {
+    startDate: val?.date || date.value, //预约日期
+    pageSize: val?.pageSize || pageSize.value,
+    pageNum: val?.page || page.value,
+    officeId: val?.officeId || officeId.value,
+    doctorId: val?.doctorId || doctorId.value
+  })
+  if (res.code == 200) {
+    total.value = res.total
+    orthoList.value = res.rows.map((item) => ({
+      ...item,
+      StartTime: item.StartTime.replace('T', ' ').slice(5, 16),
+      patientName: item.patientName,
+      age: item.age,
+      orthStartTime: item.orthStartTime.replace('T', ' ').slice(5, 16),
+      orthDoctorName: item.orthDoctorName ? item.orthDoctorName : '未预约',
+      noteList: [{ time: '', name: '', content: 'content' }],
+      isPlaying: false
+    }))
+    orthoList.value.forEach((item) => {
+      getNote(item.aptmId)
+    })
+    patientList.value = orthoList.value
+    total.value = res.total
   }
-])
+}
+async function getNote(aptmId) {
+  const res = await Get(`/prod-api/emr/public/api/v1/assessmentNote/list?aptmId=${aptmId}`)
+}
 const allOptions = ref([])
 const loading = ref(false)
 const getDoctorList = () => {
@@ -288,6 +321,7 @@ const remoteMethod1 = (query) => {
     )
   }
 }
+
 const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.apmtId}/${item.patientId}`)
@@ -298,13 +332,16 @@ const handleCompareOrth = (item) => {
 const handleEvaluateOrth = (item) => {
   router.push(`/evaluateOrtho/${item.apmtId}/${item.patientId}`)
 }
+
 const storageName = ref('evaluate')
+
 const filter = (val) => {
-  filterVal.value = JSON.parse(sessionStorage.getItem(storageName.value))
-  strategy[currentTab.value].request(filterVal.value)
+  const v = getCache(currentTab)
+
+  strategy[currentTab.value].request(v)
 }
 const pagesStorage = ref('evaluatePage')
-const changePage = () => {
+const changePage = (page) => {
   const pages = sessionStorage.getItem(strategy[currentTab.value].page)
   const storage = sessionStorage.getItem(strategy[currentTab.value].storage)
   const val = { ...JSON.parse(pages), ...JSON.parse(storage) }
@@ -319,8 +356,7 @@ watch(
       patientList.value = orthoList.value
     } else {
       patientList.value = aptmList.value.map((i) => ({
-        ...i,
-        noteList: [{ time: '', name: '', content: 'content' }]
+        ...i
       }))
     }
     columns.value = strategy[val].config
@@ -328,10 +364,9 @@ watch(
   { immediate: true }
 )
 onMounted(() => {
-  console.log(currentTab.value, strategy[currentTab.value].page)
-  // pagesStorage.value = strategy[currentTab.value].page
-  strategy[currentTab.value].request()
+  pagesStorage.value = strategy[currentTab.value].page
 })
+
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount() {
@@ -358,6 +393,14 @@ getOrthCount()
 const tabData = [
   {
     svg_name: 'cardSvg1',
+    name: '面评矫正预约率',
+    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
+    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
+    left_text: '已录入矫正方案人数',
+    right_text: '需要矫正人数'
+  },
+  {
+    svg_name: 'cardSvg1',
     name: '面评',
     left_num: facialCount.value.numerator ? facialCount.value.numerator : 0,
     right_num: facialCount.value.totalCount ? facialCount.value.totalCount : 0,
@@ -371,40 +414,91 @@ const tabData = [
     right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
     left_text: '已录入矫正方案人数',
     right_text: '需要矫正人数'
-  },
-  {
-    svg_name: 'cardSvg1',
-    name: '面评矫正预约率',
-    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
-    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
   }
 ]
-const changeNote = () => {}
+async function changeNote(val) {
+  val.row.note = val.note
+  val.row.noteList.push({
+    time: new Date().toLocaleString(),
+    name: 'admin',
+    content: val.note
+  })
+  const res = await Post('/prod-api/emr/public/api/v1/assessmentNote', {
+    aptmId: val.row.aptmId,
+    note: val.note
+  })
+  if (res.code == 200) {
+    ElMessage.success('新增成功')
+  }
+}
 const isPlaying = ref(false)
 const audioPlayer = ref(null)
+var audioSource = ref(null)
+const voiceUrl = ref()
 onMounted(() => {
+  audioSource.value = document.getElementById('audioSource')
   audioPlayer.value = document.getElementById('audioPlayer')
   // 当音频播放结束时，将播放状态重置为false
   audioPlayer.value?.addEventListener('ended', function () {
     isPlaying.value = false
+    voiceUrl.value = ''
   })
 })
 
-const audioSource = document.getElementById('audioSource')
-function togglePlayPause() {
-  console.log(audioPlayer)
-  if (isPlaying.value) {
+async function togglePlayPause(row) {
+  if (!voiceUrl.value) {
+    voiceUrl.value =
+      'https://orange-odos.oss-cn-hangzhou.aliyuncs.com/2023/11/28/record_20231128114907A110.mp3'
+    audioPlayer.value.load()
+  }
+  if (!audioPlayer.value.paused && isPlaying.value) {
     audioPlayer.value.pause()
-  } else {
+  } else if (audioPlayer.value.paused && !isPlaying.value) {
     audioPlayer.value.play()
   }
+
   isPlaying.value = !isPlaying.value
+}
+const handleCanPlay = () => {
+  audioPlayer.value.play().then(() => {
+    console.log('done')
+  })
+}
+const selectDoctor = ref()
+const orthDoctorList = ref([])
+async function getOrthDoctorList() {
+  const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
+  if (res.code == 200) {
+    orthDoctorList.value = res.data.map((item) => {
+      return {
+        label: item.doctorName,
+        value: item.doctorId
+      }
+    })
+  }
+}
+getOrthDoctorList()
+async function handleSaveOrthDoctor(item) {
+  const found = orthDoctorList.value.find((item) => item.value == selectDoctor.value)
+
+  const data = {
+    orthDoctorName: found.label,
+    orthDoctorId: selectDoctor.value,
+    patientId: item.PatientId,
+    aptmId: item.aptmId,
+    id: item.id
+  }
+  const res = await Post('/prod-api/emr/public/api/v1/assessment', data)
+  if (res.code == 200) {
+  }
 }
 </script>
 <style lang="scss" scoped>
 .content {
   padding: 0 20px;
+}
+.notHasAptm {
+  background: rgb(247, 101, 96);
+  border-radius: 10px;
 }
 </style>

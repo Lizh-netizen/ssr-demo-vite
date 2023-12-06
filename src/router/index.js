@@ -1,4 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { createAxiosWithCancel } from '@/utils/request';
+
+const { cancelAllRequests } = createAxiosWithCancel();
+
 
 const routes = [
   { path: '/', redirect: '/index' },
@@ -44,4 +48,10 @@ const router = createRouter({
   routes
 })
 
+
+router.beforeEach(function (to, from, next) {
+  // 在路由切换前取消所有请求
+  cancelAllRequests();
+  next()
+})
 export default router

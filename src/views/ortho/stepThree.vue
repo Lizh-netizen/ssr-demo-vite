@@ -5,7 +5,7 @@
       <form-item
         :label="title.titleName"
         width="110px"
-        v-for="(title, index) in modelData.orthTitleList.slice(0, 2)"
+        v-for="(title, index) in modelData.orthTitleList?.slice(0, 2)"
         :key="title.id"
       >
         <template v-if="index <= 1">
@@ -94,7 +94,6 @@ async function getOrthModelList() {
         title.min = (title.orthOptionsList[0].optionName * 100).toFixed(2) + '%'
         title.max = (title.orthOptionsList[1].optionName * 100).toFixed(2) + '%'
       }
-
       title.placeholder = index == 2 ? '' : title.titleName.substr(-4).slice(0, 3)
       title.left = index == 2 ? '反曲' : '偏低'
       title.middle = '正常'

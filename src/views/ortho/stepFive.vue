@@ -49,7 +49,10 @@
           ></template>
           <!-- <div class="optionContainer"> -->
 
-          <template v-else> </template>
+          <template v-else>
+            <!-- 用法和第二步一样，所以step是2 -->
+            <Tooth :title="title" :appId="appId" :step="2" />
+          </template>
           <!-- </div> -->
         </form-item>
       </template>
@@ -216,113 +219,8 @@
                       v-else
                     />
                   </el-checkbox-button>
-                  <!-- <el-popover
-                    v-else
-                    popper-class="myPopper"
-                    :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                    placement="top-start"
-                    :width="200"
-                    :visible="option.visible"
-                    @after-leave="handleSubmitBrand(title, option)"
-                  >
-                    <template #reference>
-                      <el-checkbox-button
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        :label="option.id"
-                        @mouseenter="handleMouseEnter(option)"
-                        @mouseleave="handleMouseLeave(option)"
-                      >
-                        {{ option.optionName }}
-                        <img
-                          src="../../assets/svg/checked.svg"
-                          v-if="option.serious == '0'"
-                        /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          fill="
-                              none
-                            "
-                          version="1.1"
-                          width="9.999975204467773"
-                          height="9.999975204467773"
-                          viewBox="0 0 9.999975204467773 9.999975204467773"
-                        >
-                          <g>
-                            <path
-                              d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                              fill-rule="evenodd"
-                              :fill="
-                                option.clicked
-                                  ? option.hoverColor
-                                  : option.hover
-                                  ? option.hoverColor
-                                  : option.fillColor
-                              "
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </svg>
-                      </el-checkbox-button>
-                    </template>
-                    <form-item :label="option.brand.titleName">
-                      <el-radio-group
-                        v-model="option.otherContent"
-                        @change="
-                          handleChangeOption(
-                            option.otherContent,
-                            option.brand,
-                            option,
-                            title
-                          )
-                        "
-                      >
-                        <el-radio-button
-                          v-for="option1 in option.brand.orthOptionsList"
-                          :key="option1.id"
-                          :class="{
-                            serious: option1.serious == '1'
-                          }"
-                          :label="option1.id"
-                        >
-                          {{ option1.optionName }}</el-radio-button
-                        ></el-radio-group
-                      >
-                    </form-item>
-                  </el-popover> -->
                 </template>
-                <!-- <el-checkbox-button
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                  v-for="option in title.orthOptionsList"
-                  :key="option.id"
-                  :label="option.id"
-                >
-                  {{ option.optionName }}
-                  <img
-                    src="../../assets/svg/checked.svg"
-                    v-if="option.serious == '0'"
-                  /><img src="../../assets/svg/abnormalChecked.svg" v-else />
-                </el-checkbox-button> -->
               </el-checkbox-group>
-            </form-item>
-          </template>
-          <template v-if="title.titleName == '预计矫正周期'">
-            <form-item :label="title.titleName" width="100px">
-              <el-input
-                :style="{ width: '100px' }"
-                v-model="title.cephalometricsContent"
-                @blur="handleSubmitAddtionalContent(title)"
-              ></el-input
-              ><span :style="{ color: '#4e5969' }"> 个月</span>
             </form-item>
           </template>
         </template>
@@ -332,13 +230,18 @@
     <div class="content">
       <template v-for="item in periodData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
-          <form-item :label="title.titleName"
-            ><el-input
-              :style="{ width: '100px' }"
+          <form-item :label="title.titleName">
+            <el-select
+              :style="{ width: '60px' }"
               v-model="title.cephalometricsContent"
-              @blur="handleSubmitAddtionalContent(title)"
-            ></el-input
-            ><span :style="{ color: '#4e5969', 'margin-left': '8px' }"> 个月</span></form-item
+              @change="handleSubmitAddtionalContent(title)"
+              filterable
+              remote
+            >
+              <el-option v-for="item in [10, 15, 18, 20]" :key="item" :label="item" :value="item" />
+            </el-select>
+
+            <span :style="{ color: '#4e5969', 'margin-left': '8px' }"> 个月</span></form-item
           ></template
         ></template
       >
@@ -514,97 +417,12 @@
                             /><img src="../../assets/svg/abnormalChecked.svg" v-else />
                           </el-checkbox-button>
                         </template>
-                        <el-popover
-                          placement="right"
-                          :width="490"
-                          trigger="click"
-                          @show="handleBeforeEnterPopover(option)"
-                          @after-leave="handleSubmitTooth(option, title)"
-                        >
-                          <template #reference>
-                            <div class="diagramWrapper">
-                              <div class="diagram">
-                                <div class="diagramBox">
-                                  <div class="toothItem1">
-                                    {{
-                                      option.topLeft
-                                        .sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem2">
-                                    {{
-                                      option.topRight
-                                        .sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                                <div class="diagramBox">
-                                  <div class="toothItem3">
-                                    {{
-                                      option.bottomLeft
-                                        .sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem4">
-                                    {{
-                                      option.bottomRight
-                                        .sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </template>
-                          <div class="selectContainer" id="selectContainer">
-                            <div class="container">
-                              <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                                <div
-                                  class="symptomBox"
-                                  :class="{
-                                    itemAlignRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginTop: rowindex == 4 || rowindex == 5,
-                                    marginBottom: rowindex == 2 || rowindex == 3,
-                                    marginRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginLeft:
-                                      rowindex === 1 ||
-                                      rowindex === 3 ||
-                                      rowindex === 5 ||
-                                      rowindex === 7
-                                  }"
-                                >
-                                  <div
-                                    class="symptomItem"
-                                    :class="{ selected: item.active === true }"
-                                    :id="item.value"
-                                    v-for="(item, index) in row"
-                                    :key="index"
-                                    @click="handleSelectTooth(item, option)"
-                                  >
-                                    {{ item.label }}
-                                  </div>
-                                </div>
-                              </template>
-                            </div>
-                            <div class="left">右</div>
-                            <div class="right">左</div>
-                          </div>
-                        </el-popover>
+                        <Tooth
+                          :step="5"
+                          :title="option"
+                          :appId="appId"
+                          @submitTooth="(val) => handleSubmitTooth(val, title)"
+                        />
                       </el-popover>
                     </template>
                   </template>
@@ -650,6 +468,9 @@ import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
+import Tooth from '@/components/list/tooth.vue'
+const submitTooth = (title) => {}
 const goalClicked = ref(false)
 const methodClicked = ref(false)
 defineExpose({
@@ -723,6 +544,8 @@ async function getOrthPlanList() {
           title.optionId = choosenOptions.map((option) => option.id)
           title.optionId1 = title.optionId
         }
+      } else if (title.type == 4) {
+        useFdiToothCodeEffect(title)
       }
     })
   })
@@ -858,31 +681,7 @@ async function getOrthRiskList() {
     item.orthTitleList.forEach((i) => {
       i.orthOptionsList.forEach((a) => {
         if (a.optionSuffix) {
-          a.topLeft = []
-          a.topRight = []
-          a.bottomLeft = []
-          a.bottomRight = []
-          const arr = JSON.parse(a.showPosition)
-          a.visible = false
-          if (a.fdiToothCode) {
-            a.toothCode = a.fdiToothCode.split(',')
-            a.fdiToothCode.split(',').forEach((code, index) => {
-              if (code.startsWith('1') || code.startsWith('5')) {
-                a.topLeft.push(arr[index][0])
-              } else if (code.startsWith('2') || code.startsWith('6')) {
-                a.topRight.push(arr[index][0])
-              } else if (code.startsWith('4') || code.startsWith('8')) {
-                a.bottomLeft.push(arr[index][0])
-              } else if (code.startsWith('3') || code.startsWith('7')) {
-                a.bottomRight.push(arr[index][0])
-              }
-            })
-          } else {
-            a.toothCode = []
-          }
-
-          a.position = arr || []
-          a.submitAble = false
+          useFdiToothCodeEffect(a)
         }
       })
     })
@@ -1029,7 +828,6 @@ const handleSelectTooth = (item, option) => {
 const requestAgain = ref(false)
 async function handleChangeOption(optionId, title, option, title1, className) {
   if (className == '目标') {
-    console.log(className)
     goalClicked.value = true
   }
   if (className == '方法') {

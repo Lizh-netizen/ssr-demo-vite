@@ -287,99 +287,7 @@
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
                   <template v-if="index >= 6 && index <= 12">
                     <form-item :label="title.titleName" width="120px">
-                      <el-popover
-                        :width="490"
-                        :visible="title.popVisible"
-                        @show="handleBeforeEnterPopover(title)"
-                        @after-leave="handleSubmitTooth(title)"
-                      >
-                        <template #reference>
-                          <div
-                            class="diagramWrapper"
-                            @click.stop="openPop(title, panoramicData[0])"
-                          >
-                            <div class="diagram">
-                              <div class="diagramBox">
-                                <div class="toothItem1">
-                                  {{
-                                    title.topLeft
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                                <div class="toothItem2">
-                                  {{
-                                    title.topRight
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                              </div>
-                              <div class="diagramBox">
-                                <div class="toothItem3">
-                                  {{
-                                    title.bottomLeft
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                                <div class="toothItem4">
-                                  {{
-                                    title.bottomRight
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </template>
-                        <div class="selectContainer" id="selectContainer">
-                          <div class="container">
-                            <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                              <div
-                                class="symptomBox"
-                                :class="{
-                                  itemAlignRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginTop: rowindex == 4 || rowindex == 5,
-                                  marginBottom: rowindex == 2 || rowindex == 3,
-                                  marginRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginLeft:
-                                    rowindex === 1 ||
-                                    rowindex === 3 ||
-                                    rowindex === 5 ||
-                                    rowindex === 7
-                                }"
-                              >
-                                <div
-                                  class="symptomItem"
-                                  :class="{ selected: item.active === true }"
-                                  :id="item.value"
-                                  v-for="(item, index) in row"
-                                  :key="index"
-                                  @click.stop="handleSelectTooth(item, title)"
-                                >
-                                  {{ item.label }}
-                                </div>
-                              </div>
-                            </template>
-                          </div>
-                          <div class="left">右</div>
-                          <div class="right">左</div>
-                        </div>
-                      </el-popover>
+                      <Tooth :step="2" :title="title" :appId="appId" :data="panoramicData[0]" />
                     </form-item>
                   </template>
                 </template>
@@ -388,99 +296,7 @@
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
                   <template v-if="index >= 13">
                     <form-item :label="title.titleName" width="120px">
-                      <el-popover
-                        :width="490"
-                        :visible="title.popVisible"
-                        @show="handleBeforeEnterPopover(title)"
-                        @after-leave="handleSubmitTooth(title)"
-                      >
-                        <template #reference>
-                          <div
-                            class="diagramWrapper"
-                            @click.stop="openPop(title, panoramicData[0])"
-                          >
-                            <div class="diagram">
-                              <div class="diagramBox">
-                                <div class="toothItem1">
-                                  {{
-                                    title.topLeft
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                                <div class="toothItem2">
-                                  {{
-                                    title.topRight
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                              </div>
-                              <div class="diagramBox">
-                                <div class="toothItem3">
-                                  {{
-                                    title.bottomLeft
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                                <div class="toothItem4">
-                                  {{
-                                    title.bottomRight
-                                      ?.sort((a, b) => a.sort - b.sort)
-                                      .map((a) => a.value)
-                                      .join('')
-                                  }}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </template>
-                        <div class="selectContainer" id="selectContainer">
-                          <div class="container">
-                            <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                              <div
-                                class="symptomBox"
-                                :class="{
-                                  itemAlignRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginTop: rowindex == 4 || rowindex == 5,
-                                  marginBottom: rowindex == 2 || rowindex == 3,
-                                  marginRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginLeft:
-                                    rowindex === 1 ||
-                                    rowindex === 3 ||
-                                    rowindex === 5 ||
-                                    rowindex === 7
-                                }"
-                              >
-                                <div
-                                  class="symptomItem"
-                                  :class="{ selected: item.active === true }"
-                                  :id="item.value"
-                                  v-for="(item, index) in row"
-                                  :key="index"
-                                  @click.stop="handleSelectTooth(item, title)"
-                                >
-                                  {{ item.label }}
-                                </div>
-                              </div>
-                            </template>
-                          </div>
-                          <div class="left">右</div>
-                          <div class="right">左</div>
-                        </div>
-                      </el-popover>
+                      <Tooth :step="2" :title="title" :appId="appId" :data="panoramicData[0]" />
                     </form-item>
                   </template>
                 </template>
@@ -547,8 +363,9 @@
                   effect="light"
                   placement="top"
                   :content="title.titlePrompt"
-                  v-if="!['SNA', 'SNB', '扁桃体', '腺样体', '颈椎分期'].includes(title.titleName)"
-                  ><img src="@/assets/svg/questionMark.svg"
+                  ><img
+                    src="@/assets/svg/questionMark.svg"
+                    :class="{ hide: ['SNA', 'SNB'].includes(title.titleName) }"
                 /></el-tooltip>
 
                 <div class="formItem__content">
@@ -611,7 +428,7 @@
                   {{ title.titleName }}
                 </div>
                 <el-tooltip class="box-item" effect="light" placement="top"
-                  ><img src="@/assets/svg/questionMark.svg"
+                  ><img src="@/assets/svg/questionMark.svg" :style="{ opacity: '0' }"
                 /></el-tooltip>
                 <div class="formItem__content">
                   <el-radio-group
@@ -842,7 +659,8 @@ import {
   watch,
   defineProps,
   defineExpose,
-  onBeforeMount
+  onBeforeMount,
+  onBeforeUnmount
 } from 'vue'
 import Header from '@/components/list/header.vue'
 import ImageItem from '@/components/list/imageItem.vue'
@@ -867,12 +685,14 @@ import 'animate.css'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+
 onBeforeMount(() => {
   const link = document.createElement('link')
   link.href = img
@@ -885,7 +705,8 @@ defineExpose({
   clicked
 })
 const props = defineProps({
-  pdfId: String
+  pdfId: String,
+  active: Number
 })
 // 点击全景片图片逻辑
 const zoomPano = ref(false)
@@ -1760,6 +1581,10 @@ const tasks = [
   getOrthCephaList,
   getImageList
 ]
+// mayCancelList(tasks)
+onBeforeUnmount(() => {
+  // mayCancelList(tasks).forEach((task) => task.abort())
+})
 async function main() {
   // 创建要运行的函数数组
 
@@ -1777,7 +1602,7 @@ async function main() {
 
 // getAllData()
 main()
-
+onBeforeUnmount(() => {})
 // 获取全景片
 const panoImageUrl = ref()
 const panoramicData = ref([])
@@ -1790,33 +1615,9 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
-      a.topLeft = []
-      a.topRight = []
-      a.bottomLeft = []
-      a.bottomRight = []
-      const arr = JSON.parse(a.showPosition)
-
-      if (a.fdiToothCode) {
-        a.toothCode = a.fdiToothCode.split(',')
-        a.fdiToothCode.split(',').forEach((code, index) => {
-          if (code.startsWith('1') || code.startsWith('5')) {
-            a.topLeft.push(arr[index][0])
-          } else if (code.startsWith('2') || code.startsWith('6')) {
-            a.topRight.push(arr[index][0])
-          } else if (code.startsWith('4') || code.startsWith('8')) {
-            a.bottomLeft.push(arr[index][0])
-          } else if (code.startsWith('3') || code.startsWith('7')) {
-            a.bottomRight.push(arr[index][0])
-          }
-        })
-      } else {
-        a.toothCode = []
-      }
-      a.position = arr || []
-      a.submitAble = false
+      useFdiToothCodeEffect(a)
     })
   })
-
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1937,6 +1738,7 @@ async function getOrthCephaList() {
     title.inputVal = title.cephalometricsContent
   })
 }
+
 async function imageUrlToBlob(imageUrl) {
   return fetch(imageUrl).then((response) => response.blob()) // 将响应内容转换为Blob
 }
@@ -3081,6 +2883,9 @@ div.el-input__wrapper {
 
   .imageItem__content.cephalometric {
     padding-left: 0;
+    .hide {
+      opacity: 0;
+    }
   }
 }
 

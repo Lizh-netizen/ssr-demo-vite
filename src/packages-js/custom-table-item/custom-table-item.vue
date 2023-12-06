@@ -100,22 +100,22 @@ const renderTableColumn = () => (
               /* 纯icon */
             }
             return (
-              <>
+              <div class={style.icon}>
                 {!!iconOption?.prop ? (
-                  <>
+                  <div>
                     {/* 如果有多种情况 */}
                     <SvgIcon
                       size={iconOption?.iconSize}
                       name={!!row[iconOption?.prop] ? iconOption?.name : iconOption?.secondName}
                     />
-                  </>
+                  </div>
                 ) : (
-                  <>
+                  <div>
                     {/* 如果没有多种情况 */}
                     <SvgIcon size={iconOption?.iconSize} name={iconOption?.name} />
-                  </>
+                  </div>
                 )}
-              </>
+              </div>
             )
           } else if (type === TdType.leftIcon) {
             {

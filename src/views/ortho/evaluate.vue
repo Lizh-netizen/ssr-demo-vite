@@ -1561,7 +1561,7 @@ async function handleSingleImage(file, image) {
       })
     )
   }
-  console.log(file, formData)
+
   const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
   if (res.code == 200 && res.data[0].fileUrl) {
     image.fileUrl = res.data[0].fileUrl

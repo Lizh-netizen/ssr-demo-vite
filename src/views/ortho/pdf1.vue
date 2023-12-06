@@ -91,9 +91,9 @@
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="评估结果" />
-            <div class="subTitle" v-if="issuesList.length > 0">问题列表</div>
+            <div class="subTitle issuesList" v-if="issuesList.length > 0">问题列表</div>
             <div class="content">
-              <list :list="issuesList" />
+              <list :list="issuesList" moduleName="问题列表" />
             </div>
             <div class="subTitle">诊断</div>
             <div class="content">
@@ -621,8 +621,8 @@ const generatePDF = () => {
         )
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {
-            if (res.data.code == 200) {
-              src.value = res.data.data.url
+            if (res.code == 200) {
+              src.value = res.msg
               sessionStorage.setItem(`pdfUrl${props.id}`, src.value)
               emit('getPdfResult', src.value)
               ElMessage({
@@ -632,7 +632,7 @@ const generatePDF = () => {
             } else {
               ElMessage({
                 type: 'error',
-                message: res.data.msg
+                message: '生成失败'
               })
             }
           })
@@ -1020,6 +1020,9 @@ body {
       letter-spacing: 0em;
       border-radius: 262px;
       color: #ffffff;
+      &.issuesList {
+        background: #f76560;
+      }
     }
     .personalInfo {
       margin-left: 14px;

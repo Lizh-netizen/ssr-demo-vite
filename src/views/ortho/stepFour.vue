@@ -141,7 +141,6 @@ async function getOrthQuestionList() {
       return acc
     }, {})
     questionData.value = Object.values(acc)
-    console.log(questionData.value)
   }
 }
 getOrthQuestionList()

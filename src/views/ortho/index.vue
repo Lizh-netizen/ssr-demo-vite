@@ -302,6 +302,7 @@ const handleNextStep = () => {
   nextTick(() => {
     editStep.value = active.value
     active.value++
+
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: '',

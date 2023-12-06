@@ -91,9 +91,17 @@ const {
   'columns',
   'showSet'
 ])
+watch(
+  () => pagesStorage,
+  (val) => {
+    const page = JSON.parse(sessionStorage.getItem(pagesStorage))
+    if (page) {
+      pages.value = page
+    }
+  }
+)
 onBeforeMount(() => {
   const page = JSON.parse(sessionStorage.getItem(pagesStorage))
-  console.log(page, pagesStorage)
   if (page) {
     pages.value = page
   }
