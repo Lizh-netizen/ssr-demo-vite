@@ -1,24 +1,31 @@
 <template>
-  <el-select v-model="value" value-key="id" placeholder="Select">
-    <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item">
-      <template #default>
-        <div>
-          <span>转{{ item.label }}</span>
-        </div>
-      </template>
-    </el-option>
-  </el-select>
+  <el-input></el-input>
+  <el-input></el-input>
+  <div @click="submit">提交</div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-const value = ref(null)
-const options = ref([
-  { id: 1, label: '选项一' },
-  { id: 2, label: '选项二' },
-  { id: 3, label: '选项三' },
-  { id: 4, label: '选项四' },
-  { id: 5, label: '选项五' }
-])
+import CryptoJS from 'crypto-js'
+const encrypt = (data) => {
+  const csrfToken = store.csrfToken
+  const csrfKey = CryptoJS.MD5(csrfToken).toString()
+  // 加密请求体
+  const key = CryptoJS.enc.Utf8.parse(csrfKey)
+  const iv = CryptoJS.enc.Utf8.parse(csrfKey.slice(0, 16))
+  const src = CryptoJS.enc.Utf8.parse(JSON.stringify(data))
+  const encrypted = CryptoJS.AES.encrypt(src, key, {
+    iv: iv,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7
+  })
+
+  const body = CryptoJS.enc.Base64.stringify(encrypted.ciphertext)
+  console.log(body)
+  return body
+}
+const submit = () => {
+  console.log(11)
+  encrypt()
+}
 </script>
 <style></style>

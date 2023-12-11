@@ -65,13 +65,10 @@ const axiosCanceler = new AxiosCanceler()
 
 instance.interceptors.request.use(
   (config) => {
-    const token =
-      'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyNzksInVzZXJfa2V5IjoiMWU0MTdkMjUtZDU2Ny00ZWIyLTg2ZTktYzBkNGJmM2JlMzM2IiwidXNlcm5hbWUiOiJhZG1pbiJ9.gdJpn1QL_h6aC0s9xvTNKJA6ONZlaiow7vJoUgy4TngZYpwApUT5a2UqCATVe7EOT5BUTtXWuAtt2VASC_LfDQ'
-    // const token = localStorage.getItem('jc_odos_token')
+   
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      config.headers.Authorization = sessionStorage.odos_token || ''
     }
-    // axiosCanceler.addPending(config)
 
     return config
   },
