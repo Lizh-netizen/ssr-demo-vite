@@ -49,9 +49,4 @@ const router = createRouter({
 })
 
 
-router.beforeEach(function (to, from, next) {
-  // 在路由切换前取消所有请求
-  cancelAllRequests();
-  next()
-})
 export default router
