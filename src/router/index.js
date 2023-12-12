@@ -3,7 +3,6 @@ import { createAxiosWithCancel } from '@/utils/request';
 
 const { cancelAllRequests } = createAxiosWithCancel();
 
-
 const routes = [
   { path: '/', redirect: '/index' },
   {
