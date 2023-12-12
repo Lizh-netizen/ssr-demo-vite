@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+
 const instance = axios.create({
-  baseURL: import.meta.env.VUE_APP_API_URL,
+  baseURL: import.meta.env.VITE_APP_API_URL,
   timeout: 100000,
   headers: {
     'Content-Type': 'application/json'
