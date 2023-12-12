@@ -65,9 +65,9 @@ const axiosCanceler = new AxiosCanceler()
 
 instance.interceptors.request.use(
   (config) => {
-   
-    if (token) {
-      config.headers.Authorization = sessionStorage.odos_token || ''
+    config.headers = {
+      'Content-Type': 'application/json',
+      Authorization: sessionStorage.odos_token || ''
     }
 
     return config
