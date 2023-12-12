@@ -138,7 +138,12 @@ import taskCard from '../packages-js/task-card/task-card.vue'
 import datePicker from '../packages-js/date-picker/date-picker.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
-
+const route = useRoute()
+const params = route.query
+console.log(route.query, route)
+if (params.token) {
+  sessionStorage.odos_token = params.token
+}
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
 
@@ -491,12 +496,6 @@ async function handleSaveOrthDoctor(item) {
   const res = await Post('/prod-api/emr/public/api/v1/assessment', data)
   if (res.code == 200) {
   }
-}
-const route = useRoute()
-const params = route.query
-console.log(route.query, route, 11)
-if (params.token) {
-  sessionStorage.odos_token = params.token
 }
 </script>
 <style lang="scss" scoped>
