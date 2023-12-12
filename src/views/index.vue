@@ -128,7 +128,7 @@
 <script setup>
 import { ref, watchEffect, watch, nextTick, onMounted } from 'vue'
 import { Post, Get } from '../utils/request'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import formatTime from '../utils/formatTime'
 import { columns_config_evaluate, columns_config_ortho, columns_config_aptm } from './config'
 import CustomTable from '../packages-js/custom-table/custom-table.vue'
@@ -491,6 +491,12 @@ async function handleSaveOrthDoctor(item) {
   const res = await Post('/prod-api/emr/public/api/v1/assessment', data)
   if (res.code == 200) {
   }
+}
+const route = useRoute()
+const params = route.query
+console.log(route.query, route, 11)
+if (params.token) {
+  sessionStorage.odos_token = params.token
 }
 </script>
 <style lang="scss" scoped>
