@@ -67,7 +67,7 @@ instance.interceptors.request.use(
   (config) => {
     config.headers = {
       'Content-Type': 'application/json',
-      Authorization: sessionStorage.odos_token || ''
+      Authorization: sessionStorage.jc_odos_token || ''
     }
 
     return config
