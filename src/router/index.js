@@ -3,7 +3,6 @@ import { createAxiosWithCancel } from '@/utils/request';
 
 const { cancelAllRequests } = createAxiosWithCancel();
 
-
 const routes = [
   { path: '/', redirect: '/index' },
   {
@@ -11,7 +10,6 @@ const routes = [
     name: 'index',
     component: () => import('../views/index.vue')
   },
-  
   {
     path: '/test',
     name: 'test',
