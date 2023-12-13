@@ -1,128 +1,160 @@
 <template>
-  <div class="taskCard">
-    <task-card :default="currentTab" @changeTab="changeTab">
-      <task-card-item
-        v-for="item in tabData"
-        :svg_name="item.svg_name"
-        :name="item.name"
-        :left_num="item.left_num"
-        :right_num="item.right_num"
-        :left_text="item.left_text"
-        :right_text="item.right_text"
-      ></task-card-item>
-    </task-card>
-  </div>
-  <div class="content">
-    <filter-search
-      @filter="filter"
-      :storageName="storageName"
-      :list="[
-        {
-          name: '医生',
-          type: 'select',
-          prop: 'doctorId',
-          options: options,
-          allowSearch: true
-        },
-        {
-          name: '诊所',
-          type: 'select',
-          prop: 'officeId',
-          options: options1,
-          allowSearch: true
-        },
-        {
-          name: '就诊日期',
-          dateType: currentTab == '面评矫正预约率' ? 'range' : undefined,
-          type: 'date',
-          prop: 'date'
-        }
-      ]"
-    ></filter-search>
+  <div class="container">
+    <div class="taskCard">
+      <task-card :default="currentTab" @changeTab="changeTab">
+        <task-card-item
+          v-for="item in tabData"
+          :svg_name="item.svg_name"
+          :name="item.name"
+          :left_num="item.left_num"
+          :right_num="item.right_num"
+          :left_text="item.left_text"
+          :right_text="item.right_text"
+        ></task-card-item>
+      </task-card>
+    </div>
+    <div class="content-wrapper">
+      <div class="content">
+        <filter-search
+          @filter="filter"
+          :storageName="storageName"
+          :list="[
+            {
+              name: '医生',
+              type: 'select',
+              prop: 'doctorId',
+              options: options,
+              allowSearch: true
+            },
+            {
+              name: '诊所',
+              type: 'select',
+              prop: 'officeId',
+              options: options1,
+              allowSearch: true
+            },
+            {
+              name: '风险等级',
+              type: currentTab == '面评矫正预约率' ? 'select' : undefined,
+              prop: 'difficultyLevel',
+              options: difficultyLevelList
+            },
+            {
+              name: '就诊日期',
+              dateType: currentTab == '面评矫正预约率' ? 'range' : undefined,
+              type: 'date',
+              prop: 'date'
+            }
+          ]"
+        ></filter-search>
 
-    <CustomTable
-      :data="patientList"
-      :columns="columns"
-      :pagination="true"
-      :total="total"
-      :pagesStorage="pagesStorage"
-      @change-page="changePage"
-      @change-note="changeNote"
-    >
-      <template #voice_text="{ row }">
-        <div :style="{ display: 'flex', alignItems: 'center' }">
-          <div :style="{ marginRight: '2px' }">
-            {{ row.voice_text }}
-          </div>
-          <div :style="{ display: 'flex' }" id="playPauseButton" @click="togglePlayPause(row)">
-            <img src="@/assets/svg/play.svg" v-if="!isPlaying" /><img
-              v-else
-              src="@/assets/svg/pause.svg"
-            />
-          </div>
-        </div>
-      </template>
-      <template #orthDoctorName="{ row }">
-        <div>
-          <span
-            :style="{ padding: '4px 8px', display: 'inline-block' }"
-            :class="{ notHasAptm: row.orthDoctorName === '未预约' }"
-          >
-            {{ row.orthDoctorName }}</span
-          >
-        </div>
-      </template>
-      <template #responsibleDoctor="{ row }">
-        <el-select @change="handleSaveOrthDoctor(row)" v-model="row.transformDoctorName">
-          <el-option
-            v-for="item in orthDoctorList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-            :style="{ display: 'flex', alignItems: 'center' }"
-            ><img
-              src="@/assets/svg/changeDoctor.svg"
-              :style="{
-                marginRight: '10px'
-              }"
-              v-if="item.value !== row.doctorId"
-            />{{ item.label }}
-          </el-option>
-        </el-select>
-      </template>
-      <template #note="{ row }">
-        <div>
-          {{ row.note }}
-        </div>
-      </template>
-      <template #operation="{ row }">
-        <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
-          >录入面型发育评估</el-button
+        <CustomTable
+          :data="patientList"
+          :columns="columns"
+          :pagination="true"
+          :total="total"
+          :pagesStorage="pagesStorage"
+          @change-page="changePage"
+          @change-note="changeNote"
         >
-        <el-button @click="handleViewOrth(row)" v-if="currentTab == '矫正方案'"
-          >查看正畸表</el-button
+          <template #voice_text="{ row }">
+            <div :style="{ display: 'flex', alignItems: 'center' }">
+              <div :style="{ marginRight: '2px' }">
+                {{ row.voice_text }}
+              </div>
+              <div
+                :style="{ display: 'flex' }"
+                id="playPauseButton"
+                @click="togglePlayPause(row)"
+                v-if="row.voice_file_url"
+              >
+                <img src="@/assets/svg/play.svg" v-if="!isPlaying" /><img
+                  v-else
+                  src="@/assets/svg/pause.svg"
+                />
+              </div>
+            </div>
+          </template>
+          <template #difficultyLevel="{ row }">
+            {{
+              row.difficultyLevel == 1 ? '低风险' : row.difficultyLevel == 2 ? '中风险' : '高风险'
+            }}
+          </template>
+          <template #orthDoctorName="{ row }">
+            <div>
+              <span
+                :style="{ padding: '4px 8px', display: 'inline-block' }"
+                :class="{ notHasAptm: row.orthDoctorName === '未预约' }"
+              >
+                {{ row.orthDoctorName }}</span
+              >
+            </div>
+          </template>
+          <template #responsibleDoctor="{ row }">
+            <a-select placeholder="请选择" allow-search @change="handleSaveOrthDoctor(row)">
+              <a-option
+                v-for="item in orthDoctorList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+                {{ item.label }}</a-option
+              >
+            </a-select>
+            <!-- <el-select @change="handleSaveOrthDoctor(row)" v-model="row.transformDoctorName">
+              <el-option
+                v-for="item in orthDoctorList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :style="{ display: 'flex', alignItems: 'center' }"
+              > -->
+            <!-- <img
+                  src="@/assets/svg/changeDoctor.svg"
+                  :style="{
+                    marginRight: '10px'
+                  }"
+                  v-if="item.value !== row.doctorId"
+                /> -->
+
+            <!-- </el-option>
+            </el-select> -->
+          </template>
+          <template #note="{ row }">
+            <div>
+              {{ row.note }}
+            </div>
+          </template>
+          <template #operation="{ row }">
+            <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
+              >录入面型发育评估</el-button
+            >
+            <el-button @click="handleViewOrth(row)" v-if="currentTab == '矫正方案'"
+              >查看正畸表</el-button
+            >
+            <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
+              >对比面评报告</el-button
+            >
+            <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
+              >对比矫正方案报告</el-button
+            >
+            <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评矫正预约率'"
+              >去预约</el-button
+            >
+          </template>
+        </CustomTable>
+        <audio
+          id="audioPlayer"
+          controls
+          :style="{
+            opacity: 0
+          }"
+          @canplay="handleCanPlay"
         >
-        <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
-          >对比面评报告</el-button
-        >
-        <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
-          >对比矫正方案报告</el-button
-        >
-        <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评矫正预约率'"
-          >去预约</el-button
-        >
-      </template>
-    </CustomTable>
-    <audio
-      id="audioPlayer"
-      controls
-      :style="{
-        opacity: 0
-      }"
-      @canplay="handleCanPlay"
-    >
-      <source id="audioSource" type="audio/mp3" :src="voiceUrl" />
-    </audio>
+          <source id="audioSource" type="audio/mp3" :src="voiceUrl" />
+        </audio>
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
@@ -255,11 +287,13 @@ async function getOrthoList(val) {
 const aptmList = ref([])
 async function getAptmList(val) {
   const res = await Post('/prod-api/emr/public/api/v1/assessment/list', {
-    startDate: val?.date || date.value, //预约日期
+    startDate: val?.date[0] || date.value, //预约日期
+    endDate: val?.date[1] || date.value,
     pageSize: val?.pageSize || pageSize.value,
     pageNum: val?.page || page.value,
     officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value
+    doctorId: val?.doctorId || doctorId.value,
+    difficultyLevel: val?.difficultyLevel
   })
   if (res.code == 200) {
     total.value = res.total
@@ -304,7 +338,11 @@ const remoteMethod = (query) => {
     options.value = allOptions.value.filter((option) => option.label.includes(query))
   }
 }
-
+const difficultyLevelList = [
+  { label: '低风险', value: 1 },
+  { label: '中风险', value: 2 },
+  { label: '高风险', value: 3 }
+]
 const allOptions1 = ref([])
 const tanent = ref()
 const options1 = ref([])
@@ -342,7 +380,6 @@ const storageName = ref('evaluate')
 
 const filter = (val) => {
   const v = getCache(currentTab)
-
   strategy[currentTab.value].request(v)
 }
 const pagesStorage = ref('evaluatePage')
@@ -452,8 +489,7 @@ onMounted(() => {
 
 async function togglePlayPause(row) {
   if (!voiceUrl.value) {
-    voiceUrl.value =
-      'https://orange-odos.oss-cn-hangzhou.aliyuncs.com/2023/11/28/record_20231128114907A110.mp3'
+    voiceUrl.value = row.voice_file_url
     audioPlayer.value.load()
   }
   if (!audioPlayer.value.paused && isPlaying.value) {
@@ -499,8 +535,22 @@ async function handleSaveOrthDoctor(item) {
 }
 </script>
 <style lang="scss" scoped>
+.container {
+  margin: 15px;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
 .content {
-  padding: 0 20px;
+  padding: 2px 20px;
+  background: #fff;
+  border-radius: 12px;
+  // :deep .arco-select-view-single.arco-select-view-search {
+  //   width: 100px;
+  // }
+  :deep .arco-select-view-single .arco-select-view-suffix {
+    padding-left: 0;
+  }
 }
 .notHasAptm {
   background: rgb(247, 101, 96);

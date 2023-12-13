@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import { ElementPlusResolver,ArcoResolver  } from 'unplugin-vue-components/resolvers'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
 // import importToCDN from 'vite-plugin-cdn-import'
 // import viteCompression from 'vite-plugin-compression';
@@ -40,10 +40,10 @@ export default defineConfig(({ mode }) => {
         iconDirs: [path.join(__dirname, 'src/assets/icons')]
       }),
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver(),ArcoResolver()],
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver(),ArcoResolver()],
       }),
       // viteCompression()
     ],

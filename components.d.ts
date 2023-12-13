@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AOption: typeof import('@arco-design/web-vue')['Option']
+    ASelect: typeof import('@arco-design/web-vue')['Select']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']

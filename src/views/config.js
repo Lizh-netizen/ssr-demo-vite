@@ -121,6 +121,7 @@ export const columns_config_aptm = [
     ]
   },
   { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text' },
+   { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel' },
     { title: '预约医生', prop: 'toothDoctorName', type: 'text',width: '90px', },
   { title: '预约时间', prop: 'StartTime', type: 'text',width: '110px', },
    
@@ -145,14 +146,16 @@ export const columns_config_aptm = [
   // { prop: 'toothDoctorName', title: '儿牙医生' },
   //  {prop: 'orthDoctorName', title: '正畸医生'},
 
-  { title: '正畸责任医生', prop: 'responsibleDoctor', slotName: 'responsibleDoctor',width: '110px', },
+  { title: '正畸责任医生', prop: 'responsibleDoctor', slotName: 'responsibleDoctor', width: '110px', },
+  { title: '预约项目类型', prop: 'itemType', type: 'text' },
+   { title: '正畸项目',  prop: 'orthItemType',type: 'text' },
   { title: '备注', type: 'notes', prop: 'note',slotName: 'note' },
  
   {
     type: 'operation',
     title: '操作',
     fixed: 'right',
-    width: '260px'
+    width: '100px'
   },
   
  
