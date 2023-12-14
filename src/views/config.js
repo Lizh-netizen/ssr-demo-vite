@@ -157,6 +157,5 @@ export const columns_config_aptm = [
     fixed: 'right',
     width: '100px'
   },
-  
  
 ]

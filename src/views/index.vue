@@ -91,7 +91,12 @@
             </div>
           </template>
           <template #responsibleDoctor="{ row }">
-            <a-select placeholder="请选择" allow-search @change="handleSaveOrthDoctor(row)">
+            <a-select
+              placeholder="请选择"
+              allow-search
+              v-model="selectDoctor"
+              @change="handleSaveOrthDoctor(row)"
+            >
               <a-option
                 v-for="item in orthDoctorList"
                 :key="item.value"
@@ -287,8 +292,8 @@ async function getOrthoList(val) {
 const aptmList = ref([])
 async function getAptmList(val) {
   const res = await Post('/prod-api/emr/public/api/v1/assessment/list', {
-    startDate: val?.date[0] || date.value, //预约日期
-    endDate: val?.date[1] || date.value,
+    startDate: val?.date?.[0] || date.value, //预约日期
+    endDate: val?.date?.[1] || date.value,
     pageSize: val?.pageSize || pageSize.value,
     pageNum: val?.page || page.value,
     officeId: val?.officeId || officeId.value,
@@ -520,8 +525,7 @@ async function getOrthDoctorList() {
 }
 getOrthDoctorList()
 async function handleSaveOrthDoctor(item) {
-  const found = orthDoctorList.value.find((item) => item.value == selectDoctor.value)
-
+  const found = orthDoctorList.value.find((i) => i.value == selectDoctor.value)
   const data = {
     orthDoctorName: found.label,
     orthDoctorId: selectDoctor.value,

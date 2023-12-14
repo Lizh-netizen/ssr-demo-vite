@@ -50,4 +50,19 @@ img {
 .el-dialog{
   border-radius: 12px;
 }
+@media screen and (max-width: 1540px) {
+  .filter-input{
+    .arco-space-item{
+      width: 270px;
+    }
+  }
+  
+}
+@media screen and (min-width : 1240px) and ( max-width: 1366px) {
+  .filter-input {
+      .arco-space-item {
+        width: 220px;
+      }
+    }
+}
 

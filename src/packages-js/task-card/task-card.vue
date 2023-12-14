@@ -147,7 +147,7 @@ const renderTaskCardContent = () => {
 
 <style scoped lang="scss">
 .task-card {
-  width: 100vw;
+  width: 100%;
   padding: 16px 20px;
 }
 .task-card-tabbar {
