@@ -9,13 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AButton: typeof import('@arco-design/web-vue')['Button']
     ADrawer: typeof import('@arco-design/web-vue')['Drawer']
-    AInput: typeof import('@arco-design/web-vue')['Input']
-    AInputTag: typeof import('@arco-design/web-vue')['InputTag']
-    AOptgroup: typeof import('@arco-design/web-vue')['Optgroup']
     AOption: typeof import('@arco-design/web-vue')['Option']
-    ARadio: typeof import('@arco-design/web-vue')['Radio']
     ASelect: typeof import('@arco-design/web-vue')['Select']
-    ASpace: typeof import('@arco-design/web-vue')['Space']
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']

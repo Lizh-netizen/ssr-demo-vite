@@ -134,7 +134,7 @@
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
               >对比矫正方案报告</el-button
             >
-            <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评矫正预约率'"
+            <el-button @click="handleGoSche(row)" v-if="currentTab == '面评矫正预约率'"
               >去预约</el-button
             >
           </template>
@@ -572,8 +572,8 @@ const handleViewOrth = (item) => {
 const handleCompareOrth = (item) => {
   router.push(`/compareOrtho/${item.apmtId}/${item.patientId}`)
 }
-const handleEvaluateOrth = (item) => {
-  router.push(`/evaluateOrtho/${item.apmtId}/${item.patientId}`)
+const handleGoSche = (item) => {
+  window.open(`https://orange.linkedcare.cn/#/patient/info/${item.PatientId}/apptRecord`, '_blank')
 }
 
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
