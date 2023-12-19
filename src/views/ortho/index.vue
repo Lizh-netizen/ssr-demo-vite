@@ -260,7 +260,7 @@ const getPdfResult = (val) => {
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: val,
-      pdfTime: formatTime(),
+      pdfTime: formatTime().formattedToday,
       progress: active.value
     })
     pdf.value = val

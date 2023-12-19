@@ -120,10 +120,10 @@ export const columns_config_aptm = [
       { name: '面评', prop: 'orth_status', color: 'Neutral', value: 3 }
     ]
   },
-  { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text' },
-   { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel' },
+  { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px', },
+   { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel',width: '90px' },
     { title: '预约医生', prop: 'toothDoctorName', type: 'text',width: '90px', },
-  { title: '预约时间', prop: 'StartTime', type: 'text',width: '110px', },
+  { title: '预约时间', prop: 'StartTime', type: 'text',width: '120px', },
    
     {
     title: '当天有正畸医生',
@@ -134,28 +134,28 @@ export const columns_config_aptm = [
       },
     width: '130px'
   },
-  { title: '正畸预约时间', prop: 'orthStartTime', type: 'text',width: '110px', },
+  { title: '正畸预约时间', prop: 'orthStartTime', type: 'text',width: '120px', },
   {
     title: '正畸预约医生',
     prop: 'orthDoctorName',
     slotName: 'orthDoctorName',
-    width: '110px',
+    width: '120px',
   },
   
   
   // { prop: 'toothDoctorName', title: '儿牙医生' },
   //  {prop: 'orthDoctorName', title: '正畸医生'},
 
-  { title: '正畸责任医生', prop: 'responsibleDoctor', slotName: 'responsibleDoctor', width: '110px', },
-  { title: '预约项目类型', prop: 'itemType', type: 'text' },
-   { title: '正畸项目',  prop: 'orthItemType',type: 'text' },
-  { title: '备注', type: 'notes', prop: 'note',slotName: 'note' },
- 
+  { title: '正畸责任医生', prop: 'responsibleDoctor', slotName: 'responsibleDoctor', width: '120px', },
+  { title: '预约项目类型', prop: 'itemType', type: 'text',width: '120px' },
+   { title: '正畸项目',  prop: 'orthItemType',type: 'text',width: '90px'  },
+  { title: '备注', prop: 'notes',slotName: 'notes',width: '90px'  },
+  // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
     type: 'operation',
     title: '操作',
     fixed: 'right',
-    width: '100px'
+    width: '110px'
   },
  
 ]

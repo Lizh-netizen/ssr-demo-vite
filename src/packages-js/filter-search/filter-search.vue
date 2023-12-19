@@ -152,14 +152,14 @@
       <ArcoSpace size="medium">
         <ArcoButton @click="reset">重置</ArcoButton>
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
-        <!-- <template v-if="isShowUnfold">
+        <template v-if="isShowUnfold && storageName == 'aptm'">
           <ArcoButton type="text" @click="isspread = !isspread">
             <span>展开</span>
             <i class="iconfont icon-xiangshang" v-show="!isspread" />
             <i class="iconfont icon-xiangxia" v-show="isspread" />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </ArcoButton>
-        </template> -->
+        </template>
       </ArcoSpace>
     </div>
   </div>
@@ -325,6 +325,7 @@ watch(
         delete filterData.value[key]
       }
     }
+
     if (val) {
       sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
     }

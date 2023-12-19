@@ -2047,7 +2047,7 @@ const handleCloseImgDialog = () => {
   .classifyWrapper {
     width: 554px;
     right: 580px;
-    bottom: 1px;
+    bottom: 0px;
     position: absolute;
     height: 50px;
 

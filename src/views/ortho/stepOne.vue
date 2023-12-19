@@ -23,7 +23,7 @@
       </div>
     </div>
     <Header text="问诊" backgroundColor="#f4f7fd" />
-    <div class="content inquiry" :style="{'min-height' : '600px'}">
+    <div class="content inquiry" :style="{ 'min-height': '600px' }">
       <form-item label="主诉" width="58px"><el-input v-model="input1"></el-input></form-item>
       <form-item label="现病史" width="58px"><el-input v-model="input2"></el-input></form-item>
       <template v-for="item in inquiryData" :key="item.id">
@@ -89,7 +89,7 @@
           </form-item>
         </template>
         <template v-else>
-          <div :style="{ display: 'flex' }">
+          <div :style="{ display: 'flex', gap: '16px' }">
             <form-item
               :label="title.titleName"
               width="100px"
@@ -309,7 +309,7 @@
 <script setup>
 import Header from '@/components/list/header.vue'
 import FormItem from '@/components/list/formItem.vue'
-import { nextTick, ref, defineProps,defineExpose } from 'vue'
+import { nextTick, ref, defineProps, defineExpose } from 'vue'
 import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
@@ -635,7 +635,6 @@ const handleSubmit = (optionId, title) => {
         }
       }
     }
-    
   }
 }
 

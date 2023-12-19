@@ -1443,9 +1443,10 @@ async function getOrthFaceAccessList() {
               calculateFront(faceSet.value)
             }
             nextTick(() => {
-              if (!interruptSignal) {
+              if (interruptSignal) {
                 return
               }
+
               loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
             })
           } else {
@@ -1469,7 +1470,7 @@ async function getOrthFaceAccessList() {
                 }
                 image.src = FrontalReposeImageUrl.value
                 nextTick(() => {
-                  if (!interruptSignal) {
+                  if (interruptSignal) {
                     return
                   }
                   loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
@@ -1588,6 +1589,7 @@ const tasks = [
   getImageList
 ]
 // mayCancelList(tasks)
+// 页面切换时不用画图
 let interruptSignal = false
 onBeforeUnmount(() => {
   interruptSignal = true
@@ -3189,7 +3191,7 @@ div.el-input__wrapper {
   .classifyWrapper {
     width: 554px;
     right: 580px;
-    bottom: 1px;
+    bottom: 0px;
     position: absolute;
     height: 50px;
 

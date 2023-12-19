@@ -1,11 +1,31 @@
 <template>
-  <el-input></el-input>
-  <el-input></el-input>
-  <div @click="submit">提交</div>
+  <a-button type="primary" @click="handleClick">Open Drawer</a-button>
+  <a-drawer
+    :width="340"
+    v-model:visible="visible"
+    @ok="handleOk"
+    @cancel="handleCancel"
+    unmountOnClose
+  >
+    <template #title> Title </template>
+    <div>
+      You can customize modal body text by the current situation. This modal will be closed
+      immediately once you press the OK button.
+    </div>
+  </a-drawer>
 </template>
 
 <script setup>
 import CryptoJS from 'crypto-js'
+import { ElButton } from 'element-plus'
+import { ref } from 'vue'
+const visible = ref(false)
+const handleClick = () => {
+  visible.value = true
+}
+const showDrawer = () => {
+  visible.value = true
+}
 const encrypt = (data) => {
   const csrfToken = store.csrfToken
   const csrfKey = CryptoJS.MD5(csrfToken).toString()
