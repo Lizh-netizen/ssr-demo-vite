@@ -456,7 +456,8 @@
   </div>
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
-  <el-dialog
+  <ImageDialog v-model="imgDialogVisible"></ImageDialog>
+  <!-- <el-dialog
     v-model="imgDialogVisible"
     title="影像管理"
     width="1183px"
@@ -619,7 +620,7 @@
         <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
       </span>
     </template>
-  </el-dialog>
+  </el-dialog> -->
   <div class="overlay" ref="overlayRef">
     <div class="overlay__header"></div>
     <div class="overlay__mask"></div>
@@ -689,12 +690,14 @@ import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
+import ImageDialog from '@/components/list/imageDialog.vue'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 
 onBeforeMount(() => {
   const link = document.createElement('link')
+  link.id = 'preloadLink'
   link.href = img
   link.rel = 'preload'
   link.as = 'image'
@@ -756,7 +759,7 @@ const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)
 }
 
-// 上传图片逻辑e
+// 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
 
@@ -847,9 +850,7 @@ const handleBlurInput = (title) => {
     }
   })
 }
-const handleWatchInput = () => {
-  // console.log('changed', title.cephalometricsContent, title.AIValue)
-}
+
 const chooseImgNum = computed(() => {
   let num = 0
   imageArr.value.forEach((item) => {
@@ -1415,11 +1416,12 @@ async function getOrthFaceAccessList() {
       item.hasImage = false
     } else {
       item.hasImage = true
-      const preloadLink = document.createElement('link')
-      preloadLink.href = item.imageUrl
-      preloadLink.rel = 'preload'
-      preloadLink.as = 'image'
-      document.head.appendChild(preloadLink)
+      // 预加载如果没很快用到会有警告
+      // const preloadLink = document.createElement('link')
+      // preloadLink.href = item.imageUrl
+      // preloadLink.rel = 'preload'
+      // preloadLink.as = 'image'
+      // document.head.appendChild(preloadLink)
       if (item.className === '正面像') {
         const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
         const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
@@ -1443,6 +1445,7 @@ async function getOrthFaceAccessList() {
               calculateFront(faceSet.value)
             }
             nextTick(() => {
+              // 如果快速切换了页面，那么就不画图了
               if (interruptSignal) {
                 return
               }
@@ -1727,10 +1730,16 @@ async function getOrthCephaList() {
           x: point.xCoordinate,
           y: point.yCoordinate
         }))
+        if (interruptSignal) {
+          return
+        }
 
         initCanvas(canvasMaxX.value, canvasMaxY.value, true)
       })
     } else {
+      if (interruptSignal) {
+        return
+      }
       initCanvas(canvasMaxX.value, canvasMaxY.value, false)
     }
   }

@@ -1,6 +1,10 @@
 <template>
   <div class="drawer">
     <div class="check section">
+      <div :style="{ marginBottom: '10px', cursor: 'pointer' }" @click="handleBackToList">
+        <el-icon><ArrowLeft /></el-icon>返回列表
+      </div>
+
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
@@ -739,7 +743,7 @@ import Header from '../../components/list/header.vue'
 import { Get, Post, Delete, Put } from '../../utils/request'
 import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
 import { Upload } from '@element-plus/icons-vue'
 import useUpdateOption from '../../effects/updateOption'
@@ -748,6 +752,7 @@ import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
+const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -1647,6 +1652,9 @@ function getAllData() {
 }
 const handleCloseImgDialog = () => {
   imageList.value.forEach((image) => (image.reminder = false))
+}
+const handleBackToList = () => {
+  router.push('/index')
 }
 </script>
 <style>

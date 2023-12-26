@@ -38,6 +38,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     FormItem: typeof import('./src/components/list/formItem.vue')['default']
     Header: typeof import('./src/components/list/header.vue')['default']
+    ImageDialog: typeof import('./src/components/list/imageDialog.vue')['default']
     ImageItem: typeof import('./src/components/list/imageItem.vue')['default']
     List: typeof import('./src/components/pdf/list.vue')['default']
     ModelAnalysis: typeof import('./src/components/list/modelAnalysis.vue')['default']

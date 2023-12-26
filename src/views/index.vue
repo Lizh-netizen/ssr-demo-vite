@@ -569,6 +569,9 @@ const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.apmtId}/${item.patientId}`)
 }
+const handleEvaluateOrth = (item) => {
+  router.push(`/evaluateOrtho/${item.apmtId}/${item.patientId}`)
+}
 const handleCompareOrth = (item) => {
   router.push(`/compareOrtho/${item.apmtId}/${item.patientId}`)
 }

@@ -235,6 +235,7 @@ const handleChangeOption = (optionId, title) => {
           }
           &__content {
             color: #1d2129;
+            font-weight: 500;
           }
           .question_level_two {
             @include caption;
