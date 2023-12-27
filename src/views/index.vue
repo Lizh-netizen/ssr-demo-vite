@@ -342,15 +342,13 @@ async function getEvaluateList(val) {
     })
     if (res.code == 200) {
       total.value = res.total
-      evaluateList.value = res.rows
-        .filter((item) => item.age.slice(-3, -2) >= 7)
-        .map((item) => ({
-          ...item,
-          StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
-          patientName: item.patientName,
-          age: item.age,
-          facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
-        }))
+      evaluateList.value = res.rows.map((item) => ({
+        ...item,
+        StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
+        patientName: item.patientName,
+        age: item.age,
+        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
+      }))
       patientList.value = evaluateList.value
       total.value = evaluateList.value.length
     }
@@ -390,15 +388,18 @@ async function getOrthoList(val) {
 }
 const aptmList = ref([])
 async function getAptmList(val) {
-  const res = await Post('/prod-api/emr/public/api/v1/assessment/list', {
-    startDate: val?.date?.[0] || date.value, //预约日期
-    endDate: val?.date?.[1] || date.value,
-    pageSize: val?.pageSize || pageSize.value,
-    pageNum: val?.page || page.value,
-    officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value,
-    difficultyLevel: val?.difficultyLevel
-  })
+  let pageSizes = val?.pageSize || pageSize.value
+  let pageNum = val?.page || page.value
+  const res = await Post(
+    `/prod-api/emr/public/api/v1/assessment/list?pageNum=${pageNum}&pageSize=${pageSizes}`,
+    {
+      startDate: val?.date?.[0] || date.value, //预约日期
+      endDate: val?.date?.[1] || date.value,
+      officeId: val?.officeId || officeId.value,
+      doctorId: val?.doctorId || doctorId.value,
+      difficultyLevel: val?.difficultyLevel
+    }
+  )
   if (res.code == 200) {
     total.value = res.total
     orthoList.value = res.rows.map((item) => ({

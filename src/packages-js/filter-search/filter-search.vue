@@ -152,7 +152,7 @@
       <ArcoSpace size="medium">
         <ArcoButton @click="reset">重置</ArcoButton>
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
-        <template v-if="isShowUnfold && storageName == 'aptm'">
+        <template v-if="isShowUnfold">
           <ArcoButton type="text" @click="isspread = !isspread">
             <span>展开</span>
             <i class="iconfont icon-xiangshang" v-show="!isspread" />

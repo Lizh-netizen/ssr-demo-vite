@@ -546,8 +546,16 @@
       </span>
     </div>
   </div>
+  <ImageDialog
+    :appId="appId"
+    :patientId="patientId"
+    :dialogVisible="imgDialogVisible"
+    :caption="title"
+    @savePics="handleSavePics"
+    @cancel="handleClose"
+  ></ImageDialog>
   <!-- 影像管理弹窗 -->
-  <el-dialog
+  <!-- <el-dialog
     v-model="imgDialogVisible"
     title="影像管理"
     width="1183px"
@@ -708,7 +716,7 @@
         <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
       </span>
     </template>
-  </el-dialog>
+  </el-dialog> -->
   <img
     id="img"
     :style="{
@@ -738,20 +746,21 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { Upload, WarningFilled } from '@element-plus/icons-vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import Header from '../../components/list/header.vue'
 import { Get, Post, Delete, Put } from '../../utils/request'
 import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
-import { Upload } from '@element-plus/icons-vue'
 import useUpdateOption from '../../effects/updateOption'
 import useSelectTooth from '../../effects/selectTooth'
 import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
+import ImageDialog from '@/components/list/imageDialog.vue'
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -791,6 +800,12 @@ async function handleAdvice() {
 }
 
 onMounted(() => {
+  nextTick(() => {
+    setTimeout(() => {
+      console.log(document.querySelector('.imageDialog'))
+    }, 2000)
+  })
+
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
@@ -808,7 +823,9 @@ onMounted(() => {
 })
 
 const imgUrl = ref()
-
+const handleClose = () => {
+  imgDialogVisible.value = false
+}
 imgUrl.value = img
 // 全景片牙位图逻辑
 const symptomList = ref([])
@@ -1353,12 +1370,11 @@ const handleDeleteImage1 = (img) => {
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
-const handleOpenImageDialogue = () => {
+const title = ref()
+const handleOpenImageDialogue = (caption) => {
   imgDialogVisible.value = true
-  imageList.value.forEach((a) => {
-    a.fileUrl = placeholderUrl
-  })
-  getClassifiedImgList()
+  // reminder是提醒从这个跳进去的
+  title.value = caption
 }
 // 加载更多图像
 const handleLoadPic = () => {
@@ -1628,21 +1644,22 @@ const handleSelectTooth = (item, title) => {
 }
 // 保存图片
 async function handleSavePics() {
-  imgDialogVisible.value = false
-  imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter((item) => item.fileUrl !== placeholderUrl)
-  const arr = orthImageList.map((item) => ({
-    imageType: item.caption,
-    imageUrl: item.fileUrl
-  }))
-  Post('/prod-api/business/orthImage', {
-    apmtId: appId,
-    orthImageList: arr
-  }).then((res) => {
-    if (res.code == 200) {
-      getAllData()
-    }
-  })
+  // imgDialogVisible.value = false
+  // imageList.value.forEach((item) => (item.reminder = false))
+  // const orthImageList = imageList.value.filter((item) => item.fileUrl !== placeholderUrl)
+  // const arr = orthImageList.map((item) => ({
+  //   imageType: item.caption,
+  //   imageUrl: item.fileUrl
+  // }))
+  // Post('/prod-api/business/orthImage', {
+  //   apmtId: appId,
+  //   orthImageList: arr
+  // }).then((res) => {
+  //   if (res.code == 200) {
+  //     getAllData()
+  //   }
+  // })
+  getAllData()
 }
 
 function getAllData() {

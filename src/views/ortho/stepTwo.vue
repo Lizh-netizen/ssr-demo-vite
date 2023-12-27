@@ -456,7 +456,14 @@
   </div>
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
-  <ImageDialog v-model="imgDialogVisible"></ImageDialog>
+  <ImageDialog
+    :appId="appId"
+    :patientId="patientId"
+    :dialogVisible="imgDialogVisible"
+    :caption="title"
+    @savePics="handleSavePics"
+    @cancel="handleClose"
+  ></ImageDialog>
   <!-- <el-dialog
     v-model="imgDialogVisible"
     title="影像管理"
@@ -899,10 +906,6 @@ const imageArr = ref([])
 const totalArr = ref([])
 const openImgDialog = () => {
   imgDialogVisible.value = true
-  imageList.value.forEach((a) => {
-    a.fileUrl = placeholderUrl
-  })
-  getClassifiedImgList()
 }
 // 加载更多图像
 const handleLoadPic = () => {
@@ -1217,20 +1220,24 @@ async function handleSingleImage(file, image) {
 }
 // 保存图片
 async function handleSavePics() {
+  // imgDialogVisible.value = false
+  // imageList.value.forEach((item) => (item.reminder = false))
+  // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
+  // const arr = orthImageList.map((item) => ({
+  //   imageType: item.caption,
+  //   imageUrl: item.fileUrl,
+  //   imageId: item.fileId || null
+  // }))
+  // Post('/prod-api/business/orthImage', {
+  //   apmtId: appId,
+  //   orthImageList: arr
+  // }).then(() => {
+  //   getAllData()
+  // })
+  getAllData()
+}
+const handleClose = () => {
   imgDialogVisible.value = false
-  imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  const arr = orthImageList.map((item) => ({
-    imageType: item.caption,
-    imageUrl: item.fileUrl,
-    imageId: item.fileId || null
-  }))
-  Post('/prod-api/business/orthImage', {
-    apmtId: appId,
-    orthImageList: arr
-  }).then(() => {
-    getAllData()
-  })
 }
 const handleDragOver = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
@@ -1584,13 +1591,7 @@ function yieldNewTask() {
   })
 }
 
-const tasks = [
-  getOrthFaceAccessList,
-  getOrthMouthList,
-  getOrthPanoramicList,
-  getOrthCephaList,
-  getImageList
-]
+const tasks = [getOrthFaceAccessList, getOrthMouthList, getOrthPanoramicList, getOrthCephaList]
 // mayCancelList(tasks)
 // 页面切换时不用画图
 let interruptSignal = false
@@ -2401,11 +2402,11 @@ const hideLine = () => {
 }
 
 const imgDialogVisible = ref(false)
+const title = ref()
 const handleOpenImageDialogue = (caption) => {
   imgDialogVisible.value = true
   // reminder是提醒从这个跳进去的
-  imageList.value.find((item) => item.caption === caption).reminder = true
-  getClassifiedImgList()
+  title.value = caption
 }
 
 async function getImageList() {
@@ -2684,6 +2685,9 @@ onMounted(() => {
       getAIResult()
     }
   })
+  setTimeout(() => {
+    console.log(document.querySelector('.imageDialog'))
+  }, 2000)
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
