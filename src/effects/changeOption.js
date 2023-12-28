@@ -9,21 +9,21 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
     if (optionId == 10) {
       isShow.value = false
       title.otherContent = ''
-      checkData.value.orthTitleList.forEach((title) => {
-        if (title.titleName == '关节弹响') {
-          title.optionId = 10
-          title.text = ''
-          title.selectId = ''
-        } else if (title.titleName == '侧关节') {
-          title.optionId = []
-          title.text = ''
-          title.showInput = false
-          title.selectId1 = ''
-          title.selectId2 = ''
+      checkData.value.orthTitleList.forEach((title1) => {
+        if (title1.titleName == '关节弹响') {
+          title1.optionId = 10
+          title1.text = ''
+          title1.selectId = ''
+        } else if (title1.titleName == '侧关节') {
+          title1.optionId = []
+          title1.text = ''
+          title1.showInput = false
+          title1.selectId1 = ''
+          title1.selectId2 = ''
         }
       })
 
-      const sideTitle = checkData.value.orthTitleList.find((title) => title.titleName == '侧关节')
+      const sideTitle = checkData.value.orthTitleList.find((title1) => title1.titleName == '侧关节')
       let obj1 = {
         apmtId: appId,
         titleId: sideTitle.id,
