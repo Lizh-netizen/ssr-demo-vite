@@ -93,8 +93,8 @@ export function calculateDistance(str, coordinates) {
     arr = str.split('')
   }
 
-  const a = coordinates.find((a) => a.label == arr[0])
-  const b = coordinates.find((a) => a.label == arr[1])
+  const a = coordinates.find((cor) => cor.label == arr[0])
+  const b = coordinates.find((cor) => cor.label == arr[1])
   const deltaX = b.x - a.x
   const deltaY = b.y - a.y
   const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
