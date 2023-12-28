@@ -150,16 +150,16 @@
     </div>
     <div class="btn" v-if="showFilterBtn">
       <ArcoSpace size="medium">
-        <ArcoButton @click="reset">重置</ArcoButton>
-        <ArcoButton type="primary" @click="filter">查询</ArcoButton>
         <template v-if="isShowUnfold">
           <ArcoButton type="text" @click="isspread = !isspread">
             <span>展开</span>
-            <i class="iconfont icon-xiangshang" v-show="!isspread" />
-            <i class="iconfont icon-xiangxia" v-show="isspread" />
+            <i class="iconfont icon-xiangshang" v-show="isspread" />
+            <i class="iconfont icon-xiangxia" v-show="!isspread" />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </ArcoButton>
         </template>
+        <ArcoButton @click="reset">重置</ArcoButton>
+        <ArcoButton type="primary" @click="filter">查询</ArcoButton>
       </ArcoSpace>
     </div>
   </div>
