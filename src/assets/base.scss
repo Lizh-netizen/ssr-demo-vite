@@ -70,9 +70,12 @@ img {
     border-radius: 6px;
   }
 }
-.el-checkbox-button .el-checkbox-button__inner {
-  border-left-color: #fff !important;
+.el-checkbox-button:not(:first-child) {
+  .el-checkbox-button__inner {
+    border-left-color: #fff !important;
+  }
 }
+
 .el-dialog {
   position: fixed !important;
   top: 35%;
