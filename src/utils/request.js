@@ -37,8 +37,8 @@ export class AxiosCanceler {
   removePending(config) {
     const url = getPendingUrl(config)
     if (pendingMap.has(url)) {
-     // 如果当前请求在等待中，取消它并将其从等待中移除
-       const abortController = pendingMap.get(url);
+      // 如果当前请求在等待中，取消它并将其从等待中移除
+      const abortController = pendingMap.get(url)
       if (abortController) {
         abortController.abort(url)
       }
@@ -67,7 +67,7 @@ const axiosCanceler = new AxiosCanceler()
 instance.interceptors.request.use(
   (config) => {
     config.headers = {
-      Authorization: sessionStorage.odos_token || 'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyOTAsInVzZXJfa2V5IjoiMzIxZjA0YzYtOWI3My00OTIwLWFkNzEtODBiZjgxYjE1ZDU1IiwidXNlcm5hbWUiOiJsaXpoYW5naHVhIn0.M5aVV3FW74dEkTFHEleyf3UCozPgWBoa8QlCouMzvvIZhFhxG17kfwXTflRwMcjm7x1oWikRvW8c1k6cxI0t6A'
+      Authorization: sessionStorage.odos_token || ''
     }
 
     return config
