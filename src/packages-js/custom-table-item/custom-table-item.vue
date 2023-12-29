@@ -75,7 +75,8 @@ const ColorTypeEnum = {
   /**禁用 */
   Disabled: 'rgba(130, 132, 138, 1)',
   /**高贵 */
-  Noble: 'rgba(167, 126, 241, 1)'
+  Noble: 'rgba(167, 126, 241, 1)',
+  NoColor: 'rgba(255, 255, 255, 0)'
 }
 const emit = defineEmits()
 
@@ -170,6 +171,7 @@ const renderTableColumn = () => (
           } else if (type === TdType.state) {
             {
               /* state 状态 */
+              console.log(stateOption)
             }
             return (
               <>
