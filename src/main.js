@@ -8,7 +8,7 @@ import lazyPlugin from 'vue3-lazy'
 // 注册svg矢量图
 import 'virtual:svg-icons-register'
 // 全局样式
-// import './global.scss'
+import './global.scss'
 import './packages-js/index.scss'
 import imgPlaceholder from './assets/ortho/lazyImg.png'
 import 'element-plus/dist/index.css'
@@ -28,4 +28,3 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(store)
 app.use(router)
 app.mount('#app')
- 

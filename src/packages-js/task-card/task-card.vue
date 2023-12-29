@@ -32,14 +32,14 @@ const slotLen = slots.default && (slots.default()[0].children || slots.default()
 onMounted(() => {
   emit('changeTab', props.default)
   const erd = elementResizeDetectorMaker()
-  erd.listenTo(document.getElementsByClassName(style.taskCardItem), ele => {
+  erd.listenTo(document.getElementsByClassName(style.taskCardItem), (ele) => {
     if (ele.offsetWidth < 334) isSmall.value = true
     else isSmall.value = false
   })
 })
 // 每一项
 const isSmall = ref(false)
-const renderTaskCardItem = data => {
+const renderTaskCardItem = (data) => {
   const taskCardItem = {
     marginRight: slotLen < 3 || data.index !== slotLen - 1 ? '20px' : '0'
   }
@@ -116,7 +116,7 @@ const renderTaskCardItem = data => {
 // tab拦
 const renderTabBar = () => {
   const list = slots.default && (slots.default()[0].children || slots.default())
-  const createElement = n => {
+  const createElement = (n) => {
     const elements = []
     for (var i = 0; i < n; i++) {
       elements.push(
@@ -139,7 +139,7 @@ const renderTabBar = () => {
 }
 // 内容渲染
 const renderTaskCardContent = () => {
-  return (slots.default && (slots.default()[0].children || slots.default())).find(it => {
+  return (slots.default && (slots.default()[0].children || slots.default())).find((it) => {
     return it.props?.name === currntTab.value
   })
 }
@@ -151,7 +151,7 @@ const renderTaskCardContent = () => {
   padding: 16px 20px;
 }
 .task-card-tabbar {
-  height: 194px;
+  height: 196px;
   display: flex;
   justify-content: space-between;
   border-bottom: 2px solid transparent;

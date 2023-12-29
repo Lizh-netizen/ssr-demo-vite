@@ -52,7 +52,6 @@ const props = defineProps({
 })
 const drawerVisible = ref(false)
 watch(props, (val) => {
-  console.log(val)
   drawerVisible.value = val.drawer
 })
 const handleClose = () => {}

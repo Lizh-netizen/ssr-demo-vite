@@ -216,7 +216,6 @@ onMounted(() => {
   imageList.value.forEach((a) => {
     a.fileUrl = placeholderUrl
   })
-  console.log(11)
   getImageList()
   getClassifiedImgList()
 })
