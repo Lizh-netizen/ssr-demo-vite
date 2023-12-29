@@ -151,7 +151,7 @@ const renderTaskCardContent = () => {
   padding: 16px 20px;
 }
 .task-card-tabbar {
-  height: 196px;
+  height: 194px;
   display: flex;
   justify-content: space-between;
   border-bottom: 2px solid transparent;

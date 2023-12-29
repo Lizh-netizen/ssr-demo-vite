@@ -437,7 +437,6 @@ const labelList = [
 .header {
   position: sticky;
   top: 0;
-  width: 100%;
   margin-left: 20px;
   margin-right: 20px;
   display: flex;

@@ -795,7 +795,6 @@ async function handleSaveOrthDoctor(item) {
     }
   }
   .notesWrapper {
-    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -901,7 +900,6 @@ async function handleSaveOrthDoctor(item) {
     }
   }
   .item {
-    height: 68px;
     width: 376px;
     position: relative;
     display: flex;

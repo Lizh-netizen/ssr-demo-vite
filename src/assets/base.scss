@@ -50,7 +50,7 @@ img {
 }
 
 .arco-drawer {
-  width: 480px !important;
+  width: 400px !important;
 }
 .arco-input-wrapper.arco-input-focus,
 .arco-input-wrapper:focus-within {
@@ -69,4 +69,13 @@ img {
   .arco-select-view-single.arco-select-view-search {
     border-radius: 6px;
   }
+}
+.el-checkbox-button .el-checkbox-button__inner {
+  border-left-color: #fff !important;
+}
+.el-dialog {
+  position: fixed !important;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
