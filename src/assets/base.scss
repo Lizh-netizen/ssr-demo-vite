@@ -5,9 +5,7 @@ html {
   margin: 0;
   width: 100%;
   height: 100%;
-  font-size: 14px;
 }
-
 
 .icon {
   width: 1em;
@@ -47,7 +45,7 @@ img {
     border-left-color: #dcdfe6;
   }
 }
-.el-dialog{
+.el-dialog {
   border-radius: 12px;
 }
 
@@ -55,22 +53,20 @@ img {
   width: 480px !important;
 }
 .arco-input-wrapper.arco-input-focus,
-.arco-input-wrapper:focus-within{
-  border-color: #DCDFE6 !important;
+.arco-input-wrapper:focus-within {
+  border-color: #dcdfe6 !important;
 }
-.arco-drawer-footer>.arco-btn{
+.arco-drawer-footer > .arco-btn {
   border-radius: 6px;
 }
 .arco-drawer-footer {
   display: none;
 }
-.el-table .cell{
+.el-table .cell {
   padding: 0 16px !important;
 }
 .el-table {
-  .arco-select-view-single.arco-select-view-search{
-    border-radius: 6px;;
+  .arco-select-view-single.arco-select-view-search {
+    border-radius: 6px;
   }
 }
-    
-

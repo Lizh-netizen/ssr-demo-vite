@@ -1857,6 +1857,9 @@ const handleBackToList = () => {
   box-sizing: border-box;
   font-family: 思源黑体;
   padding: 20px;
+  margin: 15px;
+  background: #fff;
+  border-radius: 10px;
   .section {
     .content {
       .imageItem {
