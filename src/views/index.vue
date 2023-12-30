@@ -825,7 +825,7 @@ async function handleSaveOrthDoctor(item) {
   }
   .form {
     background: #f4f7fd;
-    width: 448px;
+    // width: 448px;
     height: 253px;
     padding: 12px;
     border-radius: 12px;
