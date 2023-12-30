@@ -60,7 +60,7 @@
         >
           <template #voice_text="{ row }">
             <div :style="{ display: 'flex', alignItems: 'center' }">
-              <div :style="{ marginRight: '2px' }">
+              <div :style="{ marginRight: '2px', width: '70px' }">
                 {{ row.voice_text }}
               </div>
               <div
@@ -424,10 +424,10 @@ const empty = ref(false)
 const selected = ref()
 async function getNote(row) {
   let url = `/prod-api/business/totalRemark/list?`
-  if (row.apmtId) {
-    url += `apmtId=${row.apmtId}`
-  } else if (row.patientId) {
-    url += `patientId=${row.patientId}`
+  if (row.aptmId) {
+    url += `aptmId=${row.aptmId}`
+  } else if (row.PatientId) {
+    url += `PatientId=${row.PatientId}`
   } else if (row.id) {
     url += `customerId=${row.id}`
   }
@@ -693,15 +693,28 @@ onMounted(() => {
 
 const selectedVoiceItem = ref()
 async function togglePlayPause(row) {
-  selectedVoiceItem.value = row
-  if (!voiceUrl.value) {
-    voiceUrl.value = row.voice_file_url
+  // 切换数据源
+  if (!voiceUrl.value && !selectedVoiceItem.value) {
+    selectedVoiceItem.value = row
+    voiceUrl.value = selectedVoiceItem.value.voice_file_url
     audioPlayer.value.load()
-  }
-  if (!audioPlayer.value.paused && row.isPlaying) {
-    audioPlayer.value.pause()
-  } else if (audioPlayer.value.paused && !row.isPlaying) {
-    audioPlayer.value.play()
+  } else {
+    if (selectedVoiceItem.value.patientName == row.patientName) {
+      if (!audioPlayer.value.paused && row.isPlaying) {
+        audioPlayer.value.pause()
+      } else if (audioPlayer.value.paused && !row.isPlaying) {
+        audioPlayer.value.play()
+      }
+    } else {
+      selectedVoiceItem.value = row
+      voiceUrl.value = selectedVoiceItem.value.voice_file_url
+      audioPlayer.value.load()
+      if (!audioPlayer.value.paused && row.isPlaying) {
+        audioPlayer.value.pause()
+      } else if (audioPlayer.value.paused && !row.isPlaying) {
+        audioPlayer.value.play()
+      }
+    }
   }
 
   row.isPlaying = !row.isPlaying

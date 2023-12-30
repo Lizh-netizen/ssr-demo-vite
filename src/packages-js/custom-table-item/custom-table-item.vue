@@ -171,7 +171,6 @@ const renderTableColumn = () => (
           } else if (type === TdType.state) {
             {
               /* state 状态 */
-              console.log(stateOption)
             }
             return (
               <>
