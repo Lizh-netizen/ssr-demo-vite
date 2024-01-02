@@ -299,19 +299,22 @@ const strategy = {
     config: columns_config_evaluate,
     storage: 'evaluate',
     page: 'evaluatePage',
-    request: getEvaluateList
+    request: getEvaluateList,
+    stasCountRequest: getFacialCount
   },
   矫正方案: {
     config: columns_config_ortho,
     storage: 'ortho',
     page: 'orthoPage',
-    request: getOrthoList
+    request: getOrthoList,
+    stasCountRequest: getOrthCount
   },
   面评矫正预约率: {
     config: columns_config_aptm,
     storage: 'aptm',
     page: 'aptmPage',
-    request: getAptmList
+    request: getAptmList,
+    stasCountRequest: getAptmCount
   }
 }
 
@@ -328,8 +331,10 @@ const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 
-const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
-const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
+// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
+// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
+const officeId = ref()
+const doctorId = ref()
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
@@ -419,6 +424,7 @@ async function getAptmList(val) {
     total.value = res.total
   }
 }
+
 const noteList = ref([])
 const empty = ref(false)
 const selected = ref()
@@ -584,7 +590,9 @@ const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
 
 const filter = (val) => {
   const v = getCache(currentTab)
+  // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
+  strategy[currentTab.value].stasCountRequest(v)
 }
 const pagesStorage = ref('evaluatePage')
 const changePage = (page) => {
@@ -616,33 +624,53 @@ onMounted(() => {
 
 // 看板数据
 const facialCount = ref({})
-async function getFacialCount() {
+async function getFacialCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startTime: date.value || filterVal.value.date,
-    doctorId: filterVal.value.doctorId || '',
-    officeId: filterVal.value.officeId || '',
+    startDate: val?.date || date.value, //预约日期
+    officeId: val?.officeId || officeId.value,
+    doctorId: val?.doctorId || doctorId.value,
     location: '1'
   })
   facialCount.value = res.data
+  tabData[1].left_num = facialCount.value.numerator
+  tabData[1].right_num = facialCount.value.totalCount
 }
 const orthCount = ref({})
-async function getOrthCount() {
+async function getCount() {
+  await getFacialCount()
+  await getOrthCount()
+  await getAptmCount()
+}
+getCount()
+async function getOrthCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startTime: date.value || filterVal.value.date,
-    doctorId: filterVal.value.doctorId || '',
-    officeId: filterVal.value.officeId || '',
+    startDate: val?.date || date.value, //预约日期
+    officeId: val?.officeId || officeId.value,
+    doctorId: val?.doctorId || doctorId.value,
     location: '2'
   })
   orthCount.value = res.data
 }
-getFacialCount()
-getOrthCount()
+const aptmCount = ref()
+async function getAptmCount(val) {
+  const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
+    startDate: val?.date || date.value, //预约日期
+    officeId: val?.officeId || officeId.value,
+    doctorId: val?.doctorId || doctorId.value
+  })
+  if (res.code == 200) {
+    aptmCount.value = res.data
+    tabData[0].left_num = aptmCount.value.aptmOrthItemCount
+    tabData[0].right_num = aptmCount.value.aptmCount
+  }
+}
+
 const tabData = [
   {
     svg_name: 'cardSvg1',
     name: '面评矫正预约率',
-    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
-    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已录入矫正方案人数',
     right_text: '需要矫正人数'
   },
@@ -663,6 +691,7 @@ const tabData = [
     right_text: '需要矫正人数'
   }
 ]
+setTimeout(() => {})
 async function changeNote(val) {
   val.row.note = val.note
   val.row.noteList.push({
