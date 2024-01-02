@@ -183,6 +183,10 @@ import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 const props = defineProps({
+  page: {
+    type: String,
+    default: ''
+  },
   dialogVisible: {
     type: Boolean,
     default: false
@@ -319,88 +323,154 @@ const handleLoadPic = () => {
 }
 
 // 右侧分类图片占位
-const imageList = ref([
-  {
-    caption: '正面像',
-    typeName: 'FrontalRepose',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面微笑像',
-    typeName: 'FrontalSmile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面像',
-    typeName: 'LeftProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面微笑像',
-    typeName: 'RightProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面像',
-    typeName: 'LeftSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面微笑像',
-    typeName: 'RightSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（左侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（右侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（左侧）',
-    typeName: 'Left',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（右侧）',
-    typeName: 'Right',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面咬合',
-    typeName: 'Anterior',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '前牙覆盖',
-    typeName: 'Cover',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '上颌',
-    typeName: 'Upper',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '下颌',
-    typeName: 'Lower',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '全景片',
-    typeName: 'Panoramic',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '侧位片',
-    typeName: 'Cephalometric',
-    fileUrl: placeholderUrl
-  }
-])
+const imageList =
+  props.page == 'ortho'
+    ? ref([
+        {
+          caption: '正面像',
+          typeName: 'FrontalRepose',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面微笑像',
+          typeName: 'FrontalSmile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '90度侧面像',
+          typeName: 'LeftProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '90度侧面微笑像',
+          typeName: 'RightProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '45度侧面像',
+          typeName: 'LeftSideProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '45度侧面微笑像',
+          typeName: 'RightSideProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '口内照（左侧）',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '口内照（右侧）',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（左侧）',
+          typeName: 'Left',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（右侧）',
+          typeName: 'Right',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面咬合',
+          typeName: 'Anterior',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '前牙覆盖',
+          typeName: 'Cover',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '上颌',
+          typeName: 'Upper',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '下颌',
+          typeName: 'Lower',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '全景片',
+          typeName: 'Panoramic',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '侧位片',
+          typeName: 'Cephalometric',
+          fileUrl: placeholderUrl
+        }
+      ])
+    : ref([
+        {
+          caption: '正面像',
+          typeName: 'FrontalRepose',
+          fileUrl: placeholderUrl
+        },
+
+        {
+          caption: '90度侧面像',
+          typeName: 'LeftProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '尖牙(左侧)',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '尖牙(右侧)',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+
+        {
+          caption: '磨牙关系（左侧）',
+          typeName: 'Left',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（右侧）',
+          typeName: 'Right',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面咬合',
+          typeName: 'Anterior',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '前牙覆盖',
+          typeName: 'Cover',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '上颌',
+          typeName: 'Upper',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '下颌',
+          typeName: 'Lower',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '全景片',
+          typeName: 'Panoramic',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '自由',
+          typeName: '',
+          fileUrl: placeholderUrl
+        }
+      ])
 
 // 图片分类
 async function getToken() {

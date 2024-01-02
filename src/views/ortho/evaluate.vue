@@ -547,6 +547,7 @@
     </div>
   </div>
   <ImageDialog
+    page="evaluate"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
@@ -729,12 +730,15 @@
       <el-radio-group v-model="advice">
         <el-radio-button label="立即矫正" />
         <el-radio-button label="后续面评" />
-        <el-radio-button label="后续矫正" />
+
         <el-radio-button label="无需矫正" />
       </el-radio-group>
     </div>
-    <div v-if="advice === '后续面评' || advice === '后续矫正'">
+    <div v-if="advice === '后续面评'">
       时间选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
+    </div>
+    <div v-if="advice === '立即矫正'">
+      医生选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
     </div>
     <template #footer>
       <span class="dialog-footer">

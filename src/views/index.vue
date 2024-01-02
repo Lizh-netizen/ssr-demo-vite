@@ -321,15 +321,15 @@ const firstDate = ref()
 // 默认是今天的日期
 firstDate.value = formatTime().firstDate
 date.value = formatTime().formattedToday
-const doctor = ref()
-const officeId = ref()
+
 const columns = ref([...columns_config_evaluate])
 const filterVal = ref({})
 const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 
-const doctorId = ref()
+const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
+const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
@@ -611,6 +611,7 @@ watch(
 )
 onMounted(() => {
   pagesStorage.value = strategy[currentTab.value].page
+  window.parent.postMessage('done', '*')
 })
 
 // 看板数据
