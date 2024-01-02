@@ -11,4 +11,5 @@ import { ElConfigProvider } from 'element-plus'
 // 国际中文
 
 import EleZhCn from 'element-plus/dist/locale/zh-cn.mjs'
+window.parent.postMessage('done', '*')
 </script>
