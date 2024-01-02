@@ -25,9 +25,11 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 window.addEventListener('message', receiveMessage, false)
-function receiveMessage(event) {
+function receiveMessage (event) {
+  console.log(event)
   sessionStorage.setItem('jc_odos_user', event.data)
 }
+
 app.use(store)
 app.use(router)
 app.mount('#app')
