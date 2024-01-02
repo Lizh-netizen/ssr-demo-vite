@@ -507,6 +507,12 @@
             </div>
           </div>
         </template>
+        <div class="questionItem__header">
+          <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
+            >自由照</span
+          >
+        </div>
+        <div class="container"></div>
       </div>
     </div>
     <!-- <div class="model section">
@@ -738,7 +744,21 @@
       时间选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
     </div>
     <div v-if="advice === '立即矫正'">
-      医生选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
+      医生选择：<el-select
+        placeholder="请选择"
+        allow-search
+        v-model="selectDoctor"
+        @change="handleSaveOrthDoctor(row)"
+      >
+        <el-option
+          v-for="item in orthDoctorList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+          {{ item.label }}</el-option
+        >
+      </el-select>
     </div>
     <template #footer>
       <span class="dialog-footer">
@@ -1370,6 +1390,20 @@ const handleDeleteImage1 = (img) => {
     img.fileUrl = placeholderUrl
   }
 }
+const selectDoctor = ref()
+const orthDoctorList = ref([])
+async function getOrthDoctorList() {
+  const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
+  if (res.code == 200) {
+    orthDoctorList.value = res.data.map((item) => {
+      return {
+        label: item.doctorName,
+        value: item.doctorId
+      }
+    })
+  }
+}
+getOrthDoctorList()
 // 影像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
@@ -1680,6 +1714,7 @@ const handleBackToList = () => {
 </script>
 <style>
 .el-dialog {
+  width: 432px;
   border-radius: 12px;
 }
 .el-dialog__body {
@@ -1692,12 +1727,12 @@ const handleBackToList = () => {
     padding: 0 24px;
   }
   .el-input {
-    width: 40px;
+    width: 100px;
     margin-left: 0;
   }
   .el-input__wrapper.is-focus {
     --el-input-focus-border-color: #2e6ce4;
-    box-shadow: #2e6ce4;
+    box-shadow: 0px 0px 0px 1px #2e6ce4 !important;
   }
 }
 .el-input {
