@@ -7,7 +7,8 @@
         <ImageItem
           :imageCaption="item.className"
           :class="{
-            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
+            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
+            side90: item.className === '90度侧面像'
           }"
           ><template #img
             ><template v-if="item.imageUrl">
@@ -2714,13 +2715,13 @@ const handleChangeOption = (optionId, title, className) => {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      useUpdateOption([], title2, '', appId)
+      useUpdateOption(null, title2, '', appId)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-      useUpdateOption([], title1, '', appId)
+      useUpdateOption(null, title1, '', appId)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2733,8 +2734,8 @@ const handleChangeOption = (optionId, title, className) => {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       title1.optionId = []
       title2.optionId = []
-      useUpdateOption([], title1, '', appId)
-      useUpdateOption([], title2, '', appId)
+      useUpdateOption(null, title1, '', appId)
+      useUpdateOption(null, title2, '', appId)
       //  点击完直面型需要重新请求接口
       getOrthFaceAccessList()
     }
@@ -2891,6 +2892,9 @@ div.el-input__wrapper {
 }
 .imageItem.removeBorder {
   border: none;
+}
+:deep .imageItem.side90 {
+  min-height: 336px;
 }
 .placeholderContainer {
   display: flex;

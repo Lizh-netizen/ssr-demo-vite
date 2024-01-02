@@ -6,7 +6,7 @@ async function useUpdateOption(optionId, title, otherContent, appId) {
     obj = {
       apmtId: appId,
       titleId: title.id,
-      optionsIdStr: [optionId],
+      optionsIdStr: optionId ? [optionId] : [],
       otherContent: otherContent || '',
       cephalometricsContent: '',
       fdiToothCode: '',

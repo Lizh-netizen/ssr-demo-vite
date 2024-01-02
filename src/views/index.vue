@@ -129,10 +129,10 @@
               >查看正畸表</el-button
             >
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
-              >对比面评报告</el-button
+              >对比矫正方案报告</el-button
             >
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
-              >对比矫正方案报告</el-button
+              >对比面评报告</el-button
             >
             <el-button @click="handleGoSche(row)" v-if="currentTab == '面评矫正预约率'"
               >去预约</el-button
@@ -632,8 +632,8 @@ async function getFacialCount(val) {
     location: '1'
   })
   facialCount.value = res.data
-  tabData[1].left_num = facialCount.value.numerator
-  tabData[1].right_num = facialCount.value.totalCount
+  tabData.value[1].left_num = facialCount.value.numerator
+  tabData.value[1].right_num = facialCount.value.totalCount
 }
 const orthCount = ref({})
 async function getCount() {
@@ -650,6 +650,8 @@ async function getOrthCount(val) {
     location: '2'
   })
   orthCount.value = res.data
+  tabData.value[2].left_num = orthCount.value.numerator
+  tabData.value[2].right_num = orthCount.value.totalCount
 }
 const aptmCount = ref()
 async function getAptmCount(val) {
@@ -660,12 +662,12 @@ async function getAptmCount(val) {
   })
   if (res.code == 200) {
     aptmCount.value = res.data
-    tabData[0].left_num = aptmCount.value.aptmOrthItemCount
-    tabData[0].right_num = aptmCount.value.aptmCount
+    tabData.value[0].left_num = aptmCount.value.aptmOrthItemCount
+    tabData.value[0].right_num = aptmCount.value.aptmCount
   }
 }
 
-const tabData = [
+const tabData = ref([
   {
     svg_name: 'cardSvg1',
     name: '面评矫正预约率',
@@ -677,21 +679,21 @@ const tabData = [
   {
     svg_name: 'cardSvg1',
     name: '面评',
-    left_num: facialCount.value.numerator ? facialCount.value.numerator : 0,
-    right_num: facialCount.value.totalCount ? facialCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已面评人数',
     right_text: '7岁以上未做正畸或面评'
   },
   {
     svg_name: 'cardSvg1',
     name: '矫正方案',
-    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
-    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已录入矫正方案人数',
     right_text: '需要矫正人数'
   }
-]
-setTimeout(() => {})
+])
+
 async function changeNote(val) {
   val.row.note = val.note
   val.row.noteList.push({
