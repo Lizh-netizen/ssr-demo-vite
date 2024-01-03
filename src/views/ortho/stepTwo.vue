@@ -1820,8 +1820,8 @@ const initZoomCanvas = () => {
   )
   canvas.addEventListener('mousedown', (e) => handleMouseDown(e, canvas))
   canvas.addEventListener('mouseup', handleMouseUp)
-  image.src = cephaImage.value
-  image.crossOrigin = 'anonymous'
+  const timestamp = new Date().getTime()
+  image.src = `${cephaImage.value}` // 设置图片源地址
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
@@ -2611,7 +2611,6 @@ function drawPoints(ctx, image, canvas, zoom) {
       // }
     })
   } else {
-    console.log(coordinatesSmall.value)
     coordinatesSmall.value.forEach(function (coordinate) {
       const x = coordinate.x
       const y = coordinate.y
@@ -2678,8 +2677,8 @@ function initCanvas(maxWidth, maxHeight, draw) {
       drawPoints(ctx, image, canvas, false)
     }
   }
-  image.src = cephaImage.value // 设置图片源地址
-  // image.crossOrigin = 'anonymous'
+  const timestamp = new Date().getTime()
+  image.src = `${cephaImage.value}` // 设置图片源地址
 }
 
 onMounted(() => {
@@ -2688,9 +2687,7 @@ onMounted(() => {
       getAIResult()
     }
   })
-  setTimeout(() => {
-    console.log(document.querySelector('.imageDialog'))
-  }, 2000)
+
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')

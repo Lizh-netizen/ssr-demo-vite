@@ -142,10 +142,10 @@
                 cancel-button-text="取消"
                 title="确认删除该张图片吗？"
                 @confirm="handleDeleteImage1(img)"
-                v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
               >
                 <template #reference>
                   <img
+                    v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
                     :style="{ cursor: 'pointer' }"
                     class="deleteImage"
                     src="@/assets/svg/deleteImage.svg"
