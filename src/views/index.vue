@@ -331,10 +331,10 @@ const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 
-// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
-// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
-const officeId = ref()
-const doctorId = ref()
+const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
+const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
+// const officeId = ref()
+// const doctorId = ref()
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
@@ -625,11 +625,10 @@ onMounted(() => {
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {
-  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
+  const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
     startDate: val?.date || date.value, //预约日期
     officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value,
-    location: '1'
+    doctorId: val?.doctorId || doctorId.value
   })
   facialCount.value = res.data
   tabData.value[1].left_num = facialCount.value.numerator
@@ -639,12 +638,12 @@ const orthCount = ref({})
 async function getCount() {
   await getFacialCount()
   await getOrthCount()
-  await getAptmCount()
+  // await getAptmCount()
 }
 getCount()
 async function getOrthCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startDate: val?.date || date.value, //预约日期
+    startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId || officeId.value,
     doctorId: val?.doctorId || doctorId.value,
     location: '2'
