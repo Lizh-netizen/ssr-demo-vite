@@ -504,11 +504,12 @@ async function handleChangeOption(optionId, title) {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
+
   useChangeOption(optionId, title, appId, isShow, checkData)
-  const res = await useUpdateOption(title.optionId, title, '', appId)
-  if ((res.code == 200) & (title.titleName == '骨龄')) {
-    // getOrthCheckList()
-  }
+  await useUpdateOption(title.optionId, title, '', appId)
+  // if ((res.code == 200) & (title.titleName == '骨龄')) {
+  //   // getOrthCheckList()
+  // }
 }
 const showPopover = (index) => {
   // 值为空的情况下聚焦，否则是展示状态

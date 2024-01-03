@@ -114,6 +114,7 @@
                 v-if="title.type == 1"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title, '', '', '方法')"
+                @click="handleEmptyRadio(title.optionId, title)"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -470,6 +471,7 @@ import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
 import Tooth from '@/components/list/tooth.vue'
+import emptyRadio from '@/effects/emptyRadio.js'
 const submitTooth = (title) => {}
 const goalClicked = ref(false)
 const methodClicked = ref(false)
@@ -872,6 +874,18 @@ async function handleChangeOption(optionId, title, option, title1, className) {
 
   if ((res.code == 200) & (title.titleName == '矫治器')) {
     getOrthMethodList()
+  }
+}
+async function handleEmptyRadio(optionId, title) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    getOrthMethodList()
+    // 重新请求数据
   }
 }
 const symptomList = ref([])

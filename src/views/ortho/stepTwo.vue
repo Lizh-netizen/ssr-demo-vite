@@ -1310,7 +1310,6 @@ function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
     ctx.drawImage(image, 0, 0, width, height)
-
     drawPointsOnCanvas(ctx, image, canvas, faceSet.value)
   }
   image.src = imageUrl // 设置图片源地址
@@ -1730,13 +1729,12 @@ async function getOrthCephaList() {
         filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a.pointName))
         coordinatesBase.value = filteredPoints.value.map((point) => ({
           label: point.pointName,
-          x: point.xCoordinate,
-          y: point.yCoordinate
+          x: point.xcoordinate,
+          y: point.ycoordinate
         }))
         if (interruptSignal) {
           return
         }
-
         initCanvas(canvasMaxX.value, canvasMaxY.value, true)
       })
     } else {
@@ -2613,6 +2611,7 @@ function drawPoints(ctx, image, canvas, zoom) {
       // }
     })
   } else {
+    console.log(coordinatesSmall.value)
     coordinatesSmall.value.forEach(function (coordinate) {
       const x = coordinate.x
       const y = coordinate.y
@@ -2664,11 +2663,13 @@ function initCanvas(maxWidth, maxHeight, draw) {
     canvas.height = height
     h0.value = height
     canvasMaxY.value = height
+
     coordinatesSmall.value = coordinatesBase.value.map((point) => ({
       label: point.label,
       x: point.x * w0.value,
       y: point.y * h0.value
     }))
+
     // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
@@ -2678,7 +2679,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
     }
   }
   image.src = cephaImage.value // 设置图片源地址
-  image.crossOrigin = 'anonymous'
+  // image.crossOrigin = 'anonymous'
 }
 
 onMounted(() => {

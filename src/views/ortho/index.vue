@@ -104,7 +104,11 @@
         >
         <template v-else-if="index == 8">
           <form-item :label="labelObj.label" width="128px">
-            <el-radio-group v-model="orthContent['riskValue']" disabled>
+            <el-radio-group
+              v-model="orthContent['riskValue']"
+              disabled
+              :style="{ 'min-width': '172px' }"
+            >
               <el-radio
                 v-for="(riskVal, index) in ['低', '中', '高']"
                 :key="index"

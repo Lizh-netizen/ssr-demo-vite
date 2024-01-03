@@ -1713,16 +1713,14 @@ const handleBackToList = () => {
 }
 </script>
 <style>
-.el-dialog {
-  width: 432px;
-  border-radius: 12px;
-}
 .el-dialog__body {
   padding: 24px;
   padding-top: 10px;
   padding-bottom: 10px;
 }
 .advice.el-dialog {
+  width: 432px;
+  border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;
   }
