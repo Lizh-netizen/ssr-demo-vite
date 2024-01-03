@@ -512,7 +512,12 @@
             >自由照</span
           >
         </div>
-        <div class="container"></div>
+        <div class="container" :style="{ 'margin-top': '20px' }">
+          <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+            <img :src="imgUrl" class="addPic" />
+          </div>
+          <div>备注</div>
+        </div>
       </div>
     </div>
     <!-- <div class="model section">
