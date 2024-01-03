@@ -632,7 +632,9 @@ async function getFacialCount(val) {
   })
   facialCount.value = res.data
   tabData.value[1].left_num = facialCount.value.aptmOrthItemCount
-  tabData.value[1].right_num = facialCount.value.aptmCount
+    ? facialCount.value.aptmOrthItemCount
+    : 0
+  tabData.value[1].right_num = facialCount.value.aptmCount ? facialCount.value.aptmCount : 0
 }
 const orthCount = ref({})
 async function getCount() {
