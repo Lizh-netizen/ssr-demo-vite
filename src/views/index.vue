@@ -631,8 +631,8 @@ async function getFacialCount(val) {
     doctorId: val?.doctorId || doctorId.value
   })
   facialCount.value = res.data
-  tabData.value[1].left_num = facialCount.value.numerator
-  tabData.value[1].right_num = facialCount.value.totalCount
+  tabData.value[1].left_num = facialCount.value.aptmOrthItemCount
+  tabData.value[1].right_num = facialCount.value.aptmCount
 }
 const orthCount = ref({})
 async function getCount() {
