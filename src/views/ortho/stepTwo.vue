@@ -906,6 +906,9 @@ const handleDeleteImage1 = (img) => {
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
+const handleImageDialog = () => {
+  imgDialogVisible.value = !imgDialogVisible.value
+}
 const openImgDialog = () => {
   imgDialogVisible.value = true
 }

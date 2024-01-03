@@ -226,13 +226,17 @@ onMounted(() => {
 const emit = defineEmits(['savePics', 'cancel'])
 const imgDialogVisible = ref(props.dialogVisible)
 const caption = ref(props.caption)
-watch(props, (val) => {
-  imgDialogVisible.value = val.dialogVisible
-  caption.value = props.caption
-  if (caption.value && imageList.value.find((item) => item.caption === caption.value)) {
-    imageList.value.find((item) => item.caption === caption.value).reminder = true
-  }
-})
+watch(
+  props,
+  (val) => {
+    imgDialogVisible.value = val.dialogVisible
+    caption.value = props.caption
+    if (caption.value && imageList.value.find((item) => item.caption === caption.value)) {
+      imageList.value.find((item) => item.caption === caption.value).reminder = true
+    }
+  },
+  { deep: true }
+)
 const handleCancel = () => {
   emit('cancel')
 }
@@ -768,6 +772,7 @@ const handleDragLeave = (e) => {
   e.target.classList.remove('hover')
 }
 const handleCloseImgDialog = () => {
+  emit('cancel')
   imageList.value.forEach((image) => (image.reminder = false))
 }
 </script>
