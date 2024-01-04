@@ -201,7 +201,7 @@ onBeforeMount(() => {
   const storageList = JSON.parse(sessionStorage.getItem(storageName))
   // 添加诊所和医生
   if (storageList) {
-    storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+    storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
     storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
     modelVal.value = storageList
   } else {
@@ -244,6 +244,8 @@ watch(
   () => {
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
     if (storageList) {
+      storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
+      storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
       modelVal.value = storageList
     }
   }
