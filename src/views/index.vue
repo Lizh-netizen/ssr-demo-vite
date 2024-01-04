@@ -330,11 +330,11 @@ const filterVal = ref({})
 const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
-
-const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
-const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
-// const officeId = ref()
-// const doctorId = ref()
+const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
+// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
+// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
+const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
+const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
@@ -585,8 +585,6 @@ const handleCompareOrth = (item) => {
 const handleGoSche = (item) => {
   window.open(`https://orange.linkedcare.cn/#/patient/info/${item.PatientId}/apptRecord`, '_blank')
 }
-
-const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
 
 const filter = (val) => {
   const v = getCache(currentTab)
