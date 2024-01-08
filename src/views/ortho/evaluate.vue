@@ -775,15 +775,15 @@
       </el-radio-group>
     </div>
     <div v-if="advice === '后续面评'">
-      时间选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
+      时间选择：<el-date-picker
+        v-model="time"
+        type="date"
+        placeholder="请选择"
+        value-format="YYYY-MM-DD"
+      ></el-date-picker>
     </div>
     <div v-if="advice === '立即矫正'">
-      医生选择：<el-select
-        placeholder="请选择"
-        allow-search
-        v-model="selectDoctor"
-        @change="handleSaveOrthDoctor(row)"
-      >
+      医生选择：<el-select placeholder="请选择" allow-search v-model="orthDoctorId">
         <el-option
           v-for="item in orthDoctorList"
           :key="item.value"
@@ -838,16 +838,26 @@ async function getId() {
 getId()
 async function handleAdvice() {
   try {
-    let remark = ''
-    if (advice.value === '立即矫正' || advice.value === '无需矫正') {
-      remark = advice.value
-    } else {
-      remark = time.value + '个月后' + advice.value.slice(2)
+    let orthDoctorName
+    const found = orthDoctorList.value.find((item) => item.value == orthDoctorId.value)
+    if (found) {
+      orthDoctorName = found.label || ''
     }
-    const res = await Put('/prod-api/business/orthBase', {
-      id: id.value,
-      remark: remark
-    })
+
+    const facialAdvise = advice.value === '立即矫正' ? 1 : advice.value === '后续面评' ? 2 : 3
+    const obj = {
+      patientId: patientId,
+      aptmId: appId,
+      orthDoctorName: orthDoctorName || '',
+      orthDoctorId: orthDoctorId.value || '',
+      remark: '',
+      facialAdvise: facialAdvise,
+      facialOrthDoctorId: '',
+      facialOrthDoctorName: '',
+      facialTime: time.value || ''
+    }
+
+    const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
     adviceVisible.value = false
     if (res.code === 200) {
       ElMessage.success(res.msg)
@@ -858,12 +868,6 @@ async function handleAdvice() {
 }
 
 onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      console.log(document.querySelector('.imageDialog'))
-    }, 2000)
-  })
-
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
@@ -1444,7 +1448,7 @@ const handleDeleteImage1 = (img) => {
     img.fileUrl = placeholderUrl
   }
 }
-const selectDoctor = ref()
+const orthDoctorId = ref()
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1783,6 +1787,9 @@ const handleBackToList = () => {
     width: 100px;
     margin-left: 0;
   }
+  .el-date-editor.el-input {
+    width: 130px;
+  }
   .el-input__wrapper.is-focus {
     --el-input-focus-border-color: #2e6ce4;
     box-shadow: 0px 0px 0px 1px #2e6ce4 !important;
@@ -1822,6 +1829,9 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .el-input.el-input--prefix.el-input--suffix.el-date-editor el-date-editor--date {
+  width: 130px;
+}
 :deep .el-textarea__inner {
   width: 300px;
 }
