@@ -509,14 +509,43 @@
         </template>
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
-            >自由照</span
+            >自由照片</span
           >
         </div>
-        <div class="container" :style="{ 'margin-top': '20px' }">
-          <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
-            <img :src="imgUrl" class="addPic" />
-          </div>
-          <div>备注</div>
+        <div class="container">
+          <template v-for="item in freePicData" :key="item.id">
+            <ImageItem :imageCaption="item.className"
+              ><template #img
+                ><template v-if="item.imageUrl"
+                  ><img
+                    :src="item.imageUrl"
+                    :style="{
+                      height: '240px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div
+                    class="imageItem__placeholder"
+                    @click="handleOpenImageDialogue(item.className)"
+                  >
+                    <img :src="imgUrl" class="addPic" />
+                  </div> </template></template
+              ><template #content>
+                <template v-for="title in item.orthTitleList" :key="title.id">
+                  <form-item :label="title.titleName" width="120px">
+                    <el-input
+                      type="textarea"
+                      placeholder="输入备注"
+                      v-model="title.cephalometricsContent"
+                      :rows="4"
+                      :style="{ width: '100%' }"
+                      @blur="handleSubmitRemark(title)"
+                    ></el-input>
+                  </form-item>
+                </template>
+              </template>
+            </ImageItem>
+          </template>
         </div>
       </div>
     </div>
@@ -1076,6 +1105,13 @@ async function getPanoramicList() {
     handlePanoData(panoramicData)
   }
 }
+// 自由照
+const freePicData = ref([])
+async function getFreePic() {
+  const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
+  freePicData.value = result.data
+}
+
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
@@ -1152,6 +1188,7 @@ getCheckList()
 getFaceAccessList()
 getMouthList()
 getPanoramicList()
+getFreePic()
 // getModelList()
 
 const handleChangeOption = (optionId, title) => {
@@ -1185,6 +1222,18 @@ const handleChangeOption = (optionId, title) => {
     })
   }
   updateOption(title.optionId, title)
+}
+async function handleSubmitRemark(title) {
+  const obj = {
+    apmtId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: ''
+  }
+  const res = await Post('/prod-api/business/optionsResult', obj)
 }
 async function updateOption(optionId, title) {
   let obj = null
@@ -1709,6 +1758,7 @@ function getAllData() {
   getFaceAccessList()
   getMouthList()
   getPanoramicList()
+  getFreePic()
 }
 const handleCloseImgDialog = () => {
   imageList.value.forEach((image) => (image.reminder = false))
@@ -1772,6 +1822,10 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .el-textarea__inner {
+  width: 300px;
+}
+
 :deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
   color: #2e6ce4;
   background-color: #fff;

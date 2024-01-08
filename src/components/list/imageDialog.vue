@@ -470,7 +470,7 @@ const imageList =
           fileUrl: placeholderUrl
         },
         {
-          caption: '自由',
+          caption: '自由照片',
           typeName: '',
           fileUrl: placeholderUrl
         }

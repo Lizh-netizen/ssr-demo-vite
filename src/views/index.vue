@@ -588,6 +588,7 @@ const handleGoSche = (item) => {
 
 const filter = (val) => {
   const v = getCache(currentTab)
+  console.log(v)
   // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)

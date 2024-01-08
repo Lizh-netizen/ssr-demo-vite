@@ -2575,7 +2575,7 @@ const getAIResult = () => {
   loading.value = true
   if (cephaImage.value) {
     const timestamp = new Date().getTime()
-    imageUrlToBlob(`${cephaImage.value}?timestamp=${timestamp}`)
+    imageUrlToBlob(`${cephaImage.value}`)
       .then((blob) => {
         getPoints(blob).then(() => {
           hasPoints.value = true
@@ -2682,7 +2682,8 @@ function initCanvas(maxWidth, maxHeight, draw) {
     }
   }
   const timestamp = new Date().getTime()
-  image.src = `${cephaImage.value}?timestamp=${timestamp}` // 设置图片源地址
+  image.src = `${cephaImage.value}` // 设置图片源地址
+  image.crossOrigin = 'anonymous'
 }
 
 onMounted(() => {
