@@ -3,11 +3,6 @@
     <video id="video" autoplay :style="{ display: 'none' }"></video>
     <canvas id="canvas"></canvas>
   </div> -->
-  <div class="text-container" ref="textContainer">
-    <div v-for="(line, index) in lines" :key="index" class="text-line">
-      {{ line }}
-    </div>
-  </div>
 </template>
 
 <script setup>
@@ -67,33 +62,8 @@ import { gsap } from 'gsap'
 //     }
 //   }
 // })
-const lines = ref([
-  'This is the first line.',
-  'This is the second line.',
-  'This is the third line.',
-  'And so on...'
-])
 
-const textContainer = ref(null)
-
-const animateText = () => {
-  const tl = gsap.timeline({ defaults: { duration: 1.5 } })
-  console.log(tl)
-  lines.value.forEach((line, index) => {
-    tl.fromTo(
-      textContainer.value.children[index],
-      { opacity: 0, y: 50 },
-      { opacity: 1, y: 0 },
-      `<0.1`
-    )
-  })
-
-  return tl
-}
-
-onMounted(() => {
-  animateText()
-})
+onMounted(() => {})
 </script>
 <style scoped>
 .text-container {

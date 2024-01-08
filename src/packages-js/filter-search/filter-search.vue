@@ -197,13 +197,15 @@ const emit = defineEmits()
 const isspread = ref(false)
 // 筛选的响应式条件
 const modelVal = ref()
-onMounted(() => {
+onBeforeMount(() => {
+  window.addEventListener('message', receiveMessage, false)
+  function receiveMessage(event) {
+    sessionStorage.setItem('jc_odos_user', event.data)
+  }
   const storageList = JSON.parse(sessionStorage.getItem(storageName))
-  console.log('officeId:', JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId)
   // 添加诊所和医生
   if (storageList) {
     storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
-
     storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
     modelVal.value = storageList
   } else {
