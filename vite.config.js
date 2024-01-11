@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: env.VITE_BUILD_FILE,// 打包的默认路径
     },
+    base: 'system1-resource',
     plugins: [
       vue({
         reactivityTransform: true
