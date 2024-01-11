@@ -322,6 +322,7 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
+
 const input1 = ref('')
 const input2 = ref('')
 const route = useRoute()

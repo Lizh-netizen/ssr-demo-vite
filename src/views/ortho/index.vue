@@ -1,7 +1,8 @@
 <template>
   <div
     :style="{
-      background: '#f2f3f5'
+      background: '#f2f3f5',
+      height: '100%'
     }"
   >
     <div class="gap"></div>
@@ -159,7 +160,7 @@ import stepFour from './stepFour.vue'
 import stepFive from './stepFive.vue'
 import pdf1 from './pdf1.vue'
 import { ref, onMounted, nextTick } from 'vue'
-import { ElLoading, ElMessage } from 'element-plus'
+// import { ElLoading, ElMessage } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
@@ -268,6 +269,7 @@ const getPdfResult = (val) => {
       progress: active.value
     })
     pdf.value = val
+    pdfId.value = `pdfUrl${id.value}`
   }
 }
 const active = ref(0)
@@ -491,10 +493,9 @@ const labelList = [
   }
 }
 .ortho-page {
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: calc(100% - 80px);
   flex: 1;
   * {
     box-sizing: border-box;

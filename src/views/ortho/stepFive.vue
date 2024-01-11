@@ -65,7 +65,7 @@
             <el-radio-group
               v-if="title.type == 1"
               v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title, item.className, '', '目标')"
+              @change="handleChangeOption(title.optionId, title, item.owningModule, '', '目标')"
             >
               <el-radio-button
                 :class="{
@@ -82,7 +82,7 @@
             <el-checkbox-group
               v-model="title.optionId"
               v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title, item.className, '', '目标')"
+              @change="handleChangeOption(title.optionId, title, item.owningModule, '', '目标')"
             >
               <el-checkbox-button
                 :class="{
@@ -828,11 +828,11 @@ const handleSelectTooth = (item, option) => {
   useSelectTooth(item, option)
 }
 const requestAgain = ref(false)
-async function handleChangeOption(optionId, title, option, title1, className) {
-  if (className == '目标') {
+async function handleChangeOption(optionId, title, option, title1, owningModule) {
+  if (owningModule == '目标') {
     goalClicked.value = true
   }
-  if (className == '方法') {
+  if (owningModule == '方法') {
     methodClicked.value = true
   }
   if (props.pdfId) {

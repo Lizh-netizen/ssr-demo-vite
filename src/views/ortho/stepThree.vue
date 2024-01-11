@@ -163,6 +163,7 @@ const handleChange = (val, title) => {
 }
 const handleChangeOption = (optionId, title) => {
   clicked.value = true
+  console.log(props.pdfId)
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }

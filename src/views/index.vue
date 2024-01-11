@@ -282,18 +282,26 @@ sessionStorage.setItem('currentTab', currentTab.value)
 
 // 切换卡片
 // 首次渲染的时候也执行了
+
 const changeTab = (val) => {
   currentTab.value = val
-
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
-
   const args = getCache(currentTab)
-
   strategy[val].request(args)
 }
+onMounted(() => {
+  // 得到officeId, doctorId
+  const args = getCache(currentTab)
+  args.officeId = JSON.parse(sessionStorage.getItem(storageName.value))?.officeId
+  args.doctorId = JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId
+  for (let key in strategy) {
+    console.log(22)
+    strategy[key].stasCountRequest(args)
+  }
+})
 const strategy = {
   面评: {
     config: columns_config_evaluate,
@@ -322,6 +330,7 @@ const total = ref(0)
 const date = ref('')
 const firstDate = ref()
 // 默认是今天的日期
+// firstdate是上个月的1号
 firstDate.value = formatTime().firstDate
 date.value = formatTime().formattedToday
 
@@ -341,8 +350,8 @@ async function getEvaluateList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       location: '2'
     })
     if (res.code == 200) {
@@ -373,8 +382,8 @@ async function getOrthoList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       location: '1'
     })
     if (res.code == 200) {
@@ -400,8 +409,8 @@ async function getAptmList(val) {
     {
       startDate: val?.date?.[0] || date.value, //预约日期
       endDate: val?.date?.[1] || date.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       difficultyLevel: val?.difficultyLevel
     }
   )
@@ -508,7 +517,6 @@ const handleAddNote = () => {
   empty.value = false
 }
 async function handleSaveNotes() {
-  console.log(selected.value, textarea.value)
   const res = await Post('/prod-api/business/totalRemark', {
     customerId: selected.value.id, //客户id
     remark: textarea.value, //备注
@@ -517,7 +525,7 @@ async function handleSaveNotes() {
     remarkType: remarkType.value
   })
   if (res.code == 200) {
-    ElMessage.success('保存成功')
+    // ElMessage.success('保存成功')
   }
   drawerVisible.value = false
   edit.value = false
@@ -525,9 +533,7 @@ async function handleSaveNotes() {
   remarkType.value = ''
 }
 const dropdown = ref(false)
-const handleChangeType = (e) => {
-  console.log(e)
-}
+
 const remarkType = ref()
 const handleClose = () => {}
 // 快捷录入
@@ -588,7 +594,7 @@ const handleGoSche = (item) => {
 
 const filter = (val) => {
   const v = getCache(currentTab)
-  console.log(v)
+
   // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)
@@ -602,6 +608,7 @@ const changePage = (page) => {
 }
 watch(
   currentTab,
+
   (val) => {
     if (val == '面评') {
       patientList.value = evaluateList.value
@@ -624,29 +631,23 @@ onMounted(() => {
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {
-  const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
+  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
     startDate: val?.date || date.value, //预约日期
-    officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
+    location: '1'
   })
   facialCount.value = res.data
-  tabData.value[1].left_num = facialCount.value.aptmOrthItemCount
-    ? facialCount.value.aptmOrthItemCount
-    : 0
-  tabData.value[1].right_num = facialCount.value.aptmCount ? facialCount.value.aptmCount : 0
+  tabData.value[1].left_num = facialCount.value.numerator
+  tabData.value[1].right_num = facialCount.value.totalCount
 }
 const orthCount = ref({})
-async function getCount() {
-  await getFacialCount()
-  await getOrthCount()
-  // await getAptmCount()
-}
-getCount()
+
 async function getOrthCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
-    officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value,
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
     location: '2'
   })
   orthCount.value = res.data
@@ -655,10 +656,13 @@ async function getOrthCount(val) {
 }
 const aptmCount = ref()
 async function getAptmCount(val) {
+  console.log(val)
   const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
-    startDate: val?.date || date.value, //预约日期
-    officeId: val?.officeId || officeId.value,
-    doctorId: val?.doctorId || doctorId.value
+    startDate: val?.date[0] || firstDate.value, //预约日期
+    endDate: val?.date[1] || date.value,
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
+    difficultyLevel: val?.difficultyLevel
   })
   if (res.code == 200) {
     aptmCount.value = res.data
@@ -706,7 +710,7 @@ async function changeNote(val) {
     note: val.note
   })
   if (res.code == 200) {
-    ElMessage.success('新增成功')
+    // ElMessage.success('新增成功')
   }
 }
 
@@ -752,9 +756,7 @@ async function togglePlayPause(row) {
   row.isPlaying = !row.isPlaying
 }
 const handleCanPlay = () => {
-  audioPlayer.value.play().then(() => {
-    console.log('done')
-  })
+  audioPlayer.value.play().then(() => {})
 }
 const selectDoctor = ref()
 const orthDoctorList = ref([])
