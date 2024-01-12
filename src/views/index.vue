@@ -258,7 +258,7 @@
   </div>
 </template>
 <script setup>
-import { ref, watchEffect, watch, nextTick, onMounted } from 'vue'
+import { ref, watchEffect, watch, nextTick, onMounted, onBeforeMount } from 'vue'
 import { Post, Get } from '../utils/request'
 import { useRouter, useRoute } from 'vue-router'
 import formatTime from '../utils/formatTime'
@@ -625,9 +625,8 @@ watch(
 )
 onMounted(() => {
   pagesStorage.value = strategy[currentTab.value].page
-  window.parent.postMessage('done', '*')
 })
-
+onBeforeMount(() => {})
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {

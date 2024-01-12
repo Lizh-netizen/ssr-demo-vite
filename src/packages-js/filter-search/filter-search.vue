@@ -100,7 +100,10 @@
           </template>
           <template v-else-if="item.type === 'search'">
             <div class="search">
-              <ArcoInputSearch placeholder="请搜索" v-model="modelVal[item.prop]" />
+              <ArcoInputSearch
+                :placeholder="item.placeholder || '请搜索'"
+                v-model="modelVal[item.prop]"
+              />
             </div>
           </template>
           <template v-else-if="item.type === 'radio'">
@@ -144,7 +147,19 @@
               </div>
             </div>
           </template>
-          <template v-else-if="item.type === 'tab'"> </template>
+          <template v-else-if="item.type === 'tab'">
+            <div class="tab">
+              <ArcoRadioGroup v-model="modelVal[item.prop]" type="button">
+                <ArcoRadio
+                  v-for="tab in item.tabOptions"
+                  :value="tab.value"
+                  :disabled="false || tab.disabled"
+                >
+                  {{ tab.label }}
+                </ArcoRadio>
+              </ArcoRadioGroup>
+            </div>
+          </template>
         </template>
       </ArcoSpace>
     </div>
@@ -153,8 +168,8 @@
         <template v-if="isShowUnfold">
           <ArcoButton type="text" @click="isspread = !isspread">
             <span>展开</span>
-            <i class="iconfont icon-xiangshang" v-show="isspread" />
-            <i class="iconfont icon-xiangxia" v-show="!isspread" />
+            <i class="iconfont icon-xiangshang" v-show="!isspread" />
+            <i class="iconfont icon-xiangxia" v-show="isspread" />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </ArcoButton>
         </template>
@@ -166,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeMount } from 'vue'
+import { ref, watch, onMounted, watchEffect } from 'vue'
 import dayjs from 'dayjs'
 import weekday from 'dayjs/plugin/weekday'
 import {
@@ -189,25 +204,43 @@ dayjs.locale('zh-cn')
 const {
   list,
   showFilterBtn = true,
-  storageName
-} = defineProps(['list', 'showFilterBtn', 'storageName'])
+  storageName,
+  updateProp
+} = defineProps(['list', 'showFilterBtn', 'storageName', 'updateProp'])
 const emit = defineEmits()
 // 展开
-
 const isspread = ref(false)
-// 筛选的响应式条件
-const modelVal = ref()
 onBeforeMount(() => {
   window.addEventListener('message', receiveMessage, false)
   function receiveMessage(event) {
     sessionStorage.setItem('jc_odos_user', event.data)
   }
-  const storageList = JSON.parse(sessionStorage.getItem(storageName))
-  // 添加诊所和医生
-  if (storageList) {
-    storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
-    storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
-    modelVal.value = storageList
+})
+// 筛选的响应式条件
+const modelVal = ref()
+watchEffect(() => {
+  if (storageName) {
+    const storageList = JSON.parse(sessionStorage.getItem(storageName))
+    if (storageList) {
+      storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
+      storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
+      modelVal.value = storageList
+    } else {
+      modelVal.value = list.reduce((sum, item) => {
+        if (item.type === 'date' && item.defaultDate) {
+          if (item.dateType === 'range') {
+            sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
+          } else {
+            sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
+          }
+        } else if (item.type === 'tab') {
+          sum[item.prop] = item.tabOptions[0].value
+        } else {
+          sum[item.prop] = null
+        }
+        return sum
+      }, {})
+    }
   } else {
     modelVal.value = list.reduce((sum, item) => {
       if (item.type === 'date' && item.defaultDate) {
@@ -216,6 +249,8 @@ onBeforeMount(() => {
         } else {
           sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
         }
+      } else if (item.type === 'tab') {
+        sum[item.prop] = item.tabOptions[0].value
       } else {
         sum[item.prop] = null
       }
@@ -223,37 +258,43 @@ onBeforeMount(() => {
     }, {})
   }
 })
+// 当options为空数组，对应的当前选项清除
+watchEffect(() => {
+  if (!updateProp) return
+  list.forEach((item) => {
+    if (item.type === 'select' && updateProp.includes(item.prop)) {
+      if (item.options && item.options?.length <= 0) {
+        modelVal.value[item.prop] = null
+      }
+    }
+  })
+})
 // 内容
 const total = ref(0)
 // 是否展示展开按钮
 const isShowUnfold = ref(false)
+// 防抖
+const timeId = ref()
 const totalVal = () => {
-  const totalList = ref([])
-  const htmlList = document.querySelectorAll('.filter-input .arco-space .arco-space-item')
-  htmlList.forEach((item, index) => item.offsetTop > 438 && totalList.value.push(index))
-  isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > 232)
-  isShowUnfold.value &&
-    (total.value = Object.values(modelVal.value).filter((item, index) => {
-      return (
-        JSON.stringify(item) !== 'null' &&
-        JSON.stringify(item) !== '[]' &&
-        totalList.value.includes(index)
-      )
-    }).length)
+  clearTimeout(timeId.value)
+  timeId.value = setTimeout(() => {
+    const totalList = ref([])
+    const p = document.querySelector('.filter-search')
+    const htmlList = document.querySelectorAll('.filter-input .arco-space .arco-space-item')
+    htmlList.forEach((item) => {
+      item.offsetTop > p.offsetTop + 16 &&
+        item.children[0].dataset.prop &&
+        totalList.value.push(item.children[0].dataset.prop)
+    })
+    isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > p.offsetTop + 16)
+    isShowUnfold.value &&
+      (total.value = totalList.value.filter((item) => {
+        return modelVal.value[item] && JSON.stringify(modelVal.value[item]) !== '[]'
+      }).length)
+  }, 300)
 }
 // data变化时更新total
 watch(modelVal, () => totalVal(), { deep: true, immediate: true })
-watch(
-  () => storageName,
-  () => {
-    const storageList = JSON.parse(sessionStorage.getItem(storageName))
-    if (storageList) {
-      storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
-      storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
-      modelVal.value = storageList
-    }
-  }
-)
 // 视图变化时更新total
 window.addEventListener('resize', () => totalVal())
 // 监听元素宽度变化
@@ -334,7 +375,6 @@ watch(
         delete filterData.value[key]
       }
     }
-
     if (val) {
       sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
     }
