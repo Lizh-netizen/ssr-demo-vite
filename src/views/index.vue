@@ -346,6 +346,7 @@ const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.offi
 const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
+    console.log('evalua', val)
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
@@ -378,6 +379,7 @@ const orthoList = ref([])
 const patientList = ref([])
 async function getOrthoList(val) {
   if (date.value) {
+    console.log('ortho', val)
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
@@ -636,7 +638,7 @@ async function getFacialCount(val) {
     startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId,
     doctorId: val?.doctorId,
-    location: '1'
+    location: '2'
   })
   facialCount.value = res.data
   tabData.value[1].left_num = facialCount.value.numerator
@@ -649,7 +651,7 @@ async function getOrthCount(val) {
     startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId,
     doctorId: val?.doctorId,
-    location: '2'
+    location: '1'
   })
   orthCount.value = res.data
   tabData.value[2].left_num = orthCount.value.numerator
