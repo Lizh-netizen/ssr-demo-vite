@@ -292,13 +292,13 @@ const changeTab = (val) => {
   const args = getCache(currentTab)
   strategy[val].request(args)
 }
+
 onMounted(() => {
   // 得到officeId, doctorId
-  const args = getCache(currentTab)
+  let args = {}
   args.officeId = JSON.parse(sessionStorage.getItem(storageName.value))?.officeId
   args.doctorId = JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId
   for (let key in strategy) {
-    console.log(22)
     strategy[key].stasCountRequest(args)
   }
 })
@@ -620,6 +620,8 @@ watch(
       }))
     }
     columns.value = strategy[val].config
+    // const args = getCache(val)
+    // strategy[val].stasCountRequest(args)
   },
   { immediate: true }
 )
@@ -631,7 +633,7 @@ onBeforeMount(() => {})
 const facialCount = ref({})
 async function getFacialCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startDate: val?.date || date.value, //预约日期
+    startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId,
     doctorId: val?.doctorId,
     location: '1'
@@ -657,8 +659,8 @@ const aptmCount = ref()
 async function getAptmCount(val) {
   console.log(val)
   const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
-    startDate: val?.date[0] || firstDate.value, //预约日期
-    endDate: val?.date[1] || date.value,
+    startDate: val?.date?.[0] || firstDate.value, //预约日期
+    endDate: val?.date?.[1] || date.value,
     officeId: val?.officeId,
     doctorId: val?.doctorId,
     difficultyLevel: val?.difficultyLevel
