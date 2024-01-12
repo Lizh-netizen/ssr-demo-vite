@@ -218,11 +218,6 @@ onBeforeMount(() => {
 const modelVal = ref()
 
 watchEffect(() => {
-  window.addEventListener('message', receiveMessage, false)
-  function receiveMessage(event) {
-    sessionStorage.setItem('jc_odos_user', event.data)
-  }
-
   if (storageName) {
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
 
