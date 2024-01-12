@@ -24,7 +24,7 @@ app.config.globalProperties.axiosPromiseArr = []
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-//  window.parent.postMessage('done', '*')
+window.parent.postMessage('done', '*')
 
 // 测试officeId
 

@@ -1207,7 +1207,17 @@ async function handleEmptyRadio(optionId, title, owningModule) {
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
+    const obj = {
+      apmtId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: title.otherContent,
+      cephalometricsContent: '',
+      fdiToothCode: '',
+      showPosition: ''
+    }
+
+    Post('/prod-api/business/facialResult', obj)
     if (owningModule == 'check') {
       getCheckList()
     } else if (owningModule == 'face') {
@@ -2222,7 +2232,8 @@ const handleBackToList = () => {
   }
 }
 .container .imageItem:last-child {
-  border-bottom: 1.4px solid #e5e6eb !important;
+  border-bottom: none !important;
+  // border-bottom: 1.4px solid #e5e6eb !important;
 }
 .diagramWrapper {
   width: 150px;

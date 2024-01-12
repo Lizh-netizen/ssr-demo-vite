@@ -1,13 +1,6 @@
 <template>
   <div class="container">
-    <draggable
-      class="list-group"
-      v-model="data"
-      @start="drag = true"
-      @end="drag = false"
-      group="people"
-      item-key="id"
-    >
+    <draggable class="list-group" v-model="data" @start="drag = true" group="people" item-key="id">
       <template #item="{ element }">
         <div class="list-group-item">
           <img src="../../assets/layout/drag.svg" />
@@ -21,7 +14,7 @@
 
 <script setup>
 import draggable from 'vuedraggable'
-import { watch, defineProps, ref } from 'vue'
+import { watch, defineProps, ref, defineEmits } from 'vue'
 const props = defineProps({
   list: {
     type: Array,
@@ -30,6 +23,7 @@ const props = defineProps({
 })
 const data = ref(props.list)
 
+const emit = defineEmits(['update'])
 watch(
   props,
   (val) => {
@@ -37,6 +31,12 @@ watch(
   },
   { deep: true }
 )
+watch(data, (val) => {
+  emit('update', val)
+})
+const handleDragEnd = (e) => {
+  console.log(e)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -54,10 +54,14 @@ watch(
   line-height: 40px;
   border-radius: 8px;
   /* background: #E3EBFA; */
-  background: #ecedee;
+  background: #fff;
   display: flex;
   align-items: center;
   margin-bottom: 8px;
   margin-right: 8px;
+  img {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
 }
 </style>

@@ -7,13 +7,13 @@
           <div>问题列表</div>
         </div>
         <div class="top_left_content">
-          <draggable :list="issuesList1"></draggable>
+          <draggable :list="issuesList1" @update="updateList"></draggable>
         </div>
       </div>
       <div class="top_right">
         <div class="top_right_header">
           <div>暂观</div>
-          <draggable :list="issuesList1"></draggable>
+          <draggable :list="issuesList2" @update="updateList(e, issuesList2)"></draggable>
         </div>
         <div class="top_right_content">
           <img
@@ -72,7 +72,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { Icon } from '@iconify/vue'
+
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
 const issuesList1 = ref([
@@ -85,6 +85,10 @@ const issuesList1 = ref([
 const issuesList2 = ref([])
 const handleDragEnd = (val) => {
   console.log(issuesList2.value)
+}
+const updateList = (val) => {
+  console.log('update')
+  console.log(val)
 }
 const planClick = ref(false)
 const handlePlan = () => {
@@ -106,9 +110,10 @@ watch(issuesList2, (val) => {
   flex-direction: column;
   .top {
     border-radius: 16px;
+
     opacity: 1;
     display: flex;
-    background: #ffffff;
+    background: #f2f3f5;
     justify-content: space-between;
     box-sizing: border-box;
     /* 线条/深色 */
