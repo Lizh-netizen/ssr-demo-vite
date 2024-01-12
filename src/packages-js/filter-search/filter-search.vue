@@ -210,31 +210,33 @@ const {
 const emit = defineEmits()
 // 展开
 const isspread = ref(false)
+let storageObj = ref({})
 onBeforeMount(() => {
+  storageObj.value = {}
+})
+// 筛选的响应式条件
+const modelVal = ref()
+
+watchEffect(() => {
   window.addEventListener('message', receiveMessage, false)
   function receiveMessage(event) {
     sessionStorage.setItem('jc_odos_user', event.data)
   }
-})
-// 筛选的响应式条件
-const modelVal = ref()
-let storageObj = ref({})
-
-watchEffect(() => {
-  if (!storageObj.value[storageName]) {
-    storageObj.value[storageName] = 1
-  } else {
-    storageObj.value[storageName] = storageObj.value[storageName] + 1
-  }
 
   if (storageName) {
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
-    if (storageObj.value[storageName] == 1) {
-      storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
-      storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
-    }
+
     if (storageList) {
+      if (!storageObj.value[storageName]) {
+        storageObj.value[storageName] = 1
+      } else {
+        storageObj.value[storageName] = storageObj.value[storageName] + 1
+      }
       modelVal.value = storageList
+      if (storageObj.value[storageName] == 1) {
+        storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
+        storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
+      }
     } else {
       modelVal.value = list.reduce((sum, item) => {
         if (item.type === 'date' && item.defaultDate) {
