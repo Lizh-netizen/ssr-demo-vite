@@ -14,6 +14,7 @@
                 v-if="title.type == 1"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @click="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -129,6 +130,7 @@
                 class="specialRadio"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @click="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <el-radio-button
                   :class="{
@@ -193,6 +195,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
+                      @click="handleEmptyRadio(title.optionId, title, 'face')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -269,6 +272,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
+                      @click="handleEmptyRadio(title.optionId, title, 'mouth')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -353,6 +357,7 @@
                           v-if="title.type == 1"
                           v-model="title.optionId"
                           @change="handleChangeOption(title.optionId, title)"
+                          @click="handleEmptyRadio(title.optionId, title, 'pano')"
                         >
                           <el-radio-button
                             :disabled="!panoramicData[0].hasImage"
@@ -819,6 +824,7 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import ImageDialog from '@/components/list/imageDialog.vue'
+import emptyRadio from '@/effects/emptyRadio.js'
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -1194,7 +1200,26 @@ getMouthList()
 getPanoramicList()
 getFreePic()
 // getModelList()
-
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    if (owningModule == 'check') {
+      getCheckList()
+    } else if (owningModule == 'face') {
+      getFaceAccessList()
+    } else if (owningModule == 'mouth') {
+      getMouthList()
+    } else if (owningModule == 'pano') {
+      getPanoramicList()
+    }
+    // 重新请求数据
+  }
+}
 const handleChangeOption = (optionId, title) => {
   if (title.type == 2) {
     // 无和别的选项互斥逻辑

@@ -40,6 +40,7 @@
                   v-if="title.type == 1"
                   v-model="title.optionId"
                   @change="handleChangeOption(title.optionId, title)"
+                  @click="handleEmptyRadio(title.optionId, title, 'inquiry')"
                 >
                   <el-radio-button
                     :class="{
@@ -99,6 +100,7 @@
               <el-radio-group
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @click="handleEmptyRadio(title.optionId, title, 'inquiry')"
               >
                 <el-radio-button
                   v-for="option in title.orthOptionsList"
@@ -126,6 +128,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
+              @click="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                 <el-radio-button
@@ -241,6 +244,7 @@
               class="specialRadio"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
+              @click="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <el-radio-button
                 :class="{
@@ -314,7 +318,7 @@ import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
-
+import emptyRadio from '@/effects/emptyRadio.js'
 const clicked = ref(false)
 defineExpose({
   clicked
@@ -547,6 +551,22 @@ async function handleChange(obj, title) {
 
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', appId)
+}
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    if (owningModule == 'inquiry') {
+      getOrthInquiryList()
+    } else {
+      getOrthCheckList()
+    }
+    // 重新请求数据
+  }
 }
 </script>
 <style lang="scss">

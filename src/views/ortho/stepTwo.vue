@@ -37,6 +37,7 @@
                   v-if="title.type == 1"
                   v-model="title.optionId"
                   @change="handleChangeOption(title.optionId, title, item.className, item)"
+                  @click="handleEmptyRadio(title.optionId, title, 'face')"
                 >
                   <el-radio-button
                     :disabled="!item.hasImage"
@@ -114,6 +115,7 @@
                     v-if="title.type == 1"
                     v-model="title.optionId"
                     @change="handleChangeOption(title.optionId, title)"
+                    @click="handleEmptyRadio(title.optionId, title, 'mouth')"
                   >
                     <el-radio-button
                       :disabled="!item.hasImage"
@@ -190,6 +192,7 @@
                         v-if="title.type == 1"
                         v-model="title.optionId"
                         @change="handleChangeOption(title.optionId, title)"
+                        @click="handleEmptyRadio(title.optionId, title, 'pano')"
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -244,6 +247,7 @@
                         v-if="title.type == 1"
                         v-model="title.optionId"
                         @change="handleChangeOption(title.optionId, title)"
+                        @click="handleEmptyRadio(title.optionId, title, 'pano')"
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -435,6 +439,7 @@
                   <el-radio-group
                     v-model="title.optionId"
                     @change="handleChangeOption(title.optionId, title)"
+                    @click="handleEmptyRadio(title.optionId, title, 'cepha')"
                     ><el-radio-button
                       :disabled="!cephaImage"
                       :label="option.id"
@@ -532,6 +537,7 @@ import 'animate.css'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
+import emptyRadio from '@/effects/emptyRadio.js'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
@@ -2632,6 +2638,26 @@ const handleSubmitTooth = (title) => {
 }
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', appId)
+}
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    if (owningModule == 'face') {
+      getOrthFaceAccessList()
+    } else if (owningModule == 'mouth') {
+      getOrthMouthList()
+    } else if (owningModule == 'pano') {
+      getOrthPanoramicList()
+    } else if (owningModule == 'cepha') {
+      getOrthCephaList()
+    }
+    // 重新请求数据
+  }
 }
 </script>
 <style>

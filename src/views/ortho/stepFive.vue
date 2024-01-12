@@ -13,6 +13,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
+              @click="handleEmptyRadio(title.optionId, title, 'plan')"
             >
               <el-radio-button
                 :class="{
@@ -66,6 +67,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title, item.owningModule, '', '目标')"
+              @click="handleEmptyRadio(title.optionId, title, 'goal')"
             >
               <el-radio-button
                 :class="{
@@ -114,7 +116,7 @@
                 v-if="title.type == 1"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title, '', '', '方法')"
-                @click="handleEmptyRadio(title.optionId, title)"
+                @click="handleEmptyRadio(title.optionId, title, 'method')"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -185,6 +187,7 @@
                             '方法'
                           )
                         "
+                        @click="handleEmptyRadio(title.optionId, title, 'method')"
                       >
                         <el-radio-button
                           v-for="option1 in option.brand.orthOptionsList"
@@ -876,7 +879,7 @@ async function handleChangeOption(optionId, title, option, title1, owningModule)
     getOrthMethodList()
   }
 }
-async function handleEmptyRadio(optionId, title) {
+async function handleEmptyRadio(optionId, title, owningModule) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
@@ -884,7 +887,13 @@ async function handleEmptyRadio(optionId, title) {
   ) {
     emptyRadio(optionId, title)
     useUpdateOption(null, title, '', appId)
-    getOrthMethodList()
+    if (owningModule == 'plan') {
+      getOrthPlanList()
+    } else if (owningModule == 'method') {
+      getOrthMethodList()
+    } else if (owningModule == 'goal') {
+      getOrthGoalList()
+    }
     // 重新请求数据
   }
 }
