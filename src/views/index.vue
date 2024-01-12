@@ -364,7 +364,7 @@ async function getEvaluateList(val) {
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
       }))
       patientList.value = evaluateList.value
-      total.value = evaluateList.value.length
+      total.value = res.total
     }
   }
 }
