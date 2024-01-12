@@ -229,8 +229,8 @@ watchEffect(() => {
       }
       modelVal.value = storageList
       if (storageObj.value[storageName] == 1) {
-        storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).officeId
-        storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
+        storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId
+        storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
       }
     } else {
       modelVal.value = list.reduce((sum, item) => {
