@@ -210,15 +210,14 @@ const {
 const emit = defineEmits()
 // 展开
 const isspread = ref(false)
-onBeforeMount(() => {
+onBeforeMount(() => {})
+// 筛选的响应式条件
+const modelVal = ref()
+watchEffect(() => {
   window.addEventListener('message', receiveMessage, false)
   function receiveMessage(event) {
     sessionStorage.setItem('jc_odos_user', event.data)
   }
-})
-// 筛选的响应式条件
-const modelVal = ref()
-watchEffect(() => {
   if (storageName) {
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
     if (storageList) {
