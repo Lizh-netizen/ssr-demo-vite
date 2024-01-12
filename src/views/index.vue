@@ -688,7 +688,7 @@ const tabData = ref([
     left_num: 0,
     right_num: 0,
     left_text: '已面评人数',
-    right_text: '7岁以上未做正畸或面评'
+    right_text: '预约面型发育评估人数'
   },
   {
     svg_name: 'cardSvg1',
