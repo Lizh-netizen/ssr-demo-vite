@@ -27,7 +27,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 window.parent.postMessage('done', '*')
   window.addEventListener('message', receiveMessage, false)
 function receiveMessage (event) {
-console.log(event.data)
+console.log(event.data,new Date().getTime())
   sessionStorage.setItem('jc_odos_user', event.data)
   }
 // 测试officeId

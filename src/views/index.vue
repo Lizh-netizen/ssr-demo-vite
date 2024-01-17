@@ -346,6 +346,7 @@ const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.offi
 const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
+    console.log(new Date().getTime())
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
