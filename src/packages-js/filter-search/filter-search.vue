@@ -220,7 +220,6 @@ const modelVal = ref()
 watchEffect(() => {
   if (storageName) {
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
-
     if (storageList) {
       if (!storageObj.value[storageName]) {
         storageObj.value[storageName] = 1
@@ -231,6 +230,7 @@ watchEffect(() => {
       if (storageObj.value[storageName] == 1) {
         storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId
         storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+        emit('setInitialState')
       }
     } else {
       modelVal.value = list.reduce((sum, item) => {

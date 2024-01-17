@@ -17,6 +17,7 @@
       <div class="content">
         <filter-search
           @filter="filter"
+          @setInitialState="setInitialState"
           :storageName="storageName"
           :list="[
             {
@@ -273,7 +274,28 @@ import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
 const route = useRoute()
 const params = route.query
-
+const requestAble = ref(false)
+const setInitialState = () => {
+  requestAble.value = true
+}
+watch(requestAble, (newVal) => {
+  if (newVal) {
+    // 添加缓存
+    console.log(newVal)
+    const val = sessionStorage.getItem('currentTab')
+    storageName.value = strategy[val].storage
+    pagesStorage.value = strategy[val].page
+    const args = getCache(currentTab)
+    strategy[val].request(args)
+    // 得到officeId, doctorId
+    // let args = {}
+    // args.officeId = JSON.parse(sessionStorage.getItem(storageName.value))?.officeId
+    // args.doctorId = JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId
+    for (let key in strategy) {
+      strategy[key].stasCountRequest(args)
+    }
+  }
+})
 if (params.token) {
   sessionStorage.odos_token = params.token
 }
@@ -282,26 +304,12 @@ sessionStorage.setItem('currentTab', currentTab.value)
 
 // 切换卡片
 // 首次渲染的时候也执行了
-
 const changeTab = (val) => {
   currentTab.value = val
   sessionStorage.setItem('currentTab', val)
-  // 添加缓存
-  storageName.value = strategy[val].storage
-  pagesStorage.value = strategy[val].page
-  const args = getCache(currentTab)
-  strategy[val].request(args)
 }
 
-onMounted(() => {
-  // 得到officeId, doctorId
-  let args = {}
-  args.officeId = JSON.parse(sessionStorage.getItem(storageName.value))?.officeId
-  args.doctorId = JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId
-  for (let key in strategy) {
-    strategy[key].stasCountRequest(args)
-  }
-})
+onMounted(() => {})
 const strategy = {
   面评: {
     config: columns_config_evaluate,
