@@ -573,7 +573,7 @@ const getTanentList = () => {
   Get('/prod-api/business/office/list').then((res) => {
     allOptions1.value = res.rows.map((item) => ({
       label: item.abbreviation,
-      value: +item.ljOfficeId
+      value: +item.id
     }))
     options1.value = allOptions1.value.filter((option) => option.value)
   })
