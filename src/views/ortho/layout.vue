@@ -7,19 +7,19 @@
           <div>问题列表</div>
         </div>
         <div class="top_left_content">
-          <draggable :list="issuesList1" @update="updateList"></draggable>
+          <draggable :list="issuesList[0]" @update="(val) => updateList(val, 0)"></draggable>
         </div>
       </div>
       <div class="top_right">
         <div class="top_right_header">
           <div>暂观</div>
-          <draggable :list="issuesList2" @update="updateList(e, issuesList2)"></draggable>
+          <draggable :list="issuesList[1]" @update="(val) => updateList(val, 1)"></draggable>
         </div>
         <div class="top_right_content">
           <img
             src="../../assets/layout/emptyIssues.png"
             :style="{ width: '204px' }"
-            v-if="issuesList2.length == 0"
+            v-if="issuesList[1].length == 0"
           />
         </div>
       </div>
@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
@@ -82,13 +82,24 @@ const issuesList1 = ref([
   { name: 'name4', id: 4 },
   { name: 'name5', id: 5 }
 ])
+const issuesList = ref([
+  [
+    { name: 'name1', id: 1 },
+    { name: 'name2', id: 2 },
+    { name: 'name3', id: 3 },
+    { name: 'name4', id: 4 },
+    { name: 'name5', id: 5 }
+  ],
+  []
+])
 const issuesList2 = ref([])
 const handleDragEnd = (val) => {
   console.log(issuesList2.value)
 }
-const updateList = (val) => {
-  console.log('update')
-  console.log(val)
+const updateList = (val, num) => {
+  issuesList.value[num] = val
+  console.log(num)
+  console.log(issuesList.value)
 }
 const planClick = ref(false)
 const handlePlan = () => {
@@ -98,9 +109,6 @@ const goalList = ref([
   { name: 'name1', id: 1 },
   { name: 'name2', id: 2 }
 ])
-watch(issuesList2, (val) => {
-  console.log(val)
-})
 </script>
 
 <style lang="scss" scoped>

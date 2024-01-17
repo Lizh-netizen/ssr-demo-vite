@@ -1996,7 +1996,7 @@ const handleBackToList = () => {
 
 .drawer {
   box-sizing: border-box;
-  font-family: 思源黑体;
+  // font-family: 思源黑体;
   padding: 20px;
   margin: 15px;
   background: #fff;
@@ -2050,7 +2050,7 @@ const handleBackToList = () => {
       font-weight: 500;
     }
     &__result {
-      font-family: 思源黑体;
+      // font-family: 思源黑体;
       font-size: 20px;
       font-weight: bold;
       color: #ff5d5d;

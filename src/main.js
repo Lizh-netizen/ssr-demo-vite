@@ -28,7 +28,6 @@ window.parent.postMessage('done', '*')
   window.addEventListener('message', receiveMessage, false)
 function receiveMessage(event) {
   sessionStorage.setItem('jc_odos_user', event.data)
-  console.log('get data')
   }
 // 测试officeId
 

@@ -104,5 +104,9 @@ img {
    width: 100% !important;
  }
  .el-popper span {
-   font-size: 14px;
+   font-size: 14px !important;
+ }
+ .el-dialog{
+      --el-border-radius-small: 12px;
+  --el-dialog-border-radius: 12px;
  }

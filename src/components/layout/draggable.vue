@@ -34,9 +34,6 @@ watch(
 watch(data, (val) => {
   emit('update', val)
 })
-const handleDragEnd = (e) => {
-  console.log(e)
-}
 </script>
 
 <style lang="scss" scoped>
