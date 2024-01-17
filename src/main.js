@@ -31,7 +31,7 @@ console.log(event.data,new Date().getTime())
   sessionStorage.setItem('jc_odos_user', event.data)
   }
 // 测试officeId
-
+console.log('测试')
 app.use(store)
 app.use(router)
 app.mount('#app')
