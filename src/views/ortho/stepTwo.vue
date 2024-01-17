@@ -37,7 +37,6 @@
                   v-if="title.type == 1"
                   v-model="title.optionId"
                   @change="handleChangeOption(title.optionId, title, item.className, item)"
-                  @click="handleEmptyRadio(title.optionId, title, 'face')"
                 >
                   <el-radio-button
                     :disabled="!item.hasImage"

@@ -477,7 +477,7 @@ const getDoctorList = () => {
   Get('/prod-api/business/public/api/v1/provider/list?Job=医生').then((res) => {
     allOptions.value = res.map((item) => ({
       label: item.doctorName,
-      value: item.doctorId
+      value: +item.doctorId
     }))
     options.value = allOptions.value
   })
@@ -573,7 +573,7 @@ const getTanentList = () => {
   Get('/prod-api/business/office/list').then((res) => {
     allOptions1.value = res.rows.map((item) => ({
       label: item.abbreviation,
-      value: item.ljOfficeId
+      value: +item.ljOfficeId
     }))
     options1.value = allOptions1.value.filter((option) => option.value)
   })

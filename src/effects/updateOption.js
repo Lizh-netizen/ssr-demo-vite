@@ -1,6 +1,7 @@
 import { Post } from '../utils/request'
 // 发送请求
-async function useUpdateOption(optionId, title, otherContent, appId) {
+async function useUpdateOption (optionId, title, otherContent, appId) {
+  console.log(optionId)
   let obj
   if (title.type == 1) {
     obj = {
