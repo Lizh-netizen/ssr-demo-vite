@@ -219,19 +219,17 @@ const modelVal = ref()
 
 watchEffect(() => {
   if (storageName) {
+    if (!storageObj.value[storageName]) {
+      storageObj.value[storageName] = 1
+    } else {
+      storageObj.value[storageName] = storageObj.value[storageName] + 1
+    }
     const storageList = JSON.parse(sessionStorage.getItem(storageName))
+    // 刚开始只是传递一个name，并没有缓存
     if (storageList) {
-      if (!storageObj.value[storageName]) {
-        storageObj.value[storageName] = 1
-      } else {
-        storageObj.value[storageName] = storageObj.value[storageName] + 1
-      }
+      // 有缓存直接用缓存，没有的话最开始初始化一个新的
       modelVal.value = storageList
-      if (storageObj.value[storageName] == 1) {
-        storageList.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId
-        storageList.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-        emit('setInitialState')
-      }
+      emit('setInitialState', storageName)
     } else {
       modelVal.value = list.reduce((sum, item) => {
         if (item.type === 'date' && item.defaultDate) {
@@ -247,6 +245,9 @@ watchEffect(() => {
         }
         return sum
       }, {})
+      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId
+      modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+      emit('setInitialState', storageName)
     }
   } else {
     modelVal.value = list.reduce((sum, item) => {
@@ -372,24 +373,40 @@ const filter = () => {
   emit('filter', filterData.value)
 }
 // 数据改变的事件
+// watch(
+//   () => modelVal.value,
+//   (val) => {
+//     for (const key in val) {
+//       if (val[key]) {
+//         filterData.value[key] = val[key]
+//       } else {
+//         delete filterData.value[key]
+//       }
+//     }
+//     if (val) {
+//       sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
+//     }
+//     emit('changeData', filterData.value)
+//   },
+//   { deep: true, immediate: true }
+// )
 watch(
   () => modelVal.value,
   (val) => {
-    for (const key in val) {
-      if (val[key]) {
-        filterData.value[key] = val[key]
-      } else {
-        delete filterData.value[key]
-      }
-    }
+    // for (const key in val) {
+    //   if (val[key]) {
+    //     filterData.value[key] = val[key]
+    //   } else {
+    //     delete filterData.value[key]
+    //   }
+    // }
     if (val) {
-      sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
+      sessionStorage.setItem(storageName, JSON.stringify(modelVal.value))
     }
     emit('changeData', filterData.value)
   },
   { deep: true, immediate: true }
 )
-
 // 前进/后退天数
 const date = ref()
 const preNextDate = (str, prop) => {

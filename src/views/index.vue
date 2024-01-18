@@ -17,8 +17,8 @@
       <div class="content">
         <filter-search
           @filter="filter"
-          @setInitialState="setInitialState"
           :storageName="storageName"
+          @setInitialState="setInitialState"
           :list="[
             {
               name: '医生',
@@ -272,65 +272,69 @@ import datePicker from '../packages-js/date-picker/date-picker.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
+import store from '../store'
+
 const route = useRoute()
 const params = route.query
-const requestAble = ref(false)
-const setInitialState = () => {
-  requestAble.value = true
-}
-watch(requestAble, (newVal) => {
-  if (newVal) {
-    // 添加缓存
-    console.log(newVal)
-    const val = sessionStorage.getItem('currentTab')
-    storageName.value = strategy[val].storage
-    pagesStorage.value = strategy[val].page
-    const args = getCache(currentTab)
-    strategy[val].request(args)
-    // 得到officeId, doctorId
-    // let args = {}
-    // args.officeId = JSON.parse(sessionStorage.getItem(storageName.value))?.officeId
-    // args.doctorId = JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId
-    for (let key in strategy) {
-      strategy[key].stasCountRequest(args)
-    }
-  }
-})
+const requestAble = ref({})
+const aptmAble = ref(false)
+const orthoAble = ref(false)
+const evalAble = ref(false)
+
 if (params.token) {
   sessionStorage.odos_token = params.token
 }
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
-
+const setInitialState = (val) => {
+  requestAble.value[val] = true
+}
 // 切换卡片
 // 首次渲染的时候也执行了
 const changeTab = (val) => {
   currentTab.value = val
   sessionStorage.setItem('currentTab', val)
+  // 添加缓存
+  storageName.value = strategy[val].storage
+  pagesStorage.value = strategy[val].page
+  if (strategy[currentTab.value].firstReq) {
+    const args = getCache(currentTab)
+    strategy[val].request(args)
+  }
 }
+// 只有在一次点击卡片的时候才会执行watch中的请求
 
-onMounted(() => {})
+watch(requestAble.value, (newVal) => {
+  if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
+    const args = getCache(currentTab)
+    strategy[currentTab.value].request(args)
+    strategy[currentTab.value].firstReq = true
+  }
+})
 const strategy = {
   面评: {
     config: columns_config_evaluate,
     storage: 'evaluate',
     page: 'evaluatePage',
     request: getEvaluateList,
-    stasCountRequest: getFacialCount
+    stasCountRequest: getFacialCount,
+    firstReq: false
   },
   矫正方案: {
     config: columns_config_ortho,
     storage: 'ortho',
     page: 'orthoPage',
     request: getOrthoList,
-    stasCountRequest: getOrthCount
+    stasCountRequest: getOrthCount,
+    firstReq: false
   },
   面评矫正预约率: {
     config: columns_config_aptm,
     storage: 'aptm',
     page: 'aptmPage',
     request: getAptmList,
-    stasCountRequest: getAptmCount
+    stasCountRequest: getAptmCount,
+    firstReq: false
   }
 }
 
@@ -354,7 +358,6 @@ const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.offi
 const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
-    console.log(new Date().getTime())
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
@@ -378,8 +381,8 @@ async function getEvaluateList(val) {
   }
 }
 function getCache(currentTab) {
-  const pages = sessionStorage.getItem(strategy[currentTab.value].page)
-  const storage = sessionStorage.getItem(strategy[currentTab.value].storage)
+  const pages = sessionStorage.getItem(strategy[currentTab.value]?.page)
+  const storage = sessionStorage.getItem(strategy[currentTab.value]?.storage)
   const val = { ...JSON.parse(pages), ...JSON.parse(storage) }
   return val
 }
@@ -387,7 +390,6 @@ const orthoList = ref([])
 const patientList = ref([])
 async function getOrthoList(val) {
   if (date.value) {
-    console.log('ortho', val)
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
@@ -618,7 +620,6 @@ const changePage = (page) => {
 }
 watch(
   currentTab,
-
   (val) => {
     if (val == '面评') {
       patientList.value = evaluateList.value
@@ -630,15 +631,23 @@ watch(
       }))
     }
     columns.value = strategy[val].config
-    // const args = getCache(val)
-    // strategy[val].stasCountRequest(args)
   },
   { immediate: true }
 )
+
 onMounted(() => {
+  // 初始化
   pagesStorage.value = strategy[currentTab.value].page
+  const val = sessionStorage.getItem('currentTab')
+  const args = getCache(currentTab)
+  for (let key in strategy) {
+    strategy[key].stasCountRequest(args)
+  }
+  strategy[val].request(args)
+  storageName.value = strategy[val].storage
+  pagesStorage.value = strategy[val].page
 })
-onBeforeMount(() => {})
+
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {
@@ -667,7 +676,6 @@ async function getOrthCount(val) {
 }
 const aptmCount = ref()
 async function getAptmCount(val) {
-  console.log(val)
   const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
     startDate: val?.date?.[0] || firstDate.value, //预约日期
     endDate: val?.date?.[1] || date.value,

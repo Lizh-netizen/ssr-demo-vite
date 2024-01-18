@@ -116,8 +116,8 @@ export const columns_config_aptm = [
     stateOption: [
       // { name: '未筛选', prop: 'filterStatus', color: 'NoColor', value: 0 },
       { name: '矫正', prop: 'orth_status', color: 'Alarm', value: 1 },
-
-      { name: '面评', prop: 'orth_status', color: 'Neutral', value: 3 }
+      { name: '不矫正', prop: 'orth_status', color: 'Success', value: 2 },
+      { name: '不确定', prop: 'orth_status', color: 'Neutral', value: 3 }
     ]
   },
   { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },

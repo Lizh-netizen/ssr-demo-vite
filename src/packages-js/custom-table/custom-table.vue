@@ -95,15 +95,19 @@ watch(
   () => pagesStorage,
   (val) => {
     const page = JSON.parse(sessionStorage.getItem(pagesStorage))
-    if (page) {
+    if (page !== null) {
       pages.value = page
+    } else {
+      pages.value = {}
     }
   }
 )
 onBeforeMount(() => {
   const page = JSON.parse(sessionStorage.getItem(pagesStorage))
-  if (page) {
+  if (page !== null) {
     pages.value = page
+  } else {
+    pages.value = {}
   }
 })
 const defaultColumns = columns
