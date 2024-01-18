@@ -303,7 +303,6 @@ const changeTab = (val) => {
   }
 }
 // 只有在一次点击卡片的时候才会执行watch中的请求
-
 watch(requestAble.value, (newVal) => {
   if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
     const args = getCache(currentTab)
@@ -643,7 +642,7 @@ onMounted(() => {
   for (let key in strategy) {
     strategy[key].stasCountRequest(args)
   }
-  strategy[val].request(args)
+  // strategy[val].request(args)
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
 })
