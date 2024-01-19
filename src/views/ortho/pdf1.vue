@@ -177,7 +177,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image1"
                     :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -187,17 +186,15 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image2"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image3">
                   <div class="imageCaption" v-if="item.imageList1[2]?.imageUrl">
                     {{ item.imageList1[2]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image3"
                     :src="item.imageList1[2]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -217,7 +214,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image1"
                     :src="item.imageList2[0]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -227,7 +223,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image2"
                     :src="item.imageList2[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -237,7 +232,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image3"
                     :src="item.imageList2[2]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -247,7 +241,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image4"
                     :src="item.imageList2[3]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -257,7 +250,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image5"
                     :src="item.imageList2[4]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -886,6 +878,11 @@ body {
           .image2,
           .image3 {
             width: 126px;
+            height: 200px;
+            overflow: hidden;
+            img {
+              width: 100%;
+            }
           }
           .image2 {
             grid-column: 3;
@@ -1167,5 +1164,8 @@ body {
       height: 360px;
     }
   }
+}
+img {
+  width: 100%;
 }
 </style>
