@@ -881,7 +881,7 @@ body {
             max-width: 267px;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            height: 100%;
+            // height: 100%;
           }
           .image2,
           .image3 {
