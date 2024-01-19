@@ -178,7 +178,7 @@
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
-import { ref, defineProps, computed, defineEmits, onMounted, watch } from 'vue'
+import { ref, defineProps, computed, defineEmits, onMounted, watch, onBeforeMount } from 'vue'
 import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
@@ -221,6 +221,8 @@ onMounted(() => {
     a.fileUrl = placeholderUrl
   })
   getImageList()
+})
+onBeforeMount(() => {
   getClassifiedImgList()
 })
 const emit = defineEmits(['savePics', 'cancel'])
@@ -237,6 +239,12 @@ watch(
   },
   { deep: true }
 )
+// 每次点开影像管理都要重新请求右边的列表，因为外边可能会做改动
+watch(imgDialogVisible, (newVal) => {
+  if (newVal) {
+    getClassifiedImgList()
+  }
+})
 const handleCancel = () => {
   emit('cancel')
 }

@@ -12,7 +12,7 @@
           <el-radio-group
             v-model="title.optionId"
             @change="handleChangeOption(title.optionId, title)"
-            @click="handleEmptyRadio(title.optionId, title)"
+            @dblclick="handleEmptyRadio(title.optionId, title)"
           >
             <template v-for="option in title.orthOptionsList" :key="option.id">
               <el-radio-button
@@ -173,6 +173,7 @@ const handleChangeOption = (optionId, title) => {
   useUpdateOption(title.optionId, title, '', appId)
 }
 async function handleEmptyRadio(optionId, title) {
+  console.log('dbclick')
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&

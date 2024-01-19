@@ -605,7 +605,7 @@ const handleGoSche = (item) => {
 
 const filter = (val) => {
   const v = getCache(currentTab)
-
+  console.log(222)
   // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)
@@ -638,11 +638,16 @@ onMounted(() => {
   // 初始化
   pagesStorage.value = strategy[currentTab.value].page
   const val = sessionStorage.getItem('currentTab')
-  const args = getCache(currentTab)
   for (let key in strategy) {
-    strategy[key].stasCountRequest(args)
+    if (key == '面评' || key == '矫正方案') {
+      const args = getCache(currentTab)
+      strategy[key].stasCountRequest(args)
+    } else {
+      const args = getCache(currentTab)
+      args.date = [firstDate.value, date.value]
+      strategy[key].stasCountRequest(args)
+    }
   }
-  // strategy[val].request(args)
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
 })

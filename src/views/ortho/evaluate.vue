@@ -14,7 +14,7 @@
                 v-if="title.type == 1"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
-                @click="handleEmptyRadio(title.optionId, title, 'check')"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -130,7 +130,7 @@
                 class="specialRadio"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
-                @click="handleEmptyRadio(title.optionId, title, 'check')"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <el-radio-button
                   :class="{
@@ -195,7 +195,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
-                      @click="handleEmptyRadio(title.optionId, title, 'face')"
+                      @dblclick="handleEmptyRadio(title.optionId, title, 'face')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -272,7 +272,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
-                      @click="handleEmptyRadio(title.optionId, title, 'mouth')"
+                      @dblclick="handleEmptyRadio(title.optionId, title, 'mouth')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -357,7 +357,7 @@
                           v-if="title.type == 1"
                           v-model="title.optionId"
                           @change="handleChangeOption(title.optionId, title)"
-                          @click="handleEmptyRadio(title.optionId, title, 'pano')"
+                          @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
                         >
                           <el-radio-button
                             :disabled="!panoramicData[0].hasImage"

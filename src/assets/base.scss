@@ -88,6 +88,7 @@ img {
   box-shadow: none;
   border-left-color: #2e6ce4 !important;
 }
+
 // .el-dialog {
 //   position: fixed !important;
 //   top: 35%;
@@ -95,18 +96,17 @@ img {
 //   transform: translate(-50%, -50%);
 // }
 .el-table__header-wrapper {
-  .el-table__header{
+  .el-table__header {
     width: 100% !important;
   }
- 
 }
- .el-table__body {
-   width: 100% !important;
- }
- .el-popper span {
-   font-size: 14px !important;
- }
- .el-dialog{
-      --el-border-radius-small: 12px;
+.el-table__body {
+  width: 100% !important;
+}
+.el-popper span {
+  font-size: 14px !important;
+}
+.el-dialog {
+  --el-border-radius-small: 12px;
   --el-dialog-border-radius: 12px;
- }
+}

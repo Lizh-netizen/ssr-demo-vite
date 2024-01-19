@@ -41,7 +41,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
-              @click="handleEmptyRadio(title.optionId, title)"
+              @dblclick="handleEmptyRadio(title.optionId, title)"
             >
               <template v-for="option in title.orthOptionsList" :key="option.id">
                 <el-radio-button

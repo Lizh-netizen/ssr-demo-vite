@@ -40,7 +40,7 @@
                   v-if="title.type == 1"
                   v-model="title.optionId"
                   @change="handleChangeOption(title.optionId, title)"
-                  @click="handleEmptyRadio(title.optionId, title, 'inquiry')"
+                  @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
                 >
                   <el-radio-button
                     :class="{
@@ -100,7 +100,7 @@
               <el-radio-group
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
-                @click="handleEmptyRadio(title.optionId, title, 'inquiry')"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
               >
                 <el-radio-button
                   v-for="option in title.orthOptionsList"
@@ -128,7 +128,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
-              @click="handleEmptyRadio(title.optionId, title, 'check')"
+              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                 <el-radio-button
@@ -244,7 +244,7 @@
               class="specialRadio"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
-              @click="handleEmptyRadio(title.optionId, title, 'check')"
+              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <el-radio-button
                 :class="{
