@@ -647,8 +647,15 @@ const handleDragStart1 = (img) => {
 // 从左侧拖到右侧
 const handleDragStart = (file, event) => {
   if (file.file) {
+    // 本地上传的图片
     event.dataTransfer.setData('text/plain', file)
-    dragFile.value = event.dataTransfer.files[0]
+    const userAgent = navigator.userAgent
+    if (userAgent.match(/Chrome/i)) {
+      // 谷歌和浏览器处理方式不同
+      dragFile.value = event.dataTransfer.files[0]
+    } else {
+      dragFile.value = file.file
+    }
   } else {
     dragFile.value = file
   }

@@ -471,7 +471,7 @@
     @cancel="handleClose"
   ></ImageDialog>
 
-  <div class="overlay" ref="overlayRef">
+  <div class="overlay" ref="overlayRef" @click="handleZoomOutCepha">
     <div class="overlay__header"></div>
     <div class="overlay__mask"></div>
     <img
@@ -1848,6 +1848,13 @@ function findPoint(event, canvas) {
 const h0 = ref(0)
 const w0 = ref(0)
 const myCanvas = ref(null)
+// 点击空白处可以取消canvas
+const handleZoomOutCepha = (e) => {
+  const zoomCanvas = document.querySelector('#myZoomCanvas')
+  if (e.target !== zoomCanvas && !zoomCanvas.contains(e.target)) {
+    handleZoomOutPic(true)
+  }
+}
 const handleZoomOutPic = (fromBtn) => {
   // 判断是从全景片还是侧位片关闭的
   if (zoomPano.value) {
@@ -3173,7 +3180,7 @@ div.el-input__wrapper {
     box-sizing: border-box;
   }
   .button {
-    width: 120px;
+    width: 122px;
     height: 32px;
     border-radius: 8px;
     opacity: 1;
