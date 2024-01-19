@@ -361,7 +361,7 @@ async function initiateApproval() {
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
   orthContent.value['riskValueSystem'] = ''
-  orthContent.value['riskValue'] = orthContent.value['riskValue'].split('')[0]
+  orthContent.value['riskValue'] = res.data['riskValue'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
 
@@ -391,7 +391,13 @@ async function confirmApproval() {
         message: res.msg
       })
     }
-  } catch {}
+  } catch (err) {
+    loading.close()
+    ElMessage({
+      type: 'error',
+      message: err
+    })
+  }
 }
 const backToList = () => {
   router.push('/list')

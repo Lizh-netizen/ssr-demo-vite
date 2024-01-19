@@ -2474,7 +2474,6 @@ function initCanvas(maxWidth, maxHeight, draw) {
     canvas.height = height
     h0.value = height
     canvasMaxY.value = height
-
     coordinatesSmall.value = coordinatesBase.value.map((point) => ({
       label: point.label,
       x: point.x * w0.value,
