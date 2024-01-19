@@ -877,68 +877,6 @@ async function getToken() {
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
-async function handleClassifyPics() {
-  if (chooseImgNum.value == 0) {
-    ElMessage({
-      message: '未选中图片',
-      type: 'error'
-    })
-  } else {
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在分类中',
-      background: 'rgba(0, 0, 0, 0.7)',
-      target: loadingTarget2.value
-    })
-    loading.value = true
-    const formData = new FormData()
-    let orthImageString, orthImageList
-    imageArr.value
-      .filter((i) => i.file === undefined)
-      .forEach((c) => {
-        orthImageList = c.imageList
-          .filter((b) => b.choose === true)
-          .map((a) => {
-            if (a.choose) {
-              return {
-                ljUrl: a.imgUrl,
-                ljId: a.id,
-                LJCreateDatetime: a.timestamp
-              }
-            }
-          })
-      })
-    orthImageString = JSON.stringify({
-      patientId: patientId,
-      apmtId: appId,
-      orthImageList
-    })
-    if (imageArr.value.filter((i) => i.file === true).length > 0) {
-      imageArr.value
-        .filter((i) => i.file === true)[0]
-        .imageList.filter((image) => image.choose === true)
-        .forEach((file) => {
-          formData.append('files', file.file)
-        })
-    } else {
-      formData.append('files', null)
-    }
-    formData.append('orthImageString', orthImageString)
-    const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
-    loading.close()
-    if (res.code === 200) {
-      imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
-      res.data.forEach((d) => {
-        imageList.value.forEach((i) => {
-          if (d.typeName == i.typeName) {
-            i.fileUrl = d.fileUrl
-            i.imageId = d.fileId
-          }
-        })
-      })
-    }
-  }
-}
 // 图片拖拽
 const dragFile = ref(null)
 const src = ref()
@@ -1081,6 +1019,9 @@ async function handleSavePics() {
   // }).then(() => {
   //   getAllData()
   // })
+  if (props.pdfId) {
+    sessionStorage.removeItem(props.pdfId)
+  }
   getAllData()
 }
 const handleClose = () => {
@@ -2415,30 +2356,47 @@ function afterGetPoint() {
   loading.value = false
 }
 const loadingTarget = ref(null)
-const getAIResult = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: '正在计算中',
-    background: 'rgba(0, 0, 0, 0.7)',
-    target: loadingTarget.value
-  })
-  loading.value = true
-  if (cephaImage.value) {
-    const timestamp = new Date().getTime()
-    imageUrlToBlob(`${cephaImage.value}`)
-      .then((blob) => {
-        getPoints(blob).then(() => {
-          hasPoints.value = true
-          coordinatesSmall.value = coordinatesBase.value.map((point) => ({
-            label: point.label,
-            x: point.x * w0.value,
-            y: point.y * h0.value
-          }))
-          loading.close()
-          afterGetPoint()
+async function getAIResult() {
+  try {
+    const loading = ElLoading.service({
+      lock: true,
+      text: '正在计算中',
+      background: 'rgba(0, 0, 0, 0.7)',
+      target: loadingTarget.value
+    })
+    loading.value = true
+    if (cephaImage.value) {
+      imageUrlToBlob(`${cephaImage.value}`)
+        .then((blob) => {
+          getPoints(blob)
+            .then(() => {
+              hasPoints.value = true
+              coordinatesSmall.value = coordinatesBase.value.map((point) => ({
+                label: point.label,
+                x: point.x * w0.value,
+                y: point.y * h0.value
+              }))
+              loading.close()
+              afterGetPoint()
+            })
+            .catch((err) => {
+              loading.close()
+              ElMessage({
+                message: '计算失败',
+                type: 'warning'
+              })
+            })
         })
-      })
-      .catch((error) => console.error('Error converting imageUrl to File:', error))
+        .catch((error) => {
+          loading.close()
+          ElMessage({
+            message: '计算失败',
+            type: 'warning'
+          })
+        })
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 

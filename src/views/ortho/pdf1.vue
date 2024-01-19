@@ -881,7 +881,7 @@ body {
             max-width: 267px;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            // height: 100%;
+            max-height: 400px;
           }
           .image2,
           .image3 {
@@ -890,10 +890,12 @@ body {
           .image2 {
             grid-column: 3;
             grid-row: 1;
+            max-height: 200px;
           }
           .image3 {
             grid-column: 3;
             grid-row: 2;
+            max-height: 200px;
           }
         }
         .content1 {

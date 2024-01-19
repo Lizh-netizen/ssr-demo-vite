@@ -92,19 +92,19 @@
     >
       <template v-for="(labelObj, index) in labelList" :key="labelObj.label">
         <template v-if="index <= 6"
-          ><form-item :label="labelObj.label" width="128px"
+          ><form-item :label="labelObj.label" width="132px"
             ><span class="desc">{{ orthContent[labelObj.value] }}</span></form-item
           ></template
         >
         <template v-if="index == 7"
-          ><form-item :label="labelObj.label" width="128px"
+          ><form-item :label="labelObj.label" width="132px"
             ><span class="desc uploadDesc">
               <a :href="pdf" target="_blank">{{ pdf.split('/')[pdf.split('/').length - 1] }}</a>
             </span></form-item
           ></template
         >
         <template v-else-if="index == 8">
-          <form-item :label="labelObj.label" width="128px">
+          <form-item :label="labelObj.label" width="132px">
             <el-radio-group
               v-model="orthContent['riskValue']"
               disabled

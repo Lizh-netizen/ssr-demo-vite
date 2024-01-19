@@ -501,65 +501,78 @@ const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
 async function handleClassifyPics() {
-  if (chooseImgNum.value == 0) {
-    ElMessage({
-      message: '未选中图片',
-      type: 'error'
-    })
-  } else {
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在分类中',
-      background: 'rgba(0, 0, 0, 0.7)',
-      target: loadingTarget2.value
-    })
-    loading.value = true
-    const formData = new FormData()
-    let orthImageString, orthImageList
-    imageArr.value
-      .filter((i) => i.file === undefined)
-      .forEach((c) => {
-        orthImageList = c.imageList
-          .filter((b) => b.choose === true)
-          .map((a) => {
-            if (a.choose) {
-              return {
-                ljUrl: a.imgUrl,
-                ljId: a.id,
-                LJCreateDatetime: a.timestamp
+  try {
+    if (chooseImgNum.value == 0) {
+      ElMessage({
+        message: '未选中图片',
+        type: 'error'
+      })
+    } else {
+      const loading = ElLoading.service({
+        lock: true,
+        text: '正在分类中',
+        background: 'rgba(0, 0, 0, 0.7)',
+        target: loadingTarget2.value
+      })
+      loading.value = true
+      const formData = new FormData()
+      let orthImageString, orthImageList
+      imageArr.value
+        .filter((i) => i.file === undefined)
+        .forEach((c) => {
+          orthImageList = c.imageList
+            .filter((b) => b.choose === true)
+            .map((a) => {
+              if (a.choose) {
+                return {
+                  ljUrl: a.imgUrl,
+                  ljId: a.id,
+                  LJCreateDatetime: a.timestamp
+                }
               }
+            })
+        })
+      orthImageString = JSON.stringify({
+        patientId: props.patientId,
+        apmtId: props.appId,
+        orthImageList
+      })
+      if (imageArr.value.filter((i) => i.file === true).length > 0) {
+        imageArr.value
+          .filter((i) => i.file === true)[0]
+          .imageList.filter((image) => image.choose === true)
+          .forEach((file) => {
+            formData.append('files', file.file)
+          })
+      } else {
+        formData.append('files', null)
+      }
+      formData.append('orthImageString', orthImageString)
+      const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+      loading.close()
+      if (res.code === 200) {
+        imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
+        res.data.forEach((d) => {
+          imageList.value.forEach((i) => {
+            if (d.typeName == i.typeName) {
+              i.fileUrl = d.fileUrl
+              i.imageId = d.fileId
             }
           })
-      })
-    orthImageString = JSON.stringify({
-      patientId: props.patientId,
-      apmtId: props.appId,
-      orthImageList
-    })
-    if (imageArr.value.filter((i) => i.file === true).length > 0) {
-      imageArr.value
-        .filter((i) => i.file === true)[0]
-        .imageList.filter((image) => image.choose === true)
-        .forEach((file) => {
-          formData.append('files', file.file)
         })
-    } else {
-      formData.append('files', null)
+      } else {
+        ElMessage({
+          message: '图片分类失败',
+          type: 'error'
+        })
+      }
     }
-    formData.append('orthImageString', orthImageString)
-    const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+  } catch (err) {
     loading.close()
-    if (res.code === 200) {
-      imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
-      res.data.forEach((d) => {
-        imageList.value.forEach((i) => {
-          if (d.typeName == i.typeName) {
-            i.fileUrl = d.fileUrl
-            i.imageId = d.fileId
-          }
-        })
-      })
-    }
+    ElMessage({
+      message: '图片分类失败',
+      type: 'error'
+    })
   }
 }
 
