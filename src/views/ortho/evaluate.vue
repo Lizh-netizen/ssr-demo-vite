@@ -788,7 +788,7 @@
       ></el-date-picker>
     </div>
     <div v-if="advice === '立即矫正'">
-      医生选择：<el-select placeholder="请选择" allow-search v-model="orthDoctorId">
+      医生选择：<el-select placeholder="请选择" allow-search filterable v-model="orthDoctorId">
         <el-option
           v-for="item in orthDoctorList"
           :key="item.value"
