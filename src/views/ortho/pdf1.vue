@@ -226,7 +226,7 @@
                     :src="item.imageList2[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image3">
                   <div class="imageCaption" v-if="item.imageList2[2]?.imageUrl">
                     {{ item.imageList2[2]?.className }}
                   </div>
@@ -235,7 +235,7 @@
                     :src="item.imageList2[2]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image4">
                   <div class="imageCaption" v-if="item.imageList2[3]?.imageUrl">
                     {{ item.imageList2[3]?.className }}
                   </div>
@@ -244,7 +244,7 @@
                     :src="item.imageList2[3]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image5">
                   <div class="imageCaption" v-if="item.imageList2[4]?.imageUrl">
                     {{ item.imageList2[4]?.className }}
                   </div>
@@ -874,6 +874,10 @@ body {
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
             max-height: 400px;
+            overflow: hidden;
+            img {
+              width: 100%;
+            }
           }
           .image2,
           .image3 {
@@ -888,6 +892,9 @@ body {
             grid-column: 3;
             grid-row: 1;
             max-height: 200px;
+            img {
+              width: 100%;
+            }
           }
           .image3 {
             grid-column: 3;
@@ -933,6 +940,9 @@ body {
           .image1 {
             width: 316px;
             grid-column: 1 / span 2;
+            img {
+              width: 100%;
+            }
           }
           .image2,
           .image3,
@@ -940,6 +950,10 @@ body {
           .image5 {
             width: 150px;
             height: 100px;
+            img {
+              width: 100%;
+              height: 100%;
+            }
           }
         }
       }
@@ -1164,8 +1178,5 @@ body {
       height: 360px;
     }
   }
-}
-img {
-  width: 100%;
 }
 </style>
