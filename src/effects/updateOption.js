@@ -1,12 +1,13 @@
 import { Post } from '../utils/request'
-
-async function useUpdateOption(optionId, title, otherContent, appId) {
+// 发送请求
+async function useUpdateOption (optionId, title, otherContent, appId) {
+  console.log(optionId)
   let obj
   if (title.type == 1) {
     obj = {
       apmtId: appId,
       titleId: title.id,
-      optionsIdStr: [optionId],
+      optionsIdStr: optionId ? [optionId] : [],
       otherContent: otherContent || '',
       cephalometricsContent: '',
       fdiToothCode: '',

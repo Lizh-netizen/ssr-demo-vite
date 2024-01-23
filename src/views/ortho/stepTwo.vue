@@ -7,7 +7,8 @@
         <ImageItem
           :imageCaption="item.className"
           :class="{
-            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
+            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
+            side90: item.className === '90度侧面像'
           }"
           ><template #img
             ><template v-if="item.imageUrl">
@@ -113,6 +114,7 @@
                     v-if="title.type == 1"
                     v-model="title.optionId"
                     @change="handleChangeOption(title.optionId, title)"
+                    @dblclick="handleEmptyRadio(title.optionId, title, 'mouth')"
                   >
                     <el-radio-button
                       :disabled="!item.hasImage"
@@ -189,6 +191,7 @@
                         v-if="title.type == 1"
                         v-model="title.optionId"
                         @change="handleChangeOption(title.optionId, title)"
+                        @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -243,6 +246,7 @@
                         v-if="title.type == 1"
                         v-model="title.optionId"
                         @change="handleChangeOption(title.optionId, title)"
+                        @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -434,6 +438,7 @@
                   <el-radio-group
                     v-model="title.optionId"
                     @change="handleChangeOption(title.optionId, title)"
+                    @dblclick="handleEmptyRadio(title.optionId, title, 'cepha')"
                     ><el-radio-button
                       :disabled="!cephaImage"
                       :label="option.id"
@@ -457,6 +462,7 @@
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
   <ImageDialog
+    page="ortho"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
@@ -464,171 +470,8 @@
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
-  <!-- <el-dialog
-    v-model="imgDialogVisible"
-    title="影像管理"
-    width="1183px"
-    @close="handleCloseImgDialog"
-    :close-on-click-modal="false"
-  >
-    <div class="imageManagement" ref="loadingTarget2">
-      <div class="imageManagement__images subSection">
-        <div class="title">
-          <div class="title__left">图库</div>
-          <div class="title__middle">
-            <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-            可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～
-          </div>
-          <div class="title__right file-upload">
-            <div class="file-upload__label">
-              <el-button type="primary" link :icon="Upload">上传图片</el-button>
-            </div>
-            <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
-          </div>
-        </div>
-        <div
-          :style="{
-            'padding-left': '14px',
-            'padding-bottom': '50px',
-            'padding-top': '50px'
-          }"
-        >
-          <img
-            class="imgContainer__empty"
-            src="@/assets/svg/empty__image.svg"
-            v-if="imageArr.length == 0"
-          />
-          <template v-else>
-            <div v-for="(item, index) in imageArr" :key="index">
-              <div>
-                {{ item.StartTime.split('T')[0] }}
-              </div>
-              <div class="imgContainer">
-                <div
-                  class="item"
-                  v-for="img in item.imageList"
-                  :key="img.id"
-                  @mouseenter="img.showFlag = true"
-                  @mouseleave="img.showFlag = false"
-                >
-                  <div
-                    :style="{
-                      position: 'relative',
-                      border: '1px solid #e5e6eb',
-                      'border-radius': '12px'
-                    }"
-                  >
-                    <img
-                      :style="{ display: 'block' }"
-                      class="img"
-                      :src="img.imgUrl"
-                      :class="{
-                        choose: img.choose === true
-                      }"
-                      draggable="true"
-                      @dragstart="handleDragStart(img, $event)"
-                      @dragend="handleDragEnd"
-                      @click="handleToggleChoose(img)"
-                    />
-                    <img
-                      src="@/assets/svg/imageChecked.svg"
-                      :style="{
-                        position: 'absolute',
-                        right: '6px',
-                        bottom: '6px'
-                      }"
-                      @click="handleToggleChoose(img)"
-                      v-show="img.choose === true"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                :style="{
-                  display: 'inline-flex',
-                  color: '#4E5969',
-                  cursor: 'pointer'
-                }"
-                @click="handleLoadPic"
-                v-if="!item.file && index === imageArr.length - 1"
-              >
-                <span>加载上次影像</span><img src="@/assets/svg/morePic.svg" />
-              </div>
-            </div>
-          </template>
-        </div>
 
-        <div class="classifyWrapper">
-          <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
-          ><el-button @click="handleClassifyPics">自动分类</el-button>
-        </div>
-      </div>
-      <div class="imageManagement__classify subSection">
-        <div class="title">分类</div>
-        <div class="imageWrapper">
-          <div
-            class="item"
-            v-for="img in imageList"
-            :key="img.typeName"
-            @mouseenter="img.showFlag = true"
-            @mouseleave="img.showFlag = false"
-          >
-            <div
-              :style="{
-                position: 'relative',
-                border: '1px solid #e5e6eb',
-                'border-radius': '12px',
-                overflow: 'hidden',
-                height: '80px'
-              }"
-            >
-              <img
-                class="img"
-                :class="{
-                  hover: img.reminder === true,
-                  animate__animated: img.reminder === true,
-                  animate__bounce: img.reminder === true
-                }"
-                :style="{ display: 'block' }"
-                :src="img.fileUrl"
-                @drop="(e) => handleDrop(e, img)"
-                @dragover.prevent="handleDragOver"
-                @dragleave="handleDragLeave"
-                @dragstart="handleDragStart1(img)"
-                @dragend="handleDragEnd"
-              />
-            </div>
-            <el-popconfirm
-              width="300"
-              confirm-button-text="确认"
-              :icon="WarningFilled"
-              icon-color="#FF7D00"
-              cancel-button-text="取消"
-              title="确认删除该张图片吗？"
-              @confirm="handleDeleteImage1(img)"
-            >
-              <template #reference>
-                <img
-                  :style="{ cursor: 'pointer' }"
-                  class="deleteImage"
-                  src="@/assets/svg/deleteImage.svg"
-                  v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
-                />
-              </template>
-            </el-popconfirm>
-            <div class="item__caption">{{ img.caption }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="imgDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
-      </span>
-    </template>
-  </el-dialog> -->
-  <div class="overlay" ref="overlayRef">
+  <div class="overlay" ref="overlayRef" @click="handleZoomOutCepha">
     <div class="overlay__header"></div>
     <div class="overlay__mask"></div>
     <img
@@ -675,8 +518,8 @@ import ImageItem from '@/components/list/imageItem.vue'
 import FormItem from '@/components/list/formItem.vue'
 import { Post, Get, Put, Delete } from '@/utils/request'
 import axios from 'axios'
-import { Upload } from '@element-plus/icons-vue'
-import { ElLoading, ElMessage } from 'element-plus'
+// import { Upload } from '@element-plus/icons-vue'
+// import { ElLoading, ElMessage } from 'element-plus'
 import {
   calculateFourPointsAngle,
   calculateThreePointsAngle,
@@ -693,6 +536,7 @@ import 'animate.css'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import useSelectTooth from '@/effects/selectTooth.js'
+import emptyRadio from '@/effects/emptyRadio.js'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
@@ -904,6 +748,9 @@ const handleDeleteImage1 = (img) => {
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
+const handleImageDialog = () => {
+  imgDialogVisible.value = !imgDialogVisible.value
+}
 const openImgDialog = () => {
   imgDialogVisible.value = true
 }
@@ -1030,68 +877,6 @@ async function getToken() {
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
-async function handleClassifyPics() {
-  if (chooseImgNum.value == 0) {
-    ElMessage({
-      message: '未选中图片',
-      type: 'error'
-    })
-  } else {
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在分类中',
-      background: 'rgba(0, 0, 0, 0.7)',
-      target: loadingTarget2.value
-    })
-    loading.value = true
-    const formData = new FormData()
-    let orthImageString, orthImageList
-    imageArr.value
-      .filter((i) => i.file === undefined)
-      .forEach((c) => {
-        orthImageList = c.imageList
-          .filter((b) => b.choose === true)
-          .map((a) => {
-            if (a.choose) {
-              return {
-                ljUrl: a.imgUrl,
-                ljId: a.id,
-                LJCreateDatetime: a.timestamp
-              }
-            }
-          })
-      })
-    orthImageString = JSON.stringify({
-      patientId: patientId,
-      apmtId: appId,
-      orthImageList
-    })
-    if (imageArr.value.filter((i) => i.file === true).length > 0) {
-      imageArr.value
-        .filter((i) => i.file === true)[0]
-        .imageList.filter((image) => image.choose === true)
-        .forEach((file) => {
-          formData.append('files', file.file)
-        })
-    } else {
-      formData.append('files', null)
-    }
-    formData.append('orthImageString', orthImageString)
-    const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
-    loading.close()
-    if (res.code === 200) {
-      imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
-      res.data.forEach((d) => {
-        imageList.value.forEach((i) => {
-          if (d.typeName == i.typeName) {
-            i.fileUrl = d.fileUrl
-            i.imageId = d.fileId
-          }
-        })
-      })
-    }
-  }
-}
 // 图片拖拽
 const dragFile = ref(null)
 const src = ref()
@@ -1234,6 +1019,9 @@ async function handleSavePics() {
   // }).then(() => {
   //   getAllData()
   // })
+  if (props.pdfId) {
+    sessionStorage.removeItem(props.pdfId)
+  }
   getAllData()
 }
 const handleClose = () => {
@@ -1308,7 +1096,6 @@ function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
     ctx.drawImage(image, 0, 0, width, height)
-
     drawPointsOnCanvas(ctx, image, canvas, faceSet.value)
   }
   image.src = imageUrl // 设置图片源地址
@@ -1424,12 +1211,13 @@ async function getOrthFaceAccessList() {
     } else {
       item.hasImage = true
       // 预加载如果没很快用到会有警告
-      // const preloadLink = document.createElement('link')
-      // preloadLink.href = item.imageUrl
-      // preloadLink.rel = 'preload'
-      // preloadLink.as = 'image'
-      // document.head.appendChild(preloadLink)
+
       if (item.className === '正面像') {
+        const preloadLink = document.createElement('link')
+        preloadLink.href = item.imageUrl
+        preloadLink.rel = 'preload'
+        preloadLink.as = 'image'
+        document.head.appendChild(preloadLink)
         const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
         const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
         const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
@@ -1451,14 +1239,14 @@ async function getOrthFaceAccessList() {
             if (AiTest.value) {
               calculateFront(faceSet.value)
             }
-            nextTick(() => {
-              // 如果快速切换了页面，那么就不画图了
-              if (interruptSignal) {
-                return
-              }
+            // nextTick(() => {
+            // 如果快速切换了页面，那么就不画图了
+            if (interruptSignal) {
+              return
+            }
 
-              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-            })
+            loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+            // })
           } else {
             Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
               (res) => {
@@ -1479,12 +1267,12 @@ async function getOrthFaceAccessList() {
                   addFaceset(set)
                 }
                 image.src = FrontalReposeImageUrl.value
-                nextTick(() => {
-                  if (interruptSignal) {
-                    return
-                  }
-                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                })
+                // nextTick(() => {
+                if (interruptSignal) {
+                  return
+                }
+                loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+                // })
               }
             )
           }
@@ -1728,13 +1516,12 @@ async function getOrthCephaList() {
         filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a.pointName))
         coordinatesBase.value = filteredPoints.value.map((point) => ({
           label: point.pointName,
-          x: point.xCoordinate,
-          y: point.yCoordinate
+          x: point.xcoordinate,
+          y: point.ycoordinate
         }))
         if (interruptSignal) {
           return
         }
-
         initCanvas(canvasMaxX.value, canvasMaxY.value, true)
       })
     } else {
@@ -1820,8 +1607,8 @@ const initZoomCanvas = () => {
   )
   canvas.addEventListener('mousedown', (e) => handleMouseDown(e, canvas))
   canvas.addEventListener('mouseup', handleMouseUp)
-  image.src = cephaImage.value
-  image.crossOrigin = 'anonymous'
+  const timestamp = new Date().getTime()
+  image.src = `${cephaImage.value}` // 设置图片源地址
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
@@ -2002,6 +1789,13 @@ function findPoint(event, canvas) {
 const h0 = ref(0)
 const w0 = ref(0)
 const myCanvas = ref(null)
+// 点击空白处可以取消canvas
+const handleZoomOutCepha = (e) => {
+  const zoomCanvas = document.querySelector('#myZoomCanvas')
+  if (e.target !== zoomCanvas && !zoomCanvas.contains(e.target)) {
+    handleZoomOutPic(true)
+  }
+}
 const handleZoomOutPic = (fromBtn) => {
   // 判断是从全景片还是侧位片关闭的
   if (zoomPano.value) {
@@ -2562,29 +2356,48 @@ function afterGetPoint() {
   loading.value = false
 }
 const loadingTarget = ref(null)
-const getAIResult = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: '正在计算中',
-    background: 'rgba(0, 0, 0, 0.7)',
-    target: loadingTarget.value
-  })
-  loading.value = true
-  if (cephaImage.value) {
-    imageUrlToBlob(cephaImage.value)
-      .then((blob) => {
-        getPoints(blob).then(() => {
-          hasPoints.value = true
-          coordinatesSmall.value = coordinatesBase.value.map((point) => ({
-            label: point.label,
-            x: point.x * w0.value,
-            y: point.y * h0.value
-          }))
-          loading.close()
-          afterGetPoint()
+async function getAIResult() {
+  try {
+    const loading = ElLoading.service({
+      lock: true,
+      text: '正在计算中',
+      background: 'rgba(0, 0, 0, 0.7)',
+      target: loadingTarget.value
+    })
+    loading.value = true
+    if (cephaImage.value) {
+      const timestamp = new Date().getTime()
+      imageUrlToBlob(`${cephaImage.value}?t=${timestamp}`)
+        .then((blob) => {
+          getPoints(blob)
+            .then(() => {
+              hasPoints.value = true
+              coordinatesSmall.value = coordinatesBase.value.map((point) => ({
+                label: point.label,
+                x: point.x * w0.value,
+                y: point.y * h0.value
+              }))
+              loading.close()
+              afterGetPoint()
+            })
+            .catch((err) => {
+              loading.close()
+              ElMessage({
+                message: '计算失败',
+                type: 'warning'
+              })
+            })
         })
-      })
-      .catch((error) => console.error('Error converting imageUrl to File:', error))
+        .catch((error) => {
+          loading.close()
+          ElMessage({
+            message: '计算失败',
+            type: 'warning'
+          })
+        })
+    }
+  } catch (error) {
+    console.error(error)
   }
 }
 
@@ -2638,6 +2451,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
   const image = new Image() // 创建 img 元素
   const canvas = document.getElementById('myCanvas')
   const ctx = canvas.getContext('2d')
+
   image.onload = function () {
     // 执行 drawImage 语句
     const imgWidth = image.width
@@ -2667,6 +2481,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
       x: point.x * w0.value,
       y: point.y * h0.value
     }))
+
     // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
@@ -2675,8 +2490,9 @@ function initCanvas(maxWidth, maxHeight, draw) {
       drawPoints(ctx, image, canvas, false)
     }
   }
-  image.src = cephaImage.value // 设置图片源地址
+  const timestamp = new Date().getTime()
   image.crossOrigin = 'anonymous'
+  image.src = `${cephaImage.value}?t=${timestamp}` // 设置图片源地址
 }
 
 onMounted(() => {
@@ -2685,9 +2501,7 @@ onMounted(() => {
       getAIResult()
     }
   })
-  setTimeout(() => {
-    console.log(document.querySelector('.imageDialog'))
-  }, 2000)
+
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
@@ -2713,13 +2527,13 @@ const handleChangeOption = (optionId, title, className) => {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      useUpdateOption([], title2, '', appId)
+      useUpdateOption(null, title2, '', appId)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-      useUpdateOption([], title1, '', appId)
+      useUpdateOption(null, title1, '', appId)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2732,8 +2546,8 @@ const handleChangeOption = (optionId, title, className) => {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       title1.optionId = []
       title2.optionId = []
-      useUpdateOption([], title1, '', appId)
-      useUpdateOption([], title2, '', appId)
+      useUpdateOption(null, title1, '', appId)
+      useUpdateOption(null, title2, '', appId)
       //  点击完直面型需要重新请求接口
       getOrthFaceAccessList()
     }
@@ -2789,6 +2603,26 @@ const handleSubmitTooth = (title) => {
 }
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', appId)
+}
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    if (owningModule == 'face') {
+      getOrthFaceAccessList()
+    } else if (owningModule == 'mouth') {
+      getOrthMouthList()
+    } else if (owningModule == 'pano') {
+      getOrthPanoramicList()
+    } else if (owningModule == 'cepha') {
+      getOrthCephaList()
+    }
+    // 重新请求数据
+  }
 }
 </script>
 <style>
@@ -2890,6 +2724,9 @@ div.el-input__wrapper {
 }
 .imageItem.removeBorder {
   border: none;
+}
+:deep .imageItem.side90 {
+  min-height: 336px;
 }
 .placeholderContainer {
   display: flex;
@@ -3302,7 +3139,7 @@ div.el-input__wrapper {
     box-sizing: border-box;
   }
   .button {
-    width: 120px;
+    width: 122px;
     height: 32px;
     border-radius: 8px;
     opacity: 1;

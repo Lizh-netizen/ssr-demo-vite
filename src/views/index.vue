@@ -18,6 +18,7 @@
         <filter-search
           @filter="filter"
           :storageName="storageName"
+          @setInitialState="setInitialState"
           :list="[
             {
               name: '医生',
@@ -60,7 +61,7 @@
         >
           <template #voice_text="{ row }">
             <div :style="{ display: 'flex', alignItems: 'center' }">
-              <div :style="{ marginRight: '2px' }">
+              <div :style="{ marginRight: '2px', width: '70px' }">
                 {{ row.voice_text }}
               </div>
               <div
@@ -129,10 +130,10 @@
               >查看正畸表</el-button
             >
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
-              >对比面评报告</el-button
+              >对比矫正方案报告</el-button
             >
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
-              >对比矫正方案报告</el-button
+              >对比面评报告</el-button
             >
             <el-button @click="handleGoSche(row)" v-if="currentTab == '面评矫正预约率'"
               >去预约</el-button
@@ -258,7 +259,7 @@
   </div>
 </template>
 <script setup>
-import { ref, watchEffect, watch, nextTick, onMounted } from 'vue'
+import { ref, watchEffect, watch, nextTick, onMounted, onBeforeMount } from 'vue'
 import { Post, Get } from '../utils/request'
 import { useRouter, useRoute } from 'vue-router'
 import formatTime from '../utils/formatTime'
@@ -271,47 +272,68 @@ import datePicker from '../packages-js/date-picker/date-picker.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
+import store from '../store'
+
 const route = useRoute()
 const params = route.query
+const requestAble = ref({})
+const aptmAble = ref(false)
+const orthoAble = ref(false)
+const evalAble = ref(false)
 
 if (params.token) {
   sessionStorage.odos_token = params.token
 }
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
-
+const setInitialState = (val) => {
+  requestAble.value[val] = true
+}
 // 切换卡片
 // 首次渲染的时候也执行了
 const changeTab = (val) => {
   currentTab.value = val
-
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
-
-  const args = getCache(currentTab)
-
-  strategy[val].request(args)
+  if (strategy[currentTab.value].firstReq) {
+    const args = getCache(currentTab)
+    strategy[val].request(args)
+  }
 }
+// 只有在一次点击卡片的时候才会执行watch中的请求
+watch(requestAble.value, (newVal) => {
+  if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
+    const args = getCache(currentTab)
+    strategy[currentTab.value].request(args)
+    strategy[currentTab.value].firstReq = true
+  }
+})
 const strategy = {
   面评: {
     config: columns_config_evaluate,
     storage: 'evaluate',
     page: 'evaluatePage',
-    request: getEvaluateList
+    request: getEvaluateList,
+    stasCountRequest: getFacialCount,
+    firstReq: false
   },
   矫正方案: {
     config: columns_config_ortho,
     storage: 'ortho',
     page: 'orthoPage',
-    request: getOrthoList
+    request: getOrthoList,
+    stasCountRequest: getOrthCount,
+    firstReq: false
   },
   面评矫正预约率: {
     config: columns_config_aptm,
     storage: 'aptm',
     page: 'aptmPage',
-    request: getAptmList
+    request: getAptmList,
+    stasCountRequest: getAptmCount,
+    firstReq: false
   }
 }
 
@@ -319,25 +341,28 @@ const total = ref(0)
 const date = ref('')
 const firstDate = ref()
 // 默认是今天的日期
+// firstdate是上个月的1号
 firstDate.value = formatTime().firstDate
 date.value = formatTime().formattedToday
-const doctor = ref()
-const officeId = ref()
+
 const columns = ref([...columns_config_evaluate])
 const filterVal = ref({})
 const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
-
-const doctorId = ref()
+const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
+// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
+// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
+const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
+const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/business/orthClass/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       location: '2'
     })
     if (res.code == 200) {
@@ -350,13 +375,13 @@ async function getEvaluateList(val) {
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
       }))
       patientList.value = evaluateList.value
-      total.value = evaluateList.value.length
+      total.value = res.total
     }
   }
 }
 function getCache(currentTab) {
-  const pages = sessionStorage.getItem(strategy[currentTab.value].page)
-  const storage = sessionStorage.getItem(strategy[currentTab.value].storage)
+  const pages = sessionStorage.getItem(strategy[currentTab.value]?.page)
+  const storage = sessionStorage.getItem(strategy[currentTab.value]?.storage)
   const val = { ...JSON.parse(pages), ...JSON.parse(storage) }
   return val
 }
@@ -368,8 +393,8 @@ async function getOrthoList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       location: '1'
     })
     if (res.code == 200) {
@@ -395,8 +420,8 @@ async function getAptmList(val) {
     {
       startDate: val?.date?.[0] || date.value, //预约日期
       endDate: val?.date?.[1] || date.value,
-      officeId: val?.officeId || officeId.value,
-      doctorId: val?.doctorId || doctorId.value,
+      officeId: val?.officeId,
+      doctorId: val?.doctorId,
       difficultyLevel: val?.difficultyLevel
     }
   )
@@ -419,15 +444,16 @@ async function getAptmList(val) {
     total.value = res.total
   }
 }
+
 const noteList = ref([])
 const empty = ref(false)
 const selected = ref()
 async function getNote(row) {
   let url = `/prod-api/business/totalRemark/list?`
-  if (row.apmtId) {
-    url += `apmtId=${row.apmtId}`
-  } else if (row.patientId) {
-    url += `patientId=${row.patientId}`
+  if (row.aptmId) {
+    url += `aptmId=${row.aptmId}`
+  } else if (row.PatientId) {
+    url += `PatientId=${row.PatientId}`
   } else if (row.id) {
     url += `customerId=${row.id}`
   }
@@ -452,7 +478,7 @@ const getDoctorList = () => {
   Get('/prod-api/business/public/api/v1/provider/list?Job=医生').then((res) => {
     allOptions.value = res.map((item) => ({
       label: item.doctorName,
-      value: item.doctorId
+      value: +item.doctorId
     }))
     options.value = allOptions.value
   })
@@ -502,7 +528,6 @@ const handleAddNote = () => {
   empty.value = false
 }
 async function handleSaveNotes() {
-  console.log(selected.value, textarea.value)
   const res = await Post('/prod-api/business/totalRemark', {
     customerId: selected.value.id, //客户id
     remark: textarea.value, //备注
@@ -511,7 +536,7 @@ async function handleSaveNotes() {
     remarkType: remarkType.value
   })
   if (res.code == 200) {
-    ElMessage.success('保存成功')
+    // ElMessage.success('保存成功')
   }
   drawerVisible.value = false
   edit.value = false
@@ -519,9 +544,7 @@ async function handleSaveNotes() {
   remarkType.value = ''
 }
 const dropdown = ref(false)
-const handleChangeType = (e) => {
-  console.log(e)
-}
+
 const remarkType = ref()
 const handleClose = () => {}
 // 快捷录入
@@ -551,7 +574,7 @@ const getTanentList = () => {
   Get('/prod-api/business/office/list').then((res) => {
     allOptions1.value = res.rows.map((item) => ({
       label: item.abbreviation,
-      value: item.ljOfficeId
+      value: +item.id
     }))
     options1.value = allOptions1.value.filter((option) => option.value)
   })
@@ -580,11 +603,12 @@ const handleGoSche = (item) => {
   window.open(`https://orange.linkedcare.cn/#/patient/info/${item.PatientId}/apptRecord`, '_blank')
 }
 
-const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
-
 const filter = (val) => {
   const v = getCache(currentTab)
+  console.log(222)
+  // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
+  strategy[currentTab.value].stasCountRequest(v)
 }
 const pagesStorage = ref('evaluatePage')
 const changePage = (page) => {
@@ -609,59 +633,94 @@ watch(
   },
   { immediate: true }
 )
+
 onMounted(() => {
+  // 初始化
   pagesStorage.value = strategy[currentTab.value].page
+  const val = sessionStorage.getItem('currentTab')
+  for (let key in strategy) {
+    if (key == '面评' || key == '矫正方案') {
+      const args = getCache(currentTab)
+      strategy[key].stasCountRequest(args)
+    } else {
+      const args = getCache(currentTab)
+      args.date = [firstDate.value, date.value]
+      strategy[key].stasCountRequest(args)
+    }
+  }
+  storageName.value = strategy[val].storage
+  pagesStorage.value = strategy[val].page
 })
 
 // 看板数据
 const facialCount = ref({})
-async function getFacialCount() {
+async function getFacialCount(val) {
   const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startTime: date.value || filterVal.value.date,
-    doctorId: filterVal.value.doctorId || '',
-    officeId: filterVal.value.officeId || '',
-    location: '1'
-  })
-  facialCount.value = res.data
-}
-const orthCount = ref({})
-async function getOrthCount() {
-  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
-    startTime: date.value || filterVal.value.date,
-    doctorId: filterVal.value.doctorId || '',
-    officeId: filterVal.value.officeId || '',
+    startTime: val?.date || date.value, //预约日期
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
     location: '2'
   })
-  orthCount.value = res.data
+  facialCount.value = res.data
+  tabData.value[1].left_num = facialCount.value.numerator
+  tabData.value[1].right_num = facialCount.value.totalCount
 }
-getFacialCount()
-getOrthCount()
-const tabData = [
+const orthCount = ref({})
+
+async function getOrthCount(val) {
+  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
+    startTime: val?.date || date.value, //预约日期
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
+    location: '1'
+  })
+  orthCount.value = res.data
+  tabData.value[2].left_num = orthCount.value.numerator
+  tabData.value[2].right_num = orthCount.value.totalCount
+}
+const aptmCount = ref()
+async function getAptmCount(val) {
+  const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
+    startDate: val?.date?.[0] || firstDate.value, //预约日期
+    endDate: val?.date?.[1] || date.value,
+    officeId: val?.officeId,
+    doctorId: val?.doctorId,
+    difficultyLevel: val?.difficultyLevel
+  })
+  if (res.code == 200) {
+    aptmCount.value = res.data
+    tabData.value[0].left_num = aptmCount.value.aptmOrthItemCount
+    tabData.value[0].right_num = aptmCount.value.aptmCount
+  }
+}
+
+const tabData = ref([
   {
     svg_name: 'cardSvg1',
     name: '面评矫正预约率',
-    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
-    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已录入矫正方案人数',
     right_text: '需要矫正人数'
   },
   {
     svg_name: 'cardSvg1',
     name: '面评',
-    left_num: facialCount.value.numerator ? facialCount.value.numerator : 0,
-    right_num: facialCount.value.totalCount ? facialCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已面评人数',
-    right_text: '7岁以上未做正畸或面评'
+    right_text: '预约面型发育评估人数'
   },
   {
     svg_name: 'cardSvg1',
     name: '矫正方案',
-    left_num: orthCount.value.numerator ? orthCount.value.numerator : 0,
-    right_num: orthCount.value.totalCount ? orthCount.value.totalCount : 0,
+    left_num: 0,
+    right_num: 0,
     left_text: '已录入矫正方案人数',
     right_text: '需要矫正人数'
   }
-]
+])
+
 async function changeNote(val) {
   val.row.note = val.note
   val.row.noteList.push({
@@ -674,7 +733,7 @@ async function changeNote(val) {
     note: val.note
   })
   if (res.code == 200) {
-    ElMessage.success('新增成功')
+    // ElMessage.success('新增成功')
   }
 }
 
@@ -693,23 +752,34 @@ onMounted(() => {
 
 const selectedVoiceItem = ref()
 async function togglePlayPause(row) {
-  selectedVoiceItem.value = row
-  if (!voiceUrl.value) {
-    voiceUrl.value = row.voice_file_url
+  // 切换数据源
+  if (!voiceUrl.value && !selectedVoiceItem.value) {
+    selectedVoiceItem.value = row
+    voiceUrl.value = selectedVoiceItem.value.voice_file_url
     audioPlayer.value.load()
-  }
-  if (!audioPlayer.value.paused && row.isPlaying) {
-    audioPlayer.value.pause()
-  } else if (audioPlayer.value.paused && !row.isPlaying) {
-    audioPlayer.value.play()
+  } else {
+    if (selectedVoiceItem.value.patientName == row.patientName) {
+      if (!audioPlayer.value.paused && row.isPlaying) {
+        audioPlayer.value.pause()
+      } else if (audioPlayer.value.paused && !row.isPlaying) {
+        audioPlayer.value.play()
+      }
+    } else {
+      selectedVoiceItem.value = row
+      voiceUrl.value = selectedVoiceItem.value.voice_file_url
+      audioPlayer.value.load()
+      if (!audioPlayer.value.paused && row.isPlaying) {
+        audioPlayer.value.pause()
+      } else if (audioPlayer.value.paused && !row.isPlaying) {
+        audioPlayer.value.play()
+      }
+    }
   }
 
   row.isPlaying = !row.isPlaying
 }
 const handleCanPlay = () => {
-  audioPlayer.value.play().then(() => {
-    console.log('done')
-  })
+  audioPlayer.value.play().then(() => {})
 }
 const selectDoctor = ref()
 const orthDoctorList = ref([])
@@ -812,7 +882,7 @@ async function handleSaveOrthDoctor(item) {
   }
   .form {
     background: #f4f7fd;
-    width: 448px;
+    // width: 448px;
     height: 253px;
     padding: 12px;
     border-radius: 12px;

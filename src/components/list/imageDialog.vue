@@ -142,10 +142,10 @@
                 cancel-button-text="取消"
                 title="确认删除该张图片吗？"
                 @confirm="handleDeleteImage1(img)"
-                v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
               >
                 <template #reference>
                   <img
+                    v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
                     :style="{ cursor: 'pointer' }"
                     class="deleteImage"
                     src="@/assets/svg/deleteImage.svg"
@@ -178,11 +178,15 @@
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
-import { ref, defineProps, computed, defineEmits, onMounted, watch } from 'vue'
+import { ref, defineProps, computed, defineEmits, onMounted, watch, onBeforeMount } from 'vue'
 import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 const props = defineProps({
+  page: {
+    type: String,
+    default: ''
+  },
   dialogVisible: {
     type: Boolean,
     default: false
@@ -217,16 +221,28 @@ onMounted(() => {
     a.fileUrl = placeholderUrl
   })
   getImageList()
+})
+onBeforeMount(() => {
   getClassifiedImgList()
 })
 const emit = defineEmits(['savePics', 'cancel'])
 const imgDialogVisible = ref(props.dialogVisible)
 const caption = ref(props.caption)
-watch(props, (val) => {
-  imgDialogVisible.value = val.dialogVisible
-  caption.value = props.caption
-  if (caption.value && imageList.value.find((item) => item.caption === caption.value)) {
-    imageList.value.find((item) => item.caption === caption.value).reminder = true
+watch(
+  props,
+  (val) => {
+    imgDialogVisible.value = val.dialogVisible
+    caption.value = props.caption
+    if (caption.value && imageList.value.find((item) => item.caption === caption.value)) {
+      imageList.value.find((item) => item.caption === caption.value).reminder = true
+    }
+  },
+  { deep: true }
+)
+// 每次点开影像管理都要重新请求右边的列表，因为外边可能会做改动
+watch(imgDialogVisible, (newVal) => {
+  if (newVal) {
+    getClassifiedImgList()
   }
 })
 const handleCancel = () => {
@@ -319,88 +335,154 @@ const handleLoadPic = () => {
 }
 
 // 右侧分类图片占位
-const imageList = ref([
-  {
-    caption: '正面像',
-    typeName: 'FrontalRepose',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面微笑像',
-    typeName: 'FrontalSmile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面像',
-    typeName: 'LeftProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面微笑像',
-    typeName: 'RightProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面像',
-    typeName: 'LeftSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面微笑像',
-    typeName: 'RightSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（左侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（右侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（左侧）',
-    typeName: 'Left',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（右侧）',
-    typeName: 'Right',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面咬合',
-    typeName: 'Anterior',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '前牙覆盖',
-    typeName: 'Cover',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '上颌',
-    typeName: 'Upper',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '下颌',
-    typeName: 'Lower',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '全景片',
-    typeName: 'Panoramic',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '侧位片',
-    typeName: 'Cephalometric',
-    fileUrl: placeholderUrl
-  }
-])
+const imageList =
+  props.page == 'ortho'
+    ? ref([
+        {
+          caption: '正面像',
+          typeName: 'FrontalRepose',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面微笑像',
+          typeName: 'FrontalSmile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '90度侧面像',
+          typeName: 'LeftProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '90度侧面微笑像',
+          typeName: 'RightProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '45度侧面像',
+          typeName: 'LeftSideProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '45度侧面微笑像',
+          typeName: 'RightSideProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '口内照（左侧）',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '口内照（右侧）',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（左侧）',
+          typeName: 'Left',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（右侧）',
+          typeName: 'Right',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面咬合',
+          typeName: 'Anterior',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '前牙覆盖',
+          typeName: 'Cover',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '上颌',
+          typeName: 'Upper',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '下颌',
+          typeName: 'Lower',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '全景片',
+          typeName: 'Panoramic',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '侧位片',
+          typeName: 'Cephalometric',
+          fileUrl: placeholderUrl
+        }
+      ])
+    : ref([
+        {
+          caption: '正面像',
+          typeName: 'FrontalRepose',
+          fileUrl: placeholderUrl
+        },
+
+        {
+          caption: '90度侧面像',
+          typeName: 'LeftProfile',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '尖牙(左侧)',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '尖牙(右侧)',
+          typeName: '',
+          fileUrl: placeholderUrl
+        },
+
+        {
+          caption: '磨牙关系（左侧）',
+          typeName: 'Left',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '磨牙关系（右侧）',
+          typeName: 'Right',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '正面咬合',
+          typeName: 'Anterior',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '前牙覆盖',
+          typeName: 'Cover',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '上颌',
+          typeName: 'Upper',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '下颌',
+          typeName: 'Lower',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '全景片',
+          typeName: 'Panoramic',
+          fileUrl: placeholderUrl
+        },
+        {
+          caption: '自由照片',
+          typeName: '',
+          fileUrl: placeholderUrl
+        }
+      ])
 
 // 图片分类
 async function getToken() {
@@ -419,68 +501,81 @@ const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
 async function handleClassifyPics() {
-  if (chooseImgNum.value == 0) {
-    ElMessage({
-      message: '未选中图片',
-      type: 'error'
-    })
-  } else {
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在分类中',
-      background: 'rgba(0, 0, 0, 0.7)',
-      target: loadingTarget2.value
-    })
-    loading.value = true
-    const formData = new FormData()
-    let orthImageString, orthImageList
-    imageArr.value
-      .filter((i) => i.file === undefined)
-      .forEach((c) => {
-        orthImageList = c.imageList
-          .filter((b) => b.choose === true)
-          .map((a) => {
-            if (a.choose) {
-              return {
-                ljUrl: a.imgUrl,
-                ljId: a.id,
-                LJCreateDatetime: a.timestamp
+  try {
+    if (chooseImgNum.value == 0) {
+      ElMessage({
+        message: '未选中图片',
+        type: 'error'
+      })
+    } else {
+      const loading = ElLoading.service({
+        lock: true,
+        text: '正在分类中',
+        background: 'rgba(0, 0, 0, 0.7)',
+        target: loadingTarget2.value
+      })
+      loading.value = true
+      const formData = new FormData()
+      let orthImageString, orthImageList
+      imageArr.value
+        .filter((i) => i.file === undefined)
+        .forEach((c) => {
+          orthImageList = c.imageList
+            .filter((b) => b.choose === true)
+            .map((a) => {
+              if (a.choose) {
+                return {
+                  ljUrl: a.imgUrl,
+                  ljId: a.id,
+                  LJCreateDatetime: a.timestamp
+                }
               }
+            })
+        })
+      orthImageString = JSON.stringify({
+        patientId: props.patientId,
+        apmtId: props.appId,
+        orthImageList
+      })
+      if (imageArr.value.filter((i) => i.file === true).length > 0) {
+        imageArr.value
+          .filter((i) => i.file === true)[0]
+          .imageList.filter((image) => image.choose === true)
+          .forEach((file) => {
+            formData.append('files', file.file)
+          })
+      } else {
+        formData.append('files', null)
+      }
+      formData.append('orthImageString', orthImageString)
+      const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+      loading.close()
+      if (res.code === 200) {
+        imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
+        res.data.forEach((d) => {
+          imageList.value.forEach((i) => {
+            if (d.typeName == i.typeName) {
+              i.fileUrl = d.fileUrl
+              i.imageId = d.fileId
             }
           })
-      })
-    orthImageString = JSON.stringify({
-      patientId: props.patientId,
-      apmtId: props.appId,
-      orthImageList
-    })
-    if (imageArr.value.filter((i) => i.file === true).length > 0) {
-      imageArr.value
-        .filter((i) => i.file === true)[0]
-        .imageList.filter((image) => image.choose === true)
-        .forEach((file) => {
-          formData.append('files', file.file)
         })
-    } else {
-      formData.append('files', null)
+      } else {
+        ElMessage({
+          message: '图片分类失败',
+          type: 'error'
+        })
+      }
     }
-    formData.append('orthImageString', orthImageString)
-    const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+  } catch (err) {
     loading.close()
-    if (res.code === 200) {
-      imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
-      res.data.forEach((d) => {
-        imageList.value.forEach((i) => {
-          if (d.typeName == i.typeName) {
-            i.fileUrl = d.fileUrl
-            i.imageId = d.fileId
-          }
-        })
-      })
-    }
+    ElMessage({
+      message: '图片分类失败',
+      type: 'error'
+    })
   }
 }
-
+console.log(11)
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
@@ -565,8 +660,15 @@ const handleDragStart1 = (img) => {
 // 从左侧拖到右侧
 const handleDragStart = (file, event) => {
   if (file.file) {
+    // 本地上传的图片
     event.dataTransfer.setData('text/plain', file)
-    dragFile.value = event.dataTransfer.files[0]
+    const userAgent = navigator.userAgent
+    if (userAgent.match(/Chrome/i)) {
+      // 谷歌和浏览器处理方式不同
+      dragFile.value = event.dataTransfer.files[0]
+    } else {
+      dragFile.value = file.file
+    }
   } else {
     dragFile.value = file
   }
@@ -698,6 +800,7 @@ const handleDragLeave = (e) => {
   e.target.classList.remove('hover')
 }
 const handleCloseImgDialog = () => {
+  emit('cancel')
   imageList.value.forEach((image) => (image.reminder = false))
 }
 </script>

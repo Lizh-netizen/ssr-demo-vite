@@ -177,7 +177,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image1"
                     :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -187,17 +186,15 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image2"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image3">
                   <div class="imageCaption" v-if="item.imageList1[2]?.imageUrl">
                     {{ item.imageList1[2]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image3"
                     :src="item.imageList1[2]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -217,7 +214,6 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image1"
                     :src="item.imageList2[0]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -227,37 +223,33 @@
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image2"
                     :src="item.imageList2[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image3">
                   <div class="imageCaption" v-if="item.imageList2[2]?.imageUrl">
                     {{ item.imageList2[2]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image3"
                     :src="item.imageList2[2]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image4">
                   <div class="imageCaption" v-if="item.imageList2[3]?.imageUrl">
                     {{ item.imageList2[3]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image4"
                     :src="item.imageList2[3]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div :style="{ position: 'relative' }" class="image5">
                   <div class="imageCaption" v-if="item.imageList2[4]?.imageUrl">
                     {{ item.imageList2[4]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    class="image5"
                     :src="item.imageList2[4]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
@@ -330,7 +322,7 @@ patientName.value = sessionStorage.getItem('name')
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
-
+console.log(22)
 const patientInfo = ref({})
 async function getPatientInfo() {
   const result = await Get(`prod-api/business/patient/ljPatient/${patientId}`)
@@ -881,19 +873,33 @@ body {
             max-width: 267px;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            height: 100%;
+            max-height: 400px;
+            overflow: hidden;
+            img {
+              width: 100%;
+            }
           }
           .image2,
           .image3 {
             width: 126px;
+            height: 200px;
+            overflow: hidden;
+            img {
+              width: 100%;
+            }
           }
           .image2 {
             grid-column: 3;
             grid-row: 1;
+            max-height: 200px;
+            img {
+              width: 100%;
+            }
           }
           .image3 {
             grid-column: 3;
             grid-row: 2;
+            max-height: 200px;
           }
         }
         .content1 {
@@ -934,6 +940,9 @@ body {
           .image1 {
             width: 316px;
             grid-column: 1 / span 2;
+            img {
+              width: 100%;
+            }
           }
           .image2,
           .image3,
@@ -941,6 +950,10 @@ body {
           .image5 {
             width: 150px;
             height: 100px;
+            img {
+              width: 100%;
+              height: 100%;
+            }
           }
         }
       }

@@ -12,6 +12,7 @@
           <el-radio-group
             v-model="title.optionId"
             @change="handleChangeOption(title.optionId, title)"
+            @dblclick="handleEmptyRadio(title.optionId, title)"
           >
             <template v-for="option in title.orthOptionsList" :key="option.id">
               <el-radio-button
@@ -57,6 +58,7 @@ import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
+import emptyRadio from '@/effects/emptyRadio.js'
 const clicked = ref(false)
 defineExpose({
   clicked
@@ -163,11 +165,25 @@ const handleChange = (val, title) => {
 }
 const handleChangeOption = (optionId, title) => {
   clicked.value = true
+  console.log(props.pdfId)
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
   useChangeOption(optionId, title, appId)
   useUpdateOption(title.optionId, title, '', appId)
+}
+async function handleEmptyRadio(optionId, title) {
+  console.log('dbclick')
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    getOrthModelList()
+    // 重新请求数据
+  }
 }
 </script>
 

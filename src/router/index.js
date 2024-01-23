@@ -16,6 +16,11 @@ const routes = [
     component: () => import('../views/test.vue')
   },
   {
+    path: '/layout',
+    name: 'layout',
+    component: () => import('../views/ortho/layout.vue')
+  },
+  {
     path: '/ortho/:appId/:patientId',
     name: 'ortho',
     component: () => import('../views/ortho/index.vue')

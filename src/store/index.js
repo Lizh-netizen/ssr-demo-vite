@@ -1,9 +1,17 @@
 import { createStore } from 'vuex'
 
-export default createStore({
-  state: {},
+
+  const store = createStore({
+  state: {
+    patientList: []
+  },
   getters: {},
-  mutations: {},
+  mutations: {
+    setPatientList(state, payload) {
+      state.patientList = payload
+    }
+  },
   actions: {},
   modules: {}
-})
+  })
+export default store

@@ -14,6 +14,7 @@
                 v-if="title.type == 1"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                   <el-radio-button
@@ -129,6 +130,7 @@
                 class="specialRadio"
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
               >
                 <el-radio-button
                   :class="{
@@ -193,6 +195,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
+                      @dblclick="handleEmptyRadio(title.optionId, title, 'face')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -269,6 +272,7 @@
                       v-if="title.type == 1"
                       v-model="title.optionId"
                       @change="handleChangeOption(title.optionId, title, item.className, item)"
+                      @dblclick="handleEmptyRadio(title.optionId, title, 'mouth')"
                     >
                       <el-radio-button
                         :disabled="!item.hasImage"
@@ -353,6 +357,7 @@
                           v-if="title.type == 1"
                           v-model="title.optionId"
                           @change="handleChangeOption(title.optionId, title)"
+                          @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
                         >
                           <el-radio-button
                             :disabled="!panoramicData[0].hasImage"
@@ -507,6 +512,46 @@
             </div>
           </div>
         </template>
+        <div class="questionItem__header">
+          <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
+            >自由照片</span
+          >
+        </div>
+        <div class="container">
+          <template v-for="item in freePicData" :key="item.id">
+            <ImageItem :imageCaption="item.className"
+              ><template #img
+                ><template v-if="item.imageUrl"
+                  ><img
+                    :src="item.imageUrl"
+                    :style="{
+                      height: '240px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div
+                    class="imageItem__placeholder"
+                    @click="handleOpenImageDialogue(item.className)"
+                  >
+                    <img :src="imgUrl" class="addPic" />
+                  </div> </template></template
+              ><template #content>
+                <template v-for="title in item.orthTitleList" :key="title.id">
+                  <form-item :label="title.titleName" width="120px">
+                    <el-input
+                      type="textarea"
+                      placeholder="输入备注"
+                      v-model="title.cephalometricsContent"
+                      :rows="4"
+                      :style="{ width: '100%' }"
+                      @blur="handleSubmitRemark(title)"
+                    ></el-input>
+                  </form-item>
+                </template>
+              </template>
+            </ImageItem>
+          </template>
+        </div>
       </div>
     </div>
     <!-- <div class="model section">
@@ -547,6 +592,7 @@
     </div>
   </div>
   <ImageDialog
+    page="evaluate"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
@@ -729,12 +775,29 @@
       <el-radio-group v-model="advice">
         <el-radio-button label="立即矫正" />
         <el-radio-button label="后续面评" />
-        <el-radio-button label="后续矫正" />
+
         <el-radio-button label="无需矫正" />
       </el-radio-group>
     </div>
-    <div v-if="advice === '后续面评' || advice === '后续矫正'">
-      时间选择：<el-input v-model="time"></el-input>个月后{{ advice.slice(2) }}
+    <div v-if="advice === '后续面评'">
+      时间选择：<el-date-picker
+        v-model="time"
+        type="date"
+        placeholder="请选择"
+        value-format="YYYY-MM-DD"
+      ></el-date-picker>
+    </div>
+    <div v-if="advice === '立即矫正'">
+      医生选择：<el-select placeholder="请选择" allow-search filterable v-model="orthDoctorId">
+        <el-option
+          v-for="item in orthDoctorList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+          {{ item.label }}</el-option
+        >
+      </el-select>
     </div>
     <template #footer>
       <span class="dialog-footer">
@@ -761,6 +824,7 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import ImageDialog from '@/components/list/imageDialog.vue'
+import emptyRadio from '@/effects/emptyRadio.js'
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -780,16 +844,26 @@ async function getId() {
 getId()
 async function handleAdvice() {
   try {
-    let remark = ''
-    if (advice.value === '立即矫正' || advice.value === '无需矫正') {
-      remark = advice.value
-    } else {
-      remark = time.value + '个月后' + advice.value.slice(2)
+    let orthDoctorName
+    const found = orthDoctorList.value.find((item) => item.value == orthDoctorId.value)
+    if (found) {
+      orthDoctorName = found.label || ''
     }
-    const res = await Put('/prod-api/business/orthBase', {
-      id: id.value,
-      remark: remark
-    })
+
+    const facialAdvise = advice.value === '立即矫正' ? 1 : advice.value === '后续面评' ? 2 : 3
+    const obj = {
+      patientId: patientId,
+      aptmId: appId,
+      orthDoctorName: orthDoctorName || '',
+      orthDoctorId: orthDoctorId.value || '',
+      remark: '',
+      facialAdvise: facialAdvise,
+      facialOrthDoctorId: '',
+      facialOrthDoctorName: '',
+      facialTime: time.value || ''
+    }
+
+    const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
     adviceVisible.value = false
     if (res.code === 200) {
       ElMessage.success(res.msg)
@@ -800,12 +874,6 @@ async function handleAdvice() {
 }
 
 onMounted(() => {
-  nextTick(() => {
-    setTimeout(() => {
-      console.log(document.querySelector('.imageDialog'))
-    }, 2000)
-  })
-
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
@@ -1047,6 +1115,13 @@ async function getPanoramicList() {
     handlePanoData(panoramicData)
   }
 }
+// 自由照
+const freePicData = ref([])
+async function getFreePic() {
+  const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
+  freePicData.value = result.data
+}
+
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
@@ -1123,8 +1198,38 @@ getCheckList()
 getFaceAccessList()
 getMouthList()
 getPanoramicList()
+getFreePic()
 // getModelList()
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    const obj = {
+      apmtId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: title.otherContent,
+      cephalometricsContent: '',
+      fdiToothCode: '',
+      showPosition: ''
+    }
 
+    Post('/prod-api/business/facialResult', obj)
+    if (owningModule == 'check') {
+      getCheckList()
+    } else if (owningModule == 'face') {
+      getFaceAccessList()
+    } else if (owningModule == 'mouth') {
+      getMouthList()
+    } else if (owningModule == 'pano') {
+      getPanoramicList()
+    }
+    // 重新请求数据
+  }
+}
 const handleChangeOption = (optionId, title) => {
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
@@ -1156,6 +1261,18 @@ const handleChangeOption = (optionId, title) => {
     })
   }
   updateOption(title.optionId, title)
+}
+async function handleSubmitRemark(title) {
+  const obj = {
+    apmtId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: ''
+  }
+  const res = await Post('/prod-api/business/optionsResult', obj)
 }
 async function updateOption(optionId, title) {
   let obj = null
@@ -1366,6 +1483,20 @@ const handleDeleteImage1 = (img) => {
     img.fileUrl = placeholderUrl
   }
 }
+const orthDoctorId = ref()
+const orthDoctorList = ref([])
+async function getOrthDoctorList() {
+  const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
+  if (res.code == 200) {
+    orthDoctorList.value = res.data.map((item) => {
+      return {
+        label: item.doctorName,
+        value: item.doctorId
+      }
+    })
+  }
+}
+getOrthDoctorList()
 // 影像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
@@ -1666,6 +1797,7 @@ function getAllData() {
   getFaceAccessList()
   getMouthList()
   getPanoramicList()
+  getFreePic()
 }
 const handleCloseImgDialog = () => {
   imageList.value.forEach((image) => (image.reminder = false))
@@ -1675,25 +1807,27 @@ const handleBackToList = () => {
 }
 </script>
 <style>
-.el-dialog {
-  border-radius: 12px;
-}
 .el-dialog__body {
   padding: 24px;
   padding-top: 10px;
   padding-bottom: 10px;
 }
 .advice.el-dialog {
+  width: 432px;
+  border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;
   }
   .el-input {
-    width: 40px;
+    width: 100px;
     margin-left: 0;
+  }
+  .el-date-editor.el-input {
+    width: 130px;
   }
   .el-input__wrapper.is-focus {
     --el-input-focus-border-color: #2e6ce4;
-    box-shadow: #2e6ce4;
+    box-shadow: 0px 0px 0px 1px #2e6ce4 !important;
   }
 }
 .el-input {
@@ -1730,6 +1864,13 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .el-input.el-input--prefix.el-input--suffix.el-date-editor el-date-editor--date {
+  width: 130px;
+}
+:deep .el-textarea__inner {
+  width: 300px;
+}
+
 :deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
   color: #2e6ce4;
   background-color: #fff;
@@ -1855,7 +1996,7 @@ const handleBackToList = () => {
 
 .drawer {
   box-sizing: border-box;
-  font-family: 思源黑体;
+  // font-family: 思源黑体;
   padding: 20px;
   margin: 15px;
   background: #fff;
@@ -1909,7 +2050,7 @@ const handleBackToList = () => {
       font-weight: 500;
     }
     &__result {
-      font-family: 思源黑体;
+      // font-family: 思源黑体;
       font-size: 20px;
       font-weight: bold;
       color: #ff5d5d;
@@ -2091,7 +2232,8 @@ const handleBackToList = () => {
   }
 }
 .container .imageItem:last-child {
-  border-bottom: 1.4px solid #e5e6eb !important;
+  border-bottom: none !important;
+  // border-bottom: 1.4px solid #e5e6eb !important;
 }
 .diagramWrapper {
   width: 150px;

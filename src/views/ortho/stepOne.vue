@@ -40,6 +40,7 @@
                   v-if="title.type == 1"
                   v-model="title.optionId"
                   @change="handleChangeOption(title.optionId, title)"
+                  @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
                 >
                   <el-radio-button
                     :class="{
@@ -99,6 +100,7 @@
               <el-radio-group
                 v-model="title.optionId"
                 @change="handleChangeOption(title.optionId, title)"
+                @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
               >
                 <el-radio-button
                   v-for="option in title.orthOptionsList"
@@ -126,6 +128,7 @@
               v-if="title.type == 1"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
+              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                 <el-radio-button
@@ -241,6 +244,7 @@
               class="specialRadio"
               v-model="title.optionId"
               @change="handleChangeOption(title.optionId, title)"
+              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
             >
               <el-radio-button
                 :class="{
@@ -314,7 +318,7 @@ import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
-
+import emptyRadio from '@/effects/emptyRadio.js'
 const clicked = ref(false)
 defineExpose({
   clicked
@@ -322,6 +326,7 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
+
 const input1 = ref('')
 const input2 = ref('')
 const route = useRoute()
@@ -504,11 +509,12 @@ async function handleChangeOption(optionId, title) {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
+
   useChangeOption(optionId, title, appId, isShow, checkData)
-  const res = await useUpdateOption(title.optionId, title, '', appId)
-  if ((res.code == 200) & (title.titleName == '骨龄')) {
-    // getOrthCheckList()
-  }
+  await useUpdateOption(title.optionId, title, '', appId)
+  // if ((res.code == 200) & (title.titleName == '骨龄')) {
+  //   // getOrthCheckList()
+  // }
 }
 const showPopover = (index) => {
   // 值为空的情况下聚焦，否则是展示状态
@@ -545,6 +551,22 @@ async function handleChange(obj, title) {
 
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', appId)
+}
+async function handleEmptyRadio(optionId, title, owningModule) {
+  if (
+    title.orthOptionsList.some((option) => option.choosen == true) &&
+    title.type == 1 &&
+    title.optionId == optionId
+  ) {
+    emptyRadio(optionId, title)
+    useUpdateOption(null, title, '', appId)
+    if (owningModule == 'inquiry') {
+      getOrthInquiryList()
+    } else {
+      getOrthCheckList()
+    }
+    // 重新请求数据
+  }
 }
 </script>
 <style lang="scss">

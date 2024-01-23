@@ -75,10 +75,38 @@ img {
     border-left-color: #fff !important;
   }
 }
+.content .el-checkbox-button.checked.serious .el-checkbox-button__inner {
+  border: 1px solid #f44c4c;
+  --el-border: none;
+  color: #f44c4c;
+  border-left-color: #f44c4c !important;
+}
+.content .el-checkbox-button.checked .el-checkbox-button__inner {
+  border: 1px solid #2e6ce4;
+  --el-border: none;
+  color: #2e6ce4;
+  box-shadow: none;
+  border-left-color: #2e6ce4 !important;
+}
 
+// .el-dialog {
+//   position: fixed !important;
+//   top: 35%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+// }
+.el-table__header-wrapper {
+  .el-table__header {
+    width: 100% !important;
+  }
+}
+.el-table__body {
+  width: 100% !important;
+}
+.el-popper span {
+  font-size: 14px !important;
+}
 .el-dialog {
-  position: fixed !important;
-  top: 35%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  --el-border-radius-small: 12px;
+  --el-dialog-border-radius: 12px;
 }
