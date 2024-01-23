@@ -12,4 +12,4 @@ WORKDIR /home/jc/projects/saas-orange-ortho
 # 复制conf文件到路径
 COPY nginx/conf/nginx.conf /etc/nginx/nginx.conf
 # 复制html文件到路径
-COPY production /home/jc/projects/saas-orange-ortho
+COPY development /home/jc/projects/saas-orange-ortho

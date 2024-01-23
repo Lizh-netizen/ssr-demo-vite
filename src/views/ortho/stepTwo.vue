@@ -2364,8 +2364,8 @@ async function getAIResult() {
       background: 'rgba(0, 0, 0, 0.7)',
       target: loadingTarget.value
     })
-    loading.value = true
     if (cephaImage.value) {
+      loading.value = true
       const timestamp = new Date().getTime()
       imageUrlToBlob(`${cephaImage.value}?t=${timestamp}`)
         .then((blob) => {
