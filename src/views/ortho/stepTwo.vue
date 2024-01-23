@@ -2383,7 +2383,7 @@ async function getAIResult() {
             .catch((err) => {
               loading.close()
               ElMessage({
-                message: '计算失败',
+                message: err,
                 type: 'warning'
               })
             })
@@ -2391,13 +2391,16 @@ async function getAIResult() {
         .catch((error) => {
           loading.close()
           ElMessage({
-            message: '计算失败',
+            message: error,
             type: 'warning'
           })
         })
     }
   } catch (error) {
-    console.error(error)
+    ElMessage({
+      message: error,
+      type: 'warning'
+    })
   }
 }
 
