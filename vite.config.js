@@ -58,8 +58,8 @@ export default defineConfig(({ mode }) => {
           target: 'https://orangetest.aiorange.com',
           changeOrigin: true,
         },
-        '/platform': {
-          target: 'https://testorthodontic.aiorange.com/bonceph',
+        '/bonceph': {
+          target: 'https://testorthodontic.aiorange.com',
           changeOrigin: true,
         }
       }

@@ -864,7 +864,7 @@ const imageList = ref([
 // 图片分类
 async function getToken() {
   let token
-  const res = await Post1('/platform/user/login', {
+  const res = await Post1('/bonceph/platform/user/login', {
     username: 'bonceph',
     userpwd: '4371f7b311bf4f88cbd27855f3143430'
   })
@@ -1959,7 +1959,7 @@ async function getPoints(file) {
   formData.append('mobile', '13014532111')
   const token = await getToken()
   if (token) {
-    const res = await Post1('/platform/marker/predict', formData, true, token)
+    const res = await Post1('/bonceph/platform/marker/predict', formData, true, token)
     if (res.code == 200) {
       allPoints.value = res.data
       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
