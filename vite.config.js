@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
         },
         '/platform': {
-          target: 'http://47.101.150.34:8177/bonceph',
+          target: 'https://testorthodontic.aiorange.com/bonceph',
           changeOrigin: true,
         }
       }
