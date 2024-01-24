@@ -1,7 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { createAxiosWithCancel } from '@/utils/request';
 
-const { cancelAllRequests } = createAxiosWithCancel();
 
 const routes = [
   { path: '/', redirect: '/index' },
