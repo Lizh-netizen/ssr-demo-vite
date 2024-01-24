@@ -2,19 +2,63 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL,
+  baseURL: '',
   timeout: 100000,
   headers: {
     'Content-Type': 'application/json'
   }
 })
+const instance1 = axios.create({
+  baseURL: '',
+  timeout: 100000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+instance1.interceptors.request.use(
+  (config) => {
+   
 
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+export function Post1(url, data, isMultipart = false, token) {
+  if (isMultipart) {
+    // 设置请求头为 "multipart/form-data"
+    instance1.defaults.headers['Content-Type'] = 'multipart/form-data'
+  } else {
+    // 使用默认的请求头 "application/json"
+    instance1.defaults.headers['Content-Type'] = 'application/json'
+  }
+  instance1.defaults.headers['Authorization'] = token
+  return new Promise((resolve, reject) => {
+    instance1
+      .post(url, data)
+      .then((res) => {
+        // 请求本身成功，但是业务逻辑错误
+        if (res.data.code && res.data.code !== 200) {
+          ElMessage({
+            type: 'error',
+            // 状态码500，未知错误
+            message: res.data.msg ? res.data.msg : '发生未知错误'
+          })
+        }
+        resolve(res.data)
+      })
+      .catch((err) => {
+        reject(err)
+      })
+  })
+}
 instance.interceptors.request.use(
   (config) => {
     config.headers = {
       Authorization:
         sessionStorage.odos_token ||
-        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyODIsInVzZXJfa2V5IjoiNDZjOTRmYzctNTdlMC00Nzk5LWI2YWEtNmM1NDYyZGM3MTM0IiwidXNlcm5hbWUiOiJnYW5sdSJ9.o_mmubNOnROoKqHZXy-OpcDAA8cOU3olNIsA5qhjXMOI4kv_T8JbFowJupXuCh5Cz0JDxTuQcISOIO3CS2qvKA'
+        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyOTAsInVzZXJfa2V5IjoiNjYxMTkyNmQtNjIwYi00MDNkLTg3OTAtY2JhOTcxYmQwMGUxIiwidXNlcm5hbWUiOiJsaXpoYW5naHVhIn0.UCCYnokL3BwNEA8hAT5Rec5rAvkBz6AiJM8EK0FrQWlzjPFC55KXVH76-PH68ZWLF6e26yGjfWdAFiidbo8GZQ'
     }
 
     return config

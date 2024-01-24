@@ -351,8 +351,8 @@
               <div class="formItem">
                 <div
                   class="formItem__label"
-                  @mouseenter="showLine(title.titleName)"
                   @mouseleave="hideLine"
+                  @mouseenter="showLine(title.titleName)"
                 >
                   {{
                     title.titleName == 'Wits'
@@ -516,7 +516,7 @@ import {
 import Header from '@/components/list/header.vue'
 import ImageItem from '@/components/list/imageItem.vue'
 import FormItem from '@/components/list/formItem.vue'
-import { Post, Get, Put, Delete } from '@/utils/request'
+import { Post, Get, Put, Delete, Post1 } from '@/utils/request'
 import axios from 'axios'
 // import { Upload } from '@element-plus/icons-vue'
 // import { ElLoading, ElMessage } from 'element-plus'
@@ -864,13 +864,12 @@ const imageList = ref([
 // 图片分类
 async function getToken() {
   let token
-  const res = await axios({
-    url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
-    method: 'post',
-    data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
+  const res = await Post1('/platform/user/login', {
+    username: 'bonceph',
+    userpwd: '4371f7b311bf4f88cbd27855f3143430'
   })
-  if (res.status == 200) {
-    token = res.data.data.token
+  if (res.code == 200) {
+    token = res.data.token
   }
   return token
 }
@@ -1959,19 +1958,10 @@ async function getPoints(file) {
   formData.append('file', file)
   formData.append('mobile', '13014532111')
   const token = await getToken()
-
   if (token) {
-    const res = await axios({
-      url: 'http://47.101.150.34:8177/bonceph/platform/marker/predict',
-      method: 'post',
-      data: formData,
-      headers: {
-        Authorization: `${token}`,
-        'content-type': 'multipart/form-data'
-      }
-    })
-    if (res.status == 200) {
-      allPoints.value = res.data.data
+    const res = await Post1('/platform/marker/predict', formData, true, token)
+    if (res.code == 200) {
+      allPoints.value = res.data
       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
       coordinatesBase.value = filteredPoints.value.map((point) => ({
         label: point[0],

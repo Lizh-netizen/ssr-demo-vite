@@ -485,18 +485,7 @@ const imageList =
       ])
 
 // 图片分类
-async function getToken() {
-  let token
-  const res = await axios({
-    url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
-    method: 'post',
-    data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
-  })
-  if (res.status == 200) {
-    token = res.data.data.token
-  }
-  return token
-}
+
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类

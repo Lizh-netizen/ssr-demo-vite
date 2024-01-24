@@ -55,8 +55,12 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/prod-api': {
-          target: 'http://orangetest.aiorange.com',
-          changeOrigin: true
+          target: 'https://orangetest.aiorange.com',
+          changeOrigin: true,
+        },
+        '/platform': {
+          target: 'http://47.101.150.34:8177/bonceph',
+          changeOrigin: true,
         }
       }
     },

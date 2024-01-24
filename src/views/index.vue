@@ -605,7 +605,6 @@ const handleGoSche = (item) => {
 
 const filter = (val) => {
   const v = getCache(currentTab)
-  console.log(222)
   // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)
@@ -637,15 +636,38 @@ watch(
 onMounted(() => {
   // 初始化
   pagesStorage.value = strategy[currentTab.value].page
+  console.log('monted')
   const val = sessionStorage.getItem('currentTab')
   for (let key in strategy) {
-    if (key == '面评' || key == '矫正方案') {
-      const args = getCache(currentTab)
-      strategy[key].stasCountRequest(args)
-    } else {
-      const args = getCache(currentTab)
-      args.date = [firstDate.value, date.value]
-      strategy[key].stasCountRequest(args)
+    if (key == '面评') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '矫正方案') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '面评矫正预约率') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.date = [firstDate, date]
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
     }
   }
   storageName.value = strategy[val].storage
