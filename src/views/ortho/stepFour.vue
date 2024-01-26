@@ -1,98 +1,117 @@
 <template>
   <div class="stepFour">
-    <Header text="问题列表" backgroundColor="#f4f7fd" />
-    <template v-if="questionData.length > 0">
-      <div class="content" :style="{ 'padding-top': '4px' }">
-        <div class="questionItem" v-for="item in questionData" :key="item.id">
-          <div class="questionItem__header">
-            <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title">{{
-              item.question_level_one
-            }}</span>
+    <div class="layout">
+      <div class="top box">
+        <div class="top_left">
+          <div class="top_left_header">
+            <img src="../../assets/layout/issuesIcon.svg" />
+            <div>问题列表</div>
           </div>
-          <div class="questionItem__content content">
-            <div class="singleQuestionItem" v-for="a in item.list1" :key="a.id">
-              <div class="question_level_two">{{ a.question_level_two }}</div>
-              <div class="itemContainer">
-                <div class="item" v-for="item in a.list2" :key="item.title_name">
-                  <span class="singleQuestionItem__label">{{ item.title_name }}</span>
-                  <span class="singleQuestionItem__content">{{ item.option_names }}</span>
+          <div class="top_left_content">
+            <draggable :list="questionData" :question="true"></draggable>
+          </div>
+        </div>
+        <div class="top_right">
+          <div class="top_right_header">
+            <div>暂观</div>
+            <draggable></draggable>
+          </div>
+          <div class="top_right_content">
+            <img src="../../assets/layout/emptyIssues.png" :style="{ width: '204px' }" />
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <div class="body-left content">
+          <div class="content_left_header">
+            <div>目标</div>
+            <draggable :goal="true" :list="goalList" @update="(val) => updateGoal(val)"></draggable>
+          </div>
+        </div>
+        <div class="body-right">
+          <div
+            class="content plan"
+            @click="handlePlan"
+            :class="{ planClicked: planClick == true }"
+            v-for="plan in planList"
+            :key="plan.name"
+          >
+            <div class="flex">
+              <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />{{
+                plan.name
+              }}
+              <div class="period">
+                预计{{ plan.stageList[plan.stageList.length - 1].stageName }}
+              </div>
+              <a-select
+                v-model="plan.difficultyLevel"
+                placeholder="选择难度"
+                @click.stop=""
+                :class="{
+                  high: plan.difficultyLevel == '难度高',
+                  middle: plan.difficultyLevel == '难度中等',
+                  low: plan.difficultyLevel == '难度低'
+                }"
+              >
+                <a-option v-for="item in difficultyList" :key="item.label" :value="item.label">
+                  {{ item.label }}
+                </a-option>
+              </a-select>
+              <div class="tag" v-if="plan.stageList.some((item) => item.name == '拔牙')">拔牙</div>
+            </div>
+            <div class="flex">
+              <div class="cardGroup" v-for="stage in plan.stageList" :key="stage.stageName">
+                <div class="card">
+                  <div class="time">{{ stage.stageName }}</div>
+                  <draggable
+                    :list="stage.targetIds"
+                    @update="(val) => updateList(val, plan.name, stage.stageName)"
+                  ></draggable>
+                </div>
+                <img src="../../assets/layout/arrowRight.svg" />
+              </div>
+              <div @click.stop="handleAddStage(plan.name)">
+                <div class="addStage">
+                  <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
+                  <div>新增阶段</div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="addPlan flex" @click.stop="handleAddPlan">
+            <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addPlan.svg" />添加新方案
+          </div>
+        </div>
+
+        <div class="cardGroup tool" v-if="planClick">
+          <div class="card">
+            <div class="time">工具</div>
+            <draggable></draggable>
+          </div>
+          <img src="../../assets/layout/arrowRight.svg" />
         </div>
       </div>
-    </template>
-    <template v-else
-      ><div
-        :style="{
-          padding: '20px'
-        }"
-      >
-        无
-      </div></template
-    >
-    <Header text="诊断" backgroundColor="#f4f7fd" :style="{ 'margin-top': '20px' }" />
-    <div class="content diagnose">
-      <template v-for="item in diagnoseData" :key="item.id">
-        <template v-for="title in item.orthTitleList" :key="title.id">
-          <form-item :label="title.titleName" width="80px">
-            <el-radio-group
-              v-if="title.type == 1"
-              v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title)"
-              @dblclick="handleEmptyRadio(title.optionId, title)"
-            >
-              <template v-for="option in title.orthOptionsList" :key="option.id">
-                <el-radio-button
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                  :label="option.id"
-                >
-                  {{ option.optionName }}
-                </el-radio-button>
-              </template>
-            </el-radio-group>
-            <el-checkbox-group
-              v-model="title.optionId"
-              v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title)"
-            >
-              <el-checkbox-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                v-for="option in title.orthOptionsList"
-                :key="option.id"
-                :label="option.id"
-              >
-                {{ option.optionName }}
-                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                  src="../../assets/svg/abnormalChecked.svg"
-                  v-else
-                />
-              </el-checkbox-button>
-            </el-checkbox-group>
-          </form-item>
-        </template>
-      </template>
     </div>
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/list/header.vue'
-import { ref, defineProps, defineExpose } from 'vue'
+import { ref, defineProps, defineExpose, onMounted, watch, nextTick } from 'vue'
 import FormItem from '@/components/list/formItem.vue'
-import { Get } from '@/utils/request'
+import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.js'
 import useUpdateOption from '@/effects/updateOption.js'
 import emptyRadio from '@/effects/emptyRadio.js'
+import img from '@/assets/svg/addPic.svg'
+import draggable from '../../components/layout/draggable.vue'
+import { useStore } from 'vuex'
+const store = useStore()
 const clicked = ref(false)
+const goalList = ref()
+goalList.value = store.state.goalList
+const difficultyList = ref([{ label: '难度低' }, { label: '难度中等' }, { label: '难度高' }])
 defineExpose({
   clicked
 })
@@ -105,107 +124,268 @@ const appId = route.params.appId
 const questionData = ref([])
 async function getOrthQuestionList() {
   const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
-  if (result.data) {
-    const acc = result.data.reduce((acc, cur) => {
-      if (acc[cur.question_level_one]) {
-        const found = acc[cur.question_level_one].list1.find(
-          (item) => item.question_level_two === cur.question_level_two
-        )
-        if (found) {
-          found.list2.push({
-            title_name: cur.title_name,
-            option_names: cur.option_names
-          })
-        } else {
-          acc[cur.question_level_one].list1.push({
-            question_level_two: cur.question_level_two,
-            list2: [
-              {
-                title_name: cur.title_name,
-                option_names: cur.option_names
-              }
-            ]
-          })
-        }
-      } else {
-        acc[cur.question_level_one] = cur
-        acc[cur.question_level_one].list1 = []
-        acc[cur.question_level_one].list1.push({
-          question_level_two: cur.question_level_two,
-          list2: [
-            {
-              title_name: cur.title_name,
-              option_names: cur.option_names
-            }
-          ]
-        })
-      }
-      return acc
-    }, {})
-    questionData.value = Object.values(acc)
-  }
+  questionData.value = result.data.map((item) => ({
+    name: item.option_names,
+    label: item.question_level_one
+  }))
 }
 getOrthQuestionList()
-
-// 获取诊断数据
-
-const diagnoseData = ref([])
-async function getOrthDiagnoseList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/诊断/${appId}`)
-  diagnoseData.value = result.data
-  if (result.data[0].classFlag) {
-    clicked.value = true
-  }
-  result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  result.data.forEach((item) => {
-    item.orthTitleList.forEach((title) => {
-      if (title.type == 1) {
-        title.optionId = ''
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions[0].id
-        }
-      } else if (title.type == 2) {
-        title.optionId = []
-        title.optionId1 = []
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
-      }
-    })
+// 新增阶段
+const handleAddStage = (planName) => {
+  store.commit('addStage', planName)
+}
+// 新增方案
+const handleAddPlan = () => {
+  store.commit('addPlan')
+}
+// 方案
+const planList = ref([])
+const updateList = (val, planName, stageName) => {
+  const found = planList.value.find((plan) => plan.name == planName)
+  found.stageList.find((item) => item.stageName == stageName).targetIds = val
+  store.commit('updatePlanList', planList.value)
+}
+const updateGoal = (val) => {
+  nextTick(() => {
+    val = store.state.goalList
+    console.log('🚀 ~ updateGoal ~ val :', val)
   })
 }
-getOrthDiagnoseList()
-const handleChangeOption = (optionId, title) => {
-  clicked.value = true
-  if (props.pdfId) {
-    sessionStorage.removeItem(props.pdfId)
-  }
-  useChangeOption(optionId, title, appId)
-  useUpdateOption(title.optionId, title, '', appId)
-}
-async function handleEmptyRadio(optionId, title) {
-  if (
-    title.orthOptionsList.some((option) => option.choosen == true) &&
-    title.type == 1 &&
-    title.optionId == optionId
-  ) {
-    emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
-    getOrthDiagnoseList()
-    // 重新请求数据
-  }
+onMounted(() => {
+  planList.value = store.state.planList
+  console.log(planList.value[0].stageList.some((item) => item.targetIds == '拔牙'))
+})
+const planClick = ref(false)
+const handlePlan = () => {
+  planClick.value = !planClick.value
 }
 </script>
 
 <style lang="scss" scoped>
 @import '../../style/mixins.scss';
+.layout {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  .top {
+    border-radius: 16px;
+
+    opacity: 1;
+    display: flex;
+    background: #f2f3f5;
+    justify-content: space-between;
+    box-sizing: border-box;
+    /* 线条/深色 */
+    border: 1px solid #c9cdd4;
+    padding: 12px;
+    &_left {
+      padding: 4px;
+      flex: 1;
+      &_header {
+        display: flex;
+        align-items: center;
+
+        img {
+          margin-right: 15px;
+        }
+      }
+      &_content {
+        margin-top: 18px;
+      }
+    }
+    &_right {
+      width: 600px;
+      padding: 16px;
+      border-radius: 8px;
+      opacity: 1;
+
+      /* 填充/浅色 */
+      background: #f7f8fa;
+
+      box-sizing: border-box;
+      /* 线条/深色 */
+      border: 1px dashed #c9cdd4;
+      &_content {
+        margin-top: 18px;
+      }
+    }
+  }
+}
+.handle {
+  float: left;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.body {
+  display: flex;
+  flex: 1;
+  margin-top: 20px;
+  &-left {
+    width: 326px;
+    margin-right: 20px;
+  }
+  &-right {
+    width: calc(100% - 326px);
+    .plan {
+      margin-bottom: 16px;
+      &.planClicked {
+        background: #eaf0fc;
+        border: 2px solid #2e6ce4;
+      }
+      .tag {
+        margin-left: 16px;
+        height: 28px;
+        border-radius: 6px;
+        opacity: 1;
+
+        /* 自动布局 */
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 4px 8px;
+        gap: 6px;
+
+        /* 主色/10% */
+        /* 样式描述：浅色背景/hover等 */
+        background: #eaf0fc;
+
+        box-sizing: border-box;
+        /* 主色/100% */
+        border: 1px solid #2e6ce4;
+      }
+      :deep .arco-select-view-single {
+        width: auto;
+        border: 1px solid #c9cdd4;
+        border-radius: 6px;
+        margin-left: 16px;
+        &.high {
+          background: #f76560;
+          color: #ffffff;
+        }
+        &.middle {
+          background: #ff9a2e;
+          color: #ffffff;
+        }
+        &.low {
+          background: #23c343;
+          color: #ffffff;
+        }
+      }
+      :deep .container {
+        height: 220px;
+      }
+      .period {
+        margin-left: 16px;
+        height: 28px;
+        border-radius: 6px;
+        opacity: 1;
+
+        /* 自动布局 */
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 4px 8px;
+        gap: 6px;
+
+        /* 填充/深底悬浮 */
+        background: #e5e6eb;
+
+        box-sizing: border-box;
+        /* 线条/特殊 */
+        border: 1px solid #86909c;
+      }
+    }
+    .cardGroup {
+      display: flex;
+      align-items: center;
+      .card {
+        width: 224px;
+        height: 304px;
+        border-radius: 12px;
+        background: #ffffff;
+        .list-group-item {
+          background: #ffffff;
+        }
+        .time {
+          background: #eaf0fc;
+          height: 40px;
+          margin: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          padding-left: 12px;
+          color: #2e6ce4;
+          font-weight: bold;
+          border-radius: 8px;
+        }
+      }
+    }
+    .addStage {
+      display: flex;
+      align-items: center;
+      border: 1px dashed #2e6ce4;
+      background: rgba(255, 255, 255, 0.6);
+      width: 200px;
+      height: 304px;
+      border-radius: 12px;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+    .addPlan {
+      border: 1px dashed #c9cdd4;
+      height: 48px;
+      display: flex;
+      border-radius: 12px;
+      align-items: center;
+      padding-left: 16px;
+      margin-top: 18px;
+      cursor: pointer;
+    }
+  }
+}
+.content {
+  background: #f2f3f5;
+  padding: 16px;
+
+  border-radius: 16px;
+  box-sizing: border-box;
+  /* 线条/一般 */
+  border: 1px solid #e5e6eb;
+}
+.flex {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  width: 100%;
+  overflow: scroll;
+}
+.box {
+  padding: 16px;
+  &.content {
+    background: #f2f3f5;
+    padding: 16px;
+
+    border-radius: 16px;
+    box-sizing: border-box;
+    /* 线条/一般 */
+    border: 1px solid #e5e6eb;
+
+    &.plan {
+      width: calc(100% - 346px);
+
+      .flex {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        width: 100%;
+        overflow: scroll;
+      }
+    }
+  }
+}
 .stepFour {
   .content {
     padding: 20px;

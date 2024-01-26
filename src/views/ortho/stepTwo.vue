@@ -1925,30 +1925,104 @@ const coordinatesSmall = ref([])
 const coordinatesLarge = ref([])
 const coordinatesBase = ref([])
 const filteredPoints = ref([])
+// const pointsToFind = [
+//   'A',
+//   'N',
+//   'B',
+//   'Or',
+//   'Po',
+//   'Go',
+//   'Go_1',
+//   'UI',
+//   'UI_1',
+//   'S',
+//   'P',
+//   'Go`',
+//   'Me',
+//   'Ar',
+//   'LI',
+//   'LI_1',
+//   'Ratio1',
+//   'Ratio2',
+//   'U6',
+//   'L6',
+//   'Gn',
+//   'ANS',
+//   'PNS'
+// ]
 const pointsToFind = [
-  'A',
-  'N',
-  'B',
-  'Or',
-  'Po',
+  'C',
+  'Stoms',
+  'UL',
+  'UL`',
+  'Ls',
+  'LL',
+  'LL`',
+  'Stomi',
+  'Li',
+  'Ba',
+  'BL1',
+  'D`',
+  'BL2',
+  'LPW',
+  'MPW',
   'Go',
-  'Go_1',
-  'UI',
-  'UI_1',
-  'S',
-  'P',
   'Go`',
-  'Me',
+  'TPPW',
+  'PNS',
+  'UPW',
+  'TB',
+  'B',
+  'AD',
+  'AD2',
+  'A',
+  'ANS',
+  'S',
+  'A`',
   'Ar',
+  'B`',
+  'Cm',
+  'Co',
+  'G',
+  'GST',
+  'Gn',
+  'Go_1',
+  'MP_2',
+  'Gs',
+  'Id',
+  'Id_1',
+  'L6',
   'LI',
   'LI_1',
+  'MBN',
+  'N',
+  'Me',
+  'MP_1',
+  'R1',
+  'Mes',
+  'Ns',
+  'Or',
+  'P',
+  'PBM',
+  'Pcd',
+  'Po',
+  'Pos',
+  'Pr',
+  'Pr_1',
+  'Prn',
+  'Pt',
+  'Ptm',
+  'R',
+  'R3',
   'Ratio1',
   'Ratio2',
+  'Sn',
+  'U',
   'U6',
-  'L6',
-  'Gn',
-  'ANS',
-  'PNS'
+  'UI',
+  'UI_1',
+  'V',
+  'PBT'
 ]
 let ratio1
 let ratio2
@@ -2401,14 +2475,15 @@ function drawPoints(ctx, image, canvas, zoom) {
     coordinatesLarge.value.forEach(function (coordinate) {
       const x = coordinate.x
       const y = coordinate.y
-      // const label = coordinate.label
+      const label = coordinate.label
 
       // 绘制圆形点
       ctx.beginPath()
-      ctx.arc(x, y, 5, 0, 2 * Math.PI)
+      ctx.arc(x, y, 2, 0, 2 * Math.PI)
       ctx.fillStyle = 'red'
+      // ctx.fillStyle = 'white'
       ctx.fill()
-
+      ctx.fillText(coordinate.label, x - 5, y - 5)
       // 绘制字体
       // if (draggingPointLabel.value) {
       //   ctx.fillStyle = 'white'
@@ -2430,7 +2505,7 @@ function drawPoints(ctx, image, canvas, zoom) {
       // 绘制字体
       ctx.fillStyle = 'white'
       ctx.font = '20px Arial'
-      // ctx.fillText(label, x + 5, y - 5)
+      // ctx.fillText(coordinate.label, x + 5, y - 5)
     })
   }
 }

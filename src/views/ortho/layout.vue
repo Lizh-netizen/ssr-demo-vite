@@ -7,7 +7,7 @@
           <div>问题列表</div>
         </div>
         <div class="top_left_content">
-          <draggable :list="issuesList[0]" @update="(val) => updateList(val, 0)"></draggable>
+          <draggable :list="questionData" @update="(val) => updateList(val, 0)"></draggable>
         </div>
       </div>
       <div class="top_right">
@@ -72,7 +72,7 @@
 
 <script setup>
 import { ref, watch, nextTick } from 'vue'
-
+import { Get } from '../../utils/request'
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
 const issuesList1 = ref([
@@ -93,6 +93,15 @@ const issuesList = ref([
   []
 ])
 const issuesList2 = ref([])
+const questionData = ref()
+async function getOrthQuestionList() {
+  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+
+  questionData.value = result.data
+}
+console.log(questionData.value)
+
+getOrthQuestionList()
 const handleDragEnd = (val) => {
   console.log(issuesList2.value)
 }

@@ -165,6 +165,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
 import formatTime from '../../utils/formatTime'
+import { useStore } from 'vuex'
 const doctorId = ref()
 window.addEventListener('message', function (event) {
   if (event.origin === 'https://odostest.orangedental.cn:4403') {
@@ -203,15 +204,15 @@ const handleChangeStep = (num) => {
     active.value = num
   }
 }
-// 生成pdf逻辑
+
 onMounted(() => {
   step.push(step1, step2, step3, step4, step5)
   const page = document.querySelector('.ortho-page')
-  page.addEventListener('mousewheel', function (e) {
-    if (e.deltaX !== 0) {
-      e.preventDefault() // 阻止默认的水平滚动事件
-    }
-  })
+  // page.addEventListener('mousewheel', function (e) {
+  //   if (e.deltaX !== 0) {
+  //     e.preventDefault() // 阻止默认的水平滚动事件
+  //   }
+  // })
 })
 const loading = ref()
 const id = ref(0)
@@ -232,6 +233,7 @@ const pdfId = ref()
 //     active.value = 6
 //   }, 200)
 // }
+
 const handleGeneratePdf = () => {
   if (
     active.value == 5 &&
@@ -297,13 +299,41 @@ function getOrthBase() {
   })
 }
 getOrthBase()
+const store = useStore()
+// 获取目标数据
+const goalList = ref([])
+async function getOrthGoalList() {
+  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
+    dictType: 'ORTHTARGET'
+  })
+  goalList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id
+  }))
+  store.commit('setOrthGoalList', goalList.value)
+}
+getOrthGoalList()
 const handleNextStep = () => {
-  if (active.value == 4 && !step[active.value - 1].value.clicked) {
-    ElMessage({
-      message: '还未填写诊断哦',
-      type: 'error'
+  if (active.value == 4) {
+    const goalList = store.state.goalList
+    const planList = store.state.planList
+    const transformedData = planList.map((scheme) => {
+      return {
+        name: scheme.name,
+        checked: false, // You can set this value based on your logic
+        aptmId: appId, // Example value, replace with actual data
+        difficultyLevel: '一般难度', // Example value, replace with actual data
+        stageList: scheme.stageList
+          .filter((item) => item.targetIds.length > 0)
+          .map((stage) => {
+            return {
+              stageName: stage.stageName,
+              targetIds: stage.targetIds.map((target) => target.id).join(',')
+            }
+          })
+      }
     })
-    return
+    Post('/prod-api/emr/public/api/v1/scheme', transformedData)
   }
   nextTick(() => {
     editStep.value = active.value
@@ -318,6 +348,60 @@ const handleNextStep = () => {
     window.scrollTo(0, 0)
   })
 }
+async function getPlanList() {
+  const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
+  if (result.code == 200 && result.data.length > 0) {
+    const planList = result.data.map((scheme) => ({
+      name: scheme.name,
+      checked: scheme.checked || false,
+      difficultyLevel: scheme.difficultyLevel || '',
+      stageList:
+        scheme.stageList?.length == 0
+          ? [
+              {
+                stageName: '3个月',
+                targetIds: []
+              },
+              {
+                stageName: '6个月',
+                targetIds: []
+              },
+              {
+                stageName: '9个月',
+                targetIds: []
+              },
+              {
+                stageName: '12个月',
+                targetIds: []
+              }
+            ]
+          : scheme.stageList?.map((item) => ({
+              stageName: item.stageName,
+              targetIds: item.targetIds.split(',').map((target, index) => ({
+                id: target,
+                name: item.targetNames.split(',')[index]
+              }))
+            }))
+    }))
+    const defaultStage = ['3个月', '6个月', '9个月', '12个月']
+
+    // 不够的打上补丁
+    planList.forEach((plan) => {
+      const length = plan.stageList.length
+      if (plan.stageList.length < 4) {
+        for (let i = 0; i < 4 - length; i++) {
+          plan.stageList.push({
+            stageName: defaultStage[length + i],
+            targetIds: []
+          })
+        }
+      }
+    })
+    console.log('🚀 ~ planList.forEach ~ planList:', planList)
+    store.state.planList = planList
+  }
+}
+getPlanList()
 const handlePreStep = () => {
   if (active.value == 1) {
     return
