@@ -592,7 +592,7 @@ const remoteMethod1 = (query) => {
 const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.apmtId}/${item.patientId}`)
-  window.parent.postMessage(`/ortho/${item.apmtId}/${item.patientId}`, '*')
+  window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
 }
 const handleEvaluateOrth = (item) => {
   router.push(`/evaluateOrtho/${item.apmtId}/${item.patientId}`)
