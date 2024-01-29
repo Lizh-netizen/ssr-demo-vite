@@ -231,19 +231,14 @@
       </template>
     </div>
     <Header text="周期" backgroundColor="#f4f7fd" />
-    <div class="content">
+    <div class="content period">
       <template v-for="item in periodData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
           <form-item :label="title.titleName">
-            <el-select
-              :style="{ width: '60px' }"
-              v-model="title.cephalometricsContent"
-              @change="handleSubmitAddtionalContent(title)"
-              filterable
-              remote
-            >
-              <el-option v-for="item in [10, 15, 18, 20]" :key="item" :label="item" :value="item" />
-            </el-select>
+            <el-input
+              v-model.number="title.cephalometricsContent"
+              @blur="handleSubmitAddtionalContent(title)"
+            />
 
             <span :style="{ color: '#4e5969', 'margin-left': '8px' }"> 个月</span></form-item
           ></template
@@ -922,6 +917,11 @@ const handleBeforeEnterPopover = (title) => {
 .content {
   padding: 20px;
   padding-bottom: 0;
+  &.period {
+    :deep .el-input {
+      width: 120px;
+    }
+  }
   :deep .el-checkbox-button.is-focus .el-checkbox-button__inner {
     --el-checkbox-button-checked-border-color: #dcdfe6;
   }
