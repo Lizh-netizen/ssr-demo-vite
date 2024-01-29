@@ -245,7 +245,7 @@ watchEffect(() => {
         }
         return sum
       }, {})
-      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId
+      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
       modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
       emit('setInitialState', storageName)
     }

@@ -574,7 +574,7 @@ const getTanentList = () => {
   Get('/prod-api/business/office/list').then((res) => {
     allOptions1.value = res.rows.map((item) => ({
       label: item.abbreviation,
-      value: +item.id
+      value: +item.ljOfficeId
     }))
     options1.value = allOptions1.value.filter((option) => option.value)
   })
@@ -639,11 +639,17 @@ onMounted(() => {
   pagesStorage.value = strategy[currentTab.value].page
   console.log('monted')
   const val = sessionStorage.getItem('currentTab')
+  const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+
+  const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
+
   for (let key in strategy) {
     if (key == '面评') {
       const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
       if (!args) {
         const val = {}
+        val.officeId = officeId
+        val.doctorId = doctorId
         val.date = date.value
         strategy[key].stasCountRequest(val)
       } else {
@@ -654,6 +660,8 @@ onMounted(() => {
       const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
       if (!args) {
         const val = {}
+        val.doctorId = doctorId
+        val.officeId = officeId
         val.date = date.value
         strategy[key].stasCountRequest(val)
       } else {
@@ -664,7 +672,9 @@ onMounted(() => {
       const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
       if (!args) {
         const val = {}
-        val.date = [firstDate, date]
+        val.doctorId = doctorId
+        val.officeId = officeId
+        val.date = [firstDate.value, date.value]
         strategy[key].stasCountRequest(val)
       } else {
         strategy[key].stasCountRequest(args)
