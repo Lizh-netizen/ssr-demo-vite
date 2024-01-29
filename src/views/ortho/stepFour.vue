@@ -25,14 +25,18 @@
         <div class="body-left content">
           <div class="content_left_header">
             <div>目标</div>
-            <draggable :goal="true" :list="goalList" @update="(val) => updateGoal(val)"></draggable>
+            <draggable :unmutable="true" :list="goalList"></draggable>
+            <template v-if="planList.some((plan) => plan.checked)">
+              <div>工具</div>
+              <draggable :unmutable="true" :list="toolList"></draggable>
+            </template>
           </div>
         </div>
         <div class="body-right">
           <div
             class="content plan"
-            @click="handlePlan"
-            :class="{ planClicked: planClick == true }"
+            @click="handlePlan(plan)"
+            :class="{ checkeded: plan.checked == true }"
             v-for="plan in planList"
             :key="plan.name"
           >
@@ -61,17 +65,40 @@
             </div>
             <div class="flex">
               <div class="cardGroup" v-for="stage in plan.stageList" :key="stage.stageName">
-                <div class="card">
-                  <div class="time">{{ stage.stageName }}</div>
-                  <draggable
-                    :list="stage.targetIds"
-                    @update="(val) => updateList(val, plan.name, stage.stageName)"
-                  ></draggable>
-                </div>
-                <img src="../../assets/layout/arrowRight.svg" />
+                <template v-if="!plan.checked">
+                  <div class="card">
+                    <div class="time">{{ stage.stageName }}</div>
+                    <draggable
+                      :list="stage.targetIds"
+                      @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                    ></draggable>
+                  </div>
+                  <img src="../../assets/layout/arrowRight.svg" />
+                </template>
+                <template v-else>
+                  <div>
+                    <div class="card">
+                      <div class="time">{{ stage.stageName }}</div>
+                      <draggable
+                        :list="stage.targetIds"
+                        @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                      ></draggable>
+                    </div>
+                    <div class="tool card">
+                      <div class="tool_title">工具</div>
+                      <draggable
+                        :list="stage.toolIds"
+                        @update="(val) => updateList(val, plan.name, stage.stageName, 'tool')"
+                      ></draggable>
+                    </div>
+                  </div>
+
+                  <img src="../../assets/layout/arrowRight.svg" />
+                </template>
               </div>
+
               <div @click.stop="handleAddStage(plan.name)">
-                <div class="addStage">
+                <div class="addStage" :style="{ height: plan.checked == true ? '620px' : '308px' }">
                   <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
                   <div>新增阶段</div>
                 </div>
@@ -81,14 +108,6 @@
           <div class="addPlan flex" @click.stop="handleAddPlan">
             <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addPlan.svg" />添加新方案
           </div>
-        </div>
-
-        <div class="cardGroup tool" v-if="planClick">
-          <div class="card">
-            <div class="time">工具</div>
-            <draggable></draggable>
-          </div>
-          <img src="../../assets/layout/arrowRight.svg" />
         </div>
       </div>
     </div>
@@ -111,6 +130,8 @@ const store = useStore()
 const clicked = ref(false)
 const goalList = ref()
 goalList.value = store.state.goalList
+const toolList = ref()
+toolList.value = store.state.toolList
 const difficultyList = ref([{ label: '难度低' }, { label: '难度中等' }, { label: '难度高' }])
 defineExpose({
   clicked
@@ -140,24 +161,29 @@ const handleAddPlan = () => {
 }
 // 方案
 const planList = ref([])
-const updateList = (val, planName, stageName) => {
+// 更改store中数据，在下一步的时候提交
+const updateList = (val, planName, stageName, cardName) => {
   const found = planList.value.find((plan) => plan.name == planName)
-  found.stageList.find((item) => item.stageName == stageName).targetIds = val
+  if (cardName == 'target') {
+    found.stageList.find((item) => item.stageName == stageName).targetIds = val
+  } else {
+    found.stageList.find((item) => item.stageName == stageName).toolIds = val
+  }
   store.commit('updatePlanList', planList.value)
 }
 const updateGoal = (val) => {
-  nextTick(() => {
-    val = store.state.goalList
-    console.log('🚀 ~ updateGoal ~ val :', val)
-  })
+  val = store.state.goalList
+}
+const updateTool = (val) => {
+  console.log(val)
 }
 onMounted(() => {
   planList.value = store.state.planList
   console.log(planList.value[0].stageList.some((item) => item.targetIds == '拔牙'))
 })
-const planClick = ref(false)
-const handlePlan = () => {
-  planClick.value = !planClick.value
+
+const handlePlan = (plan) => {
+  plan.checked = !plan.checked
 }
 </script>
 
@@ -228,7 +254,7 @@ const handlePlan = () => {
     width: calc(100% - 326px);
     .plan {
       margin-bottom: 16px;
-      &.planClicked {
+      &.checkeded {
         background: #eaf0fc;
         border: 2px solid #2e6ce4;
       }
@@ -301,8 +327,9 @@ const handlePlan = () => {
       display: flex;
       align-items: center;
       .card {
+        padding: 12px;
         width: 224px;
-        height: 304px;
+        // height: 304px;
         border-radius: 12px;
         background: #ffffff;
         .list-group-item {
@@ -321,6 +348,15 @@ const handlePlan = () => {
           border-radius: 8px;
         }
       }
+      .tool {
+        margin-top: 8px;
+        height: 308px;
+        &_title {
+          color: #1d2129;
+          font-size: 16px;
+          font-weight: bold;
+        }
+      }
     }
     .addStage {
       display: flex;
@@ -328,7 +364,6 @@ const handlePlan = () => {
       border: 1px dashed #2e6ce4;
       background: rgba(255, 255, 255, 0.6);
       width: 200px;
-      height: 304px;
       border-radius: 12px;
       justify-content: center;
       cursor: pointer;

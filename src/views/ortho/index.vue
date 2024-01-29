@@ -300,6 +300,20 @@ function getOrthBase() {
 }
 getOrthBase()
 const store = useStore()
+// 获取工具数据
+const toolList = ref([])
+async function getOrthToolList() {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHTOOL'
+  })
+  toolList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id
+  }))
+  console.log('🚀 ~ toolList.value=result.data.map ~ toolList.value:', toolList.value)
+  store.commit('setOrthToolList', toolList.value)
+}
+getOrthToolList()
 // 获取目标数据
 const goalList = ref([])
 async function getOrthGoalList() {
@@ -320,15 +334,16 @@ const handleNextStep = () => {
     const transformedData = planList.map((scheme) => {
       return {
         name: scheme.name,
-        checked: false, // You can set this value based on your logic
+        checked: scheme.checked, // You can set this value based on your logic
         aptmId: appId, // Example value, replace with actual data
-        difficultyLevel: '一般难度', // Example value, replace with actual data
+        difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
         stageList: scheme.stageList
           .filter((item) => item.targetIds.length > 0)
           .map((stage) => {
             return {
               stageName: stage.stageName,
-              targetIds: stage.targetIds.map((target) => target.id).join(',')
+              targetIds: stage.targetIds.map((target) => target.id).join(','),
+              toolIds: stage.toolIds.map((tool) => tool.id).join(',')
             }
           })
       }
@@ -360,27 +375,36 @@ async function getPlanList() {
           ? [
               {
                 stageName: '3个月',
-                targetIds: []
+                targetIds: [],
+                toolIds: []
               },
               {
                 stageName: '6个月',
-                targetIds: []
+                targetIds: [],
+                toolIds: []
               },
               {
                 stageName: '9个月',
-                targetIds: []
+                targetIds: [],
+                toolIds: []
               },
               {
                 stageName: '12个月',
-                targetIds: []
+                targetIds: [],
+                toolIds: []
               }
             ]
           : scheme.stageList?.map((item) => ({
               stageName: item.stageName,
-              targetIds: item.targetIds.split(',').map((target, index) => ({
+              targetIds: item.targetIds?.split(',')?.map((target, index) => ({
                 id: target,
                 name: item.targetNames.split(',')[index]
-              }))
+              })),
+              toolIds:
+                item.toolIds?.split(',')?.map((tool, index) => ({
+                  id: tool,
+                  name: item.toolNames.split(',')[index]
+                })) || []
             }))
     }))
     const defaultStage = ['3个月', '6个月', '9个月', '12个月']
@@ -392,7 +416,8 @@ async function getPlanList() {
         for (let i = 0; i < 4 - length; i++) {
           plan.stageList.push({
             stageName: defaultStage[length + i],
-            targetIds: []
+            targetIds: [],
+            toolIds: []
           })
         }
       }

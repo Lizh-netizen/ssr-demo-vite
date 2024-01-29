@@ -28,7 +28,8 @@ const store = createStore({
         ]
       }
     ],
-    goalList: []
+    goalList: [],
+    toolList: []
   },
   getters: {},
   mutations: {
@@ -40,6 +41,9 @@ const store = createStore({
     },
     setOrthGoalList(state, payload) {
       state.goalList = payload
+    },
+    setOrthToolList(state, payload) {
+      state.toolList = payload
     },
     addStage(state, payload) {
       const planList = store.state.planList

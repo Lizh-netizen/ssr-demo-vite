@@ -17,8 +17,6 @@ const instance1 = axios.create({
 })
 instance1.interceptors.request.use(
   (config) => {
-   
-
     return config
   },
   (error) => {
@@ -69,7 +67,7 @@ instance.interceptors.request.use(
 )
 instance.interceptors.response.use(
   (response) => {
-    if (response.status !== 200) { 
+    if (response.status !== 200) {
       ElMessage({
         type: 'error',
         message: response.data.msg
@@ -92,6 +90,16 @@ instance.interceptors.response.use(
     //   }
     // }
     // 在这里调用后端接口统一处理
+    Post('/prod-api/business/globalDict/getDictListByType', {
+      dictType: 'HTTPSTATUS',
+      dictCode: '200'
+    }).then(res => {
+      const found = res.data.find(item => error.response.status == item.dictCode)
+      ElMessage({
+        type: 'error',
+        message: found.dictCodeName
+      })
+    })
     return Promise.reject(error)
   }
 )

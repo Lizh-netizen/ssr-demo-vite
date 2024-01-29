@@ -4,7 +4,7 @@
       class="list-group"
       v-model="data"
       @start="drag = true"
-      :group="{ name: 'people', pull: goal ? 'clone' : '', put: goal ? false : true }"
+      :group="{ name: 'people', pull: unmutable ? 'clone' : '', put: unmutable ? false : true }"
       item-key="id"
     >
       <template #item="{ element }">
@@ -12,6 +12,7 @@
           <img src="../../assets/layout/drag.svg" />
           <div class="list-group-item-name">{{ element.name }}</div>
           <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
+          <img class="deleteBtn" src="../../assets/svg/delete.svg" @click.stop="removeAt(index)" />
         </div>
       </template>
     </draggable>
@@ -30,7 +31,7 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  goal: {
+  unmutable: {
     type: Boolean,
     default: false
   }
@@ -48,6 +49,9 @@ watch(
 watch(data, (val) => {
   emit('update', val)
 })
+const removeAt = (index) => {
+  data.value.splice(index, 1)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -85,6 +89,16 @@ watch(data, (val) => {
     background: #fde7e6;
     font-size: 12px;
     height: 20px;
+  }
+  .deleteBtn {
+    position: absolute;
+    right: 0;
+    opacity: 0;
+  }
+  &:hover {
+    .deleteBtn {
+      opacity: 1;
+    }
   }
 }
 </style>
