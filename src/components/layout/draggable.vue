@@ -12,7 +12,12 @@
           <img src="../../assets/layout/drag.svg" />
           <div class="list-group-item-name">{{ element.name }}</div>
           <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-          <img class="deleteBtn" src="../../assets/svg/delete.svg" @click.stop="removeAt(index)" />
+          <img
+            class="deleteBtn"
+            src="../../assets/svg/delete.svg"
+            @click.stop="removeAt(index)"
+            v-if="showDeleteBtn"
+          />
         </div>
       </template>
     </draggable>
@@ -20,6 +25,7 @@
 </template>
 
 <script setup>
+import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
 import { watch, defineProps, ref, defineEmits } from 'vue'
 const props = defineProps({
@@ -32,6 +38,10 @@ const props = defineProps({
     default: false
   },
   unmutable: {
+    type: Boolean,
+    default: false
+  },
+  showDeleteBtn: {
     type: Boolean,
     default: false
   }
@@ -60,12 +70,10 @@ const removeAt = (index) => {
   overflow: auto;
 }
 .list-group {
-  margin-top: 18px;
-  display: flex;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 .list-group-item {
-  width: 294px;
   height: 40px;
   border-radius: 8px;
   /* background: #E3EBFA; */

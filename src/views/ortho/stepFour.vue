@@ -1,4 +1,4 @@
-<!-- <template>
+<template>
   <div class="stepFour">
     <div class="layout">
       <div class="top box">
@@ -11,7 +11,7 @@
             <draggable :list="questionData" :question="true"></draggable>
           </div>
         </div>
-        <div class="top_right">
+        <!-- <div class="top_right">
           <div class="top_right_header">
             <div>暂观</div>
             <draggable></draggable>
@@ -19,15 +19,19 @@
           <div class="top_right_content">
             <img src="../../assets/layout/emptyIssues.png" :style="{ width: '204px' }" />
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="body">
         <div class="body-left content">
           <div class="content_left_header">
-            <div>目标</div>
+            <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
+              <img src="../../assets/svg/goalCheck.svg" />目标
+            </div>
             <draggable :unmutable="true" :list="goalList"></draggable>
             <template v-if="planList.some((plan) => plan.checked)">
-              <div>工具</div>
+              <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
+                <img src="../../assets/svg/tool.svg" />工具
+              </div>
               <draggable :unmutable="true" :list="toolList"></draggable>
             </template>
           </div>
@@ -41,9 +45,13 @@
             :key="plan.name"
           >
             <div class="flex">
-              <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />{{
-                plan.name
-              }}
+              <template v-if="plan.checked == true">
+                <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
+              </template>
+              <template v-else>
+                <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
+              </template>
+              {{ plan.name }}
               <div class="period">
                 预计{{ plan.stageList[plan.stageList.length - 1].stageName }}
               </div>
@@ -71,6 +79,7 @@
                     <draggable
                       :list="stage.targetIds"
                       @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                      :showDeleteBtn="true"
                     ></draggable>
                   </div>
                   <img src="../../assets/layout/arrowRight.svg" />
@@ -82,6 +91,7 @@
                       <draggable
                         :list="stage.targetIds"
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                        :showDeleteBtn="true"
                       ></draggable>
                     </div>
                     <div class="tool card">
@@ -89,6 +99,7 @@
                       <draggable
                         :list="stage.toolIds"
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'tool')"
+                        :showDeleteBtn="true"
                       ></draggable>
                     </div>
                   </div>
@@ -189,6 +200,9 @@ const handlePlan = (plan) => {
 
 <style lang="scss" scoped>
 @import '../../style/mixins.scss';
+img {
+  margin-right: 16px;
+}
 .layout {
   padding: 20px;
   display: flex;
@@ -216,7 +230,12 @@ const handlePlan = (plan) => {
         }
       }
       &_content {
-        margin-top: 18px;
+        :deep .list-group {
+          display: flex;
+          .list-group-item {
+            width: 294px;
+          }
+        }
       }
     }
     &_right {
@@ -254,6 +273,10 @@ const handlePlan = (plan) => {
     width: calc(100% - 326px);
     .plan {
       margin-bottom: 16px;
+      :deep .list-group {
+        height: 200px;
+        width: 200px;
+      }
       &.checkeded {
         background: #eaf0fc;
         border: 2px solid #2e6ce4;
@@ -555,8 +578,8 @@ const handlePlan = (plan) => {
   border-color: red;
   --el-radio-button-checked-border-color: red;
 }
-</style> -->
-<template>
+</style>
+<!-- <template>
   <div class="stepFour">
     <Header text="问题列表" backgroundColor="#f4f7fd" />
     <template v-if="questionData.length > 0">
@@ -898,4 +921,4 @@ async function handleEmptyRadio(optionId, title) {
   border-color: red;
   --el-radio-button-checked-border-color: red;
 }
-</style>
+</style> -->

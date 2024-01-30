@@ -28,6 +28,7 @@
     "rrweb": "2.0.0-alpha.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
+    "vue-smooth-dnd": "^0.8.1",
     "vue3-lazy": "^1.0.0-alpha.1",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0"

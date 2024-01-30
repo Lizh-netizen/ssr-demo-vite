@@ -53,6 +53,9 @@ dependencies:
   vue-router:
     specifier: ^4.2.5
     version: 4.2.5(vue@3.3.7)
+  vue-smooth-dnd:
+    specifier: ^0.8.1
+    version: 0.8.1
   vue3-lazy:
     specifier: ^1.0.0-alpha.1
     version: 1.0.0-alpha.1(vue@3.3.7)
@@ -4413,6 +4416,10 @@ packages:
       totalist: 3.0.1
     dev: true
 
+  /smooth-dnd@0.12.1:
+    resolution: {integrity: sha512-Dndj/MOG7VP83mvzfGCLGzV2HuK1lWachMtWl/Iuk6zV7noDycIBnflwaPuDzoaapEl3Pc4+ybJArkkx9sxPZg==}
+    dev: false
+
   /snapdragon-node@2.1.1:
     resolution: {integrity: sha512-O27l4xaMYt/RSQ5TR3vpWCAB5Kb/czIcqUFOM/C4fYcLnbZUc1PkjTAMjof2pBWaSTwOUd6qUHcFGVGj7aIwnw==}
     engines: {node: '>=0.10.0'}
@@ -5144,6 +5151,12 @@ packages:
     dependencies:
       '@vue/devtools-api': 6.5.1
       vue: 3.3.7
+    dev: false
+
+  /vue-smooth-dnd@0.8.1:
+    resolution: {integrity: sha512-eZVVPTwz4A1cs0+CjXx/ihV+gAl3QBoWQnU6+23Gp59t0WBU99z7ducBQ4FvjBamqOlg8SDOE5eFHQedxwB4Wg==}
+    dependencies:
+      smooth-dnd: 0.12.1
     dev: false
 
   /vue3-lazy@1.0.0-alpha.1(vue@3.3.7):
