@@ -27,7 +27,7 @@
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
               <img src="../../assets/svg/goalCheck.svg" />目标
             </div>
-            <draggable :unmutable="true" :list="goalList"></draggable>
+            <draggable :unmutable="true" :list="goalList" :move="onMove"></draggable>
             <template v-if="planList.some((plan) => plan.checked)">
               <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
                 <img src="../../assets/svg/tool.svg" />工具
@@ -77,6 +77,7 @@
                   <div class="card">
                     <div class="time">{{ stage.stageName }}</div>
                     <draggable
+                      :move="onMove"
                       :list="stage.targetIds"
                       @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                       :showDeleteBtn="true"
@@ -89,6 +90,7 @@
                     <div class="card">
                       <div class="time">{{ stage.stageName }}</div>
                       <draggable
+                        :move="onMove"
                         :list="stage.targetIds"
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                         :showDeleteBtn="true"
@@ -172,6 +174,11 @@ const handleAddPlan = () => {
 }
 // 方案
 const planList = ref([])
+// 判断是否可以拖拽
+const onMove = (e) => {
+  console.log(e)
+}
+
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, planName, stageName, cardName) => {
   const found = planList.value.find((plan) => plan.name == planName)
@@ -185,12 +192,9 @@ const updateList = (val, planName, stageName, cardName) => {
 const updateGoal = (val) => {
   val = store.state.goalList
 }
-const updateTool = (val) => {
-  console.log(val)
-}
+
 onMounted(() => {
   planList.value = store.state.planList
-  console.log(planList.value[0].stageList.some((item) => item.targetIds == '拔牙'))
 })
 
 const handlePlan = (plan) => {

@@ -308,7 +308,8 @@ async function getOrthToolList() {
   })
   toolList.value = result.data.map((item) => ({
     name: item.dictCodeName,
-    id: item.id
+    id: item.id,
+    dictType: item.dictType
   }))
   console.log('🚀 ~ toolList.value=result.data.map ~ toolList.value:', toolList.value)
   store.commit('setOrthToolList', toolList.value)
@@ -322,7 +323,8 @@ async function getOrthGoalList() {
   })
   goalList.value = result.data.map((item) => ({
     name: item.dictCodeName,
-    id: item.id
+    id: item.id,
+    dictType: item.dictType
   }))
   store.commit('setOrthGoalList', goalList.value)
 }
@@ -332,20 +334,39 @@ const handleNextStep = () => {
     const goalList = store.state.goalList
     const planList = store.state.planList
     const transformedData = planList.map((scheme) => {
-      return {
-        name: scheme.name,
-        checked: scheme.checked, // You can set this value based on your logic
-        aptmId: appId, // Example value, replace with actual data
-        difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
-        stageList: scheme.stageList
-          .filter((item) => item.targetIds.length > 0)
-          .map((stage) => {
-            return {
-              stageName: stage.stageName,
-              targetIds: stage.targetIds.map((target) => target.id).join(','),
-              toolIds: stage.toolIds.map((tool) => tool.id).join(',')
-            }
-          })
+      if (scheme.id) {
+        return {
+          id: scheme.id,
+          name: scheme.name,
+          checked: scheme.checked, // You can set this value based on your logic
+          aptmId: appId, // Example value, replace with actual data
+          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
+          stageList: scheme.stageList
+            .filter((item) => item.targetIds.length > 0)
+            .map((stage) => {
+              return {
+                stageName: stage.stageName,
+                targetIds: stage.targetIds.map((target) => target.id).join(','),
+                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+              }
+            })
+        }
+      } else {
+        return {
+          name: scheme.name,
+          checked: scheme.checked, // You can set this value based on your logic
+          aptmId: appId, // Example value, replace with actual data
+          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
+          stageList: scheme.stageList
+            .filter((item) => item.targetIds.length > 0)
+            .map((stage) => {
+              return {
+                stageName: stage.stageName,
+                targetIds: stage.targetIds.map((target) => target.id).join(','),
+                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+              }
+            })
+        }
       }
     })
     Post('/prod-api/emr/public/api/v1/scheme', transformedData)
@@ -367,6 +388,7 @@ async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data.length > 0) {
     const planList = result.data.map((scheme) => ({
+      id: scheme.id,
       name: scheme.name,
       checked: scheme.checked || false,
       difficultyLevel: scheme.difficultyLevel || '',
