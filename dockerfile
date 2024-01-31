@@ -4,12 +4,12 @@ FROM nginx
 MAINTAINER 极橙
 
 # 挂载目录
-VOLUME /home/jc/projects/orange-treat-all-web
+VOLUME /home/jc/projects/orange-ortho-all-web
 # 创建目录
-RUN mkdir -p /home/jc/projects/orange-treat-all-web
+RUN mkdir -p /home/jc/projects/orange-ortho-all-web
 # 指定路径
-WORKDIR /home/jc/projects/orange-treat-all-web
+WORKDIR /home/jc/projects/orange-ortho-all-web
 # 复制conf文件到路径
 COPY nginx/conf/nginx.conf /etc/nginx/nginx.conf
 # 复制html文件到路径
-COPY development /home/jc/projects/orange-treat-all-web
+COPY development /home/jc/projects/orange-ortho-all-web
