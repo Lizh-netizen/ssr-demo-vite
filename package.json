@@ -46,6 +46,7 @@
     "sass": "^1.69.5",
     "terser": "^5.23.0",
     "terser-webpack-plugin": "^5.3.9",
+    "ts-migrate": "^0.1.35",
     "unplugin-auto-import": "^0.16.7",
     "unplugin-vue-components": "^0.25.2",
     "unplugin-vue-macros": "^2.7.0",

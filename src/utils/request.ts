@@ -52,7 +52,7 @@ export function Post1(url, data, isMultipart = false, token) {
   })
 }
 instance.interceptors.request.use(
-  (config) => {
+  (config: any) => {
     config.headers = {
       Authorization:
         sessionStorage.odos_token ||
@@ -93,8 +93,8 @@ instance.interceptors.response.use(
     Post('/prod-api/business/globalDict/getDictListByType', {
       dictType: 'HTTPSTATUS',
       dictCode: '200'
-    }).then(res => {
-      const found = res.data.find(item => error.response.status == item.dictCode)
+    }).then((res) => {
+      const found = res.data.find((item) => error.response.status == item.dictCode)
       ElMessage({
         type: 'error',
         message: found.dictCodeName
