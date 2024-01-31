@@ -2471,7 +2471,7 @@ async function getAIResult() {
 function drawFaceContour(ctx, points) {
   ctx.beginPath()
   ctx.moveTo(points[0].x, points[0].y)
-
+  ctx.fillStyle = 'orange'
   for (let i = 1; i < points.length - 2; i += 2) {
     const xc = (points[i].x + points[i + 1].x) / 2
     const yc = (points[i].y + points[i + 1].y) / 2
@@ -2487,24 +2487,23 @@ function drawFaceContour(ctx, points) {
   )
 
   // 设置样式
-  ctx.strokeStyle = 'blue'
-  ctx.lineWidth = 2
-  ctx.fillStyle = 'rgba(255, 0, 0, 0.2)' // 可选，添加填充颜色
+  ctx.lineWidth = 1
+  // 可选，添加填充颜色
 
   // 绘制轮廓线
+  ctx.strokeStyle = 'orange'
   ctx.stroke()
-  ctx.fill()
+  // ctx.fill()
 
   // 标记每个点
-  for (let i = 0; i < points.length; i++) {
-    ctx.beginPath()
-    ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI, false)
-    ctx.fillStyle = 'red'
-    ctx.fill()
-    ctx.stroke()
-  }
+  // for (let i = 0; i < points.length; i++) {
+  //   ctx.beginPath()
+  //   ctx.arc(points[i].x, points[i].y, 1, 0, 2 * Math.PI, false)
+  //   ctx.fill()
+  //   ctx.stroke()
+  // }
 }
-const faceList1 = ['GST', 'Ns', 'MBN', 'Pm', 'Cm', 'Sn', 'A', 'UL']
+const faceList1 = ['GST', 'Ns', 'MBN', 'Prn', 'Cm', 'Sn', 'UL']
 function drawPoints(ctx, image, canvas, zoom) {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height)
@@ -2542,10 +2541,7 @@ function drawPoints(ctx, image, canvas, zoom) {
       // 绘制字体
       ctx.fillStyle = 'white'
       ctx.font = '20px Arial'
-      const faceTourList1 = coordinatesSmall.value.filter((item) => faceList1.includes(item.label))
-      console.log('🚀 ~ faceTourList1:', faceTourList1)
 
-      drawFaceContour(ctx, faceTourList1)
       // ctx.fillText(coordinate.label, x + 5, y - 5)
     })
   }
@@ -2597,6 +2593,20 @@ function initCanvas(maxWidth, maxHeight, draw) {
     ctx.drawImage(image, 0, 0, width, height)
     if (draw) {
       drawPoints(ctx, image, canvas, false)
+      let list = faceList1.map((item) => {
+        coordinatesSmall.value.filter((point) => {
+          if (point.label === item) {
+            return point
+          }
+        })
+      })
+      const labelToDataMap = coordinatesSmall.value.reduce((acc, item) => {
+        acc[item.label] = item
+        return acc
+      }, {})
+      const faceTourList1 = faceList1.map((label) => labelToDataMap[label])
+      console.log('🚀 ~ initCanvas ~ faceTourList1:', faceTourList1)
+      drawFaceContour(ctx, faceTourList1)
     }
   }
   const timestamp = new Date().getTime()

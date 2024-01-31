@@ -95,19 +95,23 @@ const store = createStore({
           stageList: [
             {
               stageName: '3个月',
-              targetIds: []
+              targetIds: [],
+              toolIds: []
             },
             {
               stageName: '6个月',
-              targetIds: []
+              targetIds: [],
+               toolIds: []
             },
             {
               stageName: '9个月',
-              targetIds: []
+              targetIds: [],
+               toolIds: []
             },
             {
               stageName: '12个月',
-              targetIds: []
+              targetIds: [],
+               toolIds: []
             }
           ]
         })

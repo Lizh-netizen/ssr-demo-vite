@@ -1,12 +1,6 @@
 <template>
   <div class="container">
-    <draggable
-      class="list-group"
-      v-model="data"
-      @start="drag = true"
-      :group="{ name: 'people', pull: unmutable ? 'clone' : '', put: unmutable ? false : true }"
-      item-key="id"
-    >
+    <draggable class="list-group" v-model="data" :move="onMove" :group="options" item-key="id">
       <template #item="{ element }">
         <div class="list-group-item">
           <img src="../../assets/layout/drag.svg" />
@@ -27,7 +21,7 @@
 <script setup>
 import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
-import { watch, defineProps, ref, defineEmits } from 'vue'
+import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
 const props = defineProps({
   list: {
     type: Array,
@@ -62,6 +56,33 @@ watch(data, (val) => {
 const removeAt = (index) => {
   data.value.splice(index, 1)
 }
+// 控制哪些可以拖拽，哪些不可以
+const onMove = (e, originalEvent) => {
+  if (
+    (e.draggedContext.element.id,
+    e.relatedContext.list.some((item) => item.id === e.draggedContext.element.id))
+  ) {
+    return false
+  }
+  return true
+}
+const put = ref(true)
+
+const options = ref({
+  name: 'people',
+  pull: props.unmutable ? 'clone' : '',
+  put(to, from, e) {
+    if ([...to.el.parentElement.classList].includes(from.el.parentElement.classList[1])) {
+      return true
+    } else {
+      return false
+    }
+  }
+})
+watch(options, (newVal) => {
+  put.value = newVal.put
+  options.value = newVal
+})
 </script>
 
 <style lang="scss" scoped>

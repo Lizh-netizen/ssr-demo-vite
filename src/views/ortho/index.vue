@@ -420,12 +420,14 @@ async function getPlanList() {
               stageName: item.stageName,
               targetIds: item.targetIds?.split(',')?.map((target, index) => ({
                 id: target,
-                name: item.targetNames.split(',')[index]
+                name: item.targetNames.split(',')[index],
+                dictType: 'ORTHTARGET'
               })),
               toolIds:
                 item.toolIds?.split(',')?.map((tool, index) => ({
                   id: tool,
-                  name: item.toolNames.split(',')[index]
+                  name: item.toolNames.split(',')[index],
+                  dictType: 'ORTHTOOL'
                 })) || []
             }))
     }))
