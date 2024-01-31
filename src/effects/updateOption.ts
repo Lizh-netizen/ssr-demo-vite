@@ -1,6 +1,6 @@
 import { Post } from '../utils/request'
 // 发送请求
-async function useUpdateOption (optionId, title, otherContent, appId) {
+async function useUpdateOption (optionId: any, title: any, otherContent: any, appId: any) {
   console.log(optionId)
   let obj
   if (title.type == 1) {
@@ -16,8 +16,8 @@ async function useUpdateOption (optionId, title, otherContent, appId) {
     }
   } else if (title.type == 2) {
     if (title.titleName === '矫治风险' && optionId.includes(237)) {
-      const option = title.orthOptionsList.find((a) => a.id === 237)
-      const option2 = title.orthOptionsList.find((a) => a.id === 236)
+      const option = title.orthOptionsList.find((a: any) => a.id === 237)
+      const option2 = title.orthOptionsList.find((a: any) => a.id === 236)
       obj = {
         apmtId: appId,
         titleId: title.id,
@@ -30,7 +30,7 @@ async function useUpdateOption (optionId, title, otherContent, appId) {
         showPosition1: option.showPosition
       }
     } else if (title.titleName === '矫治风险' && optionId.includes(236)) {
-      const option = title.orthOptionsList.find((a) => a.id === 236)
+      const option = title.orthOptionsList.find((a: any) => a.id === 236)
       obj = {
         apmtId: appId,
         titleId: title.id,

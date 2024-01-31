@@ -2928,6 +2928,7 @@ export function GetTooth() {
   ]
   templateData.forEach((e) => {
     e.forEach((e2) => {
+      // @ts-expect-error TS(2339): Property 'spaceRetainerSelect' does not exist on t... Remove this comment to see the full error message
       e2.spaceRetainerSelect = false
     })
   })

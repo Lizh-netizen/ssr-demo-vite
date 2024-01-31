@@ -1,15 +1,15 @@
 import { Post } from '../utils/request'
 //
-const useChangeOption = (optionId, title, appId, isShow, checkData) => {
+const useChangeOption = (optionId: any, title: any, appId: any, isShow: any, checkData: any) => {
   if (title.titleName == '关节弹响') {
-    if (title.orthOptionsList.find((a) => a.id == optionId)?.optionName == '弹响') {
+    if (title.orthOptionsList.find((a: any) => a.id == optionId)?.optionName == '弹响') {
       isShow.value = true
       return
     }
     if (optionId == 10) {
       isShow.value = false
       title.otherContent = ''
-      checkData.value.orthTitleList.forEach((title1) => {
+      checkData.value.orthTitleList.forEach((title1: any) => {
         if (title1.titleName == '关节弹响') {
           title1.optionId = 10
           title1.text = ''
@@ -23,7 +23,7 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
         }
       })
 
-      const sideTitle = checkData.value.orthTitleList.find((title1) => title1.titleName == '侧关节')
+      const sideTitle = checkData.value.orthTitleList.find((title1: any) => title1.titleName == '侧关节')
       let obj1 = {
         apmtId: appId,
         titleId: sideTitle.id,
@@ -38,10 +38,10 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
     }
   } else if (
     title.titleName == '骨龄' &&
-    (title.orthOptionsList.find((a) => a.id == optionId)?.optionName == '骨龄超' ||
-      title.orthOptionsList.find((a) => a.id == optionId)?.optionName == '骨龄晚')
+    (title.orthOptionsList.find((a: any) => a.id == optionId)?.optionName == '骨龄超' ||
+      title.orthOptionsList.find((a: any) => a.id == optionId)?.optionName == '骨龄晚')
   ) {
-    title.orthOptionsList.forEach((option) => {
+    title.orthOptionsList.forEach((option: any) => {
       if (option.id == optionId) {
         option.clicked = true
         option.visible = true
@@ -55,7 +55,7 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
     // 无和别的选项互斥逻辑
     // type 2 多选
     if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 10)
+      title.optionId1 = title.optionId.filter((o: any) => o !== 10)
       title.optionId = title.optionId1
     } else if (
       !title.optionId1.includes(10) &&
@@ -66,7 +66,7 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
       title.optionId = [10]
       title.otherContent = ''
     }
-    title.orthOptionsList.forEach((option) => {
+    title.orthOptionsList.forEach((option: any) => {
       if (!title.optionId.includes(option.id)) {
         option.choosen = false
       } else {
@@ -76,7 +76,7 @@ const useChangeOption = (optionId, title, appId, isShow, checkData) => {
   }
   if (title.type == 1) {
     // type 1 单选
-    title.orthOptionsList.forEach((option) => {
+    title.orthOptionsList.forEach((option: any) => {
       if (optionId !== option.id) {
         option.choosen = false
       } else {

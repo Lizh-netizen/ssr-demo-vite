@@ -1,5 +1,5 @@
 
-const useSelectTooth = (item, title) => {
+const useSelectTooth = (item: any, title: any) => {
   title.submitAble = true
   item.active = !item.active
   if (item.active) {
@@ -31,7 +31,7 @@ const useSelectTooth = (item, title) => {
     title.position.push([{ value: item.label, sort: item.sort }])
   } else {
     title.toothCode.splice(
-      title.toothCode.findIndex((a) => a == item.value + ''),
+      title.toothCode.findIndex((a: any) => a == item.value + ''),
       1
     )
     if (
@@ -39,7 +39,7 @@ const useSelectTooth = (item, title) => {
       (item.value + '').startsWith('5')
     ) {
       title.topLeft.splice(
-        title.topLeft.findIndex((a) => a.value == item.label),
+        title.topLeft.findIndex((a: any) => a.value == item.label),
         1
       )
     }
@@ -48,7 +48,7 @@ const useSelectTooth = (item, title) => {
       (item.value + '').startsWith('6')
     ) {
       title.topRight.splice(
-        title.topRight.findIndex((a) => a.value == item.label),
+        title.topRight.findIndex((a: any) => a.value == item.label),
         1
       )
     }
@@ -57,7 +57,7 @@ const useSelectTooth = (item, title) => {
       (item.value + '').startsWith('8')
     ) {
       title.bottomLeft.splice(
-        title.bottomLeft.findIndex((a) => a.value == item.label),
+        title.bottomLeft.findIndex((a: any) => a.value == item.label),
         1
       )
     }
@@ -66,12 +66,12 @@ const useSelectTooth = (item, title) => {
       (item.value + '').startsWith('7')
     ) {
       title.bottomRight.splice(
-        title.bottomRight.findIndex((a) => a.value == item.label),
+        title.bottomRight.findIndex((a: any) => a.value == item.label),
         1
       )
     }
     title.position.splice(
-      title.position.findIndex((a) => a[0].value == item.label),
+      title.position.findIndex((a: any) => a[0].value == item.label),
       1
     )
   }

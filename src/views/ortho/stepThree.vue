@@ -56,9 +56,9 @@ import Header from '@/components/list/header.vue'
 import FormItem from '@/components/list/customFormItem.vue'
 import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
-import useChangeOption from '@/effects/changeOption.js'
-import useUpdateOption from '@/effects/updateOption.js'
-import emptyRadio from '@/effects/emptyRadio.js'
+import useChangeOption from '@/effects/changeOption.ts'
+import useUpdateOption from '@/effects/updateOption.ts'
+import emptyRadio from '@/effects/emptyRadio.ts'
 const clicked = ref(false)
 defineExpose({
   clicked

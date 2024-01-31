@@ -1,8 +1,8 @@
-export function calculateCommonAngle(coordinates) {
-  const a = coordinates.find((cor) => cor.label == 'ANS')
-  const b = coordinates.find((cor) => cor.label == 'PNS')
-  const c = coordinates.find((cor) => cor.label == 'P')
-  const d = coordinates.find((cor) => cor.label == 'Or')
+export function calculateCommonAngle(coordinates: any) {
+  const a = coordinates.find((cor: any) => cor.label == 'ANS')
+  const b = coordinates.find((cor: any) => cor.label == 'PNS')
+  const c = coordinates.find((cor: any) => cor.label == 'P')
+  const d = coordinates.find((cor: any) => cor.label == 'Or')
   // 计算UN向量
   const vectorUN = { x: b.x - a.x, y: b.y - a.y }
 
@@ -25,34 +25,34 @@ export function calculateCommonAngle(coordinates) {
   return angleDeg
 }
 // 计算ODI
-export function calculateODI(coordinates) {
+export function calculateODI(coordinates: any) {
   const angle1 = calculateFourPointsAngle('ODI', coordinates)
   const angle2 = calculateCommonAngle(coordinates)
   return angle1 + (180 - angle2)
 }
-export function calculateAPDI(coordinates) {
+export function calculateAPDI(coordinates: any) {
   const angle1 = calculateFourPointsAngle('APDIAngle1', coordinates)
   const angle2 = calculateFourPointsAngle('APDIAngle2', coordinates)
   const angle3 = calculateCommonAngle(coordinates)
   return angle1 + angle2 + angle3
 }
 // 计算三个点的角度（以度为单位）
-export function calculateThreePointsAngle(str, coordinates) {
-  let arr
+export function calculateThreePointsAngle(str: any, coordinates: any) {
+  let arr: any
   if (str.includes('-')) {
-    arr = str.split('-').filter((a) => a !== '-')
+    arr = str.split('-').filter((a: any) => a !== '-')
   } else {
     arr = str.split('')
   }
-  const a = coordinates.find((cor) => {
+  const a = coordinates.find((cor: any) => {
     if (arr[0] === 'Na') {
       return cor.label == 'N'
     } else {
       return cor.label == arr[0]
     }
   })
-  const b = coordinates.find((cor) => cor.label == arr[1])
-  const c = coordinates.find((cor) => cor.label == arr[2])
+  const b = coordinates.find((cor: any) => cor.label == arr[1])
+  const c = coordinates.find((cor: any) => cor.label == arr[2])
 
   // 计算向量ab和向量bc的坐标差
   const vectorAB = { x: b.x - a.x, y: b.y - a.y }
@@ -73,7 +73,7 @@ export function calculateThreePointsAngle(str, coordinates) {
 
   return 180 - angleInDegrees
 }
-export function calculateDistanceRatio(str, coordinates) {
+export function calculateDistanceRatio(str: any, coordinates: any) {
   // 提取距离
   const arr = str.split('/')
   const str1 = arr[0]
@@ -85,65 +85,65 @@ export function calculateDistanceRatio(str, coordinates) {
   const ratio = distance1 / (distance2 !== 0 ? distance2 : 1.0)
   return ratio * 100
 }
-export function calculateDistance(str, coordinates) {
-  let arr
+export function calculateDistance(str: any, coordinates: any) {
+  let arr: any
   if (str.includes('-')) {
-    arr = str.split('-').filter((a) => a !== '-')
+    arr = str.split('-').filter((a: any) => a !== '-')
   } else {
     arr = str.split('')
   }
 
-  const a = coordinates.find((cor) => cor.label == arr[0])
-  const b = coordinates.find((cor) => cor.label == arr[1])
+  const a = coordinates.find((cor: any) => cor.label == arr[0])
+  const b = coordinates.find((cor: any) => cor.label == arr[1])
   const deltaX = b.x - a.x
   const deltaY = b.y - a.y
   const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
   return distance
 }
 
-export function calculateFourPointsAngle(str, coordinates) {
-  let a, b, c, d
+export function calculateFourPointsAngle(str: any, coordinates: any) {
+  let a: any, b, c, d
   if (str == 'U1-SN') {
-    a = coordinates.find((cor) => cor.label == 'UI')
-    b = coordinates.find((cor) => cor.label == 'UI_1')
-    c = coordinates.find((cor) => cor.label == 'S')
-    d = coordinates.find((cor) => cor.label == 'N')
+    a = coordinates.find((cor: any) => cor.label == 'UI')
+    b = coordinates.find((cor: any) => cor.label == 'UI_1')
+    c = coordinates.find((cor: any) => cor.label == 'S')
+    d = coordinates.find((cor: any) => cor.label == 'N')
   }
   if (str == 'SN-MP') {
-    a = coordinates.find((cor) => cor.label == 'S')
-    b = coordinates.find((cor) => cor.label == 'N')
-    c = coordinates.find((cor) => cor.label == 'Go_1')
-    d = coordinates.find((cor) => cor.label == 'Me')
+    a = coordinates.find((cor: any) => cor.label == 'S')
+    b = coordinates.find((cor: any) => cor.label == 'N')
+    c = coordinates.find((cor: any) => cor.label == 'Go_1')
+    d = coordinates.find((cor: any) => cor.label == 'Me')
   }
   if (str == 'L1-MP') {
-    a = coordinates.find((cor) => cor.label == 'LI')
-    b = coordinates.find((cor) => cor.label == 'LI_1')
-    c = coordinates.find((cor) => cor.label == 'Go_1')
-    d = coordinates.find((cor) => cor.label == 'Me')
+    a = coordinates.find((cor: any) => cor.label == 'LI')
+    b = coordinates.find((cor: any) => cor.label == 'LI_1')
+    c = coordinates.find((cor: any) => cor.label == 'Go_1')
+    d = coordinates.find((cor: any) => cor.label == 'Me')
   }
   if (str == 'FH-MP') {
-    a = coordinates.find((cor) => cor.label == 'P')
-    b = coordinates.find((cor) => cor.label == 'Or')
-    c = coordinates.find((cor) => cor.label == 'Go_1')
-    d = coordinates.find((cor) => cor.label == 'Me')
+    a = coordinates.find((cor: any) => cor.label == 'P')
+    b = coordinates.find((cor: any) => cor.label == 'Or')
+    c = coordinates.find((cor: any) => cor.label == 'Go_1')
+    d = coordinates.find((cor: any) => cor.label == 'Me')
   }
   if (str == 'ODI') {
-    a = coordinates.find((cor) => a.label == 'A')
-    b = coordinates.find((cor) => a.label == 'B')
-    c = coordinates.find((cor) => a.label == 'Go')
-    d = coordinates.find((cor) => a.label == 'Gn')
+    a = coordinates.find((cor: any) => a.label == 'A')
+    b = coordinates.find((cor: any) => a.label == 'B')
+    c = coordinates.find((cor: any) => a.label == 'Go')
+    d = coordinates.find((cor: any) => a.label == 'Gn')
   }
   if (str == 'APDIAngle1') {
-    a = coordinates.find((cor) => a.label == 'N')
-    b = coordinates.find((cor) => a.label == 'P')
-    c = coordinates.find((cor) => a.label == 'P')
-    d = coordinates.find((cor) => a.label == 'Or')
+    a = coordinates.find((cor: any) => a.label == 'N')
+    b = coordinates.find((cor: any) => a.label == 'P')
+    c = coordinates.find((cor: any) => a.label == 'P')
+    d = coordinates.find((cor: any) => a.label == 'Or')
   }
   if (str == 'APDIAngle2') {
-    a = coordinates.find((cor) => cor.label == 'A')
-    b = coordinates.find((cor) => cor.label == 'B')
-    c = coordinates.find((cor) => cor.label == 'N')
-    d = coordinates.find((cor) => cor.label == 'P')
+    a = coordinates.find((cor: any) => cor.label == 'A')
+    b = coordinates.find((cor: any) => cor.label == 'B')
+    c = coordinates.find((cor: any) => cor.label == 'N')
+    d = coordinates.find((cor: any) => cor.label == 'P')
   }
   // 计算UN向量
   const vectorUN = { x: b.x - a.x, y: b.y - a.y }
@@ -167,7 +167,7 @@ export function calculateFourPointsAngle(str, coordinates) {
   return angleDeg
 }
 // 计算垂足点
-function findFootPointCoordinates(A, B, C) {
+function findFootPointCoordinates(A: any, B: any, C: any) {
   // 向量 BC
   const BC = { x: C.x - B.x, y: C.y - B.y }
 
@@ -183,7 +183,7 @@ function findFootPointCoordinates(A, B, C) {
 
   return { x: footPointX, y: footPointY }
 }
-export function calculateWits(A, B, U1, L1, U6, L6, standardDistance) {
+export function calculateWits(A: any, B: any, U1: any, L1: any, U6: any, L6: any, standardDistance: any) {
   const M_U6L6 = {
     x: (U6.x + L6.x) / 2,
     y: (U6.y + L6.y) / 2
@@ -237,6 +237,7 @@ export function calculateWits(A, B, U1, L1, U6, L6, standardDistance) {
   //   return -distance
   // }
 }
+// @ts-expect-error TS(2554): Expected 7 arguments, but got 6.
 calculateWits(
   { x: 1, y: 2 },
   { x: -1, y: -2 },
@@ -246,7 +247,7 @@ calculateWits(
   { x: -2, y: 1 }
 )
 // 计算垂足距离
-export function perpendicularDistance(pointA, pointB, pointC) {
+export function perpendicularDistance(pointA: any, pointB: any, pointC: any) {
   // 计算线段BC的长度
   const lengthBC = Math.sqrt(Math.pow(pointB.x - pointC.x, 2) + Math.pow(pointB.y - pointC.y, 2))
 
@@ -263,7 +264,7 @@ export function perpendicularDistance(pointA, pointB, pointC) {
 }
 
 //
-export function calculateDistanceEffect(a, b) {
+export function calculateDistanceEffect(a: any, b: any) {
   const deltaX = b.x - a.x
   const deltaY = b.y - a.y
   const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
@@ -274,8 +275,8 @@ export function calculateDistanceEffect(a, b) {
 export function faceLeft() {}
 export function faceRight() {}
 // 计算三庭距离
-export function averageThreeCourts(faceSet) {
-  const foreHead = faceSet.find((point) => point.label == 'forehead_center')
-  const chin = faceSet.find((point) => point.label == 'chin_2')
+export function averageThreeCourts(faceSet: any) {
+  const foreHead = faceSet.find((point: any) => point.label == 'forehead_center')
+  const chin = faceSet.find((point: any) => point.label == 'chin_2')
   return calculateDistanceEffect(foreHead, chin) / 3
 }

@@ -82,7 +82,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { GetSymptom } from '@/utils/tooth'
-import useSelectTooth from '@/effects/selectTooth.js'
+import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step'])
 const emit = defineEmits(['submitTooth'])

@@ -473,12 +473,12 @@ import { Get, Post } from '@/utils/request'
 import FormItem from '@/components/list/formItem.vue'
 import { GetSymptom } from '@/utils/tooth'
 import { useRoute } from 'vue-router'
-import useChangeOption from '@/effects/changeOption.js'
-import useUpdateOption from '@/effects/updateOption.js'
-import useSelectTooth from '@/effects/selectTooth.js'
-import useFdiToothCodeEffect from '@/effects/fdiToothCode.js'
+import useChangeOption from '@/effects/changeOption.ts'
+import useUpdateOption from '@/effects/updateOption.ts'
+import useSelectTooth from '@/effects/selectTooth.ts'
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
-import emptyRadio from '@/effects/emptyRadio.js'
+import emptyRadio from '@/effects/emptyRadio.ts'
 const submitTooth = (title) => {}
 const goalClicked = ref(false)
 const methodClicked = ref(false)

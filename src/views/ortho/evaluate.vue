@@ -824,7 +824,7 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import ImageDialog from '@/components/list/imageDialog.vue'
-import emptyRadio from '@/effects/emptyRadio.js'
+import emptyRadio from '@/effects/emptyRadio.ts'
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId

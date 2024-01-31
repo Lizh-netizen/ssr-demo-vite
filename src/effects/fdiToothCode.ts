@@ -1,4 +1,4 @@
-export default function useFdiToothCodeEffect(a) {
+export default function useFdiToothCodeEffect(a: any) {
   a.topLeft = []
   a.topRight = []
   a.bottomLeft = []
@@ -7,7 +7,7 @@ export default function useFdiToothCodeEffect(a) {
 
   if (a.fdiToothCode) {
     a.toothCode = a.fdiToothCode.split(',')
-    a.fdiToothCode.split(',').forEach((code, index) => {
+    a.fdiToothCode.split(',').forEach((code: any, index: any) => {
       if (code.startsWith('1') || code.startsWith('5')) {
         a.topLeft.push(arr[+index][0])
       } else if (code.startsWith('2') || code.startsWith('6')) {
