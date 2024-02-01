@@ -36,24 +36,7 @@
                 v-for="title in item.orthTitleList"
                 :key="title.id"
               >
-                <el-radio-group
-                  v-if="title.type == 1"
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title)"
-                  @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
-                >
-                  <el-radio-button
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-                </el-radio-group>
+                <Radio :title="title"></Radio>
                 <el-checkbox-group
                   v-model="title.optionId"
                   v-if="title.type == 2"
@@ -319,6 +302,7 @@ import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.ts'
 import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
+import Radio from '@/components/list/radio.vue'
 const clicked = ref(false)
 defineExpose({
   clicked

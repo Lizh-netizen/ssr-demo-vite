@@ -11,7 +11,7 @@
             <draggable :list="questionData" :question="true"></draggable>
           </div>
         </div>
-        <!-- <div class="top_right">
+        <div class="top_right">
           <div class="top_right_header">
             <div>暂观</div>
             <draggable></draggable>
@@ -19,10 +19,13 @@
           <div class="top_right_content">
             <img src="../../assets/layout/emptyIssues.png" :style="{ width: '204px' }" />
           </div>
-        </div> -->
+        </div>
       </div>
       <div class="body">
-        <div class="body-left content">
+        <div
+          class="body-left content"
+          :style="{ height: planList.some((plan) => plan.checked) ? '680px' : '390px' }"
+        >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
               <img src="../../assets/svg/goalCheck.svg" />目标
