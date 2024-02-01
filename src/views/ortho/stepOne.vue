@@ -36,38 +36,7 @@
                 v-for="title in item.orthTitleList"
                 :key="title.id"
               >
-                <Radio :title="title"></Radio>
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  v-if="title.type == 2"
-                  @change="handleChangeOption(title.optionId, title)"
-                >
-                  <el-checkbox-button
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="../../assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </el-checkbox-group>
-
-                <el-input
-                  v-if="
-                    (title.optionId.constructor === Array && title.optionId.includes(9)) ||
-                    title.optionId == 9
-                  "
-                  placeholder="请输入"
-                  v-model="title.otherContent"
-                  @blur="handleSubmit(title.optionId, title)"
-                />
+                <Option :title="title"></Option>
               </form-item>
             </div>
           </form-item>
@@ -302,7 +271,7 @@ import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.ts'
 import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
-import Radio from '@/components/list/radio.vue'
+import Option from '@/components/list/option.vue'
 const clicked = ref(false)
 defineExpose({
   clicked
