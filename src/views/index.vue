@@ -80,7 +80,13 @@
           </template>
           <template #difficultyLevel="{ row }">
             {{
-              row.difficultyLevel == 1 ? '低风险' : row.difficultyLevel == 2 ? '中风险' : '高风险'
+              row.difficultyLevel == 1
+                ? '低风险'
+                : row.difficultyLevel == 2
+                ? '中风险'
+                : row.difficultyLevel == 3
+                ? '高风险'
+                : ''
             }}
           </template>
           <template #orthDoctorName="{ row }">
@@ -342,7 +348,9 @@ const date = ref('')
 const firstDate = ref('')
 // 默认是今天的日期
 // firstdate是上个月的1号
+
 firstDate.value = formatTime().firstDate
+console.log('🚀 ~ firstDate.value:', firstDate.value)
 date.value = formatTime().formattedToday
 
 const columns = ref([...columns_config_evaluate])
