@@ -41,7 +41,6 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps } from 'vue'
 const props = defineProps({
   drawer: {
     type: Boolean

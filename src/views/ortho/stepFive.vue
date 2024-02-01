@@ -281,6 +281,7 @@
                     </el-checkbox-button>
                   </template>
                   <template v-else>
+                    <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
                     <template v-if="option.fdiToothCode == null">
                       <el-popover
                         placement="right"
@@ -332,47 +333,7 @@
                             /><img src="../../assets/svg/abnormalChecked.svg" v-else />
                           </el-checkbox-button>
                         </template>
-                        <div class="selectContainer" id="selectContainer">
-                          <div class="container">
-                            <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                              <div
-                                class="symptomBox"
-                                :class="{
-                                  itemAlignRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginTop: rowindex == 4 || rowindex == 5,
-                                  marginBottom: rowindex == 2 || rowindex == 3,
-                                  marginRight:
-                                    rowindex === 2 ||
-                                    rowindex === 4 ||
-                                    rowindex === 0 ||
-                                    rowindex === 6,
-                                  marginLeft:
-                                    rowindex === 1 ||
-                                    rowindex === 3 ||
-                                    rowindex === 5 ||
-                                    rowindex === 7
-                                }"
-                              >
-                                <div
-                                  class="symptomItem"
-                                  :class="{ selected: item.active === true }"
-                                  :id="item.value"
-                                  v-for="(item, index) in row"
-                                  :key="index"
-                                  @click="handleSelectTooth(item, option)"
-                                >
-                                  {{ item.label }}
-                                </div>
-                              </div>
-                            </template>
-                          </div>
-                          <div class="left">右</div>
-                          <div class="right">左</div>
-                        </div>
+                        <ChooseTooth :option="option"></ChooseTooth>
                       </el-popover>
                     </template>
                     <template v-else>
@@ -478,6 +439,7 @@ import useUpdateOption from '@/effects/updateOption.ts'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
+import ChooseTooth from '@/components/list/chooseTooth.vue'
 import emptyRadio from '@/effects/emptyRadio.ts'
 const submitTooth = (title) => {}
 const goalClicked = ref(false)

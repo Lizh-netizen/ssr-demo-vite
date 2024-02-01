@@ -2,12 +2,7 @@
   <div class="formItem">
     <div class="formItem__label" :style="{ width: width }">
       {{ label
-      }}<el-tooltip
-        class="box-item"
-        effect="light"
-        placement="top-start"
-        v-if="showMark"
-      >
+      }}<el-tooltip class="box-item" effect="light" placement="top-start" v-if="showMark">
         <template #content> {{ content }} </template>
         <img
           @mouseenter="enterTool"
@@ -22,7 +17,6 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue'
 defineProps({
   label: String,
   width: String,

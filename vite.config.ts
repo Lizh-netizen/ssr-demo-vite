@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import { ElementPlusResolver,ArcoResolver  } from 'unplugin-vue-components/resolvers'
+import { ElementPlusResolver, ArcoResolver } from 'unplugin-vue-components/resolvers'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
 // import importToCDN from 'vite-plugin-cdn-import'
 // import viteCompression from 'vite-plugin-compression';
@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
   return {
     build: {
-      outDir: env.VITE_BUILD_FILE,// 打包的默认路径
+      outDir: env.VITE_BUILD_FILE // 打包的默认路径
     },
     plugins: [
       vue({
@@ -40,11 +40,19 @@ export default defineConfig(({ mode }) => {
         iconDirs: [path.join(__dirname, 'src/assets/icons')]
       }),
       AutoImport({
-        resolvers: [ElementPlusResolver(),ArcoResolver()],
+        include: [/\.[tj]sx?$/, /\.vue$/, /\.vue\?vue/, /\.md$/],
+        imports: ['vue', 'vue-router', 'vuex'],
+        eslintrc: {
+          enabled: false, // Default `false`
+          filepath: './.eslintrc-auto-import.json', // Default `./.eslintrc-auto-import.json`
+          globalsPropValue: true // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+        },
+        dts: './auto-imports.d.ts',
+        resolvers: [ElementPlusResolver(), ArcoResolver()]
       }),
       Components({
-        resolvers: [ElementPlusResolver(),ArcoResolver()],
-      }),
+        resolvers: [ElementPlusResolver(), ArcoResolver()]
+      })
       // viteCompression()
     ],
     resolve: {
@@ -56,11 +64,11 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/prod-api': {
           target: 'https://orangetest.aiorange.com',
-          changeOrigin: true,
+          changeOrigin: true
         },
         '/bonceph': {
           target: 'https://testorthodontic.aiorange.com',
-          changeOrigin: true,
+          changeOrigin: true
         }
       }
     },

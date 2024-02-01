@@ -233,6 +233,7 @@ watchEffect(() => {
     } else {
       modelVal.value = list.reduce((sum, item) => {
         if (item.type === 'date' && item.defaultDate) {
+          console.log(item.defaultDate)
           if (item.dateType === 'range') {
             sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
           } else {
@@ -348,10 +349,12 @@ const shortcuts = [
 
 // 重置
 const reset = () => {
+  console.log(111)
   // 数据恢复初始化 全部null
   modelVal.value = list.reduce((sum, item) => {
     if (item.type === 'date' && item.defaultDate) {
       sum[item.prop] = item.defaultDate
+      console.log(item.defaultDate)
     } else {
       sum[item.prop] = null
     }
