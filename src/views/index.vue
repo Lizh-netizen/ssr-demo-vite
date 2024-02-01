@@ -339,7 +339,7 @@ const strategy = {
 
 const total = ref(0)
 const date = ref('')
-const firstDate = ref()
+const firstDate = ref('')
 // 默认是今天的日期
 // firstdate是上个月的1号
 firstDate.value = formatTime().firstDate

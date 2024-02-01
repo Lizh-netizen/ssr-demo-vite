@@ -12,6 +12,8 @@ declare module 'vue' {
     AOption: typeof import('@arco-design/web-vue')['Option']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
+    Button: typeof import('./src/components/template/button.vue')['default']
+    Checkbox: typeof import('./src/components/template/checkbox.vue')['default']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']
