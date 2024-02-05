@@ -12,4 +12,4 @@ WORKDIR /home/jc/projects/orange-ortho-all-web
 # 复制conf文件到路径
 COPY nginx/conf/nginx.conf /etc/nginx/nginx.conf
 # 复制html文件到路径
-COPY development /home/jc/projects/orange-ortho-all-web
+COPY dist /home/jc/projects/orange-ortho-all-web
