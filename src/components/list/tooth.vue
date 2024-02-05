@@ -88,12 +88,15 @@ import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step'])
 const emit = defineEmits(['submitTooth'])
 const title = ref(props.title)
+console.log('🚀 ~ title:', title)
 const data = ref(props.data)
+
 watch(
-  () => props.title,
+  () => props.data,
   (val) => {
-    title.value = val
-  }
+    data.value = val
+  },
+  { deep: true }
 )
 
 const symptomList = ref([])
@@ -108,7 +111,9 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
+// 选中牙位
 const handleSelectTooth = (item, title) => {
+  console.log(title)
   useSelectTooth(item, title)
 }
 const handleSubmitTooth = (title) => {
@@ -122,6 +127,7 @@ const handleSubmitTooth = (title) => {
       optionsIdStr: [],
       otherContent: '',
       cephalometricsContent: '',
+      optionSuffix: '牙位图',
       fdiToothCode: title.toothCode.join(),
       showPosition: JSON.stringify(title.position)
     }
@@ -131,9 +137,10 @@ const handleSubmitTooth = (title) => {
   } else {
     emit('submitTooth', title)
   }
+  // 清理掉poper
 }
 const openPop = (title, item) => {
-  if (!item.hasImage) {
+  if (!item?.hasImage) {
     return
   } else {
     // 点击下一个十字牙位时，先吧之前的清空

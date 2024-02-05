@@ -36,7 +36,12 @@
                 v-for="title in item.orthTitleList"
                 :key="title.id"
               >
-                <Option :title="title"></Option>
+                <Option
+                  :title="title"
+                  :appId="appId"
+                  @refreshList="refreshList"
+                  owningModule="inquiry"
+                ></Option>
               </form-item>
             </div>
           </form-item>
@@ -49,23 +54,12 @@
               v-for="title in item.orthTitleList"
               :key="title.id"
             >
-              <el-radio-group
-                v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
-                @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
-              >
-                <el-radio-button
-                  v-for="option in title.orthOptionsList"
-                  :key="option.id"
-                  :label="option.id"
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                >
-                  {{ option.optionName }}
-                </el-radio-button>
-              </el-radio-group>
+              <Option
+                :title="title"
+                :appId="appId"
+                @refreshList="refreshList"
+                owningModule="inquiry"
+              ></Option>
             </form-item>
           </div>
         </template>
@@ -279,7 +273,11 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
-
+const refreshList = (val) => {
+  if (val == 'inquiry') {
+    getOrthInquiryList()
+  }
+}
 const input1 = ref('')
 const input2 = ref('')
 const route = useRoute()

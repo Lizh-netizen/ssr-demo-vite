@@ -343,6 +343,7 @@
                         placement="top-start"
                         :width="200"
                         :visible="option.visible"
+                        @mouseleave="option.visible = false"
                       >
                         <template #reference>
                           <el-checkbox-button
@@ -470,6 +471,7 @@ const handleMouseLeave = (option) => {
     })
   })
 }
+// 有已选中的牙位的悬浮显示选中的牙位
 const handleMouseEnterBtn = (option) => {
   option.visible = true
   option.hover = true
@@ -732,6 +734,7 @@ const handleSubmitTooth = (option, title) => {
         optionsIdStr: title.optionId,
         otherContent: '',
         cephalometricsContent: '',
+        optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
@@ -748,6 +751,7 @@ const handleSubmitTooth = (option, title) => {
         optionsIdStr: title.optionId,
         otherContent: '',
         cephalometricsContent: '',
+        optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),

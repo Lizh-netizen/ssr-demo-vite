@@ -21,16 +21,16 @@ defineProps({
 .imageItem {
   position: relative;
   display: flex;
-  height: 308px;
+  // height: 308px;
   padding: 20px 0;
+  padding-bottom: 36px;
   border-bottom: 1.4px dashed #e5e6eb;
-
   .img {
     width: 320px;
-    height: 240px;
+    // height: 240px;
     border-radius: 10px;
     position: relative;
-    border: 1px solid #e5e6eb;
+    // border: 1px solid #e5e6eb;
     box-sizing: border-box;
     text-align: center;
   }
@@ -38,12 +38,11 @@ defineProps({
     padding-left: 48px;
   }
   &__caption {
-    left: 50%;
     position: absolute;
-    /* left: 125px; */
-    top: 248px;
+    left: 50%;
     color: #4e5969;
     transform: translate(-50%, 0);
+    margin-top: 10px;
   }
   &.sideImage {
     height: 604px;
@@ -84,6 +83,7 @@ defineProps({
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-bottom: 20px;
     img.addPic {
       width: 42px;
       height: 42px;
@@ -91,5 +91,4 @@ defineProps({
     }
   }
 }
-
 </style>

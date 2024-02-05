@@ -33,51 +33,13 @@
           ><template #content>
             <template v-for="title in item.orthTitleList" :key="title.id">
               <form-item :label="title.titleName" width="120px">
-                <el-radio-group
-                  v-if="title.type == 1"
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title, item.className, item)"
-                >
-                  <el-radio-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img
-                      class="aiFlagImg"
-                      src="@/assets/svg/AIFlagForFront.svg"
-                      v-show="title.aiFlag == '1' && index == 0 && option.choosen"
-                    />
-                  </el-radio-button>
-                </el-radio-group>
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  v-if="title.type == 2"
-                  @change="handleChangeOption(title.optionId, title, item.className, item)"
-                >
-                  <el-checkbox-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="@/assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </el-checkbox-group>
+                <Option
+                  :disabled="!item.hasImage"
+                  :title="title"
+                  :appId="appId"
+                  @refreshList="refreshList"
+                  owningModule="faceEvaluate"
+                ></Option>
               </form-item>
             </template>
           </template>
@@ -110,47 +72,13 @@
             <div>
               <template v-for="title in item.orthTitleList" :key="title.id">
                 <form-item :label="title.titleName" width="100px">
-                  <el-radio-group
-                    v-if="title.type == 1"
-                    v-model="title.optionId"
-                    @change="handleChangeOption(title.optionId, title)"
-                    @dblclick="handleEmptyRadio(title.optionId, title, 'mouth')"
-                  >
-                    <el-radio-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
-                    >
-                      {{ option.optionName }}
-                    </el-radio-button>
-                  </el-radio-group>
-                  <el-checkbox-group
-                    v-model="title.optionId"
-                    v-if="title.type == 2"
-                    @change="handleChangeOption(title.optionId, title)"
-                  >
-                    <el-checkbox-button
-                      :disabled="!item.hasImage"
-                      :class="{
-                        serious: option.serious == '1',
-                        checked: option.choosen === true
-                      }"
-                      v-for="option in title.orthOptionsList"
-                      :key="option.id"
-                      :label="option.id"
-                    >
-                      {{ option.optionName }}
-                      <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                        src="@/assets/svg/abnormalChecked.svg"
-                        v-else
-                      />
-                    </el-checkbox-button>
-                  </el-checkbox-group>
+                  <Option
+                    :disabled="!item.hasImage"
+                    :title="title"
+                    :appId="appId"
+                    @refreshList="refreshList"
+                    owningModule="mouth"
+                  ></Option>
                 </form-item>
               </template>
             </div>
@@ -261,9 +189,15 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
+                      <el-input
+                        v-if="title.optionId == 136"
+                        placeholder="请输入"
+                        v-model="title.otherContent"
+                        @blur="handleSubmit(title.optionId, title)"
+                      />
                       <el-checkbox-group
                         v-model="title.optionId"
-                        v-if="title.type == 2"
+                        v-else-if="title.type == 2"
                         @change="handleChangeOption(title.optionId, title)"
                       >
                         <el-checkbox-button
@@ -542,6 +476,7 @@ import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
+import Option from '@/components/list/option.vue'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -562,6 +497,17 @@ const props = defineProps({
   pdfId: String,
   active: Number
 })
+// 单选反选取消
+const strategy = {
+  faceEvaluate: getOrthFaceAccessList,
+  mouth: getOrthMouthList,
+  cepha: getOrthCephaList,
+  panoramic: getOrthPanoramicList
+}
+
+const refreshList = (val) => {
+  strategy[val]()
+}
 // 点击全景片图片逻辑
 const zoomPano = ref(false)
 const handleZoomPanoImage = () => {
@@ -594,66 +540,13 @@ window.addEventListener('resize', () => {
   }
 })
 
-// 全景片牙位图逻辑
-const symptomList = ref([])
-const handleBeforeEnterPopover = (title) => {
-  symptomList.value.forEach((row) => {
-    row.forEach((a) => {
-      a.active = false
-      if (title.toothCode?.includes(a.value + '')) {
-        a.active = true
-      }
-    })
-  })
-}
-const handleSelectTooth = (item, title) => {
-  useSelectTooth(item, title)
-}
-
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
 
 const params = new FormData()
-symptomList.value = GetSymptom()
+
 const upload = ref(false)
-const handleFileChange = (event) => {
-  const selectedFiles = event.target.files
-  if (selectedFiles.length > 16) {
-    event.preventDefault()
-    ElMessage('最多上传16张图片')
-  } else {
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i]
-      params.append('files', file)
-
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = () => {
-          fileList.value.push(reader.result)
-          fileListWithFlag.value.push({
-            imgUrl: reader.result,
-            showFlag: false,
-            choose: true,
-            file: file
-          })
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-
-    if (!upload.value) {
-      imageArr.value.unshift({
-        file: true,
-        StartTime: '2023-8-14',
-        imageList: fileListWithFlag.value
-      })
-      upload.value = true
-    } else {
-      imageArr.value[0].imageList = fileListWithFlag.value
-    }
-  }
-}
 
 const handleBlurInput = (title) => {
   title.measured = true
@@ -713,37 +606,7 @@ const chooseImgNum = computed(() => {
   })
   return num
 })
-const handleToggleChoose = (img) => {
-  img.choose = !img.choose
-}
-// const dialogVisible = ref(false)
-// const handleDeleteImage = (img, item, index) => {
-//   img.showFlag = false
-//   imageArr.value[index].imageList.splice(
-//     imageArr.value[index].imageList.findIndex((image) => image == img),
-//     1
-//   )
-//   if (index == 0 && imageArr.value[0].imageList.length == 0) {
-//     imageArr.value.shift()
-//   }
 
-//   dialogVisible.value = true
-// }
-const handleDeleteImage1 = (img) => {
-  // 删除图库中的图片
-  if (img.id) {
-    Delete(`/prod-api/business/orthImage/${img.id}`).then((res) => {
-      if (res.code == 200) {
-        const found = imageList.value.find((image) => img == image)
-        found.fileUrl = placeholderUrl
-        found.id = undefined
-        // getAllData()
-      }
-    })
-  } else {
-    img.fileUrl = placeholderUrl
-  }
-}
 // 影像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
@@ -753,28 +616,6 @@ const handleImageDialog = () => {
 }
 const openImgDialog = () => {
   imgDialogVisible.value = true
-}
-// 加载更多图像
-const handleLoadPic = () => {
-  if (imageArr.value.length < totalArr.value.length) {
-    totalArr.value[imageArr.value.length].imageList.forEach((img) => {
-      img.imgUrl = img.fileUrl
-    })
-    const itemWithImage = totalArr.value
-      .slice(index.value + 1)
-      .find((a) => a.imageList.length !== 0)
-    if (itemWithImage) {
-      imageArr.value.push(itemWithImage)
-      index.value = totalArr.value.findIndex(
-        (item) => item == imageArr.value[imageArr.value.length - 1]
-      )
-      imageArr.value[imageArr.value.length - 1].imageList.forEach((img) => {
-        img.imgUrl = img.fileUrl
-      })
-    } else {
-      ElMessage('没有更多图像了哦')
-    }
-  }
 }
 
 // 右侧分类图片占位
@@ -920,88 +761,7 @@ const handleDragEnd = () => {
   const image2 = document.getElementById('img')
   image2.style.opacity = 0
 }
-const handleDrop = (e, image) => {
-  const image2 = document.getElementById('img')
-  image2.style.opacity = 0
-  e.target.classList.remove('hover')
-  if (!dragFile.value.rightDrop) {
-    // 从左拖到右
-    handleSingleImage(dragFile.value, image)
-  } else {
-    // 有id的话是分类过的，要通过接口删除
-    if (dragFile.value.id) {
-      handleDeleteImage1(dragFile.value)
-    } else {
-      // 否则只要替换掉fileUrl就可以了
-      const found = imageList.value.find((image) => dragFile.value.fileUrl == image.fileUrl)
-      found.fileUrl = placeholderUrl
-    }
-    // 已经上传过的有id
-    if (image.id) {
-      Put('/prod-api/business/orthImage', {
-        id: image.id,
-        imageUrl: src.value
-      }).then(() => {
-        getClassifiedImgList()
-      })
-      // 否则也是替换掉fileUrl
-    } else {
-      image.fileUrl = src.value
-    }
-  }
-}
 
-// 上传图片
-// file是拖拽的，image是被拖的
-const failCount = ref(0)
-async function handleSingleImage(file, image) {
-  const formData = new FormData()
-  if (file.type) {
-    formData.append('file', file, 'Cover')
-    formData.append(
-      'orthImageString',
-      JSON.stringify({
-        patientId: patientId,
-        apmtId: appId,
-        orthImageList: []
-      })
-    )
-  } else {
-    formData.append(
-      'orthImageString',
-      JSON.stringify({
-        patientId: patientId,
-        apmtId: appId,
-        orthImageList: [
-          {
-            ljUrl: file.imgUrl,
-            ljId: file.id,
-            LJCreateDatetime: file.timestamp
-          }
-        ]
-      })
-    )
-  }
-  const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
-  if (res.code == 200 && res.data[0].fileUrl) {
-    image.fileUrl = res.data[0].fileUrl
-    image.imageId = res.data[0].fileId
-  } else {
-    image.fileUrl = placeholderUrl
-    if (failCount.value == 0) {
-      failCount.value++
-      ElMessage({
-        message: '拖拽失败，请再试一次',
-        type: 'warning'
-      })
-    } else {
-      ElMessage({
-        message: '拖拽失败，请联系管理员',
-        type: 'warning'
-      })
-    }
-  }
-}
 // 保存图片
 async function handleSavePics() {
   // imgDialogVisible.value = false
@@ -1428,6 +1188,7 @@ function handlePanoData(panoramicData) {
         title.optionId = ''
         title.text = ''
         title.showInput = false
+        console.log(title)
         const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
         if (choosenOptions.length > 0) {
           title.optionId = choosenOptions[0].id
@@ -1483,6 +1244,8 @@ async function getOrthPanoramicList() {
       title.popVisible = false
     })
   })
+  console.log(panoramicData.value)
+
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
@@ -2625,10 +2388,11 @@ onMounted(() => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
     if (popover) {
+      console.log(
+        panoramicData.value[0].orthTitleList.findIndex((title) => title.popVisible === true)
+      )
       if (e.target !== popover && !popover.contains(e.target)) {
-        const index = panoramicData.value[0].orthTitleList.findIndex(
-          (title) => title.popVisible === true
-        )
+        const index = panoramicData.value[0].orthTitleList.findIndex((title) => title.popVisible)
         if (index !== -1) {
           panoramicData.value[0].orthTitleList[index].popVisible = false
         }
@@ -2644,8 +2408,10 @@ const handleChangeOption = (optionId, title, className) => {
   }
   if (title.titleName == '侧貌') {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
+    // 如果选中的是凸面型
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
+      // 点击凸面型，凹面型的选项设置为空
       useUpdateOption(null, title2, '', appId)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2657,6 +2423,7 @@ const handleChangeOption = (optionId, title, className) => {
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
+      // 点击直面型，另外两个置空
       found.orthTitleList = savedTitleList.value.filter(
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
       )
@@ -2688,38 +2455,25 @@ const handleChangeOption = (optionId, title, className) => {
   useChangeOption(optionId, title, appId)
   useUpdateOption(title.optionId, title, '', appId)
 }
-const openPop = (title, item) => {
-  if (!item.hasImage) {
-    return
-  } else {
-    // 点击下一个十字牙位时，先吧之前的清空
-    panoramicData.value[0].orthTitleList.forEach((t) => {
-      if (title !== t) {
-        t.popVisible = false
-      }
-    })
-    title.popVisible = !title.popVisible
-  }
-}
 
-const handleSubmitTooth = (title) => {
-  if (!title.submitAble) {
-    return
-  }
+// const handleSubmitTooth = (title) => {
+//   if (!title.submitAble) {
+//     return
+//   }
 
-  let obj = {
-    apmtId: appId,
-    titleId: title.id,
-    optionsIdStr: [],
-    otherContent: '',
-    cephalometricsContent: '',
-    fdiToothCode: title.toothCode.join(),
-    showPosition: JSON.stringify(title.position)
-  }
-  Post('/prod-api/business/optionsResult', obj).then(() => {
-    title.submitAble = false
-  })
-}
+//   let obj = {
+//     apmtId: appId,
+//     titleId: title.id,
+//     optionsIdStr: [],
+//     otherContent: '',
+//     cephalometricsContent: '',
+//     fdiToothCode: title.toothCode.join(),
+//     showPosition: JSON.stringify(title.position)
+//   }
+//   Post('/prod-api/business/optionsResult', obj).then(() => {
+//     title.submitAble = false
+//   })
+// }
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', appId)
 }
@@ -3374,11 +3128,7 @@ div.el-input__wrapper {
         position: relative;
         left: 3px;
       }
-      &:hover {
-        svg path {
-          fill: #2e6ce4;
-        }
-      }
+
       .aiFlagImg {
         position: absolute;
         right: -6px;

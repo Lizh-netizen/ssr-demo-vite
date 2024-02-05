@@ -331,45 +331,45 @@ async function getOrthGoalList() {
 getOrthGoalList()
 const handleNextStep = () => {
   if (active.value == 4) {
-    const goalList = store.state.goalList
-    const planList = store.state.planList
-    const transformedData = planList.map((scheme) => {
-      if (scheme.id) {
-        return {
-          id: scheme.id,
-          name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
-          aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
-          stageList: scheme.stageList
-            .filter((item) => item.targetIds.length > 0)
-            .map((stage) => {
-              return {
-                stageName: stage.stageName,
-                targetIds: stage.targetIds.map((target) => target.id).join(','),
-                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
-              }
-            })
-        }
-      } else {
-        return {
-          name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
-          aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
-          stageList: scheme.stageList
-            .filter((item) => item.targetIds.length > 0)
-            .map((stage) => {
-              return {
-                stageName: stage.stageName,
-                targetIds: stage.targetIds.map((target) => target.id).join(','),
-                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
-              }
-            })
-        }
-      }
-    })
-    Post('/prod-api/emr/public/api/v1/scheme', transformedData)
+    // const goalList = store.state.goalList
+    // const planList = store.state.planList
+    // const transformedData = planList.map((scheme) => {
+    //   if (scheme.id) {
+    //     return {
+    //       id: scheme.id,
+    //       name: scheme.name,
+    //       checked: scheme.checked, // You can set this value based on your logic
+    //       aptmId: appId, // Example value, replace with actual data
+    //       difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
+    //       stageList: scheme.stageList
+    //         .filter((item) => item.targetIds.length > 0)
+    //         .map((stage) => {
+    //           return {
+    //             stageName: stage.stageName,
+    //             targetIds: stage.targetIds.map((target) => target.id).join(','),
+    //             toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+    //           }
+    //         })
+    //     }
+    //   } else {
+    //     return {
+    //       name: scheme.name,
+    //       checked: scheme.checked, // You can set this value based on your logic
+    //       aptmId: appId, // Example value, replace with actual data
+    //       difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
+    //       stageList: scheme.stageList
+    //         .filter((item) => item.targetIds.length > 0)
+    //         .map((stage) => {
+    //           return {
+    //             stageName: stage.stageName,
+    //             targetIds: stage.targetIds.map((target) => target.id).join(','),
+    //             toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+    //           }
+    //         })
+    //     }
+    //   }
+    // })
+    // Post('/prod-api/emr/public/api/v1/scheme', transformedData)
   }
   nextTick(() => {
     editStep.value = active.value
@@ -386,7 +386,7 @@ const handleNextStep = () => {
 }
 async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
-  if (result.code == 200 && result.data.length > 0) {
+  if (result.code == 200 && result.data?.length > 0) {
     const planList = result.data.map((scheme) => ({
       id: scheme.id,
       name: scheme.name,
@@ -435,8 +435,8 @@ async function getPlanList() {
 
     // 不够的打上补丁
     planList.forEach((plan) => {
-      const length = plan.stageList.length
-      if (plan.stageList.length < 4) {
+      const length = plan.stageList?.length
+      if (plan.stageList?.length < 4) {
         for (let i = 0; i < 4 - length; i++) {
           plan.stageList.push({
             stageName: defaultStage[length + i],
