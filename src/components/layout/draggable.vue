@@ -2,16 +2,44 @@
   <div class="container">
     <draggable class="list-group" v-model="data" :move="onMove" :group="options" item-key="id">
       <template #item="{ element }">
-        <div class="list-group-item">
-          <img src="../../assets/layout/drag.svg" />
+        <div class="list-group-item" :class="{ InActive: question && !element.active }">
+          <img class="drag" src="../../assets/layout/drag.svg" />
           <div class="list-group-item-name">{{ element.name }}</div>
           <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
           <img
             class="deleteBtn"
             src="../../assets/svg/delete.svg"
-            @click.stop="removeAt(index)"
+            @click.stop="deleteAt(index)"
             v-if="showDeleteBtn"
           />
+          <el-tooltip
+            :visible="element.active && element.showRemoveIcon"
+            class="box-item"
+            effect="dark"
+            content="本期矫正不考虑该问题"
+            placement="top"
+          >
+            <img
+              class="remove"
+              src="../../assets/layout/remove.svg"
+              @click.stop="handleRemove(element)"
+              v-if="question && element.active"
+            />
+          </el-tooltip>
+          <el-tooltip
+            :visible="!element.active && element.showCancelIcon"
+            class="box-item"
+            effect="dark"
+            content="撤销"
+            placement="top"
+          >
+            <img
+              class="cancel"
+              src="../../assets/layout/cancel.svg"
+              @click.stop="handleCancel(element)"
+              v-if="question && !element.active"
+            />
+          </el-tooltip>
         </div>
       </template>
     </draggable>
@@ -22,6 +50,7 @@
 import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
 import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
+import { averageThreeCourts } from '../../utils/calculate'
 const props = defineProps({
   list: {
     type: Array,
@@ -53,8 +82,19 @@ watch(
 watch(data, (val) => {
   emit('update', val)
 })
-const removeAt = (index) => {
-  data.value.splice(index, 1)
+// 删除
+const deleteAt = (index) => {
+  console.log('delete', index)
+  // data.value.splice(index, 1)
+}
+// 从问题移除
+const handleRemove = (element) => {
+  element.active = false
+  element.showDeleteIcon = false
+}
+const handleCancel = (element) => {
+  element.active = true
+  element.showCancelIcon = false
 }
 // 控制哪些可以拖拽，哪些不可以
 const onMove = (e, originalEvent) => {
@@ -104,6 +144,18 @@ watch(options, (newVal) => {
   align-items: center;
   margin-bottom: 8px;
   margin-right: 8px;
+  &.InActive {
+    border: 1px solid #c9cdd4;
+    background-image: url('../../assets/layout/dragBackground.svg');
+    .drag,
+    .list-group-item-label,
+    .list-group-item-name {
+      opacity: 0.2;
+    }
+    .list-group-item-label {
+      background: #e5e6eb;
+    }
+  }
   img {
     margin-right: 10px;
     margin-left: 10px;
@@ -115,7 +167,7 @@ watch(options, (newVal) => {
     top: 0;
     border-radius: 0px 0px 0px 8px;
     padding: 2px 12px;
-    background: #fde7e6;
+    background: #eaf1ff;
     font-size: 12px;
     height: 20px;
   }
@@ -124,8 +176,30 @@ watch(options, (newVal) => {
     right: 0;
     opacity: 0;
   }
+  .remove,
+  .cancel {
+    position: absolute;
+    left: 50%;
+    opacity: 0;
+    z-index: 100;
+    cursor: pointer;
+  }
   &:hover {
+    /* 设置样式 */
+    .drag,
+    .list-group-item-label,
+    .list-group-item-name {
+      opacity: 0.2;
+    }
+    .list-group-item-label {
+      background: #e5e6eb;
+    }
+
     .deleteBtn {
+      opacity: 1;
+    }
+    .remove,
+    .cancel {
       opacity: 1;
     }
   }

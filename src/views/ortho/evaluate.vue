@@ -521,7 +521,7 @@
     </div>
     <div class="footer">
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
       </span>
     </div>
@@ -548,7 +548,7 @@
       <el-radio-group v-model="advice">
         <el-radio-button label="立即矫正" />
         <el-radio-button label="后续面评" />
-
+        <el-radio-button label="转三级医生" />
         <el-radio-button label="无需矫正" />
       </el-radio-group>
     </div>
@@ -564,6 +564,19 @@
       医生选择：<el-select placeholder="请选择" allow-search filterable v-model="orthDoctorId">
         <el-option
           v-for="item in orthDoctorList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+          {{ item.label }}</el-option
+        >
+      </el-select>
+    </div>
+    <div v-if="advice === '转三级医生'">
+      <div :style="{ width: '70px', display: 'inline-block' }">转诊至：</div>
+      <el-select placeholder="请选择" allow-search filterable v-model="threeLevelDoctorId">
+        <el-option
+          v-for="item in threeLevelDoctorList"
           :key="item.value"
           :label="item.label"
           :value="item.value"
@@ -612,6 +625,7 @@ const time = ref()
 async function handleConfirm() {
   adviceVisible.value = true
 }
+
 const id = ref()
 async function getId() {
   const res = await Get(`/prod-api/business/orthBase/${appId}`)
@@ -1008,9 +1022,11 @@ async function getPanoramicList() {
 }
 // 自由照
 const freePicData = ref([])
+const freeImageUrl = ref()
 async function getFreePic() {
   const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
   freePicData.value = result.data
+  freeImageUrl.value = result.data[0].imageUrl
 }
 
 function handlePanoData(panoramicData) {
@@ -1214,6 +1230,13 @@ const handleChangeOption = (optionId, title) => {
   }
 }
 async function handleSubmitRemark(title) {
+  if (!freeImageUrl.value) {
+    ElMessage({
+      message: '请先上传图片',
+      type: 'warning'
+    })
+    return
+  }
   const obj = {
     apmtId: appId,
     titleId: title.id,
@@ -1223,7 +1246,7 @@ async function handleSubmitRemark(title) {
     fdiToothCode: '',
     showPosition: ''
   }
-  const res = await Post('/prod-api/business/optionsResult', obj)
+  const res = await Post('/prod-api/business/facialResult', obj)
 }
 async function updateOption(optionId, title, option) {
   let obj = null
@@ -1395,7 +1418,22 @@ async function getOrthDoctorList() {
     })
   }
 }
+const threeLevelDoctorId = ref()
+const threeLevelDoctorList = ref([])
+async function getThreeLevelDoctorList() {
+  const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)
+  if (res.code == 200) {
+    threeLevelDoctorList.value = res.data.map((item) => {
+      return {
+        label: item.doctorName,
+        value: item.doctorId
+      }
+    })
+  }
+}
+
 getOrthDoctorList()
+getThreeLevelDoctorList()
 // 影像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
@@ -1429,6 +1467,7 @@ const handleSubmitTooth = (option, title, isTitle) => {
   // symptomList.value.forEach((row) =>
   //   row.forEach((item) => (item.active = false))
   // )
+  console.log('evelaute')
   if (isTitle && !title.submitAble) {
     return
   }
@@ -1496,7 +1535,7 @@ const handleBackToList = () => {
   padding-bottom: 10px;
 }
 .advice.el-dialog {
-  width: 432px;
+  width: 500px;
   border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;
@@ -1959,10 +1998,10 @@ const handleBackToList = () => {
     position: relative;
     .diagramBox {
       width: 122px;
-      height: 25px;
+      height: 30px;
       display: flex;
       div {
-        height: 25px;
+        height: 30px;
         width: 61px;
         display: flex;
         align-items: center;

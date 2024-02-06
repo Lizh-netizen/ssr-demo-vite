@@ -11,6 +11,7 @@ declare global {
   const ElMe: typeof import('element-plus/es')['ElMe']
   const ElMessage: typeof import('element-plus/es')['ElMessage']
   const ElMessageBox: typeof import('element-plus/es')['ElMessageBox']
+  const ElMessge: typeof import('element-plus/es')['ElMessge']
   const computed: typeof import('vue')['computed']
   const createApp: typeof import('vue')['createApp']
   const createLogger: typeof import('vuex')['createLogger']

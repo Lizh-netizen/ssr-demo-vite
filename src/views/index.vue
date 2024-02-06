@@ -602,7 +602,10 @@ const handleViewOrth = (item) => {
   window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
 }
 const handleEvaluateOrth = (item) => {
-  router.push(`/evaluateOrtho/${item.apmtId}/${item.patientId}`)
+  const path = item.facialId
+    ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${item.facialId}`
+    : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  router.push(path)
 }
 const handleCompareOrth = (item) => {
   router.push(`/compareOrtho/${item.apmtId}/${item.patientId}`)
@@ -644,6 +647,9 @@ onBeforeMount(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   const list = ['aptm', 'ortho', 'evaluate']
   list.forEach((element) => {
+    if (sessionStorage.getItem(element)) {
+      return
+    }
     sessionStorage.setItem(
       [element],
       JSON.stringify({

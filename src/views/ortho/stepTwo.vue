@@ -33,13 +33,47 @@
           ><template #content>
             <template v-for="title in item.orthTitleList" :key="title.id">
               <form-item :label="title.titleName" width="120px">
-                <Option
-                  :disabled="!item.hasImage"
-                  :title="title"
-                  :appId="appId"
-                  @refreshList="refreshList"
-                  owningModule="faceEvaluate"
-                ></Option>
+                <el-radio-group
+                  v-if="title.type == 1"
+                  v-model="title.optionId"
+                  @change="handleChangeOption(title.optionId, title)"
+                  @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
+                >
+                  <el-radio-button
+                    :disabled="!item.hasImage"
+                    :class="{
+                      serious: option.serious == '1',
+                      checked: option.choosen === true
+                    }"
+                    v-for="option in title.orthOptionsList"
+                    :key="option.id"
+                    :label="option.id"
+                  >
+                    {{ option.optionName }}
+                  </el-radio-button>
+                </el-radio-group>
+                <el-checkbox-group
+                  v-model="title.optionId"
+                  v-else-if="title.type == 2"
+                  @change="handleChangeOption(title.optionId, title)"
+                >
+                  <el-checkbox-button
+                    :disabled="!item.hasImage"
+                    :class="{
+                      serious: option.serious == '1',
+                      checked: option.choosen === true
+                    }"
+                    v-for="option in title.orthOptionsList"
+                    :key="option.id"
+                    :label="option.id"
+                  >
+                    {{ option.optionName }}
+                    <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                      src="@/assets/svg/abnormalChecked.svg"
+                      v-else
+                    />
+                  </el-checkbox-button>
+                </el-checkbox-group>
               </form-item>
             </template>
           </template>
@@ -1193,7 +1227,7 @@ function handlePanoData(panoramicData) {
         title.optionId = ''
         title.text = ''
         title.showInput = false
-        console.log(title)
+
         const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
         if (choosenOptions.length > 0) {
           title.optionId = choosenOptions[0].id
@@ -1249,7 +1283,6 @@ async function getOrthPanoramicList() {
       title.popVisible = false
     })
   })
-  console.log(panoramicData.value)
 
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
@@ -2373,7 +2406,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
         return acc
       }, {})
       const faceTourList1 = faceList1.map((label) => labelToDataMap[label])
-      console.log('🚀 ~ initCanvas ~ faceTourList1:', faceTourList1)
+
       drawFaceContour(ctx, faceTourList1)
     }
   }
@@ -2393,9 +2426,6 @@ onMounted(() => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
     if (popover) {
-      console.log(
-        panoramicData.value[0].orthTitleList.findIndex((title) => title.popVisible === true)
-      )
       if (e.target !== popover && !popover.contains(e.target)) {
         const index = panoramicData.value[0].orthTitleList.findIndex((title) => title.popVisible)
         if (index !== -1) {
@@ -2658,10 +2688,10 @@ div.el-input__wrapper {
     position: relative;
     .diagramBox {
       width: 122px;
-      height: 25px;
+      height: 30px;
       display: flex;
       div {
-        height: 25px;
+        height: 30px;
         width: 61px;
         display: flex;
         align-items: center;
@@ -2954,7 +2984,7 @@ div.el-input__wrapper {
   }
   &__caption {
     position: absolute;
-    left: 125px;
+    left: 130px;
     top: 268px;
     color: #4e5969;
   }
@@ -2967,7 +2997,7 @@ div.el-input__wrapper {
     }
     .imageItem__caption.pic2 {
       position: absolute;
-      left: 125px;
+      left: 130px;
       top: 560px;
     }
   }

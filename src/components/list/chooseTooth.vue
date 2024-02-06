@@ -39,7 +39,6 @@ const props = defineProps(['option'])
 
 symptomList.value = GetSymptom()
 const handleSelectTooth = (item, title) => {
-
   useSelectTooth(item, title)
 }
 </script>

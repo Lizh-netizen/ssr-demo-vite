@@ -11,19 +11,23 @@ const store = createStore({
         stageList: [
           {
             stageName: '3个月',
-            targetIds: []
+            targetIds: [],
+            toolIds: []
           },
           {
             stageName: '6个月',
-            targetIds: []
+            targetIds: [],
+            toolIds: []
           },
           {
             stageName: '9个月',
-            targetIds: []
+            targetIds: [],
+            toolIds: []
           },
           {
             stageName: '12个月',
-            targetIds: []
+            targetIds: [],
+            toolIds: []
           }
         ]
       }
@@ -70,26 +74,25 @@ const store = createStore({
             {
               stageName: '3个月',
               targetIds: [],
-              // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
-              toolIds: []
 
+              toolIds: []
             },
             {
               stageName: '6个月',
               targetIds: [],
-              // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
+
               toolIds: []
             },
             {
               stageName: '9个月',
               targetIds: [],
-              // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
+
               toolIds: []
             },
             {
               stageName: '12个月',
               targetIds: [],
-              // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
+
               toolIds: []
             }
           ]
@@ -103,26 +106,26 @@ const store = createStore({
             {
               stageName: '3个月',
               targetIds: [],
-              // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
+
               toolIds: []
             },
             {
               stageName: '6个月',
               targetIds: [],
-               // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
-               toolIds: []
+
+              toolIds: []
             },
             {
               stageName: '9个月',
               targetIds: [],
-               // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
-               toolIds: []
+
+              toolIds: []
             },
             {
               stageName: '12个月',
               targetIds: [],
-               // @ts-expect-error TS(2322): Type '{ stageName: string; targetIds: never[]; too... Remove this comment to see the full error message
-               toolIds: []
+
+              toolIds: []
             }
           ]
         })

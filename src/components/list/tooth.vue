@@ -88,7 +88,7 @@ import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step'])
 const emit = defineEmits(['submitTooth'])
 const title = ref(props.title)
-console.log('🚀 ~ title:', title)
+
 const data = ref(props.data)
 
 watch(
@@ -167,10 +167,10 @@ const handleClick = (title, data) => {
     position: relative;
     .diagramBox {
       width: 122px;
-      height: 25px;
+      height: 30px;
       display: flex;
       div {
-        height: 25px;
+        height: 30px;
         width: 61px;
         display: flex;
         align-items: center;

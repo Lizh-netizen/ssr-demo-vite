@@ -325,13 +325,6 @@ const handleChangeOption = (optionId, title) => {
   }
 }
 const handleSubmitTooth = (option, title, isTitle) => {
-  if (isTitle && !title.submitAble) {
-    return
-  }
-  if (!isTitle && !option.submitAble) {
-    return
-  }
-
   let obj = {
     apmtId: props.appId,
     titleId: title.id,
@@ -342,6 +335,18 @@ const handleSubmitTooth = (option, title, isTitle) => {
     fdiToothCode: isTitle ? title.toothCode.join() : option.toothCode.join(),
     showPosition: isTitle ? JSON.stringify(title.position) : JSON.stringify(option.position)
   }
+  if (isTitle && !title.submitAble) {
+    return
+  }
+  if (!isTitle && !option.submitAble) {
+    obj.optionsIdStr = []
+    obj.showPosition = ''
+    Post('/prod-api/business/facialResult', obj).then(() => {
+      emit('refreshList', props.owningModule)
+    })
+    return
+  }
+
   Post('/prod-api/business/facialResult', obj).then(() => {
     title.submitAble = false
     option.visible = false
@@ -386,7 +391,6 @@ const handleMouseEnterBtn = (option) => {
 }
 const closePopper = (option) => {
   const poppers = document.querySelectorAll('.myPopper')
-  console.log('🚀 ~ closePopper ~ poppers:', poppers)
   option.visible = false
 }
 const handleMouseLeaveBtn = (e, option) => {

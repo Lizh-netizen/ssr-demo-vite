@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-
 const routes = [
   { path: '/', redirect: '/index' },
   {
@@ -15,12 +14,12 @@ const routes = [
     // @ts-expect-error TS(2307): Cannot find module '../views/test.vue' or its corr... Remove this comment to see the full error message
     component: () => import('../views/test.vue')
   },
-  {
-    path: '/layout',
-    name: 'layout',
-    // @ts-expect-error TS(2307): Cannot find module '../views/ortho/layout.vue' or ... Remove this comment to see the full error message
-    component: () => import('../views/ortho/layout.vue')
-  },
+  // {
+  //   path: '/layout',
+  //   name: 'layout',
+  //   // @ts-expect-error TS(2307): Cannot find module '../views/ortho/layout.vue' or ... Remove this comment to see the full error message
+  //   component: () => import('../views/ortho/layout.vue')
+  // },
   {
     path: '/ortho/:appId/:patientId',
     name: 'ortho',
@@ -34,7 +33,7 @@ const routes = [
     component: () => import('../views/ortho/compare.vue')
   },
   {
-    path: '/evaluateOrtho/:appId/:patientId',
+    path: '/evaluateOrtho/:appId/:patientId/:facialId?',
     name: 'evaluateOrtho',
     // @ts-expect-error TS(2307): Cannot find module '../views/ortho/evaluate.vue' o... Remove this comment to see the full error message
     component: () => import('../views/ortho/evaluate.vue')
@@ -57,6 +56,5 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes
 })
-
 
 export default router
