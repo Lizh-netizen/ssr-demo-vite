@@ -7,7 +7,7 @@
   >
     <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <el-radio-button
-        v-if="!option.optionSuffix"
+        v-if="!option.optionSuffix && !notShowSvg"
         :class="{
           serious: option.serious == '1'
         }"
@@ -39,9 +39,11 @@
             :label="option.id"
             @mouseenter="handleMouseEnter(option)"
             @mouseleave="handleMouseLeave(option)"
+            :disabled="disabled"
           >
             {{ option.optionName
             }}<svg
+              v-if="option.optionSuffix && notShowSvg"
               xmlns="http://www.w3.org/2000/svg"
               xmlns:xlink="http://www.w3.org/1999/xlink"
               fill="
@@ -145,6 +147,10 @@ const props = defineProps({
     default: ''
   },
   disabled: {
+    type: Boolean,
+    default: false
+  },
+  notShowSvg: {
     type: Boolean,
     default: false
   }

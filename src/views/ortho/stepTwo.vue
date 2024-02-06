@@ -78,6 +78,7 @@
                     :appId="appId"
                     @refreshList="refreshList"
                     owningModule="mouth"
+                    :notShowSvg="false"
                   ></Option>
                 </form-item>
               </template>
@@ -1110,6 +1111,10 @@ async function getOrthMouthList() {
       item.hasImage = true
     }
     item.orthTitleList.forEach((title) => {
+      // optionSuffix覆盖掉
+      title.orthOptionsList.forEach((option) => {
+        option.optionSuffix = null
+      })
       if (title.type == 1) {
         title.optionId = ''
         title.text = ''

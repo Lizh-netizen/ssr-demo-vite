@@ -57,7 +57,7 @@ instance.interceptors.request.use(
     config.headers = {
       Authorization:
         sessionStorage.odos_token ||
-        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyOTAsInVzZXJfa2V5IjoiNjYxMTkyNmQtNjIwYi00MDNkLTg3OTAtY2JhOTcxYmQwMGUxIiwidXNlcm5hbWUiOiJsaXpoYW5naHVhIn0.UCCYnokL3BwNEA8hAT5Rec5rAvkBz6AiJM8EK0FrQWlzjPFC55KXVH76-PH68ZWLF6e26yGjfWdAFiidbo8GZQ'
+        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyNzksInVzZXJfa2V5IjoiZWMzNjE4YzItMzk5MS00ZDQ5LTkzZjYtZDE3YTA2ZGI4ZDdiIiwidXNlcm5hbWUiOiJhZG1pbiJ9.Dp8Gzo8qKKnPZgWtKdhPCqlwWqrdpfeZ7r-n-PPtFlawqodb9I7uBqnjGld-Rxtk91t-fnKxMdfbQEm-vAC52A'
     }
 
     return config
