@@ -213,6 +213,54 @@ const isspread = ref(false)
 let storageObj = ref({})
 onBeforeMount(() => {
   storageObj.value = {}
+  if (storageName) {
+    if (!storageObj.value[storageName]) {
+      storageObj.value[storageName] = 1
+    } else {
+      storageObj.value[storageName] = storageObj.value[storageName] + 1
+    }
+    const storageList = JSON.parse(sessionStorage.getItem(storageName))
+    // 刚开始只是传递一个name，并没有缓存
+    if (storageList) {
+      // 有缓存直接用缓存，没有的话最开始初始化一个新的
+      modelVal.value = storageList
+      emit('setInitialState', storageName)
+    } else {
+      modelVal.value = list.reduce((sum, item) => {
+        if (item.type === 'date' && item.defaultDate) {
+          console.log(item.defaultDate)
+          if (item.dateType === 'range') {
+            sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
+          } else {
+            sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
+          }
+        } else if (item.type === 'tab') {
+          sum[item.prop] = item.tabOptions[0].value
+        } else {
+          sum[item.prop] = null
+        }
+        return sum
+      }, {})
+      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+      modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+      emit('setInitialState', storageName)
+    }
+  } else {
+    modelVal.value = list.reduce((sum, item) => {
+      if (item.type === 'date' && item.defaultDate) {
+        if (item.dateType === 'range') {
+          sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
+        } else {
+          sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
+        }
+      } else if (item.type === 'tab') {
+        sum[item.prop] = item.tabOptions[0].value
+      } else {
+        sum[item.prop] = null
+      }
+      return sum
+    }, {})
+  }
 })
 // 筛选的响应式条件
 const modelVal = ref()
