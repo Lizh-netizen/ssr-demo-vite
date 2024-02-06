@@ -350,7 +350,6 @@ const firstDate = ref('')
 // firstdate是上个月的1号
 
 firstDate.value = formatTime().firstDate
-console.log('🚀 ~ firstDate.value:', firstDate.value)
 date.value = formatTime().formattedToday
 
 const columns = ref([...columns_config_evaluate])
@@ -540,7 +539,7 @@ async function handleSaveNotes() {
     customerId: selected.value.id, //客户id
     remark: textarea.value, //备注
     patientId: selected.value.PatientId, //患者id
-    apmtId: selected.value.aptmId,
+    aptmId: selected.value.aptmId,
     remarkType: remarkType.value
   })
   if (res.code == 200) {
@@ -641,57 +640,69 @@ watch(
   },
   { immediate: true }
 )
+onBeforeMount(() => {
+  const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
+  const list = ['aptm', 'ortho', 'evaluate']
+  list.forEach((element) => {
+    sessionStorage.setItem(
+      [element],
+      JSON.stringify({
+        doctorId: jc_odos_user.ljProviderId,
+        officeId: jc_odos_user.ljOfficeId,
+        date: element !== 'aptm' ? date.value : [firstDate.value, date.value]
+      })
+    )
+  })
+}),
+  onMounted(() => {
+    // 初始化
+    pagesStorage.value = strategy[currentTab.value].page
+    const val = sessionStorage.getItem('currentTab')
+    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
 
-onMounted(() => {
-  // 初始化
-  pagesStorage.value = strategy[currentTab.value].page
-  console.log('monted')
-  const val = sessionStorage.getItem('currentTab')
-  const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
 
-  const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
-
-  for (let key in strategy) {
-    if (key == '面评') {
-      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-      if (!args) {
-        const val = {}
-        val.officeId = officeId
-        val.doctorId = doctorId
-        val.date = date.value
-        strategy[key].stasCountRequest(val)
-      } else {
-        strategy[key].stasCountRequest(args)
+    for (let key in strategy) {
+      if (key == '面评') {
+        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+        if (!args) {
+          const val = {}
+          val.officeId = officeId
+          val.doctorId = doctorId
+          val.date = date.value
+          strategy[key].stasCountRequest(val)
+        } else {
+          strategy[key].stasCountRequest(args)
+        }
+      }
+      if (key == '矫正方案') {
+        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+        if (!args) {
+          const val = {}
+          val.doctorId = doctorId
+          val.officeId = officeId
+          val.date = date.value
+          strategy[key].stasCountRequest(val)
+        } else {
+          strategy[key].stasCountRequest(args)
+        }
+      }
+      if (key == '面评矫正预约率') {
+        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+        if (!args) {
+          const val = {}
+          val.doctorId = doctorId
+          val.officeId = officeId
+          val.date = [firstDate.value, date.value]
+          strategy[key].stasCountRequest(val)
+        } else {
+          strategy[key].stasCountRequest(args)
+        }
       }
     }
-    if (key == '矫正方案') {
-      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-      if (!args) {
-        const val = {}
-        val.doctorId = doctorId
-        val.officeId = officeId
-        val.date = date.value
-        strategy[key].stasCountRequest(val)
-      } else {
-        strategy[key].stasCountRequest(args)
-      }
-    }
-    if (key == '面评矫正预约率') {
-      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-      if (!args) {
-        const val = {}
-        val.doctorId = doctorId
-        val.officeId = officeId
-        val.date = [firstDate.value, date.value]
-        strategy[key].stasCountRequest(val)
-      } else {
-        strategy[key].stasCountRequest(args)
-      }
-    }
-  }
-  storageName.value = strategy[val].storage
-  pagesStorage.value = strategy[val].page
-})
+    storageName.value = strategy[val].storage
+    pagesStorage.value = strategy[val].page
+  })
 
 // 看板数据
 const facialCount = ref({})
