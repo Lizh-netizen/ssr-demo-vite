@@ -130,17 +130,17 @@
           </template>
           <template #operation="{ row }">
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
-              >录入面型发育评估</el-button
+              >进入面评</el-button
             >
             <el-button @click="handleViewOrth(row)" v-if="currentTab == '矫正方案'"
-              >查看正畸表</el-button
+              >进入正畸方案</el-button
             >
-            <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
+            <!-- <el-button @click="handleCompareOrth(row)" v-if="currentTab == '矫正方案'"
               >对比矫正方案报告</el-button
             >
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
               >对比面评报告</el-button
-            >
+            > -->
             <el-button @click="handleGoSche(row)" v-if="currentTab == '面评矫正预约率'"
               >去预约</el-button
             >
