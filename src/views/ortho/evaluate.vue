@@ -630,12 +630,12 @@ async function handleAdvice() {
     const obj = {
       patientId: patientId,
       aptmId: appId,
-      orthDoctorName: orthDoctorName || '',
-      orthDoctorId: orthDoctorId.value || '',
+      orthDoctorName: '',
+      orthDoctorId: '',
       remark: '',
       facialAdvise: facialAdvise,
-      facialOrthDoctorId: '',
-      facialOrthDoctorName: '',
+      facialOrthDoctorId: orthDoctorId.value || '',
+      facialOrthDoctorName: orthDoctorName || '',
       facialTime: time.value || ''
     }
 

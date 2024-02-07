@@ -224,7 +224,7 @@ onBeforeMount(() => {
     if (storageList) {
       // 有缓存直接用缓存，没有的话最开始初始化一个新的
       modelVal.value = storageList
-      emit('setInitialState', storageName)
+      // emit('setInitialState', storageName)
     } else {
       modelVal.value = list.reduce((sum, item) => {
         if (item.type === 'date' && item.defaultDate) {
@@ -241,9 +241,9 @@ onBeforeMount(() => {
         }
         return sum
       }, {})
-      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
-      modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-      emit('setInitialState', storageName)
+      // modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+      // modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+      // emit('setInitialState', storageName)
     }
   } else {
     modelVal.value = list.reduce((sum, item) => {

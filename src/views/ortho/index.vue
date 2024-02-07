@@ -469,6 +469,7 @@ const handlePreStep = () => {
 }
 const handleBackToList = () => {
   router.push('/index')
+  window.parent.postMessage(`index`, '*')
 }
 // 下载PDF
 const downloadPdf = () => {
