@@ -38,7 +38,7 @@ export const columns_config_evaluate = [
       { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
     ]
   },
-  { title: '面评建议', prop: 'facialAdvise', type: 'text' },
+  { title: '面评建议', prop: 'facialAdvise', slotName: 'facialAdvise' },
   {
     type: 'operation',
     title: '操作',

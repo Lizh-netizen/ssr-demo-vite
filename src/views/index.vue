@@ -99,6 +99,19 @@
               >
             </div>
           </template>
+          <template #facialAdvise="{ row }">
+            <div>
+              {{
+                row.facialAdvise == 1
+                  ? '立即矫正'
+                  : row.facialAdvise == 2
+                  ? '无需矫正'
+                  : row.facialAdvise == 3
+                  ? '后续面评'
+                  : '未评估'
+              }}
+            </div>
+          </template>
           <template #responsibleDoctor="{ row }">
             <a-select
               placeholder="请选择"
@@ -602,9 +615,8 @@ const handleViewOrth = (item) => {
   window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
 }
 const handleEvaluateOrth = (item) => {
-  const path = item.facialId
-    ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${item.facialId}`
-    : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  sessionStorage.setItem('patientInfo', JSON.stringify(item))
+  const path = `/evaluateOrtho/${item.apmtId}/${item.patientId}`
   router.push(path)
 }
 const handleCompareOrth = (item) => {
