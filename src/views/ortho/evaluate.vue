@@ -618,6 +618,9 @@ const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const facialId = route.params.facialId
+const facialReferralToDoctorId = route.params.facialReferralToDoctorId
+const facialOrthDoctorId = route.params.facialOrthDoctorId
 // 面评弹窗逻辑
 const adviceVisible = ref(false)
 const advice = ref()
@@ -639,18 +642,25 @@ async function handleAdvice() {
     if (found) {
       orthDoctorName = found.label || ''
     }
-
+    let facialDoctorName
+    const found1 = threeLevelDoctorList.value.find((item) => item.value == threeLevelDoctorId.value)
+    if (found1) {
+      facialDoctorName = found1.label || ''
+    }
     const facialAdvise = advice.value === '立即矫正' ? 1 : advice.value === '后续面评' ? 2 : 3
     const obj = {
+      id: facialId,
       patientId: patientId,
       aptmId: appId,
-      orthDoctorName: '',
-      orthDoctorId: '',
+      orthDoctorName: orthDoctorName || '',
+      orthDoctorId: orthDoctorId.value || '',
       remark: '',
       facialAdvise: facialAdvise,
       facialOrthDoctorId: orthDoctorId.value || '',
       facialOrthDoctorName: orthDoctorName || '',
-      facialTime: time.value || ''
+      facialTime: time.value || '',
+      facialReferralToDoctorId: threeLevelDoctorId.value || '',
+      facialReferralToDoctorName: facialDoctorName || ''
     }
 
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
