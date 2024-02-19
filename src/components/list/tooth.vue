@@ -167,10 +167,10 @@ const handleClick = (title, data) => {
     position: relative;
     .diagramBox {
       width: 122px;
-      height: 30px;
+      height: 36px;
       display: flex;
       div {
-        height: 30px;
+        height: 36px;
         width: 61px;
         display: flex;
         align-items: center;

@@ -25,7 +25,7 @@
       ></template>
       <template v-else>
         <!-- 刚开始没有牙齿，点击之后悬浮 -->
-        <template v-if="option.fdiToothCode == null">
+        <template v-if="!option.fdiToothCode">
           <el-popover
             placement="right"
             :width="490"
@@ -339,11 +339,13 @@ const handleSubmitTooth = (option, title, isTitle) => {
     return
   }
   if (!isTitle && !option.submitAble) {
-    obj.optionsIdStr = []
-    obj.showPosition = ''
-    Post('/prod-api/business/facialResult', obj).then(() => {
-      emit('refreshList', props.owningModule)
-    })
+    if (option.toothCode.length == 0) {
+      obj.optionsIdStr = []
+      obj.showPosition = ''
+      Post('/prod-api/business/facialResult', obj).then(() => {
+        emit('refreshList', props.owningModule)
+      })
+    }
     return
   }
 
