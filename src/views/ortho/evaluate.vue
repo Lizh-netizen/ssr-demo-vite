@@ -1,150 +1,25 @@
 <template>
   <div class="drawer">
+    <div
+      :style="{ marginBottom: '10px', cursor: 'pointer' }"
+      @click="handleBackToList"
+      class="section-header"
+    >
+      <el-icon><ArrowLeft /></el-icon>返回列表
+    </div>
     <div class="check section">
-      <div :style="{ marginBottom: '10px', cursor: 'pointer' }" @click="handleBackToList">
-        <el-icon><ArrowLeft /></el-icon>返回列表
-      </div>
-
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
           <template v-if="title.titleName !== '关节弹响' && title.titleName !== '侧关节'">
             <form-item :label="title.titleName" width="100px">
-              <el-radio-group
-                v-if="title.type == 1"
-                v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
-                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
-              >
-                <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
-                  <el-radio-button
-                    v-if="!option.optionSuffix"
-                    :class="{
-                      serious: option.serious == '1'
-                    }"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-
-                  <el-popover
-                    v-else
-                    popper-class="myPopper"
-                    :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                    placement="top-start"
-                    :width="200"
-                    :visible="option.visible"
-                    @show="showPopover(index - 2)"
-                  >
-                    <template #reference>
-                      <el-radio-button
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        :label="option.id"
-                        @mouseenter="handleMouseEnter(option)"
-                        @mouseleave="handleMouseLeave(option)"
-                      >
-                        {{ option.optionName
-                        }}<svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          fill="
-                              none
-                            "
-                          version="1.1"
-                          width="9.999975204467773"
-                          height="9.999975204467773"
-                          viewBox="0 0 9.999975204467773 9.999975204467773"
-                        >
-                          <g>
-                            <path
-                              d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                              fill-rule="evenodd"
-                              :fill="
-                                option.clicked
-                                  ? option.seriousColor
-                                  : option.hover
-                                  ? option.hoverColor
-                                  : option.fillColor
-                              "
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </svg>
-                      </el-radio-button>
-                    </template>
-                    <el-input
-                      maxlength="2"
-                      :ref="inputRefs[index - 2]"
-                      v-model="option.otherContent"
-                      @blur="handleSubmitContent(title.optionId, title, option)"
-                      :class="{
-                        borderless: option.otherContent
-                      }"
-                    ></el-input
-                    >{{ option.optionSuffix?.substr(-1) }}
-                  </el-popover>
-                </template>
-              </el-radio-group>
-              <el-checkbox-group
-                v-model="title.optionId"
-                v-if="title.type == 2"
-                @change="handleChangeOption(title.optionId, title)"
-              >
-                <el-checkbox-button
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                  v-for="option in title.orthOptionsList"
-                  :key="option.id"
-                  :label="option.id"
-                >
-                  {{ option.optionName }}
-                  <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                    src="../../assets/svg/abnormalChecked.svg"
-                    v-else
-                  />
-                </el-checkbox-button>
-              </el-checkbox-group>
-              <el-input
-                v-if="
-                  (title.optionId.constructor === Array && title.optionId.includes(9)) ||
-                  title.optionId == 9
-                "
-                placeholder="请输入"
-                v-model="title.otherContent"
-                @blur="handleSubmit(title.optionId, title)"
-              />
+              <Option
+                :title="title"
+                :appId="appId"
+                @refreshList="refreshList"
+                owningModule="check"
+              ></Option>
             </form-item>
-          </template>
-          <!-- 关节错乱 -->
-
-          <template v-if="title.titleName == '关节弹响'">
-            <div :style="{ display: 'inline-flex' }">
-              <div class="specialTitle">{{ title.titleName }}</div>
-
-              <el-radio-group
-                class="specialRadio"
-                v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
-                @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
-              >
-                <el-radio-button
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                  v-for="option in title.orthOptionsList"
-                  :key="option.id"
-                  :label="option.id"
-                >
-                  {{ option.optionName }}
-                </el-radio-button>
-              </el-radio-group>
-            </div>
           </template>
         </template>
       </div>
@@ -191,47 +66,13 @@
               ><template #content>
                 <template v-for="title in item.orthTitleList" :key="title.id">
                   <form-item :label="title.titleName" width="120px">
-                    <el-radio-group
-                      v-if="title.type == 1"
-                      v-model="title.optionId"
-                      @change="handleChangeOption(title.optionId, title, item.className, item)"
-                      @dblclick="handleEmptyRadio(title.optionId, title, 'face')"
-                    >
-                      <el-radio-button
-                        :disabled="!item.hasImage"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        v-for="option in title.orthOptionsList"
-                        :key="option.id"
-                        :label="option.id"
-                      >
-                        {{ option.optionName }}
-                      </el-radio-button>
-                    </el-radio-group>
-                    <el-checkbox-group
-                      v-model="title.optionId"
-                      v-if="title.type == 2"
-                      @change="handleChangeOption(title.optionId, title, item.className, item)"
-                    >
-                      <el-checkbox-button
-                        :disabled="!item.hasImage"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        v-for="option in title.orthOptionsList"
-                        :key="option.id"
-                        :label="option.id"
-                      >
-                        {{ option.optionName }}
-                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                      </el-checkbox-button>
-                    </el-checkbox-group>
+                    <Option
+                      :disabled="!item.hasImage"
+                      :title="title"
+                      :appId="appId"
+                      @refreshList="refreshList"
+                      owningModule="face"
+                    ></Option>
                   </form-item>
                 </template>
               </template>
@@ -246,9 +87,11 @@
         <div class="container">
           <template v-for="item in mouthData" :key="item.id">
             <ImageItem
+              v-if="item.className !== '前牙覆盖'"
               :imageCaption="item.className"
               :class="{
-                removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像'
+                removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
+                frontBite: item.className === '正面咬合'
               }"
               ><template #img
                 ><template v-if="item.imageUrl"
@@ -264,53 +107,175 @@
                     @click="handleOpenImageDialogue(item.className)"
                   >
                     <img :src="imgUrl" class="addPic" />
-                  </div> </template></template
-              ><template #content>
-                <template v-for="title in item.orthTitleList" :key="title.id">
-                  <form-item :label="title.titleName" width="120px">
-                    <el-radio-group
-                      v-if="title.type == 1"
-                      v-model="title.optionId"
-                      @change="handleChangeOption(title.optionId, title, item.className, item)"
-                      @dblclick="handleEmptyRadio(title.optionId, title, 'mouth')"
-                    >
-                      <el-radio-button
-                        :disabled="!item.hasImage"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        v-for="option in title.orthOptionsList"
-                        :key="option.id"
-                        :label="option.id"
-                      >
-                        {{ option.optionName }}
-                      </el-radio-button>
-                    </el-radio-group>
-                    <el-checkbox-group
-                      v-model="title.optionId"
-                      v-if="title.type == 2"
-                      @change="handleChangeOption(title.optionId, title, item.className, item)"
-                    >
-                      <el-checkbox-button
-                        :disabled="!item.hasImage"
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        v-for="option in title.orthOptionsList"
-                        :key="option.id"
-                        :label="option.id"
-                      >
-                        {{ option.optionName }}
-                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                      </el-checkbox-button>
-                    </el-checkbox-group>
-                  </form-item>
+                  </div>
                 </template>
+                <template v-if="item.className == '正面咬合'">
+                  <div :style="{ 'margin-top': '30px' }">
+                    <template v-if="frontCover"
+                      ><img
+                        :src="frontCover"
+                        :style="{
+                          height: '240px',
+                          'object-fit': 'cover'
+                        }" /></template
+                    ><template v-else>
+                      <div
+                        class="imageItem__placeholder"
+                        @click="handleOpenImageDialogue('前牙覆盖')"
+                      >
+                        <img :src="imgUrl" class="addPic" />
+                      </div>
+                    </template>
+                    <div :style="{ 'margin-bottom': '10px' }">前牙覆盖</div>
+                  </div>
+                </template> </template
+              ><template #content>
+                <template v-if="item.className == '正面咬合'"> </template>
+                <div>
+                  <template v-for="title in item.orthTitleList" :key="title.id">
+                    <form-item :label="title.titleName" width="120px">
+                      <Option
+                        :disabled="!item.hasImage"
+                        :title="title"
+                        :appId="appId"
+                        @refreshList="refreshList"
+                        owningModule="mouth"
+                        :mouthData="mouthData"
+                        :savedTitleList="savedTitleList"
+                      ></Option>
+                      <!-- <el-radio-group
+                        v-if="title.type == 1"
+                        v-model="title.optionId"
+                        @change="handleChangeOption(title.optionId, title)"
+                        @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+                      >
+                        <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+                          <template v-if="!option.optionSuffix">
+                            <el-radio-button
+                              :class="{
+                                serious: option.serious == '1',
+                                checked: option.choosen === true
+                              }"
+                              :label="option.id"
+                            >
+                              {{ option.optionName }}
+                              <img
+                                class="aiFlagImg"
+                                src="@/assets/svg/AIFlagForFront.svg"
+                                v-show="title.aiFlag == '1' && option.choosen"
+                              /> </el-radio-button
+                          ></template>
+                          <template v-else>
+                            <template v-if="option.fdiToothCode == null">
+                              <el-popover
+                                placement="right"
+                                :width="490"
+                                trigger="click"
+                                @show="handleBeforeEnterPopover(option)"
+                                @after-leave="handleSubmitTooth(option, title)"
+                              >
+                                <template #reference>
+                                  <el-radio-button
+                                    @click="option.visible = true"
+                                    :class="{
+                                      serious: option.serious == '1',
+                                      checked: option.choosen === true
+                                    }"
+                                    :label="option.id"
+                                    @mouseenter="option.hover = true"
+                                    @mouseleave="option.hover = false"
+                                  >
+                                    {{ option.optionName
+                                    }}<svg
+                                      v-if="option.optionSuffix"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      fill="none"
+                                      version="1.1"
+                                      width="9.999975204467773"
+                                      height="9.999975204467773"
+                                      viewBox="0 0 9.999975204467773 9.999975204467773"
+                                    >
+                                      <g>
+                                        <path
+                                          d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                          fill-rule="evenodd"
+                                          :fill="
+                                            option.clicked
+                                              ? option.seriousColor
+                                              : option.hover
+                                              ? option.hoverColor
+                                              : option.fillColor
+                                          "
+                                          fill-opacity="1"
+                                        />
+                                      </g>
+                                    </svg>
+                                  </el-radio-button>
+                                </template>
+                                <ChooseTooth :option="option"></ChooseTooth>
+                              </el-popover>
+                            </template>
+                            <template v-else>
+                              <el-popover
+                                popper-class="myPopper"
+                                :popper-style="{ width: 'auto', 'min-width': '100px' }"
+                                placement="top-start"
+                                :width="200"
+                                :visible="option.visible"
+                              >
+                                <template #reference>
+                                  <el-radio-button
+                                    @mouseenter="handleMouseEnterBtn(option)"
+                                    :class="{
+                                      serious: option.serious == '1',
+                                      checked: option.choosen === true
+                                    }"
+                                    :label="option.id"
+                                    @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
+                                  >
+                                    {{ option.optionName
+                                    }}<svg
+                                      v-if="option.optionSuffix"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      fill="none"
+                                      version="1.1"
+                                      width="9.999975204467773"
+                                      height="9.999975204467773"
+                                      viewBox="0 0 9.999975204467773 9.999975204467773"
+                                    >
+                                      <g>
+                                        <path
+                                          d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                          fill-rule="evenodd"
+                                          :fill="
+                                            option.clicked
+                                              ? option.seriousColor
+                                              : option.hover
+                                              ? option.hoverColor
+                                              : option.fillColor
+                                          "
+                                          fill-opacity="1"
+                                        />
+                                      </g>
+                                    </svg>
+                                  </el-radio-button>
+                                </template>
+                                <Tooth
+                                  :step="5"
+                                  :title="option"
+                                  :appId="appId"
+                                  @submitTooth="(val) => handleSubmitTooth(val, title)"
+                                />
+                              </el-popover>
+                            </template>
+                          </template>
+                        </template>
+                      </el-radio-group> -->
+                    </form-item>
+                  </template>
+                </div>
               </template>
             </ImageItem>
           </template>
@@ -415,7 +380,7 @@
                           :width="490"
                           :visible="title.popVisible"
                           @show="handleBeforeEnterPopover(title)"
-                          @after-leave="handleSubmitTooth(title)"
+                          @after-leave="handleSubmitTooth(null, title, true)"
                         >
                           <template #reference>
                             <div
@@ -554,39 +519,9 @@
         </div>
       </div>
     </div>
-    <!-- <div class="model section">
-      <Header text="模型分析" backgroundColor="#EAF0FC" />
-      <div class="content">
-        <form-item
-          v-for="title in modelData.orthTitleList"
-          :key="title.id"
-          :label="title.titleName"
-          width="110px"
-          :showMark="title.titleName === 'Bolton指数（前牙比）'"
-          :content="title.prompt"
-        >
-          <el-radio-group
-            v-model="title.optionId"
-            @change="handleChangeOption(title.optionId, title)"
-          >
-            <template v-for="option in title.orthOptionsList" :key="option.id">
-              <el-radio-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                :label="option.id"
-              >
-                {{ option.optionName }}
-              </el-radio-button>
-            </template>
-          </el-radio-group>
-        </form-item>
-      </div>
-    </div> -->
     <div class="footer">
       <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
       </span>
     </div>
@@ -600,169 +535,7 @@
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
-  <!-- 影像管理弹窗 -->
-  <!-- <el-dialog
-    v-model="imgDialogVisible"
-    title="影像管理"
-    width="1183px"
-    @close="handleCloseImgDialog"
-    :close-on-click-modal="false"
-  >
-    <div class="imageManagement" ref="loadingTarget2">
-      <div class="imageManagement__images subSection">
-        <div class="title">
-          <div class="title__left">图库</div>
-          <div class="title__middle">
-            <img src="../../assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-            可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～
-          </div>
-          <div class="title__right file-upload">
-            <div class="file-upload__label">
-              <el-button type="primary" link :icon="Upload">上传图片</el-button>
-            </div>
-            <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
-          </div>
-        </div>
-        <div
-          :style="{
-            'padding-left': '14px',
-            'padding-bottom': '50px',
-            'padding-top': '50px'
-          }"
-        >
-          <img
-            class="imgContainer__empty"
-            src="../../assets/svg/empty__image.svg"
-            v-if="imageArr.length == 0"
-          />
-          <template v-else>
-            <div v-for="(item, index) in imageArr" :key="index">
-              <div>
-                {{ item.StartTime.split('T')[0] }}
-              </div>
-              <div class="imgContainer">
-                <div
-                  class="item"
-                  v-for="img in item.imageList"
-                  :key="img.id"
-                  @mouseenter="img.showFlag = true"
-                  @mouseleave="img.showFlag = false"
-                >
-                  <div
-                    :style="{
-                      position: 'relative',
-                      border: '1px solid #e5e6eb',
-                      'border-radius': '12px'
-                    }"
-                  >
-                    <img
-                      :style="{ display: 'block' }"
-                      class="img"
-                      :src="img.imgUrl"
-                      :class="{
-                        choose: img.choose === true
-                      }"
-                      draggable="true"
-                      @dragstart="handleDragStart(img, $event)"
-                      @dragend="handleDragEnd"
-                      @click="handleToggleChoose(img)"
-                    />
-                    <img
-                      src="../../assets/svg/imageChecked.svg"
-                      :style="{
-                        position: 'absolute',
-                        right: '6px',
-                        bottom: '6px'
-                      }"
-                      @click="handleToggleChoose(img)"
-                      v-show="img.choose === true"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div
-                :style="{
-                  display: 'inline-flex',
-                  color: '#4E5969',
-                  cursor: 'pointer'
-                }"
-                @click="handleLoadPic"
-                v-if="!item.file && index === imageArr.length - 1"
-              >
-                <span>加载上次影像</span><img src="../../assets/svg/morePic.svg" />
-              </div>
-            </div>
-          </template>
-        </div>
 
-        <div class="classifyWrapper">
-          <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
-          ><el-button @click="handleClassifyPics">自动分类</el-button>
-        </div>
-      </div>
-      <div class="imageManagement__classify subSection">
-        <div class="title">分类</div>
-        <div class="imageWrapper">
-          <div
-            class="item"
-            v-for="img in imageList"
-            :key="img.typeName"
-            @mouseenter="img.showFlag = true"
-            @mouseleave="img.showFlag = false"
-          >
-            <div
-              :style="{
-                position: 'relative',
-                border: '1px solid #e5e6eb',
-                'border-radius': '12px'
-              }"
-            >
-              <img
-                class="img"
-                :class="{
-                  hover: img.reminder === true,
-                  animate__animated: img.reminder === true,
-                  animate__bounce: img.reminder === true
-                }"
-                :style="{ display: 'block' }"
-                :src="img.fileUrl"
-                @drop="(e) => handleDrop(e, img)"
-                @dragover.prevent="handleDragOver"
-                @dragleave="handleDragLeave"
-                @dragstart="handleDragStart1(img)"
-                @dragend="handleDragEnd"
-              />
-            </div>
-            <el-popconfirm
-              width="300"
-              confirm-button-text="确认"
-              :icon="WarningFilled"
-              icon-color="#FF7D00"
-              cancel-button-text="取消"
-              title="确认删除该张图片吗？"
-              @confirm="handleDeleteImage1(img)"
-            >
-              <template #reference>
-                <img
-                  :style="{ cursor: 'pointer' }"
-                  class="deleteImage"
-                  src="../../assets/svg/deleteImage.svg"
-                  v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
-                />
-              </template>
-            </el-popconfirm>
-            <div class="item__caption">{{ img.caption }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="imgDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
-      </span>
-    </template>
-  </el-dialog> -->
   <img
     id="img"
     :style="{
@@ -775,7 +548,7 @@
       <el-radio-group v-model="advice">
         <el-radio-button label="立即矫正" />
         <el-radio-button label="后续面评" />
-
+        <el-radio-button label="转三级面评" />
         <el-radio-button label="无需矫正" />
       </el-radio-group>
     </div>
@@ -799,6 +572,19 @@
         >
       </el-select>
     </div>
+    <div v-if="advice === '转三级面评'">
+      <div :style="{ width: '70px', display: 'inline-block' }">转诊至：</div>
+      <el-select placeholder="请选择" allow-search filterable v-model="threeLevelDoctorId">
+        <el-option
+          v-for="item in threeLevelDoctorList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+          {{ item.label }}</el-option
+        >
+      </el-select>
+    </div>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="adviceVisible = false">取消</el-button>
@@ -809,6 +595,7 @@
 </template>
 
 <script setup>
+import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Header from '../../components/list/header.vue'
@@ -817,7 +604,7 @@ import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
-import useUpdateOption from '../../effects/updateOption'
+
 import useSelectTooth from '../../effects/selectTooth'
 import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
@@ -825,17 +612,33 @@ import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import emptyRadio from '@/effects/emptyRadio.ts'
+import Option from '@/components/list/evaluateOption.vue'
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo'))
+const facialId = patientInfo.facialId
+
 // 面评弹窗逻辑
 const adviceVisible = ref(false)
-const advice = ref()
-const time = ref()
+const advice = ref(
+  patientInfo.facialAdvise == 1
+    ? '立即矫正'
+    : patientInfo.facialAdvise == 2
+    ? '无需矫正'
+    : patientInfo.facialAdvise == 3
+    ? '后续面评'
+    : patientInfo.facialAdvise == 4
+    ? '转三级面评'
+    : '待定'
+)
+const time = ref(patientInfo.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
+
 const id = ref()
 async function getId() {
   const res = await Get(`/prod-api/business/orthBase/${appId}`)
@@ -849,18 +652,45 @@ async function handleAdvice() {
     if (found) {
       orthDoctorName = found.label || ''
     }
+    let facialDoctorName
+    const found1 = threeLevelDoctorList.value.find((item) => item.value == threeLevelDoctorId.value)
+    if (found1) {
+      facialDoctorName = found1.label || ''
+    }
+    const facialAdvise =
+      advice.value === '立即矫正'
+        ? 1
+        : advice.value === '后续面评'
+        ? 3
+        : advice.value === '转三级面评'
+        ? 4
+        : 2
+    if (advice.value === '立即矫正') {
+      time.value = ''
+      threeLevelDoctorId.value = ''
+      facialDoctorName = ''
+    } else if (advice.value === '后续面评') {
+      orthDoctorId.value = ''
+      threeLevelDoctorId.value = ''
+    } else if (advice.value === '转三级面评') {
+      orthDoctorId.value = ''
+      orthDoctorName = ''
+      time.value = ''
+    }
 
-    const facialAdvise = advice.value === '立即矫正' ? 1 : advice.value === '后续面评' ? 2 : 3
     const obj = {
+      id: facialId,
       patientId: patientId,
       aptmId: appId,
       orthDoctorName: orthDoctorName || '',
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
       facialAdvise: facialAdvise,
-      facialOrthDoctorId: '',
-      facialOrthDoctorName: '',
-      facialTime: time.value || ''
+      facialOrthDoctorId: advice.value === '立即矫正' ? orthDoctorId.value : '',
+      facialOrthDoctorName: advice.value === '立即矫正' ? orthDoctorName : '',
+      facialTime: advice.value === '后续面评' ? time.value : null,
+      facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
+      facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : ''
     }
 
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
@@ -871,6 +701,7 @@ async function handleAdvice() {
   } catch (err) {
     console.log(err)
   }
+  handleBackToList()
 }
 
 onMounted(() => {
@@ -897,6 +728,7 @@ const handleClose = () => {
 imgUrl.value = img
 // 全景片牙位图逻辑
 const symptomList = ref([])
+symptomList.value = GetSymptom()
 const handleBeforeEnterPopover = (title) => {
   symptomList.value.forEach((row) => {
     row.forEach((a) => {
@@ -908,7 +740,15 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-
+// 单选反选取消
+const strategy = {
+  faceEvaluate: getFaceAccessList,
+  mouth: getMouthList,
+  panoramic: getPanoramicList
+}
+const refreshList = (val) => {
+  strategy[val]()
+}
 // 获取数据
 
 const checkData = ref([])
@@ -1033,6 +873,9 @@ async function getFaceAccessList() {
 }
 
 const mouthData = ref([])
+const frontCover = ref()
+// 作为标题的备份
+const savedTitleList = ref([])
 async function getMouthList() {
   const result = await Get(`/prod-api/business/orthClass/list/1/口内照/${appId}`)
   mouthData.value = result.data
@@ -1045,6 +888,11 @@ async function getMouthList() {
       item.hasImage = true
     }
     item.orthTitleList.forEach((title) => {
+      title.orthOptionsList.forEach((a) => {
+        if (a.optionSuffix) {
+          useFdiToothCodeEffect(a)
+        }
+      })
       if (title.type == 1) {
         title.optionId = ''
         title.text = ''
@@ -1065,6 +913,104 @@ async function getMouthList() {
         }
       }
     })
+    if (item.className == '前牙覆盖') {
+      frontCover.value = item.imageUrl
+    }
+    // 在刚开始展示的时候根据标题中的选项是否被选中展示
+    if (item.className == '正面咬合') {
+      savedTitleList.value = [...item.orthTitleList]
+      const title1 = item.orthTitleList.find((title) => title.titleName == '反覆合程度')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+      const title4 = item.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      const title5 = item.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      const option1 = title4.orthOptionsList.find((option) => option.optionName == '前牙反覆合')
+      const option2 = title5.orthOptionsList.find((option) => option.optionName == '前牙反覆盖')
+      // 如果前牙覆合中的前牙反覆合没有被选中
+      if (!option1.choosen && !choosen1) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆合程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option2.choosen && !choosen2) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆盖程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option1.choosen && !option2.choosen) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
+        item.orthTitleList.splice(index, 1)
+      }
+      item.orthTitleList.forEach((title) => {
+        if (title.titleName == '前牙覆合') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '前牙反覆合') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+        if (title.titleName == '前牙覆盖') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '前牙反覆盖') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+      })
+    }
+    if (item.className == '磨牙关系（左侧）') {
+      item.orthTitleList.forEach((title) => {
+        if (title.titleName == '后牙') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '左侧后牙反合') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+        if (title.titleName == '锁HE') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+      })
+    }
+    if (item.className == '磨牙关系（右侧）') {
+      item.orthTitleList.forEach((title) => {
+        if (title.titleName == '后牙') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '右侧后牙反合') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+        if (title.titleName == '锁HE') {
+          title.orthOptionsList.forEach((option) => {
+            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
+              option.fillColor = '#C9CDD4'
+              option.seriousColor = '#f44c4c'
+              option.hoverColor = '#2e6ce4'
+              option.clicked = option.choosen ? true : false
+            }
+          })
+        }
+      })
+    }
   })
 }
 
@@ -1117,9 +1063,11 @@ async function getPanoramicList() {
 }
 // 自由照
 const freePicData = ref([])
+const freeImageUrl = ref()
 async function getFreePic() {
   const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
   freePicData.value = result.data
+  freeImageUrl.value = result.data[0].imageUrl
 }
 
 function handlePanoData(panoramicData) {
@@ -1230,7 +1178,63 @@ async function handleEmptyRadio(optionId, title, owningModule) {
     // 重新请求数据
   }
 }
+const requestAgain = ref(false)
 const handleChangeOption = (optionId, title) => {
+  let choosenOption
+  if (
+    title.titleName == '前牙覆合' ||
+    title.titleName == '前牙覆盖' ||
+    title.titleName == '后牙' ||
+    title.titleName == '锁HE'
+  ) {
+    requestAgain.value = true
+    title.orthOptionsList.forEach((option) => {
+      if (optionId == option.id) {
+        option.clicked = true
+      } else {
+        option.clicked = false
+      }
+    })
+  }
+  const found = mouthData.value.find((item) => item.className == '正面咬合')
+  if (title.titleName == '前牙覆合') {
+    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
+      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
+      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
+      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆合程度')
+      // 判断凹面型表现是否需要清空
+      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆盖')
+      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
+        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
+        title2.optionId = []
+        updateOption(null, title2)
+      }
+      title1.optionId = []
+      updateOption(null, title1)
+      //  点击完需要重新请求接口
+    }
+    // getOrthFaceAccessList()
+  }
+  // 还有一个凹面型需要判断
+  if (title.titleName == '前牙覆盖') {
+    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆盖') {
+      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆盖') {
+      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
+      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆盖程度')
+      // 判断凹面型表现是否需要清空
+      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆合')
+      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
+        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
+        title2.optionId = []
+        updateOption(null, title2)
+      }
+      title1.optionId = []
+      updateOption(null, title1)
+    }
+    // getOrthFaceAccessList()
+  }
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
     if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
@@ -1254,15 +1258,26 @@ const handleChangeOption = (optionId, title) => {
     })
   }
   if (title.type == 1) {
+    choosenOption = title.orthOptionsList.find((a) => a.id == optionId)
     title.orthOptionsList.forEach((option) => {
       if (optionId !== option.id) {
         option.choosen = false
       }
     })
   }
-  updateOption(title.optionId, title)
+  updateOption(title.optionId, title, choosenOption)
+  if (requestAgain.value) {
+    // getMouthList()
+  }
 }
 async function handleSubmitRemark(title) {
+  if (!freeImageUrl.value) {
+    ElMessage({
+      message: '请先上传图片',
+      type: 'warning'
+    })
+    return
+  }
   const obj = {
     apmtId: appId,
     titleId: title.id,
@@ -1272,9 +1287,9 @@ async function handleSubmitRemark(title) {
     fdiToothCode: '',
     showPosition: ''
   }
-  const res = await Post('/prod-api/business/optionsResult', obj)
+  const res = await Post('/prod-api/business/facialResult', obj)
 }
-async function updateOption(optionId, title) {
+async function updateOption(optionId, title, option) {
   let obj = null
   if (title.type == 1) {
     obj = {
@@ -1284,7 +1299,8 @@ async function updateOption(optionId, title) {
       otherContent: title.otherContent,
       cephalometricsContent: title.cephalometricsContent,
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      optionSuffix: option.optionSuffix
     }
   } else if (title.type == 2) {
     obj = {
@@ -1294,7 +1310,8 @@ async function updateOption(optionId, title) {
       otherContent: title.otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      optionSuffix: option.optionSuffix
     }
   }
   await Post('/prod-api/business/facialResult', obj)
@@ -1413,45 +1430,9 @@ const fileList = ref([])
 const fileListWithFlag = ref([])
 
 const params = new FormData()
-symptomList.value = GetSymptom()
+
 const upload = ref(false)
-const handleFileChange = (event) => {
-  const selectedFiles = event.target.files
-  if (selectedFiles.length > 16) {
-    event.preventDefault()
-    ElMessage('最多上传16张图片')
-  } else {
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i]
-      params.append('files', file)
 
-      if (file) {
-        const reader = new FileReader()
-        reader.onload = () => {
-          fileList.value.push(reader.result)
-          fileListWithFlag.value.push({
-            imgUrl: reader.result,
-            showFlag: false,
-            choose: true,
-            file: file
-          })
-        }
-        reader.readAsDataURL(file)
-      }
-    }
-
-    if (!upload.value) {
-      imageArr.value.unshift({
-        file: true,
-        StartTime: '2023-8-14',
-        imageList: fileListWithFlag.value
-      })
-      upload.value = true
-    } else {
-      imageArr.value[0].imageList = fileListWithFlag.value
-    }
-  }
-}
 // 影像管理
 const chooseImgNum = computed(() => {
   let num = 0
@@ -1464,26 +1445,8 @@ const chooseImgNum = computed(() => {
   })
   return num
 })
-const handleToggleChoose = (img) => {
-  img.choose = !img.choose
-}
 
-const handleDeleteImage1 = (img) => {
-  // 删除图库中的图片
-  if (img.id) {
-    Delete(`/prod-api/business/orthImage/${img.id}`).then((res) => {
-      if (res.code == 200) {
-        const found = imageList.value.find((image) => img == image)
-        found.fileUrl = placeholderUrl
-        found.id = undefined
-        // getAllData()
-      }
-    })
-  } else {
-    img.fileUrl = placeholderUrl
-  }
-}
-const orthDoctorId = ref()
+const orthDoctorId = ref(+patientInfo.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1496,7 +1459,22 @@ async function getOrthDoctorList() {
     })
   }
 }
+const threeLevelDoctorId = ref(+patientInfo.facialReferralToDoctorId || '')
+const threeLevelDoctorList = ref([])
+async function getThreeLevelDoctorList() {
+  const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)
+  if (res.code == 200) {
+    threeLevelDoctorList.value = res.data.map((item) => {
+      return {
+        label: item.doctorName,
+        value: item.doctorId
+      }
+    })
+  }
+}
+
 getOrthDoctorList()
+getThreeLevelDoctorList()
 // 影像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
@@ -1507,232 +1485,12 @@ const handleOpenImageDialogue = (caption) => {
   // reminder是提醒从这个跳进去的
   title.value = caption
 }
-// 加载更多图像
-const handleLoadPic = () => {
-  if (imageArr.value.length < totalArr.value.length) {
-    totalArr.value[imageArr.value.length].imageList.forEach((img) => {
-      img.imgUrl = img.fileUrl
-    })
-    const itemWithImage = totalArr.value
-      .slice(index.value + 1)
-      .find((a) => a.imageList.length !== 0)
-    if (itemWithImage) {
-      imageArr.value.push(itemWithImage)
-      index.value = totalArr.value.findIndex(
-        (item) => item == imageArr.value[imageArr.value.length - 1]
-      )
-      imageArr.value[imageArr.value.length - 1].imageList.forEach((img) => {
-        img.imgUrl = img.fileUrl
-      })
-    } else {
-      ElMessage('没有更多图像了哦')
-    }
-  }
-}
 
-// 图片分类
-
-const loadingTarget2 = ref()
-// 自动分类
-// const loading = ref(false)
-async function handleClassifyPics() {
-  if (chooseImgNum.value == 0) {
-    ElMessage({
-      message: '未选中图片',
-      type: 'error'
-    })
-  } else {
-    // loading.value = true
-    const loading = ElLoading.service({
-      lock: true,
-      text: '正在分类中',
-      background: 'rgba(0, 0, 0, 0.7)',
-      target: loadingTarget2.value
-    })
-    const formData = new FormData()
-    let orthImageString, orthImageList
-    imageArr.value
-      .filter((i) => i.file === undefined)
-      .forEach((c) => {
-        orthImageList = c.imageList
-          .filter((b) => b.choose === true)
-          .map((a) => {
-            if (a.choose) {
-              return {
-                ljUrl: a.imgUrl,
-                ljId: a.id,
-                LJCreateDatetime: a.timestamp
-              }
-            }
-          })
-      })
-    orthImageString = JSON.stringify({
-      patientId: patientId,
-      apmtId: appId,
-      orthImageList
-    })
-    if (imageArr.value.filter((i) => i.file === true).length > 0) {
-      imageArr.value
-        .filter((i) => i.file === true)[0]
-        .imageList.filter((image) => image.choose === true)
-        .forEach((file) => {
-          formData.append('files', file.file)
-        })
-    } else {
-      formData.append('files', null)
-    }
-    formData.append('orthImageString', orthImageString)
-    const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
-    loading.close()
-    if (res.code === 200) {
-      imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
-      res.data.forEach((d) => {
-        imageList.value.forEach((i) => {
-          if (d.typeName == i.typeName) {
-            i.fileUrl = d.fileUrl
-          }
-        })
-      })
-    }
-  }
-}
-// 图片拖拽
-const dragFile = ref(null)
 const src = ref()
-// 在右边区域拖拽
-const handleDragStart1 = (img) => {
-  dragFile.value = img
-  dragFile.value.rightDrop = true
-  src.value = dragFile.value.fileUrl
-  const image2 = document.getElementById('img')
-  image2.src = img.fileUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-// 从左侧拖到右侧
-const handleDragStart = (file, event) => {
-  if (file.file) {
-    event.dataTransfer.setData('text/plain', file)
-    dragFile.value = event.dataTransfer.files[0]
-  } else {
-    dragFile.value = file
-  }
-  const image2 = document.getElementById('img')
-  image2.src = file.imgUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-const handleDragEnd = () => {
-  const image2 = document.getElementById('img')
-  image2.style.opacity = 0
-}
-const handleDrop = (e, image) => {
-  const image2 = document.getElementById('img')
-  image2.style.opacity = 0
-  e.target.classList.remove('hover')
-  if (!dragFile.value.rightDrop) {
-    // 从左拖到右
-    handleSingleImage(dragFile.value, image)
-  } else {
-    // 有id的话是分类过的，要通过接口删除
-    if (dragFile.value.id) {
-      handleDeleteImage1(dragFile.value)
-    } else {
-      // 否则只要替换掉fileUrl就可以了
-      const found = imageList.value.find((image) => dragFile.value.fileUrl == image.fileUrl)
-      found.fileUrl = placeholderUrl
-    }
-    // 已经上传过的有id
-    if (image.id) {
-      Put('/prod-api/business/orthImage', {
-        id: image.id,
-        imageUrl: src.value
-      }).then(() => {
-        getClassifiedImgList()
-      })
-      // 否则也是替换掉fileUrl
-    } else {
-      image.fileUrl = src.value
-    }
-  }
-}
-const handleDragOver = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = blueBgUrl
-    e.target.classList.add('hover')
-  }
-}
-const handleDragLeave = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = placeholderUrl
-  }
-  e.target.classList.remove('hover')
-}
+
 // 上传图片
 // file是拖拽的，image是被拖的
-const failCount = ref(0)
-async function handleSingleImage(file, image) {
-  const formData = new FormData()
-  if (file.type) {
-    formData.append('file', file, 'Cover')
-    formData.append(
-      'orthImageString',
-      JSON.stringify({
-        patientId: patientId,
-        apmtId: appId,
-        orthImageList: []
-      })
-    )
-  } else {
-    formData.append(
-      'orthImageString',
-      JSON.stringify({
-        patientId: patientId,
-        apmtId: appId,
-        orthImageList: [
-          {
-            ljUrl: file.imgUrl,
-            ljId: file.id,
-            LJCreateDatetime: file.timestamp
-          }
-        ]
-      })
-    )
-  }
 
-  const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
-  if (res.code == 200 && res.data[0].fileUrl) {
-    image.fileUrl = res.data[0].fileUrl
-  } else {
-    image.fileUrl = placeholderUrl
-    if (failCount.value == 0) {
-      failCount.value++
-      ElMessage({
-        message: '拖拽失败，请再试一次',
-        type: 'warning'
-      })
-    } else {
-      ElMessage({
-        message: '拖拽失败，请联系管理员',
-        type: 'warning'
-      })
-    }
-  }
-}
 const openPop = (title, item) => {
   if (!item.hasImage) {
     return
@@ -1746,29 +1504,34 @@ const openPop = (title, item) => {
     title.popVisible = !title.popVisible
   }
 }
-const handleSubmitTooth = (title) => {
+const handleSubmitTooth = (option, title, isTitle) => {
   // symptomList.value.forEach((row) =>
   //   row.forEach((item) => (item.active = false))
   // )
-  if (!title.submitAble) {
+  console.log('evelaute')
+  if (isTitle && !title.submitAble) {
+    return
+  }
+  if (!isTitle && !option.submitAble) {
     return
   }
 
   let obj = {
     apmtId: appId,
     titleId: title.id,
-    optionsIdStr: [],
+    optionsIdStr: isTitle ? [] : [title.optionId],
     otherContent: '',
+    optionSuffix: '牙位图',
     cephalometricsContent: '',
-    fdiToothCode: title.toothCode.join(),
-    showPosition: JSON.stringify(title.position)
+    fdiToothCode: isTitle ? title.toothCode.join() : option.toothCode.join(),
+    showPosition: isTitle ? JSON.stringify(title.position) : JSON.stringify(option.position)
   }
-  Post('/prod-api/business/optionsResult', obj).then(() => {
+  Post('/prod-api/business/facialResult', obj).then(() => {
     title.submitAble = false
   })
 }
 const handleSubmit = (optionId, title) => {
-  useUpdateOption(optionId, title, '', appId)
+  updateOption(optionId, title)
 }
 const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)
@@ -1813,7 +1576,7 @@ const handleBackToList = () => {
   padding-bottom: 10px;
 }
 .advice.el-dialog {
-  width: 432px;
+  width: 500px;
   border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;
@@ -1864,6 +1627,28 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .imageItem.frontCoverImage {
+  border-bottom: none !important;
+  padding: 0;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 0px !important;
+  }
+}
+
+:deep .imageItem.frontBite {
+  padding-bottom: 0 !important;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 10px !important;
+  }
+  .imageItem__caption {
+    top: 240px;
+  }
+  .imageItem__content {
+    display: flex;
+  }
+}
 :deep .el-input.el-input--prefix.el-input--suffix.el-date-editor el-date-editor--date {
   width: 130px;
 }
@@ -1997,7 +1782,7 @@ const handleBackToList = () => {
 .drawer {
   box-sizing: border-box;
   // font-family: 思源黑体;
-  padding: 20px;
+  // padding: 20px;
   margin: 15px;
   background: #fff;
   border-radius: 10px;
@@ -2008,6 +1793,16 @@ const handleBackToList = () => {
         box-sizing: border-box;
         border-bottom: 1.4px dashed #e5e6eb;
       }
+    }
+    &-header {
+      margin-bottom: 10px;
+      cursor: pointer;
+      position: sticky;
+      top: 0px;
+      height: 50px;
+      background: #fff;
+      line-height: 50px;
+      z-index: 2;
     }
 
     &.image {
@@ -2244,10 +2039,10 @@ const handleBackToList = () => {
     position: relative;
     .diagramBox {
       width: 122px;
-      height: 25px;
+      height: 30px;
       display: flex;
       div {
-        height: 25px;
+        height: 30px;
         width: 61px;
         display: flex;
         align-items: center;

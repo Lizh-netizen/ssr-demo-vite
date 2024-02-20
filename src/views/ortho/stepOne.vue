@@ -36,55 +36,12 @@
                 v-for="title in item.orthTitleList"
                 :key="title.id"
               >
-                <el-radio-group
-                  v-if="title.type == 1"
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title)"
-                  @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
-                >
-                  <el-radio-button
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-                </el-radio-group>
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  v-if="title.type == 2"
-                  @change="handleChangeOption(title.optionId, title)"
-                >
-                  <el-checkbox-button
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="../../assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </el-checkbox-group>
-
-                <el-input
-                  v-if="
-                    (title.optionId.constructor === Array && title.optionId.includes(9)) ||
-                    title.optionId == 9
-                  "
-                  placeholder="请输入"
-                  v-model="title.otherContent"
-                  @blur="handleSubmit(title.optionId, title)"
-                />
+                <Option
+                  :title="title"
+                  :appId="appId"
+                  @refreshList="refreshList"
+                  owningModule="inquiry"
+                ></Option>
               </form-item>
             </div>
           </form-item>
@@ -97,23 +54,12 @@
               v-for="title in item.orthTitleList"
               :key="title.id"
             >
-              <el-radio-group
-                v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
-                @dblclick="handleEmptyRadio(title.optionId, title, 'inquiry')"
-              >
-                <el-radio-button
-                  v-for="option in title.orthOptionsList"
-                  :key="option.id"
-                  :label="option.id"
-                  :class="{
-                    serious: option.serious == '1',
-                    checked: option.choosen === true
-                  }"
-                >
-                  {{ option.optionName }}
-                </el-radio-button>
-              </el-radio-group>
+              <Option
+                :title="title"
+                :appId="appId"
+                @refreshList="refreshList"
+                owningModule="inquiry"
+              ></Option>
             </form-item>
           </div>
         </template>
@@ -319,6 +265,7 @@ import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.ts'
 import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
+import Option from '@/components/list/option.vue'
 const clicked = ref(false)
 defineExpose({
   clicked
@@ -326,7 +273,11 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
-
+const refreshList = (val) => {
+  if (val == 'inquiry') {
+    getOrthInquiryList()
+  }
+}
 const input1 = ref('')
 const input2 = ref('')
 const route = useRoute()

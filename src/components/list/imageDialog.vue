@@ -182,6 +182,8 @@ import { ref, defineProps, computed, defineEmits, onMounted, watch, onBeforeMoun
 import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
+import formatTime from '../../utils/formatTime.ts'
+
 const props = defineProps({
   page: {
     type: String,
@@ -572,7 +574,7 @@ const fileListWithFlag = ref([])
 const params = new FormData()
 
 const upload = ref(false)
-
+const date = ref()
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
   if (selectedFiles.length > 16) {
@@ -599,9 +601,10 @@ const handleFileChange = (event) => {
     }
 
     if (!upload.value) {
+      date.value = formatTime().formattedToday
       imageArr.value.unshift({
         file: true,
-        StartTime: '2023-8-14',
+        StartTime: date.value,
         imageList: fileListWithFlag.value
       })
       upload.value = true
