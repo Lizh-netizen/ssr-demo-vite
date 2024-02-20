@@ -324,7 +324,10 @@ const handleChangeOption = (optionId, title) => {
     emit('refreshList', props.owningModule)
   }
 }
+// chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿
 const handleSubmitTooth = (option, title, isTitle) => {
+  console.log(!isTitle, !option.submitAble)
+  option.visible = false
   let obj = {
     apmtId: props.appId,
     titleId: title.id,
@@ -338,7 +341,8 @@ const handleSubmitTooth = (option, title, isTitle) => {
   if (isTitle && !title.submitAble) {
     return
   }
-  if (!isTitle && !option.submitAble) {
+  // 选项中的牙位
+  if (!isTitle) {
     if (option.toothCode.length == 0) {
       obj = {
         apmtId: props.appId,
@@ -350,17 +354,18 @@ const handleSubmitTooth = (option, title, isTitle) => {
         fdiToothCode: '',
         showPosition: ''
       }
+      Post('/prod-api/business/facialResult', obj).then(() => {
+        option.submitAble = false
+        title.submitAble = false
+        emit('refreshList', props.owningModule)
+      })
+      return
     }
-    Post('/prod-api/business/facialResult', obj).then(() => {
-      option.visible = false
-      emit('refreshList', props.owningModule)
-    })
-    return
   }
 
   Post('/prod-api/business/facialResult', obj).then(() => {
+    option.submitAble = false
     title.submitAble = false
-    option.visible = false
     emit('refreshList', props.owningModule)
   })
 }

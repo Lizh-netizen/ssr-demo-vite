@@ -113,10 +113,10 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 选中牙位
 const handleSelectTooth = (item, title) => {
-  console.log(title)
   useSelectTooth(item, title)
 }
 const handleSubmitTooth = (title) => {
+  console.log('enter')
   if (props.step == 2) {
     if (!title.submitAble) {
       return
