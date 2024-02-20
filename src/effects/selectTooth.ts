@@ -1,4 +1,4 @@
-// 已经选中了牙位，可以提交
+// 已经选中了牙位，可以提交, submitAble
 const useSelectTooth = (item: any, title: any) => {
   title.submitAble = true
   item.active = !item.active

@@ -624,7 +624,7 @@ const facialId = patientInfo.facialId
 // 面评弹窗逻辑
 const adviceVisible = ref(false)
 const advice = ref()
-const time = ref()
+const time = ref(patientInfo.StartTime.slice(0, 10))
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -671,6 +671,7 @@ async function handleAdvice() {
   } catch (err) {
     console.log(err)
   }
+  handleBackToList()
 }
 
 onMounted(() => {

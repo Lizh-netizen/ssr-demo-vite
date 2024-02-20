@@ -340,12 +340,21 @@ const handleSubmitTooth = (option, title, isTitle) => {
   }
   if (!isTitle && !option.submitAble) {
     if (option.toothCode.length == 0) {
-      obj.optionsIdStr = []
-      obj.showPosition = ''
-      Post('/prod-api/business/facialResult', obj).then(() => {
-        emit('refreshList', props.owningModule)
-      })
+      obj = {
+        apmtId: props.appId,
+        titleId: title.id,
+        optionsIdStr: [],
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: '',
+        showPosition: ''
+      }
     }
+    Post('/prod-api/business/facialResult', obj).then(() => {
+      option.visible = false
+      emit('refreshList', props.owningModule)
+    })
     return
   }
 
