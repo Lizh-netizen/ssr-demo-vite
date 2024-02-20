@@ -548,7 +548,7 @@
       <el-radio-group v-model="advice">
         <el-radio-button label="立即矫正" />
         <el-radio-button label="后续面评" />
-        <el-radio-button label="转三级医生" />
+        <el-radio-button label="转三级面评" />
         <el-radio-button label="无需矫正" />
       </el-radio-group>
     </div>
@@ -572,7 +572,7 @@
         >
       </el-select>
     </div>
-    <div v-if="advice === '转三级医生'">
+    <div v-if="advice === '转三级面评'">
       <div :style="{ width: '70px', display: 'inline-block' }">转诊至：</div>
       <el-select placeholder="请选择" allow-search filterable v-model="threeLevelDoctorId">
         <el-option
@@ -623,8 +623,18 @@ const facialId = patientInfo.facialId
 
 // 面评弹窗逻辑
 const adviceVisible = ref(false)
-const advice = ref()
-const time = ref(patientInfo.StartTime.slice(0, 10))
+const advice = ref(
+  patientInfo.facialAdvise == 1
+    ? '立即矫正'
+    : patientInfo.facialAdvise == 2
+    ? '无需矫正'
+    : patientInfo.facialAdvise == 3
+    ? '后续面评'
+    : patientInfo.facialAdvise == 4
+    ? '转三级面评'
+    : '待定'
+)
+const time = ref(patientInfo.facialTime.slice(0, 10))
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -652,9 +662,22 @@ async function handleAdvice() {
         ? 1
         : advice.value === '后续面评'
         ? 3
-        : advice.value === '转三级医生'
+        : advice.value === '转三级面评'
         ? 4
         : 2
+    if (advice.value === '立即矫正') {
+      time.value = ''
+      threeLevelDoctorId.value = ''
+      facialDoctorName = ''
+    } else if (advice.value === '后续面评') {
+      orthDoctorId.value = ''
+      threeLevelDoctorId.value = ''
+    } else if (advice.value === '转三级面评') {
+      orthDoctorId.value = ''
+      orthDoctorName = ''
+      time.value = ''
+    }
+
     const obj = {
       id: facialId,
       patientId: patientId,
@@ -665,9 +688,9 @@ async function handleAdvice() {
       facialAdvise: facialAdvise,
       facialOrthDoctorId: advice.value === '立即矫正' ? orthDoctorId.value : '',
       facialOrthDoctorName: advice.value === '立即矫正' ? orthDoctorName : '',
-      facialTime: advice.value === '后续面评' ? time.value : '',
-      facialReferralToDoctorId: advice.value === '转三级医生' ? threeLevelDoctorId.value : '',
-      facialReferralToDoctorName: advice.value === '转三级医生' ? facialDoctorName : ''
+      facialTime: advice.value === '后续面评' ? time.value : null,
+      facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
+      facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : ''
     }
 
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
