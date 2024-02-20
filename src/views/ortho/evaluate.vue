@@ -634,7 +634,7 @@ const advice = ref(
     ? '转三级面评'
     : '待定'
 )
-const time = ref(patientInfo.facialTime.slice(0, 10))
+const time = ref(patientInfo.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
