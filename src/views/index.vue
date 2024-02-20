@@ -108,6 +108,8 @@
                   ? '无需矫正'
                   : row.facialAdvise == 3
                   ? '后续面评'
+                  : row.facialAdvise == 4
+                  ? '无需矫正'
                   : '未评估'
               }}
             </div>

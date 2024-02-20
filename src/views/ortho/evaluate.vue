@@ -647,7 +647,14 @@ async function handleAdvice() {
     if (found1) {
       facialDoctorName = found1.label || ''
     }
-    const facialAdvise = advice.value === '立即矫正' ? 1 : advice.value === '后续面评' ? 3 : 2
+    const facialAdvise =
+      advice.value === '立即矫正'
+        ? 1
+        : advice.value === '后续面评'
+        ? 3
+        : advice.value === '转三级医生'
+        ? 4
+        : 2
     const obj = {
       id: facialId,
       patientId: patientId,
@@ -656,11 +663,11 @@ async function handleAdvice() {
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
       facialAdvise: facialAdvise,
-      facialOrthDoctorId: orthDoctorId.value || '',
-      facialOrthDoctorName: orthDoctorName || '',
-      facialTime: time.value || '',
-      facialReferralToDoctorId: threeLevelDoctorId.value || '',
-      facialReferralToDoctorName: facialDoctorName || ''
+      facialOrthDoctorId: advice.value === '立即矫正' ? orthDoctorId.value : '',
+      facialOrthDoctorName: advice.value === '立即矫正' ? orthDoctorName : '',
+      facialTime: advice.value === '后续面评' ? time.value : '',
+      facialReferralToDoctorId: advice.value === '转三级医生' ? threeLevelDoctorId.value : '',
+      facialReferralToDoctorName: advice.value === '转三级医生' ? facialDoctorName : ''
     }
 
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
