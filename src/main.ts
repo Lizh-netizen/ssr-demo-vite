@@ -8,7 +8,7 @@ window.addEventListener('message', (event) => {
   if (
     event.origin == 'https://orangetest.aiorange.com' ||
     event.origin == 'https://orangedev.aiorange.com' ||
-    event.origin == 'https://orangedev.aiorange.com'
+    event.origin == 'https://odos.aiorange.com'
   ) {
     if (event.data.startsWith('clear')) {
       sessionStorage.clear()
