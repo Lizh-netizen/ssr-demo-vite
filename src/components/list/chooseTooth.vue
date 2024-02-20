@@ -32,7 +32,7 @@
 
 <script setup>
 import { GetSymptom } from '@/utils/tooth'
-// import { defineProps } from 'vue'
+// import { defineProps, defineEmits } from 'vue';
 import useSelectTooth from '@/effects/selectTooth.ts'
 const symptomList = ref([])
 const props = defineProps(['option'])
