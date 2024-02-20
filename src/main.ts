@@ -16,22 +16,14 @@ window.parent.postMessage('done', '*')
 // })
 // src跳转
 window.addEventListener('message', (event) => {
+  console.log(event)
   if (
-    event.origin == 'https://devorthoallweb.aiorange.com' ||
-    event.origin == 'https://testorthoallweb.aiorange.com' ||
-    event.origin == 'https://orthoallweb.aiorange.com'
+    event.origin == 'https://orangetest.aiorange.com' ||
+    event.origin == 'https://orangedev.aiorange.com' ||
+    event.origin == 'https://orangedev.aiorange.com'
   ) {
     if (event.data.startsWith('clear')) {
       sessionStorage.clear()
-    }
-  }
-  if (
-    event.origin == 'https://devorthoallweb.aiorange.com' ||
-    event.origin == 'https://testorthoallweb.aiorange.com' ||
-    event.origin == 'https://orthoallweb.aiorange.com'
-  ) {
-    if (event.data.startsWith('index')) {
-      sessionStorage.removeItem('orthSrc')
     }
   }
 })
