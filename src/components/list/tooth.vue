@@ -85,7 +85,7 @@ import { ref, watch } from 'vue'
 import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
-const props = defineProps(['title', 'appId', 'data', 'step'])
+const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId'])
 const emit = defineEmits(['submitTooth'])
 const title = ref(props.title)
 
@@ -116,7 +116,6 @@ const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)
 }
 const handleSubmitTooth = (title) => {
-  console.log('enter')
   if (props.step == 2) {
     if (!title.submitAble) {
       return
@@ -131,9 +130,16 @@ const handleSubmitTooth = (title) => {
       fdiToothCode: title.toothCode.join(),
       showPosition: JSON.stringify(title.position)
     }
-    Post('/prod-api/business/optionsResult', obj).then(() => {
-      title.submitAble = false
-    })
+    if (props.module == 'evaluate') {
+      obj.classId = props.classId
+      Post('/prod-api/business/facialResult', obj).then(() => {
+        title.submitAble = false
+      })
+    } else {
+      Post('/prod-api/business/optionsResult', obj).then(() => {
+        title.submitAble = false
+      })
+    }
   } else {
     emit('submitTooth', title)
   }
