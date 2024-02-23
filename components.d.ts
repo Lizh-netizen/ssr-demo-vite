@@ -8,8 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AButton: typeof import('@arco-design/web-vue')['Button']
-    ACheckbox: typeof import('@arco-design/web-vue')['Checkbox']
-    ACheckboxGroup: typeof import('@arco-design/web-vue')['CheckboxGroup']
     ADrawer: typeof import('@arco-design/web-vue')['Drawer']
     AOption: typeof import('@arco-design/web-vue')['Option']
     ASelect: typeof import('@arco-design/web-vue')['Select']
@@ -23,10 +21,9 @@ declare module 'vue' {
     Draggable: typeof import('./src/components/layout/draggable.vue')['default']
     Drawer: typeof import('./src/components/list/drawer.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCheckboxButton: typeof import('element-plus/es')['ElCheckboxButton']
     ElCheckboxGroup: typeof import('element-plus/es')['ElCheckboxGroup']
-    ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
-    ElDatePicker: typeof import('element-plus/es')['ElDatePicker']
     ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElDrawer: typeof import('element-plus/es')['ElDrawer']
@@ -48,7 +45,6 @@ declare module 'vue' {
     List: typeof import('./src/components/pdf/list.vue')['default']
     ModelAnalysis: typeof import('./src/components/list/modelAnalysis.vue')['default']
     Option: typeof import('./src/components/list/option.vue')['default']
-    Radio: typeof import('./src/components/list/radio.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Tooth: typeof import('./src/components/list/tooth.vue')['default']
