@@ -23,6 +23,7 @@ declare module 'vue' {
     Draggable: typeof import('./src/components/layout/draggable.vue')['default']
     Drawer: typeof import('./src/components/list/drawer.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCard: typeof import('element-plus/es')['ElCard']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCheckboxButton: typeof import('element-plus/es')['ElCheckboxButton']
     ElCheckboxGroup: typeof import('element-plus/es')['ElCheckboxGroup']
