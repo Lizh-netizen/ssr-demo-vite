@@ -226,7 +226,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-const emit = defineEmits(['refreshList', 'changeIconColor'])
+const emit = defineEmits(['refreshList'])
 async function handleEmptyRadio(optionId, title, owningModule, classId) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&

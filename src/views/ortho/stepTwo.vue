@@ -33,47 +33,14 @@
           ><template #content>
             <template v-for="title in item.orthTitleList" :key="title.id">
               <form-item :label="title.titleName" width="120px">
-                <el-radio-group
-                  v-if="title.type == 1"
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title)"
-                  @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
-                >
-                  <el-radio-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-                </el-radio-group>
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  v-else-if="title.type == 2"
-                  @change="handleChangeOption(title.optionId, title)"
-                >
-                  <el-checkbox-button
-                    :disabled="!item.hasImage"
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    v-for="option in title.orthOptionsList"
-                    :key="option.id"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                    <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="@/assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </el-checkbox-group>
+                <Option
+                  :disabled="!item.hasImage"
+                  :title="title"
+                  :appId="appId"
+                  @refreshList="refreshList"
+                  owningModule="mouth"
+                  :notShowSvg="false"
+                ></Option>
               </form-item>
             </template>
           </template>
@@ -1219,6 +1186,8 @@ function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
       useFdiToothCodeEffect(a)
+      a.showInput = false
+      a.popVisible = false
     })
   })
   panoramicData.value.forEach((item) => {
@@ -1278,15 +1247,12 @@ async function getOrthPanoramicList() {
         }
       })
     }
-    item.orthTitleList.forEach((title) => {
-      title.showInput = false
-      title.popVisible = false
-    })
   })
 
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
+  console.log(panoramicData.value)
 }
 
 // 上传侧面微笑像并自动分类
@@ -2419,19 +2385,6 @@ onMounted(() => {
   watch(coordinatesBase.value, (newVal) => {
     if (newVal && pointMoved.value) {
       getAIResult()
-    }
-  })
-
-  window.addEventListener('click', (e) => {
-    // 点击空白处，弹窗消失
-    const popover = document.querySelector('.el-popper.el-popover')
-    if (popover) {
-      if (e.target !== popover && !popover.contains(e.target)) {
-        const index = panoramicData.value[0].orthTitleList.findIndex((title) => title.popVisible)
-        if (index !== -1) {
-          panoramicData.value[0].orthTitleList[index].popVisible = false
-        }
-      }
     }
   })
 })

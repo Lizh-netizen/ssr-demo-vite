@@ -2,7 +2,10 @@
   <div class="container">
     <draggable class="list-group" v-model="data" :move="onMove" :group="options" item-key="id">
       <template #item="{ element }">
-        <div class="list-group-item" :class="{ InActive: question && !element.active }">
+        <div
+          class="list-group-item"
+          :class="{ InActive: question && !element.active, question: question == true }"
+        >
           <img class="drag" src="../../assets/layout/drag.svg" />
           <div class="list-group-item-name">{{ element.name }}</div>
           <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
@@ -184,23 +187,25 @@ watch(options, (newVal) => {
     z-index: 100;
     cursor: pointer;
   }
-  &:hover {
-    /* 设置样式 */
-    .drag,
-    .list-group-item-label,
-    .list-group-item-name {
-      opacity: 0.2;
-    }
-    .list-group-item-label {
-      background: #e5e6eb;
-    }
+  &.question {
+    &:hover {
+      /* 设置样式 */
+      .drag,
+      .list-group-item-label,
+      .list-group-item-name {
+        opacity: 0.2;
+      }
+      .list-group-item-label {
+        background: #e5e6eb;
+      }
 
-    .deleteBtn {
-      opacity: 1;
-    }
-    .remove,
-    .cancel {
-      opacity: 1;
+      .deleteBtn {
+        opacity: 1;
+      }
+      .remove,
+      .cancel {
+        opacity: 1;
+      }
     }
   }
 }

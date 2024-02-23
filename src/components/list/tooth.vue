@@ -81,12 +81,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId'])
-const emit = defineEmits(['submitTooth'])
+const emit = defineEmits(['submitTooth', 'changePopVisible'])
 const title = ref(props.title)
 
 const data = ref(props.data)
@@ -98,7 +98,13 @@ watch(
   },
   { deep: true }
 )
-
+watch(
+  () => props.title,
+  (val) => {
+    title.value = val
+  },
+  { deep: true }
+)
 const symptomList = ref([])
 symptomList.value = GetSymptom()
 const handleBeforeEnterPopover = (title) => {
@@ -113,7 +119,7 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 选中牙位
 const handleSelectTooth = (item, title) => {
-  useSelectTooth(item, title)
+  useSelectTooth(item, props.title)
 }
 const handleSubmitTooth = (title) => {
   if (props.step == 2) {
@@ -146,10 +152,12 @@ const handleSubmitTooth = (title) => {
   // 清理掉poper
 }
 const openPop = (title, item) => {
+  console.log('🚀 ~ openPop ~ item:', item)
   if (!item?.hasImage) {
     return
   } else {
     // 点击下一个十字牙位时，先吧之前的清空
+
     item.orthTitleList.forEach((t) => {
       if (title !== t) {
         t.popVisible = false
@@ -160,7 +168,24 @@ const openPop = (title, item) => {
 }
 const handleClick = (title, data) => {
   openPop(title, data)
+  activeTitle.value = title
 }
+const activeTitle = ref()
+onMounted(() => {
+  window.addEventListener('click', (e) => {
+    // 点击空白处，弹窗消失
+    const popover = document.querySelector('.el-popper.el-popover')
+    if (popover) {
+      if (e.target !== popover && !popover.contains(e.target) && data.value) {
+        const index = data.value.orthTitleList.findIndex((title) => title.popVisible)
+
+        if (index !== -1) {
+          data.value.orthTitleList[index].popVisible = false
+        }
+      }
+    }
+  })
+})
 </script>
 
 <style lang="scss" scoped>
