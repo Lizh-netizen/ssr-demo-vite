@@ -2,7 +2,7 @@
   <el-radio-group
     v-if="title.type == 1"
     v-model="title.optionId"
-    @change="handleChangeOption(title.optionId, title)"
+    @change="handleChangeOption(title.optionId, title, classId)"
     @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
   >
     <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
@@ -31,7 +31,7 @@
             :width="490"
             trigger="click"
             @show="handleBeforeEnterPopover(option)"
-            @after-leave="handleSubmitTooth(option, title)"
+            @after-leave="handleSubmitTooth(option, title, classId)"
           >
             <template #reference>
               <!-- 这里是浮上去的时候改变图标的颜色 -->
@@ -129,7 +129,7 @@
               :step="5"
               :title="option"
               :appId="appId"
-              @submitTooth="(val) => handleSubmitTooth(val, title)"
+              @submitTooth="(val) => handleSubmitTooth(val, title, classId)"
             />
           </el-popover>
         </template>
@@ -139,7 +139,7 @@
   <el-checkbox-group
     v-model="title.optionId"
     v-if="title.type == 2"
-    @change="handleChangeOption(title.optionId, title)"
+    @change="handleChangeOption(title.optionId, title, classId)"
   >
     <el-checkbox-button
       :class="{
@@ -174,6 +174,7 @@ import useChangeOption from '@/effects/changeOption.ts'
 import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import { Post } from '../../utils/request.ts'
+import updateOption from '@/effects/evaluateUpdateOption.ts'
 const props = defineProps({
   title: {
     type: Object,
@@ -206,6 +207,10 @@ const props = defineProps({
   savedTitleList: {
     type: Array,
     default: () => []
+  },
+  classId: {
+    type: Number,
+    default: ''
   }
 })
 
@@ -221,21 +226,21 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-const emit = defineEmits(['refreshList', 'changeIconColor'])
-async function handleEmptyRadio(optionId, title, owningModule) {
+const emit = defineEmits(['refreshList'])
+async function handleEmptyRadio(optionId, title, owningModule, classId) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    updateOption(null, title, '', props.appId)
+    updateOption(null, title, props.appId, classId)
     // 重新请求数据
     emit('refreshList', props.owningModule)
   }
 }
 const requestAgain = ref(false)
-const handleChangeOption = (optionId, title) => {
+const handleChangeOption = (optionId, title, classId) => {
   // 这几个选项选过之后重新请求
   if (
     title.titleName == '前牙覆合' ||
@@ -256,7 +261,7 @@ const handleChangeOption = (optionId, title) => {
       const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
       // 反覆合如果有选中的，需要取消
       if (title1Choose) {
-        updateOption(null, title1)
+        updateOption(null, title1, props.appId, classId)
       }
 
       // 判断凹面型表现是否需要清空
@@ -265,7 +270,7 @@ const handleChangeOption = (optionId, title) => {
       const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
       const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
       if (!option.choosen && title3Choose) {
-        updateOption(null, title3)
+        updateOption(null, title3, props.appId, classId)
       }
     }
   }
@@ -277,7 +282,7 @@ const handleChangeOption = (optionId, title) => {
       const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
       // 反覆盖如果有选中的，需要取消
       if (title1Choose) {
-        updateOption(null, title1)
+        updateOption(null, title1, props.appId, classId)
       }
 
       // 判断凹面型表现是否需要清空
@@ -286,7 +291,7 @@ const handleChangeOption = (optionId, title) => {
       const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
       const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
       if (!option.choosen && title3Choose) {
-        updateOption(null, title3)
+        updateOption(null, title3, props.appId, classId)
       }
     }
   }
@@ -319,30 +324,25 @@ const handleChangeOption = (optionId, title) => {
       }
     })
   }
-  updateOption(title.optionId, title)
+  updateOption(title.optionId, title, props.appId, classId)
   if (requestAgain.value) {
     emit('refreshList', props.owningModule)
   }
 }
-// chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿
-const handleSubmitTooth = (option, title, isTitle) => {
-  console.log(!isTitle, !option.submitAble)
-  option.visible = false
-  let obj = {
-    apmtId: props.appId,
-    titleId: title.id,
-    optionsIdStr: isTitle ? [] : [title.optionId],
-    otherContent: '',
-    cephalometricsContent: '',
-    optionSuffix: option.optionSuffix,
-    fdiToothCode: isTitle ? title.toothCode.join() : option.toothCode.join(),
-    showPosition: isTitle ? JSON.stringify(title.position) : JSON.stringify(option.position)
+// chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
+const handleSubmitTooth = (option, title, classId) => {
+  let obj
+  if (option) {
+    option.visible = false
   }
-  if (isTitle && !title.submitAble) {
+  if (title) {
+    title.visible = false
+  }
+  if (!option && !title.submitAble) {
     return
   }
   // 选项中的牙位
-  if (!isTitle) {
+  if (option) {
     if (option.toothCode.length == 0) {
       obj = {
         apmtId: props.appId,
@@ -352,7 +352,8 @@ const handleSubmitTooth = (option, title, isTitle) => {
         cephalometricsContent: '',
         optionSuffix: '牙位图',
         fdiToothCode: '',
-        showPosition: ''
+        showPosition: '',
+        classId: classId
       }
       Post('/prod-api/business/facialResult', obj).then(() => {
         option.submitAble = false
@@ -362,40 +363,19 @@ const handleSubmitTooth = (option, title, isTitle) => {
       return
     }
   }
-
-  Post('/prod-api/business/facialResult', obj).then(() => {
-    option.submitAble = false
-    title.submitAble = false
+  updateOption(title.optionId, title, props.appId, classId, option).then(() => {
+    if (option) {
+      option.submitAble = false
+    }
+    if (title) {
+      title.submitAble = false
+    }
     emit('refreshList', props.owningModule)
   })
 }
-async function updateOption(optionId, title) {
-  let obj = null
-  if (title.type == 1) {
-    obj = {
-      apmtId: props.appId,
-      titleId: title.id,
-      optionsIdStr: optionId ? [optionId] : [],
-      otherContent: title.otherContent,
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: ''
-    }
-  } else if (title.type == 2) {
-    obj = {
-      apmtId: props.appId,
-      titleId: title.id,
-      optionsIdStr: optionId,
-      otherContent: title.otherContent,
-      cephalometricsContent: '',
-      fdiToothCode: '',
-      showPosition: ''
-    }
-  }
-  await Post('/prod-api/business/facialResult', obj)
-}
+
 const handleSubmit = (optionId, title) => {
-  updateOption(optionId, title, '', props.appId)
+  updateOption(optionId, title, props.appId)
 }
 const handleClickOption = (option) => {
   option.visible = true
@@ -439,21 +419,6 @@ const handleMouseLeave = (option) => {
       clearTimeout(timeout)
     })
   })
-}
-
-async function handleSubmitContent(optionId, title, option) {
-  option.visible = false
-  if (option.otherContent) {
-    const res = await updateOption(optionId, title, option.otherContent, props.appId)
-    if ((res.code == 200) & (title.titleName == '骨龄')) {
-      getOrthCheckList()
-    }
-  } else {
-    title.optionId = ''
-    nextTick(() => {
-      title.orthOptionsList.forEach((option) => (option.clicked = false))
-    })
-  }
 }
 </script>
 
