@@ -267,7 +267,7 @@
                   <form-item :label="title.titleName" width="120px">
                     <el-input
                       type="textarea"
-                      placeholder="输入备注"
+                      placeholder="输入描述"
                       v-model="title.cephalometricsContent"
                       :rows="4"
                       :style="{ width: '100%' }"
