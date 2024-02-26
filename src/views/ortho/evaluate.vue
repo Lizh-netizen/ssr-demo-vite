@@ -191,12 +191,28 @@
                   >
                     <template v-if="index <= 1">
                       <form-item :label="title.titleName" width="120px">
-                        <Option
-                          :disabled="!panoramicData[0].hasImage"
-                          :title="title"
-                          :appId="appId"
-                          :classId="item.id"
-                        ></Option>
+                        <!-- <el-radio-group
+                          v-if="title.type == 1"
+                          v-model="title.optionId"
+                          @change="handleChangeOption(title.optionId, title)"
+                          @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+                        >
+                          <template
+                            v-for="(option, index) in title.orthOptionsList"
+                            :key="option.id"
+                          >
+                            <el-radio-button
+                              v-if="!option.optionSuffix"
+                              :class="{
+                                serious: option.serious == '1'
+                              }"
+                              :label="option.id"
+                              :disabled="!panoramicData[0].hasImage"
+                            >
+                              {{ option.optionName }}
+                            </el-radio-button></template
+                          ></el-radio-group
+                        > -->
                       </form-item>
                     </template>
                   </template>
@@ -352,7 +368,6 @@ import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
 
-import useSelectTooth from '../../effects/selectTooth'
 import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
@@ -362,6 +377,7 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
+
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -772,6 +788,7 @@ const classId = ref()
 async function getPanoramicList() {
   const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
   panoramicData.value = result.data
+  console.log('🚀 ~ getPanoramicList ~ panoramicData.value:', panoramicData.value)
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
     classId.value = item.id
@@ -872,23 +889,6 @@ function handlePanoData(panoramicData) {
     })
   })
 }
-// const modelData = ref([])
-// async function getModelList() {
-//   const result = await Get(
-//     `/prod-api/business/orthClass/list/1/模型分析/${appId}`
-//   )
-//   modelData.value = result.data[0]
-
-//   modelData.value.orthTitleList.forEach((title) => {
-//     title.optionId = ''
-//     const choosenOptions = title.orthOptionsList.filter(
-//       (option) => option.choosen === true
-//     )
-//     if (choosenOptions.length > 0) {
-//       title.optionId = choosenOptions[0].id
-//     }
-//   })
-// }
 
 getCheckList()
 getFaceAccessList()
@@ -928,97 +928,7 @@ async function handleEmptyRadio(optionId, title, owningModule, classId) {
   }
 }
 const requestAgain = ref(false)
-const handleChangeOption = (optionId, title) => {
-  let choosenOption
-  if (
-    title.titleName == '前牙覆合' ||
-    title.titleName == '前牙覆盖' ||
-    title.titleName == '后牙' ||
-    title.titleName == '锁HE'
-  ) {
-    requestAgain.value = true
-    title.orthOptionsList.forEach((option) => {
-      if (optionId == option.id) {
-        option.clicked = true
-      } else {
-        option.clicked = false
-      }
-    })
-  }
-  const found = mouthData.value.find((item) => item.className == '正面咬合')
-  if (title.titleName == '前牙覆合') {
-    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
-    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
-      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆合程度')
-      // 判断凹面型表现是否需要清空
-      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆盖')
-      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
-        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
-        title2.optionId = []
-        updateOption(null, title2)
-      }
-      title1.optionId = []
-      updateOption(null, title1)
-      //  点击完需要重新请求接口
-    }
-    // getOrthFaceAccessList()
-  }
-  // 还有一个凹面型需要判断
-  if (title.titleName == '前牙覆盖') {
-    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆盖') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
-    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆盖') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
-      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆盖程度')
-      // 判断凹面型表现是否需要清空
-      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆合')
-      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
-        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
-        title2.optionId = []
-        updateOption(null, title2)
-      }
-      title1.optionId = []
-      updateOption(null, title1)
-    }
-    // getOrthFaceAccessList()
-  }
-  if (title.type == 2) {
-    // 无和别的选项互斥逻辑
-    if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 10)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(10) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(10)
-    ) {
-      title.optionId1 = [10]
-      title.optionId = [10]
-      title.otherContent = ''
-    }
-    title.orthOptionsList.forEach((option) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
-  }
-  if (title.type == 1) {
-    choosenOption = title.orthOptionsList.find((a) => a.id == optionId)
-    title.orthOptionsList.forEach((option) => {
-      if (optionId !== option.id) {
-        option.choosen = false
-      }
-    })
-  }
-  updateOption(title.optionId, title, choosenOption)
-  if (requestAgain.value) {
-    // getMouthList()
-  }
-}
+
 async function handleSubmitRemark(title, classId) {
   if (!freeImageUrl.value) {
     ElMessage({

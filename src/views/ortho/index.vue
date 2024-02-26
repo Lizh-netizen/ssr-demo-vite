@@ -379,6 +379,7 @@ async function getPlanList() {
       name: scheme.name,
       checked: scheme.checked || false,
       difficultyLevel: scheme.difficultyLevel || '',
+      popVisible: false,
       stageList:
         scheme.stageList?.length == 0
           ? [
