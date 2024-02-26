@@ -191,11 +191,10 @@
                   >
                     <template v-if="index <= 1">
                       <form-item :label="title.titleName" width="120px">
-                        <!-- <el-radio-group
+                        <el-radio-group
                           v-if="title.type == 1"
                           v-model="title.optionId"
-                          @change="handleChangeOption(title.optionId, title)"
-                          @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+                          @change="handleChangeOption(title.optionId, title, panoramicData[0].id)"
                         >
                           <template
                             v-for="(option, index) in title.orthOptionsList"
@@ -212,7 +211,7 @@
                               {{ option.optionName }}
                             </el-radio-button></template
                           ></el-radio-group
-                        > -->
+                        >
                       </form-item>
                     </template>
                   </template>
@@ -268,7 +267,7 @@
                   <form-item :label="title.titleName" width="120px">
                     <el-input
                       type="textarea"
-                      placeholder="输入备注"
+                      placeholder="输入描述"
                       v-model="title.cephalometricsContent"
                       :rows="4"
                       :style="{ width: '100%' }"
@@ -484,7 +483,10 @@ onMounted(() => {
     }
   })
 })
-
+//
+const handleChangeOption = (optionId, title, classId) => {
+  updateOption(title.optionId, title, appId, classId)
+}
 const imgUrl = ref()
 const handleClose = () => {
   imgDialogVisible.value = false
@@ -651,6 +653,17 @@ async function getMouthList() {
     } else {
       item.hasImage = true
     }
+    // 添加hover和点击时的颜色
+    item.orthTitleList.forEach((title) => {
+      title.orthOptionsList.forEach((option) => {
+        if (option.optionSuffix) {
+          option.fillColor = '#C9CDD4'
+          option.seriousColor = '#f44c4c'
+          option.hoverColor = '#2e6ce4'
+          option.clicked = option.choosen ? true : false
+        }
+      })
+    })
     item.orthTitleList.forEach((title) => {
       title.orthOptionsList.forEach((a) => {
         if (a.optionSuffix) {
@@ -704,76 +717,6 @@ async function getMouthList() {
         const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
         item.orthTitleList.splice(index, 1)
       }
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '前牙覆合') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '前牙反覆合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '前牙覆盖') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '前牙反覆盖') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
-    }
-    if (item.className == '磨牙关系（左侧）') {
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '后牙') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '左侧后牙反合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '锁HE') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
-    }
-    if (item.className == '磨牙关系（右侧）') {
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '后牙') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '右侧后牙反合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '锁HE') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
     }
   })
 }
