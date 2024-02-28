@@ -15,18 +15,25 @@
             :class="{
               InActive: question && !element.active,
               question: question == true,
-              planTarget: target == true
+              planTarget: planTarget == true,
+              planTool: planTool == true
             }"
           >
             <img class="drag" src="../../assets/layout/drag.svg" />
             <div class="list-group-item-name">{{ element.name }}</div>
             <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-            <img
-              class="deleteBtn"
-              src="../../assets/svg/delete.svg"
-              @click.stop="deleteAt(element)"
-              v-if="showDeleteBtn"
-            />
+            <a-popconfirm
+              content="Are you sure you want to delete?"
+              @ok="deleteAt(element)"
+              @cancel="
+                () => {
+                  return false
+                }
+              "
+            >
+              <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
+            </a-popconfirm>
+
             <el-tooltip
               :visible="element.active && element.showRemoveIcon"
               class="box-item"
@@ -74,18 +81,24 @@
                   :class="{
                     InActive: question && !element.active,
                     question: question == true,
-                    planTarget: target == true
+                    planTarget: planTarget == true,
+                    planTool: planTool == true
                   }"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <img
-                    class="deleteBtn"
-                    src="../../assets/svg/delete.svg"
-                    @click.stop="deleteAt(element)"
-                    v-if="showDeleteBtn"
-                  />
+                  <a-popconfirm
+                    content="Are you sure you want to delete?"
+                    @ok="deleteAt(element)"
+                    @cancel="
+                      () => {
+                        return false
+                      }
+                    "
+                  >
+                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
+                  </a-popconfirm>
                 </div>
               </template>
               <!-- 从目标拖到计划，是拖的目标的数据 -->
@@ -112,18 +125,24 @@
                   :class="{
                     InActive: question && !element.active,
                     question: question == true,
-                    planTarget: target == true
+                    planTarget: planTarget == true,
+                    planTool: planTool == true
                   }"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <img
-                    class="deleteBtn"
-                    src="../../assets/svg/delete.svg"
-                    @click.stop="deleteAt(element)"
-                    v-if="showDeleteBtn"
-                  />
+                  <a-popconfirm
+                    content="Are you sure you want to delete?"
+                    @ok="deleteAt(element)"
+                    @cancel="
+                      () => {
+                        return false
+                      }
+                    "
+                  >
+                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
+                  </a-popconfirm>
                 </div>
               </template>
               <ChooseTooth
@@ -164,7 +183,11 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  target: {
+  planTarget: {
+    type: Boolean,
+    default: false
+  },
+  planTool: {
     type: Boolean,
     default: false
   },
@@ -283,7 +306,7 @@ window.addEventListener('click', (e) => {
   // 并且将对应的target这一项放回到store中
   if (popover) {
     if (e.target !== popover && !popover.contains(e.target)) {
-      if (data.value.length > 0 && props.target) {
+      if (data.value.length > 0 && props.planTarget) {
         data.value.forEach((element) => {
           // 弹窗消失时再update一次，存储牙位信息到planList中
           emit('update', { data: data.value })
@@ -372,7 +395,8 @@ window.addEventListener('click', (e) => {
       }
     }
   }
-  &.planTarget {
+  &.planTarget,
+  .planTool {
     &:hover {
       .deleteBtn {
         opacity: 1;
