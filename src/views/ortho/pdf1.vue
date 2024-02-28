@@ -322,7 +322,7 @@ patientName.value = sessionStorage.getItem('name')
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
-console.log(22)
+
 const patientInfo = ref({})
 async function getPatientInfo() {
   const result = await Get(`prod-api/business/patient/ljPatient/${patientId}`)

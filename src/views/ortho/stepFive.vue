@@ -1,261 +1,235 @@
 <template>
-  <div class="stepFive">
-    <Header text="方案" backgroundColor="#f4f7fd" />
-    <div class="content plan">
-      <template v-for="item in planData" :key="item.id">
-        <form-item
-          :label="title.titleName"
-          v-for="(title, index) in item.orthTitleList"
-          :key="title.id"
+  <div class="stepFour">
+    <div class="layout">
+      <div class="top box">
+        <div class="top_left">
+          <div class="top_left_header">
+            <img src="../../assets/layout/issuesIcon.svg" />
+            <div>问题列表</div>
+          </div>
+          <div class="top_left_content">
+            <draggable
+              :list="questionData"
+              :question="true"
+              @changeState="(val) => changeState(val)"
+            ></draggable>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <div
+          class="body-left content"
+          :style="{ height: planList.some((plan) => plan.checked) ? '680px' : '390px' }"
         >
-          <template v-if="index == 0">
-            <el-radio-group
-              v-if="title.type == 1"
-              v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title)"
-              @dblclick="handleEmptyRadio(title.optionId, title, 'plan')"
-            >
-              <el-radio-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                v-for="option in title.orthOptionsList"
-                :key="option.id"
-                :label="option.id"
-              >
-                {{ option.optionName }}
-              </el-radio-button>
-            </el-radio-group>
-            <el-checkbox-group
-              v-model="title.optionId"
-              v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title)"
-            >
-              <el-checkbox-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                v-for="option in title.orthOptionsList"
-                :key="option.id"
-                :label="option.id"
-              >
-                {{ option.optionName }}
-                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                  src="../../assets/svg/abnormalChecked.svg"
-                  v-else
+          <div class="content_left_header">
+            <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
+              <img src="../../assets/svg/goalCheck.svg" style="margin-right: 12px" />目标
+            </div>
+            <draggable class="ORTHTARGET" :unmutable="true" :list="goalList"></draggable>
+            <template v-if="planList.some((plan) => plan.checked)">
+              <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
+                <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />工具
+              </div>
+              <a-space direction="vertical" size="large">
+                <a-input-search
+                  :style="{
+                    width: '256px',
+                    'margin-top': '12px',
+                    'background-blend-mode': 'multiply'
+                  }"
+                  placeholder="请搜索"
+                  v-model="searchValue"
+                  style="background-color: #f2f3f5"
+                  @search="handleSearch(searchValue)"
                 />
-              </el-checkbox-button> </el-checkbox-group
-          ></template>
-          <!-- <div class="optionContainer"> -->
+              </a-space>
 
-          <template v-else>
-            <!-- 用法和第二步一样，所以step是2 -->
-            <Tooth :title="title" :appId="appId" :step="2" />
-          </template>
-          <!-- </div> -->
-        </form-item>
-      </template>
-    </div>
-    <Header text="目标" backgroundColor="#f4f7fd" />
-    <div class="content">
-      <template v-for="item in goalData" :key="item.id">
-        <template v-for="title in item.orthTitleList" :key="title.id">
-          <form-item :label="title.titleName" width="72px">
-            <el-radio-group
-              v-if="title.type == 1"
-              v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title, item.owningModule, '', '目标')"
-              @dblclick="handleEmptyRadio(title.optionId, title, 'goal')"
-            >
-              <el-radio-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                v-for="option in title.orthOptionsList"
-                :key="option.id"
-                :label="option.id"
+              <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
+            </template>
+          </div>
+        </div>
+        <div class="body-right">
+          <div
+            class="content plan"
+            :class="{ checkeded: plan.checked == true }"
+            v-for="(plan, planIndex) in planList"
+            :key="plan.name"
+          >
+            <div class="flex" style="position: relative; overflow: visible">
+              <span @click="handlePlan(plan)">
+                <template v-if="plan.checked == true">
+                  <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
+                </template>
+                <template v-else>
+                  <img
+                    src="../../assets/svg/Rectangle.svg"
+                    :style="{ 'margin-right': ' 8px' }"
+                  /> </template
+              ></span>
+              <div contenteditable :style="{ height: '30px' }" class="planName">
+                {{ plan.name }}
+              </div>
+              <div class="planTime">
+                预计{{ plan.stageList[plan.stageList.length - 1].stageName }}
+              </div>
+              <div>
+                <a-select
+                  class="difficulty"
+                  v-model="plan.difficultyLevel"
+                  placeholder="选择难度"
+                  @change="handleDifficultyLevel(plan.difficultyLevel, plan.name)"
+                  :class="{
+                    high: plan.difficultyLevel == '难度高',
+                    middle: plan.difficultyLevel == '难度中等',
+                    low: plan.difficultyLevel == '难度低'
+                  }"
+                >
+                  <a-option v-for="item in difficultyList" :key="item.label" :value="item.label">
+                    {{ item.label }}
+                  </a-option>
+                </a-select>
+                <a-select
+                  class="primaryApplianceId"
+                  v-model="plan.primaryApplianceId"
+                  placeholder="选择主矫正器"
+                  @change="handleprimaryApplianceId(plan.primaryApplianceId, plan.name)"
+                >
+                  <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
+                    {{ item.name }}
+                  </a-option>
+                </a-select>
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    <div class="addFeature" @click="plan.popVisible = true">
+                      <a-button class="addFeatureBtn"
+                        ><template #icon> <icon-plus /> </template>添加特点
+                      </a-button>
+                      <span
+                        class="featureNum"
+                        v-if="plan.meritIds?.length + plan.effectIds?.length > 0"
+                      >
+                        {{ plan.meritIds?.length + plan.effectIds?.length }}
+                      </span>
+                    </div>
+                  </span>
+                  <template #dropdown>
+                    <el-checkbox-group
+                      v-model="plan.featureMeritList"
+                      @change="handleMeritFeature(plan.featureMeritList, plan.name)"
+                    >
+                      <el-checkbox
+                        v-for="item in featureMeritList"
+                        :key="item.name"
+                        :label="item.id"
+                        >{{ item.name }}</el-checkbox
+                      >
+                    </el-checkbox-group>
+                    <el-checkbox-group
+                      v-model="plan.featureEffectList"
+                      @change="handleEffectFeature(plan.featureEffectList, plan.name)"
+                    >
+                      <el-checkbox
+                        v-for="item in featureEffectList"
+                        :key="item.name"
+                        :label="item.id"
+                        >{{ item.name }}</el-checkbox
+                      >
+                    </el-checkbox-group>
+                  </template>
+                </el-dropdown>
+              </div>
+
+              <div
+                class="tag"
+                v-if="
+                  planList.some((plan) =>
+                    plan.stageList?.some((stage) =>
+                      stage.targetIds?.some((target) => target.name === '拔牙')
+                    )
+                  )
+                "
               >
-                {{ option.optionName }}
-              </el-radio-button>
-            </el-radio-group>
-            <el-checkbox-group
-              v-model="title.optionId"
-              v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title, item.owningModule, '', '目标')"
-            >
-              <el-checkbox-button
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                v-for="option in title.orthOptionsList"
-                :key="option.id"
-                :label="option.id"
-              >
-                {{ option.optionName }}
-                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                  src="../../assets/svg/abnormalChecked.svg"
-                  v-else
+                拔牙
+              </div>
+              <div style="position: absolute; right: 0">
+                <img
+                  src="../../assets/layout/Copy.svg"
+                  style="cursor: pointer"
+                  @click.stop="handleAddPlan"
+                /><img
+                  style="cursor: pointer"
+                  src="../../assets/layout/Delete.svg"
+                  @click.stop="handleDeletePlan(planIndex)"
                 />
-              </el-checkbox-button>
-            </el-checkbox-group>
-          </form-item>
-        </template>
-      </template>
-    </div>
-    <Header text="方法" backgroundColor="#f4f7fd" />
-    <div class="content">
-      <template v-for="item in methodData" :key="item.id">
-        <template v-for="title in item.orthTitleList" :key="title.id">
-          <template v-if="title.titleName !== '品牌' && title.titleName !== '预计矫正周期'">
-            <form-item :label="title.titleName" width="86px">
-              <el-radio-group
-                v-if="title.type == 1"
-                v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title, '', '', '方法')"
-                @dblclick="handleEmptyRadio(title.optionId, title, 'method')"
+              </div>
+            </div>
+            <div class="flex">
+              <div
+                class="cardGroup"
+                v-for="(stage, stageIndex) in plan.stageList"
+                :key="stage.stageName"
               >
-                <template v-for="option in title.orthOptionsList" :key="option.id">
-                  <el-radio-button
-                    v-if="!option.optionSuffix"
-                    :class="{
-                      serious: option.serious == '1'
-                    }"
-                    :label="option.id"
-                  >
-                    {{ option.optionName }}
-                  </el-radio-button>
-                  <el-popover
-                    v-else
-                    popper-class="myPopper"
-                    :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                    placement="top-start"
-                    :width="200"
-                    :visible="option.visible"
-                    @after-leave="handleSubmitBrand(title, option)"
-                  >
-                    <template #reference>
-                      <el-radio-button
-                        :class="{
-                          serious: option.serious == '1'
-                        }"
-                        :label="option.id"
-                        @mouseenter="handleMouseEnter(option)"
-                        @mouseleave="handleMouseLeave(option)"
-                      >
-                        {{ option.optionName
-                        }}<svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          xmlns:xlink="http://www.w3.org/1999/xlink"
-                          fill="
-                              none
-                            "
-                          version="1.1"
-                          width="9.999975204467773"
-                          height="9.999975204467773"
-                          viewBox="0 0 9.999975204467773 9.999975204467773"
-                        >
-                          <g>
-                            <path
-                              d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                              fill-rule="evenodd"
-                              :fill="
-                                option.clicked
-                                  ? option.hoverColor
-                                  : option.hover
-                                  ? option.hoverColor
-                                  : option.fillColor
-                              "
-                              fill-opacity="1"
-                            />
-                          </g>
-                        </svg>
-                      </el-radio-button>
-                    </template>
-                    <form-item :label="option.brand.titleName">
-                      <el-radio-group
-                        v-model="option.otherContent"
-                        @change="
-                          handleChangeOption(
-                            option.otherContent,
-                            option.brand,
-                            option,
-                            title,
-                            '方法'
-                          )
-                        "
-                        @dblclick="handleEmptyRadio(title.optionId, title, 'method')"
-                      >
-                        <el-radio-button
-                          v-for="option1 in option.brand.orthOptionsList"
-                          :key="option1.id"
-                          :class="{
-                            serious: option1.serious == '1'
-                          }"
-                          :label="option1.id"
-                        >
-                          {{ option1.optionName }}</el-radio-button
-                        ></el-radio-group
-                      >
-                    </form-item>
-                  </el-popover>
+                <template v-if="!plan.checked">
+                  <div class="card">
+                    <div class="time">{{ stage.stageName }}</div>
+                    <draggable
+                      class="ORTHTARGET"
+                      :list="stage.targetIds"
+                      @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                      :showDeleteBtn="true"
+                      :target="true"
+                      :planIndex="planIndex"
+                      :stageIndex="stageIndex"
+                    ></draggable>
+                  </div>
+                  <img src="../../assets/layout/arrowRight.svg" />
                 </template>
-              </el-radio-group>
-              <el-checkbox-group
-                v-model="title.optionId"
-                v-if="title.type == 2"
-                @change="handleChangeOption(title.optionId, title, '', '', '方法')"
-              >
-                <template v-for="option in title.orthOptionsList" :key="option.id">
-                  <el-checkbox-button
-                    :class="{
-                      serious: option.serious == '1',
-                      checked: option.choosen === true
-                    }"
-                    :label="option.id"
-                  >
-                    {{ option.optionName
-                    }}<img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                      src="../../assets/svg/abnormalChecked.svg"
-                      v-else
-                    />
-                  </el-checkbox-button>
-                </template>
-              </el-checkbox-group>
-            </form-item>
-          </template>
-        </template>
-      </template>
-    </div>
-    <Header text="周期" backgroundColor="#f4f7fd" />
-    <div class="content period">
-      <template v-for="item in periodData" :key="item.id">
-        <template v-for="title in item.orthTitleList" :key="title.id">
-          <form-item :label="title.titleName">
-            <el-input
-              v-model.number="title.cephalometricsContent"
-              @blur="handleSubmitAddtionalContent(title)"
-            />
-            <!-- <el-select
-              :style="{ width: '60px' }"
-              v-model="title.cephalometricsContent"
-              @change="handleSubmitAddtionalContent(title)"
-              filterable
-              remote
-            >
-              <el-option v-for="item in [10, 15, 18, 20]" :key="item" :label="item" :value="item" />
-            </el-select> -->
+                <template v-else>
+                  <div>
+                    <div class="card">
+                      <div class="time">{{ stage.stageName }}</div>
+                      <draggable
+                        class="ORTHTARGET"
+                        :list="stage.targetIds"
+                        @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                        :showDeleteBtn="true"
+                        @submit="handleSubmit"
+                        :target="true"
+                        :planIndex="planIndex"
+                        :stageIndex="stageIndex"
+                      ></draggable>
+                    </div>
+                    <div class="tool card">
+                      <div class="tool_title">工具</div>
+                      <draggable
+                        class="ORTHTOOL"
+                        :list="stage.toolIds"
+                        @update="(val) => updateList(val, plan.name, stage.stageName, 'tool')"
+                        :showDeleteBtn="true"
+                      ></draggable>
+                    </div>
+                  </div>
 
-            <span :style="{ color: '#4e5969', 'margin-left': '8px' }"> 个月</span></form-item
-          ></template
-        ></template
-      >
+                  <img src="../../assets/layout/arrowRight.svg" />
+                </template>
+              </div>
+
+              <div @click.stop="handleAddStage(plan.name)">
+                <div class="addStage" :style="{ height: plan.checked == true ? '620px' : '308px' }">
+                  <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
+                  <div>新增阶段</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="addPlan flex" @click.stop="handleAddPlan">
+            <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addPlan.svg" />添加新方案
+          </div> -->
+        </div>
+      </div>
     </div>
     <Header text="风险" backgroundColor="#f4f7fd" />
-    <div class="content risk">
+    <div class="content risk" style="background: #fff; border: none">
       <template v-for="item in riskData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
           <template v-if="title.titleName !== '备注'"
@@ -414,7 +388,7 @@
       </template>
     </div>
     <Header text="备注" backgroundColor="#f4f7fd" />
-    <div class="content">
+    <div class="content" style="background: #fff; border: none">
       <template v-for="item in remarkData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
           <form-item :label="title.titleName">
@@ -430,274 +404,272 @@
 
 <script setup>
 import Header from '@/components/list/header.vue'
-import { ref, defineProps, defineExpose } from 'vue'
-import { Get, Post } from '@/utils/request'
-import FormItem from '@/components/list/formItem.vue'
+import { ref, defineProps, defineExpose, onMounted, watch, nextTick } from 'vue'
 import { GetSymptom } from '@/utils/tooth'
+import FormItem from '@/components/list/formItem.vue'
+import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.ts'
 import useUpdateOption from '@/effects/updateOption.ts'
-import useSelectTooth from '@/effects/selectTooth.ts'
+import emptyRadio from '@/effects/emptyRadio.ts'
+import img from '@/assets/svg/addPic.svg'
+import draggable from '../../components/layout/draggable.vue'
+import { useStore } from 'vuex'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
-import emptyRadio from '@/effects/emptyRadio.ts'
-const submitTooth = (title) => {}
-const goalClicked = ref(false)
-const methodClicked = ref(false)
+const route = useRoute()
+const appId = route.params.appId
+const store = useStore()
+const clicked = ref(false)
+const requestAgain = ref(false)
+const difficultyList = ref([{ label: '难度低' }, { label: '难度中等' }, { label: '难度高' }])
 defineExpose({
-  goalClicked,
-  methodClicked
+  clicked
 })
 const props = defineProps({
   pdfId: String
 })
-const handleMouseEnter = (option) => {
-  if (option.otherContent) {
-    option.visible = true
-  }
-  option.hover = true
-}
-let timeout1
-const handleMouseLeave = (option) => {
-  option.hover = false
-  timeout1 = setTimeout(() => {
-    option.visible = false
-  }, 300)
-  const poppers = document.querySelectorAll('.myPopper')
-  Array.from(poppers).forEach((popper) => {
-    popper.addEventListener('mouseenter', () => {
-      clearTimeout(timeout1)
-    })
+// 获取工具数据
+const toolList = ref([])
+async function getOrthToolList() {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHTOOL'
   })
+  toolList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType
+  }))
 }
-// 有已选中的牙位的悬浮显示选中的牙位
-const handleMouseEnterBtn = (option) => {
-  option.visible = true
-  option.hover = true
-}
-
-let timeout
-const handleMouseLeaveBtn = (e, option) => {
-  option.hover = false
-  timeout = setTimeout(() => {
-    option.visible = false
-  }, 300)
-  const poppers = document.querySelectorAll('.myPopper')
-  Array.from(poppers).forEach((popper) => {
-    popper.addEventListener('mouseenter', () => {
-      clearTimeout(timeout)
-    })
+// 搜索工具
+const searchValue = ref('')
+const handleSearch = async (val) => {
+  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
+    dictType: 'ORTHTOOL',
+    dictCodeName: val
   })
+  toolList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType,
+    showPosition: null
+  }))
 }
-const route = useRoute()
-const appId = route.params.appId
-const planData = ref([])
-async function getOrthPlanList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/方案/${appId}`)
-  planData.value = result.data
-  result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  result.data.forEach((item) => {
-    item.orthTitleList.forEach((title) => {
-      if (title.type == 1) {
-        title.optionId = ''
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions[0].id
-        }
-      } else if (title.type == 2) {
-        title.optionId = []
-        title.optionId1 = []
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
-      } else if (title.type == 4) {
-        useFdiToothCodeEffect(title)
-      }
-    })
-  })
-}
-getOrthPlanList()
-
-const goalData = ref([])
+getOrthToolList()
+// 获取目标数据
+const goalList = ref([])
 async function getOrthGoalList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/目标/${appId}`)
-  goalData.value = result.data
-  goalClicked.value = result.data[0].classFlag
-  result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  result.data.forEach((item) => {
-    item.orthTitleList.forEach((title) => {
-      if (title.type == 1) {
-        title.optionId = ''
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions[0].id
-        }
-      } else if (title.type == 2) {
-        title.optionId = []
-        title.optionId1 = []
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
-      }
-    })
+  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
+    dictType: 'ORTHTARGET'
   })
+  goalList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType,
+    showPosition: null
+  }))
+  store.commit('setOrthGoalList', goalList.value)
 }
 getOrthGoalList()
+// 获取问题列表数据
 
-const methodData = ref([])
-async function getOrthMethodList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/方法/${appId}`)
-  methodData.value = result.data
-  methodClicked.value = result.data[0].classFlag
-  result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  result.data.forEach((item) => {
-    item.orthTitleList.forEach((title) => {
-      if (title.titleName == '矫治器') {
-        title.optionId = []
-        title.optionId1 = []
-        title.orthOptionsList.forEach((option) => {
-          if (option.optionName === '无托槽隐形矫治') {
-            option.fillColor = '#C9CDD4'
-            // option.seriousColor = '#f44c4c'
-            option.brand = result.data[0].orthTitleList.find(
-              (title) => title.titlePrompt == '无托槽'
-            )
-            option.hoverColor = '#2e6ce4'
-            option.clicked = option.choosen ? true : false
+// const appId = route.params.appId
+const questionData = ref([])
+async function getOrthQuestionList() {
+  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+  questionData.value = result.data.map((item) => ({
+    ...item,
+    name: item.option_names,
+    label: item.question_level_one,
+    active: item.active == '1' ? true : false
+  }))
+  store.commit('setOrthQuestionList', questionData.value)
+}
+getOrthQuestionList()
+// 新增阶段
+const handleAddStage = (planName) => {
+  store.commit('addStage', planName)
+}
+// 新增方案
+const handleAddPlan = () => {
+  if (planList.value.length == 3) {
+    ElMessage({
+      message: '方案最多添加三个',
+      type: 'warning'
+    })
+    return
+  }
+  store.commit('addPlan')
+}
+// 删除方案
+const handleDeletePlan = (index) => {
+  planList.value.splice(index, 1)
+}
+// 方案
+const planList = ref([])
+// 判断是否可以拖拽
+const onMove = (e) => {
+  console.log(e)
+}
+const handleDifficultyLevel = (difficultyLevel, name) => {
+  store.commit('setDifficultyLevel', { difficultyLevel, name })
+}
+// 添加特点
+const handleMeritFeature = (featureList, name) => {
+  store.commit('setFeatureMeritList', { featureList, name })
+}
+const handleEffectFeature = (featureList, name) => {
+  store.commit('setFeatureEffectList', { featureList, name })
+}
+const handleprimaryApplianceId = (primaryApplianceId, name) => {
+  store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
+}
+// 更改store中数据，在下一步的时候提交
+const updateList = (val, planName, stageName, cardName) => {
+  const found = planList.value.find((plan) => plan.name == planName)
 
-            option.otherContent = option.brand.orthOptionsList.find(
-              (option) => option.choosen === true
-            )?.id
-          } else if (option.optionName === '硅胶矫治器') {
-            option.fillColor = '#C9CDD4'
-            option.brand = result.data[0].orthTitleList.find((title) => title.titlePrompt == '硅胶')
-            option.otherContent = option.brand.orthOptionsList.find(
-              (option) => option.choosen === true
-            )?.id
-            option.hoverColor = '#2e6ce4'
-            option.clicked = option.choosen ? true : false
-          }
-        })
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
-        title.otherContent = ''
-      } else if (title.type == 1) {
-        title.optionId = ''
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions[0].id
-        }
-      } else if (title.type == 2) {
-        title.optionId = []
-        title.optionId1 = []
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
+  if (cardName == 'target') {
+    found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
+    if (val.flag) {
+      // 避免修改右侧数据影响左侧
+      goalList.value.find((item) => (item.visible = false))
+      // const item = found.stageList
+      //   .find((item) => item.stageName == stageName)
+      //   .targetIds.find((item) => item.name == '拔牙')
+      // item.visible = true
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const target = stage.targetIds.find((item) => item.name == '拔牙')
+      target.visible = true
+      useFdiToothCodeEffect(target)
+    }
+    if (val.delete) {
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
+
+      stage.targetIds.splice(index, 1)
+    }
+  } else {
+    found.stageList.find((item) => item.stageName == stageName).toolIds = val.data
+  }
+  store.commit('updatePlanList', planList.value)
+}
+// 更改问题状态
+const changeState = (val) => {
+  const found = questionData.value.find((item) => item.option_names == val.element.option_names)
+  found.active = val.flag
+}
+onMounted(() => {
+  planList.value = store.state.planList
+})
+const popClose = ref(true)
+const handlePlan = (plan) => {
+  if (!popClose) return
+  plan.checked = !plan.checked
+}
+
+const alignerList = ref()
+const getAlignerList = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHPRIMARYAPPLIANCE'
+  })
+  alignerList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: +item.id,
+    dictType: item.dictType
+  }))
+  store.commit('setAlignerList', alignerList.value)
+}
+getAlignerList()
+const featureMeritList = ref([])
+const getFeatureMerit = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHFEATURETAGMERIT'
+  })
+  featureMeritList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType
+  }))
+  console.log(featureMeritList.value)
+}
+getFeatureMerit()
+const featureEffectList = ref([])
+const getFeatureEffect = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHFEATURETAGDEFECT'
+  })
+  featureEffectList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType
+  }))
+}
+getFeatureEffect()
+// 提交过牙齿重新请求一次目标
+const handleSubmit = () => {
+  getOrthGoalList()
+}
+async function handleChangeOption(optionId, title, option, title1, owningModule) {
+  if (owningModule == '目标') {
+    goalClicked.value = true
+  }
+  if (owningModule == '方法') {
+    methodClicked.value = true
+  }
+  if (props.pdfId) {
+    sessionStorage.removeItem(props.pdfId)
+  }
+  if (title.titleName == '矫治风险') {
+    requestAgain.value = true
+    title.orthOptionsList.forEach((option) => {
+      if (optionId.includes(option.id)) {
+        option.clicked = true
+      } else {
+        option.clicked = false
       }
     })
-  })
-}
-getOrthMethodList()
-const periodData = ref([])
-async function getPeriod() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/周期/${appId}`)
-  periodData.value = result.data
-}
-const remarkData = ref([])
-async function getRemark() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/备注/${appId}`)
-  remarkData.value = result.data
-}
-getPeriod()
-getRemark()
-const handleSubmitAddtionalContent = (title) => {
-  if (title.cephalometricsContent) {
-    const obj = {
-      apmtId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: ''
-    }
-    Post('/prod-api/business/optionsResult', obj)
-  }
-}
-const riskData = ref([])
-async function getOrthRiskList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/风险/${appId}`)
-  riskData.value = result.data
-  riskData.value.forEach((item) => {
-    item.orthTitleList.forEach((i) => {
-      i.orthOptionsList.forEach((a) => {
-        if (a.optionSuffix) {
-          useFdiToothCodeEffect(a)
+  } else if (title.titleName == '矫治器') {
+    const optionId = title.optionId.filter((optionId) => !title.optionId1.includes(optionId))
+    const optionName = title.orthOptionsList.find((a) => a.id === optionId[0])?.optionName
+    if (optionId && optionName && (optionName == '无托槽隐形矫治' || optionName == '硅胶矫治器')) {
+      title.orthOptionsList.forEach((option) => {
+        if (optionId.includes(option.id)) {
+          option.clicked = true
+          option.visible = true
+        } else {
+          option.clicked = false
         }
       })
-    })
-  })
-  riskData.value.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  riskData.value.forEach((item) => {
-    item.orthTitleList.forEach((title) => {
-      if (title.type == 1) {
-        title.optionId = ''
-        title.text = ''
-      } else if (title.type == 2) {
-        title.optionId = []
-        title.optionId1 = []
-        title.text = ''
-        title.showInput = false
-        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
-        if (choosenOptions.length > 0) {
-          title.optionId = choosenOptions.map((option) => option.id)
-          title.optionId1 = title.optionId
-        }
-      }
-      if (title.titleName == '矫治风险') {
-        title.orthOptionsList.forEach((option) => {
-          if (option.optionName === '牙根吸收' || option.optionName === '乳牙早失') {
-            option.fillColor = '#C9CDD4'
-            option.seriousColor = '#f44c4c'
-            option.hoverColor = '#2e6ce4'
-            option.clicked = option.choosen ? true : false
-          }
-        })
-      }
-    })
-  })
-}
-getOrthRiskList()
-const handleSubmitBrand = (title, option) => {
-  if (!option.otherContent) {
-    option.clicked = false
-    // title.optionId = ''
-    // nextTick(() => {
-    //   title.orthOptionsList.forEach((option) => (option.clicked = false))
-    // })
+    }
+  } else if (title.titleName == '品牌') {
+    option.visible = false
+    useUpdateOption(option.otherContent, title, '', appId)
+    useUpdateOption(title1.optionId, title1, '', appId)
+    return
   }
+  useChangeOption(optionId, title, appId)
+  const res = await useUpdateOption(title.optionId, title, '', appId)
+  if (requestAgain.value && res.code == 200) {
+    getOrthRiskList()
+  }
+
+  if ((res.code == 200) & (title.titleName == '矫治器')) {
+    getOrthMethodList()
+  }
+}
+const symptomList = ref([])
+symptomList.value = GetSymptom()
+console.log('🚀 ~ symptomList.value:', symptomList.value)
+const handleBeforeEnterPopover = (title) => {
+  symptomList.value.forEach((row) => {
+    row.forEach((a) => {
+      a.active = false
+      if (title.toothCode?.includes(a.value + '')) {
+        a.active = true
+      }
+    })
+  })
 }
 const handleSubmitTooth = (option, title) => {
   option.visible = false
@@ -796,93 +768,534 @@ const handleSubmitTooth = (option, title) => {
     getOrthRiskList()
   })
 }
-const handleSelectTooth = (item, option) => {
-  // 选择了之后是
-  useSelectTooth(item, option)
+// 有已选中的牙位的悬浮显示选中的牙位
+const handleMouseEnterBtn = (option) => {
+  option.visible = true
+  option.hover = true
 }
-const requestAgain = ref(false)
-async function handleChangeOption(optionId, title, option, title1, owningModule) {
-  if (owningModule == '目标') {
-    goalClicked.value = true
-  }
-  if (owningModule == '方法') {
-    methodClicked.value = true
-  }
-  if (props.pdfId) {
-    sessionStorage.removeItem(props.pdfId)
-  }
-  if (title.titleName == '矫治风险') {
-    requestAgain.value = true
-    title.orthOptionsList.forEach((option) => {
-      if (optionId.includes(option.id)) {
-        option.clicked = true
-      } else {
-        option.clicked = false
-      }
+
+let timeout
+const handleMouseLeaveBtn = (e, option) => {
+  option.hover = false
+  timeout = setTimeout(() => {
+    option.visible = false
+  }, 300)
+  const poppers = document.querySelectorAll('.myPopper')
+  Array.from(poppers).forEach((popper) => {
+    popper.addEventListener('mouseenter', () => {
+      clearTimeout(timeout)
     })
-  } else if (title.titleName == '矫治器') {
-    const optionId = title.optionId.filter((optionId) => !title.optionId1.includes(optionId))
-    const optionName = title.orthOptionsList.find((a) => a.id === optionId[0])?.optionName
-    if (optionId && optionName && (optionName == '无托槽隐形矫治' || optionName == '硅胶矫治器')) {
-      title.orthOptionsList.forEach((option) => {
-        if (optionId.includes(option.id)) {
-          option.clicked = true
-          option.visible = true
-        } else {
-          option.clicked = false
+  })
+}
+const handleSubmitAddtionalContent = (title) => {
+  if (title.cephalometricsContent) {
+    const obj = {
+      apmtId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: '',
+      cephalometricsContent: title.cephalometricsContent,
+      fdiToothCode: '',
+      showPosition: ''
+    }
+    Post('/prod-api/business/optionsResult', obj)
+  }
+}
+const riskData = ref([])
+async function getOrthRiskList() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/风险/${appId}`)
+  riskData.value = result.data
+  riskData.value.forEach((item) => {
+    item.orthTitleList.forEach((i) => {
+      i.orthOptionsList.forEach((a) => {
+        if (a.optionSuffix) {
+          useFdiToothCodeEffect(a)
         }
       })
-    }
-  } else if (title.titleName == '品牌') {
-    option.visible = false
-    useUpdateOption(option.otherContent, title, '', appId)
-    useUpdateOption(title1.optionId, title1, '', appId)
-    return
-  }
-  useChangeOption(optionId, title, appId)
-  const res = await useUpdateOption(title.optionId, title, '', appId)
-  if (requestAgain.value && res.code == 200) {
-    getOrthRiskList()
-  }
-
-  if ((res.code == 200) & (title.titleName == '矫治器')) {
-    getOrthMethodList()
-  }
-}
-async function handleEmptyRadio(optionId, title, owningModule) {
-  if (
-    title.orthOptionsList.some((option) => option.choosen == true) &&
-    title.type == 1 &&
-    title.optionId == optionId
-  ) {
-    emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
-    if (owningModule == 'plan') {
-      getOrthPlanList()
-    } else if (owningModule == 'method') {
-      getOrthMethodList()
-    } else if (owningModule == 'goal') {
-      getOrthGoalList()
-    }
-    // 重新请求数据
-  }
-}
-const symptomList = ref([])
-symptomList.value = GetSymptom()
-
-const handleBeforeEnterPopover = (title) => {
-  symptomList.value.forEach((row) => {
-    row.forEach((a) => {
-      a.active = false
-      if (title.toothCode?.includes(a.value + '')) {
-        a.active = true
+    })
+  })
+  riskData.value.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+  riskData.value.forEach((item) => {
+    item.orthTitleList.forEach((title) => {
+      if (title.type == 1) {
+        title.optionId = ''
+        title.text = ''
+      } else if (title.type == 2) {
+        title.optionId = []
+        title.optionId1 = []
+        title.text = ''
+        title.showInput = false
+        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
+        if (choosenOptions.length > 0) {
+          title.optionId = choosenOptions.map((option) => option.id)
+          title.optionId1 = title.optionId
+        }
+      }
+      if (title.titleName == '矫治风险') {
+        title.orthOptionsList.forEach((option) => {
+          if (option.optionName === '牙根吸收' || option.optionName === '乳牙早失') {
+            option.fillColor = '#C9CDD4'
+            option.seriousColor = '#f44c4c'
+            option.hoverColor = '#2e6ce4'
+            option.clicked = option.choosen ? true : false
+          }
+        })
       }
     })
   })
 }
+getOrthRiskList()
+const remarkData = ref([])
+async function getRemark() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/备注/${appId}`)
+  remarkData.value = result.data
+}
+
+getRemark()
 </script>
 
 <style lang="scss" scoped>
+.planName {
+  padding: 6px 10px;
+  &:hover {
+    border: 1px solid #c9cdd4;
+    border-radius: 6px;
+  }
+}
+:deep .el-checkbox {
+  margin-right: 8px;
+  background: #f2f3f5;
+  height: 28px;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+@import '../../style/mixins.scss';
+
+.layout {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  .top {
+    border-radius: 16px;
+
+    opacity: 1;
+    display: flex;
+    background: #f2f3f5;
+    justify-content: space-between;
+    box-sizing: border-box;
+    /* 线条/深色 */
+    border: 1px solid #c9cdd4;
+    padding: 12px;
+    &_left {
+      padding: 4px;
+      flex: 1;
+      &_header {
+        display: flex;
+        align-items: center;
+
+        img {
+          margin-right: 15px;
+        }
+      }
+      &_content {
+        :deep .list-group {
+          display: flex;
+          .list-group-item {
+            width: 294px;
+          }
+        }
+      }
+    }
+    &_right {
+      width: 600px;
+      padding: 16px;
+      border-radius: 8px;
+      opacity: 1;
+
+      /* 填充/浅色 */
+      background: #f7f8fa;
+
+      box-sizing: border-box;
+      /* 线条/深色 */
+      border: 1px dashed #c9cdd4;
+      &_content {
+        margin-top: 18px;
+      }
+    }
+  }
+}
+.handle {
+  float: left;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.body {
+  display: flex;
+  flex: 1;
+  margin-top: 20px;
+  &-left {
+    width: 326px;
+    margin-right: 20px;
+    position: sticky;
+    top: 72px;
+    overflow: scroll;
+  }
+  &-right {
+    width: calc(100% - 326px);
+    .plan {
+      margin-bottom: 16px;
+      :deep .list-group {
+        height: 200px;
+        width: 200px;
+      }
+      .planTime {
+        font-size: 14px;
+        font-weight: normal;
+        line-height: normal;
+        text-align: center;
+        letter-spacing: 0px;
+        padding: 4px 8px;
+        gap: 6px;
+        border-radius: 6px;
+        /* 主色/10% */
+        /* 样式描述：浅色背景/hover等 */
+        background: #eaf0fc;
+
+        box-sizing: border-box;
+        /* 主色/100% */
+        border: 1px solid #2e6ce4;
+        font-variation-settings: 'opsz' auto;
+        /* 主色/100% */
+        color: #2e6ce4;
+      }
+
+      &.checkeded {
+        background: #eaf0fc;
+        border: 2px solid #2e6ce4;
+      }
+      .tag {
+        margin-left: 16px;
+        height: 28px;
+        border-radius: 6px;
+        opacity: 1;
+
+        /* 自动布局 */
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 4px 8px;
+        gap: 6px;
+
+        /* 主色/10% */
+        /* 样式描述：浅色背景/hover等 */
+        background: #eaf0fc;
+
+        box-sizing: border-box;
+        /* 主色/100% */
+        border: 1px solid #2e6ce4;
+      }
+      :deep .arco-select-view-single {
+        width: 110px;
+        border: 1px solid #c9cdd4;
+        border-radius: 6px;
+        margin-left: 16px;
+        // &.high {
+        //   background: #f76560;
+        //   color: #ffffff;
+        // }
+        // &.middle {
+        //   background: #ff9a2e;
+        //   color: #ffffff;
+        // }
+        // &.low {
+        //   background: #23c343;
+        //   color: #ffffff;
+        // }
+        &.difficulty {
+          width: 110px;
+          &.validateFail {
+            border: 1px solid red;
+          }
+        }
+        &.primaryApplianceId {
+          width: 140px;
+          &.validateFail {
+            border: 1px solid red;
+          }
+        }
+      }
+      .addFeature {
+        position: relative;
+        display: inline-block;
+        .addFeatureBtn {
+          border: 1px solid #c9cdd4;
+          border-radius: 6px;
+          margin-left: 16px;
+        }
+        .featureCard {
+          position: absolute;
+          background: #ffffff;
+          box-sizing: border-box;
+          width: 362px;
+          /* 线条/一般 */
+          border: 1px solid #e5e6eb;
+          box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.12);
+        }
+        .featureNum {
+          line-height: 18px;
+          text-align: center;
+          position: absolute;
+          background: #f65b56;
+          border-radius: 100px;
+          width: 18px;
+          height: 18px;
+          top: -6px;
+          color: #ffffff;
+          right: -6px;
+        }
+      }
+
+      :deep .container {
+        height: 220px;
+      }
+      :deep .container.ORTHTOOL {
+        .list-group {
+          margin-top: 8px !important;
+        }
+      }
+      .period {
+        margin-left: 16px;
+        height: 28px;
+        border-radius: 6px;
+        opacity: 1;
+
+        /* 自动布局 */
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        padding: 4px 8px;
+        gap: 6px;
+
+        /* 填充/深底悬浮 */
+        background: #e5e6eb;
+
+        box-sizing: border-box;
+        /* 线条/特殊 */
+        border: 1px solid #86909c;
+      }
+    }
+    .cardGroup {
+      display: flex;
+      align-items: center;
+      .card {
+        padding: 12px;
+        width: 224px;
+        // height: 304px;
+        border-radius: 12px;
+        background: #ffffff;
+        .list-group-item {
+          background: #ffffff;
+        }
+        .time {
+          background: #eaf0fc;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          padding-left: 12px;
+          color: #2e6ce4;
+          font-weight: bold;
+          border-radius: 8px;
+        }
+      }
+      .tool {
+        margin-top: 8px;
+        height: 308px;
+        &_title {
+          color: #1d2129;
+          font-size: 16px;
+          font-weight: bold;
+        }
+      }
+    }
+    .addStage {
+      display: flex;
+      align-items: center;
+      border: 1px dashed #2e6ce4;
+      background: rgba(255, 255, 255, 0.6);
+      width: 200px;
+      border-radius: 12px;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+    .addPlan {
+      border: 1px dashed #c9cdd4;
+      height: 48px;
+      display: flex;
+      border-radius: 12px;
+      align-items: center;
+      padding-left: 16px;
+      margin-top: 18px;
+      cursor: pointer;
+    }
+  }
+}
+.content {
+  background: #f2f3f5;
+  padding: 16px;
+
+  border-radius: 16px;
+  box-sizing: border-box;
+  /* 线条/一般 */
+  border: 1px solid #e5e6eb;
+}
+.flex {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  width: 100%;
+  overflow: scroll;
+}
+
+.stepFour {
+  .content {
+    padding: 20px;
+    padding-bottom: 0;
+    .questionItem {
+      &__header {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+
+        &__title {
+          margin-left: 9px;
+          font-weight: 500;
+          letter-spacing: 0em;
+
+          /* 文字/1级 */
+          color: #1d2129;
+        }
+      }
+      &__content {
+        padding: 20px;
+        padding-bottom: 4px;
+        .singleQuestionItem {
+          position: relative;
+          display: flex;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-right: 20px;
+          box-sizing: border-box;
+
+          border-radius: 12px;
+          opacity: 1;
+          box-sizing: border-box;
+          border: 1px solid #e5e6eb;
+          padding: 37px 20px 0px 20px;
+          &__label {
+            color: #4e5969;
+            margin-right: 16px;
+
+            white-space: nowrap;
+          }
+          &__content {
+            color: #1d2129;
+            font-weight: 500;
+          }
+          .question_level_two {
+            @include caption;
+            top: 0;
+            left: 0;
+            background: #eaf0fc;
+            color: #2e6ce4;
+            font-size: 14px;
+          }
+          .itemContainer {
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            .item {
+              width: 25%;
+              margin-bottom: 16px;
+            }
+          }
+          &:last-child {
+            margin-bottom: 4px;
+          }
+        }
+
+        &.content {
+          padding: 0;
+        }
+      }
+    }
+    :deep .el-checkbox-button__inner {
+      height: 32px;
+      img {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
+    }
+    :deep .el-radio-button {
+      svg {
+        position: relative;
+        left: 3px;
+      }
+    }
+
+    :deep .el-checkbox-button__inner {
+      img {
+        display: none;
+      }
+    }
+    :deep .el-checkbox-button.checked {
+      background: #ffffff;
+      --el-checkbox-button-checked-bg-color: none;
+      --el-checkbox-button-checked-border-color: none;
+      --el-checkbox-button-checked-text-color: none;
+      box-shadow: none;
+      img {
+        display: block;
+      }
+      .el-checkbox-button__inner {
+        border: 1px solid #2e6ce4;
+        --el-border: none;
+        color: #2e6ce4;
+        box-shadow: none;
+      }
+      .el-checkbox-button {
+        &.is-focus {
+          border: none;
+        }
+      }
+      &.serious {
+        .el-checkbox-button__inner {
+          border: 1px solid #f44c4c;
+          --el-border: none;
+          color: #f44c4c;
+        }
+      }
+    }
+  }
+}
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
+:deep .el-radio-button.serious .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: red;
+  background-color: #fff;
+  border-color: red;
+  --el-radio-button-checked-border-color: red;
+}
+
 .formItem__content {
   display: flow-root;
   :deep .el-checkbox-group {

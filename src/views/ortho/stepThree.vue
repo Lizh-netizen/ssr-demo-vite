@@ -173,7 +173,6 @@ const handleChangeOption = (optionId, title) => {
   useUpdateOption(title.optionId, title, '', appId)
 }
 async function handleEmptyRadio(optionId, title) {
-  console.log('dbclick')
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
