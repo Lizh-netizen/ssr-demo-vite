@@ -17,7 +17,7 @@ declare module 'vue' {
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
     Button: typeof import('./src/components/template/button.vue')['default']
     Checkbox: typeof import('./src/components/list/checkbox.vue')['default']
-    ChooseTooth: typeof import('./src/components/list/chooseTooth.vue')['default']
+    ChooseTooth: typeof import('./src/components/layout/chooseTooth.vue')['default']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']
