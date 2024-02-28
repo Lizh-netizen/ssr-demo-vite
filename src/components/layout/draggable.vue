@@ -1,46 +1,118 @@
 <template>
   <div class="container">
-    <draggable class="list-group" v-model="data" :move="onMove" :group="options" item-key="id">
+    <draggable
+      class="list-group"
+      v-model="data"
+      :move="onMove"
+      :group="options"
+      item-key="id"
+      @add="onAdd"
+    >
       <template #item="{ element }">
-        <div class="list-group-item" :class="{ InActive: question && !element.active }">
-          <img class="drag" src="../../assets/layout/drag.svg" />
-          <div class="list-group-item-name">{{ element.name }}</div>
-          <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-          <img
-            class="deleteBtn"
-            src="../../assets/svg/delete.svg"
-            @click.stop="deleteAt(index)"
-            v-if="showDeleteBtn"
-          />
-          <el-tooltip
-            :visible="element.active && element.showRemoveIcon"
-            class="box-item"
-            effect="dark"
-            content="本期矫正不考虑该问题"
-            placement="top"
+        <template v-if="!element.visible">
+          <div
+            class="list-group-item"
+            :class="{ InActive: question && !element.active, question: question == true }"
+            @drop="onDropend(element, data)"
           >
+            <img class="drag" src="../../assets/layout/drag.svg" />
+            <div class="list-group-item-name">{{ element.name }}</div>
+            <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
             <img
-              class="remove"
-              src="../../assets/layout/remove.svg"
-              @click.stop="handleRemove(element)"
-              v-if="question && element.active"
+              class="deleteBtn"
+              src="../../assets/svg/delete.svg"
+              @click.stop="deleteAt"
+              v-if="showDeleteBtn"
             />
-          </el-tooltip>
-          <el-tooltip
-            :visible="!element.active && element.showCancelIcon"
-            class="box-item"
-            effect="dark"
-            content="撤销"
-            placement="top"
+            <el-tooltip
+              :visible="element.active && element.showRemoveIcon"
+              class="box-item"
+              effect="dark"
+              content="本期矫正不考虑该问题"
+              placement="top"
+            >
+              <img
+                class="remove"
+                src="../../assets/layout/remove.svg"
+                @click.stop="handleRemove(element)"
+                v-if="question && element.active"
+              />
+            </el-tooltip>
+            <el-tooltip
+              :visible="!element.active && element.showCancelIcon"
+              class="box-item"
+              effect="dark"
+              content="撤销"
+              placement="top"
+            >
+              <img
+                class="cancel"
+                src="../../assets/layout/cancel.svg"
+                @click.stop="handleCancel(element)"
+                v-if="question && !element.active"
+              />
+            </el-tooltip>
+          </div>
+        </template>
+        <template v-else>
+          <el-popover
+            popper-class="myPopper"
+            :popper-style="{ width: 'auto', 'min-width': '100px' }"
+            placement="top-start"
+            :width="200"
+            :visible="element.visible"
           >
-            <img
-              class="cancel"
-              src="../../assets/layout/cancel.svg"
-              @click.stop="handleCancel(element)"
-              v-if="question && !element.active"
+            <!-- 有牙齿的情况下悬浮显示选中牙位 -->
+            <template #reference>
+              <div
+                class="list-group-item"
+                :class="{ InActive: question && !element.active, question: question == true }"
+              >
+                <img class="drag" src="../../assets/layout/drag.svg" />
+                <div class="list-group-item-name">{{ element.name }}</div>
+                <img
+                  class="deleteBtn"
+                  src="../../assets/svg/delete.svg"
+                  @click.stop="deleteAt"
+                  v-if="showDeleteBtn"
+                />
+                <el-tooltip
+                  :visible="element.active && element.showRemoveIcon"
+                  class="box-item"
+                  effect="dark"
+                  content="本期矫正不考虑该问题"
+                  placement="top"
+                >
+                  <img
+                    class="remove"
+                    src="../../assets/layout/remove.svg"
+                    @click.stop="handleRemove(element)"
+                    v-if="question && element.active"
+                  />
+                </el-tooltip>
+                <el-tooltip
+                  :visible="!element.active && element.showCancelIcon"
+                  class="box-item"
+                  effect="dark"
+                  content="撤销"
+                  placement="top"
+                >
+                  <img
+                    class="cancel"
+                    src="../../assets/layout/cancel.svg"
+                    @click.stop="handleCancel(element)"
+                    v-if="question && !element.active"
+                  />
+                </el-tooltip>
+              </div>
+            </template>
+            <Tooth
+              :step="5"
+              :title="element"
+              @submitTooth="(val) => handleSubmitTooth(val, title, classId)"
             />
-          </el-tooltip>
-        </div>
+          </el-popover>
+        </template>
       </template>
     </draggable>
   </div>
@@ -51,6 +123,9 @@ import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
 import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
 import { averageThreeCourts } from '../../utils/calculate'
+import store from '../../store/index'
+import { Post } from '../../utils/request'
+import { ArcoResolver } from 'unplugin-vue-components/resolvers'
 const props = defineProps({
   list: {
     type: Array,
@@ -72,20 +147,19 @@ const props = defineProps({
 const data = ref(props.list)
 
 const emit = defineEmits(['update'])
-watch(
-  props,
-  (val) => {
-    data.value = val.list
-  },
-  { deep: true }
-)
+// 异步获取的数据在这里赋值
+watch(props, (val) => {
+  data.value = val.list
+})
+const newVal = ref()
 watch(data, (val) => {
+  newVal.value = val
+  console.log(flag.value)
   emit('update', val)
 })
 // 删除
 const deleteAt = (index) => {
-  console.log('delete', index)
-  // data.value.splice(index, 1)
+  data.value.splice(index, 1)
 }
 // 从问题移除
 const handleRemove = (element) => {
@@ -104,7 +178,14 @@ const onMove = (e, originalEvent) => {
   ) {
     return false
   }
+
   return true
+}
+const flag = ref(false)
+const onDropend = (element) => {
+  if (element.name == '拔牙') {
+    flag.visible = true
+  }
 }
 const put = ref(true)
 
@@ -185,22 +266,33 @@ watch(options, (newVal) => {
     cursor: pointer;
   }
   &:hover {
-    /* 设置样式 */
-    .drag,
-    .list-group-item-label,
-    .list-group-item-name {
-      opacity: 0.2;
-    }
-    .list-group-item-label {
-      background: #e5e6eb;
-    }
-
     .deleteBtn {
       opacity: 1;
     }
     .remove,
     .cancel {
       opacity: 1;
+    }
+  }
+  &.question {
+    &:hover {
+      /* 设置样式 */
+      .drag,
+      .list-group-item-label,
+      .list-group-item-name {
+        opacity: 0.2;
+      }
+      .list-group-item-label {
+        background: #e5e6eb;
+      }
+
+      .deleteBtn {
+        opacity: 1;
+      }
+      .remove,
+      .cancel {
+        opacity: 1;
+      }
     }
   }
 }

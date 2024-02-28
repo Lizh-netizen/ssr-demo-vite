@@ -8,6 +8,10 @@ const store = createStore({
         name: '方案一',
         checked: false,
         difficultyLevel: '',
+        popVisible: false,
+        meritIds: [],
+        effectIds: [],
+        primaryApplianceId: '',
         stageList: [
           {
             stageName: '3个月',
@@ -33,7 +37,8 @@ const store = createStore({
       }
     ],
     goalList: [],
-    toolList: []
+    toolList: [],
+    alignerList: []
   },
   getters: {},
   mutations: {
@@ -48,6 +53,19 @@ const store = createStore({
     },
     setOrthToolList(state, payload) {
       state.toolList = payload
+    },
+    setAlignerList(state, payload) {
+      state.alignerList = payload
+    },
+    setFeatureMeritList(state, payload) {
+      const planList = store.state.planList
+      const plan = planList.find((item) => item.name == payload.name)
+      plan!.meritIds = payload.featureList
+    },
+    setFeatureEffectList(state, payload) {
+      const planList = store.state.planList
+      const plan = planList.find((item) => item.name == payload.name)
+      plan!.effectIds = payload.featureList
     },
     addStage(state, payload) {
       const planList = store.state.planList
