@@ -177,7 +177,7 @@
                       :list="stage.targetIds"
                       @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                       :showDeleteBtn="true"
-                      :target="true"
+                      :planTarget="true"
                       :planIndex="planIndex"
                       :stageIndex="stageIndex"
                     ></draggable>
@@ -194,7 +194,7 @@
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                         :showDeleteBtn="true"
                         @submit="handleSubmit"
-                        :target="true"
+                        :planTarget="true"
                         :planIndex="planIndex"
                         :stageIndex="stageIndex"
                       ></draggable>
@@ -204,6 +204,7 @@
                       <draggable
                         class="ORTHTOOL"
                         :list="stage.toolIds"
+                        :planTool="true"
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'tool')"
                         :showDeleteBtn="true"
                       ></draggable>

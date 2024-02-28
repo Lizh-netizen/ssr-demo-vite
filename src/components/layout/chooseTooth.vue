@@ -53,7 +53,6 @@ const handleSelectTooth = (item, title) => {
 }
 const handleArrangeTooth = (item, title) => {
   const hasNumber = /\d/.test(title.name)
-  console.log('🚀 ~ handleArrangeTooth ~ title.name:', title)
 
   // 添加牙位信息
   if (item.active) {
