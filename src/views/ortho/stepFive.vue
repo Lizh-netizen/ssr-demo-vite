@@ -98,7 +98,7 @@
                     {{ item.name }}
                   </a-option>
                 </a-select>
-                <el-dropdown trigger="click">
+                <a-dropdown trigger="click">
                   <span class="el-dropdown-link">
                     <div class="addFeature" @click="plan.popVisible = true">
                       <a-button class="addFeatureBtn"
@@ -112,31 +112,35 @@
                       </span>
                     </div>
                   </span>
-                  <template #dropdown>
-                    <el-checkbox-group
-                      v-model="plan.featureMeritList"
-                      @change="handleMeritFeature(plan.featureMeritList, plan.name)"
-                    >
-                      <el-checkbox
-                        v-for="item in featureMeritList"
-                        :key="item.name"
-                        :label="item.id"
-                        >{{ item.name }}</el-checkbox
+                  <template #content>
+                    <div style="padding: 16px" class="flex flex-col">
+                      <a-checkbox-group
+                        :style="'width: 400px'"
+                        v-model="plan.featureMeritList"
+                        @change="handleMeritFeature(plan.featureMeritList, plan.name)"
                       >
-                    </el-checkbox-group>
-                    <el-checkbox-group
-                      v-model="plan.featureEffectList"
-                      @change="handleEffectFeature(plan.featureEffectList, plan.name)"
-                    >
-                      <el-checkbox
-                        v-for="item in featureEffectList"
-                        :key="item.name"
-                        :label="item.id"
-                        >{{ item.name }}</el-checkbox
+                        <a-checkbox
+                          v-for="item in featureMeritList"
+                          :key="item.name"
+                          :label="item.id"
+                          >{{ item.name }}</a-checkbox
+                        >
+                      </a-checkbox-group>
+                      <a-checkbox-group
+                        :style="'width: 400px'"
+                        v-model="plan.featureEffectList"
+                        @change="handleEffectFeature(plan.featureEffectList, plan.name)"
                       >
-                    </el-checkbox-group>
+                        <a-checkbox
+                          v-for="item in featureEffectList"
+                          :key="item.name"
+                          :label="item.id"
+                          >{{ item.name }}</a-checkbox
+                        >
+                      </a-checkbox-group>
+                    </div>
                   </template>
-                </el-dropdown>
+                </a-dropdown>
               </div>
 
               <div
@@ -863,7 +867,7 @@ getRemark()
     border-radius: 6px;
   }
 }
-:deep .el-checkbox {
+:deep .arco-checkbox {
   margin-right: 8px;
   background: #f2f3f5;
   height: 28px;
