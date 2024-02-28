@@ -8,7 +8,6 @@ const store = createStore({
         name: '方案一',
         checked: false,
         difficultyLevel: '',
-        popVisible: false,
         meritIds: [],
         effectIds: [],
         primaryApplianceId: '',
@@ -16,29 +15,66 @@ const store = createStore({
           {
             stageName: '3个月',
             targetIds: [],
-            toolIds: []
+            toolIds: [],
+            topLeft: [],
+            topRight: [],
+            bottomLeft: [],
+            bottomRight: [],
+            toothCode: [],
+            position: [],
+            submitAble: false,
+            fdiToothCode: null,
+            showPosition: ''
           },
           {
             stageName: '6个月',
             targetIds: [],
-            toolIds: []
+            toolIds: [],
+            topLeft: [],
+            topRight: [],
+            bottomLeft: [],
+            bottomRight: [],
+            toothCode: [],
+            position: [],
+            submitAble: false,
+            fdiToothCode: null,
+            showPosition: ''
           },
           {
             stageName: '9个月',
             targetIds: [],
-            toolIds: []
+            toolIds: [],
+            topLeft: [],
+            topRight: [],
+            bottomLeft: [],
+            bottomRight: [],
+            toothCode: [],
+            position: [],
+            submitAble: false,
+            fdiToothCode: null,
+            showPosition: ''
           },
           {
             stageName: '12个月',
             targetIds: [],
-            toolIds: []
+            toolIds: [],
+            topLeft: [],
+            topRight: [],
+            bottomLeft: [],
+            bottomRight: [],
+            toothCode: [],
+            position: [],
+            submitAble: false,
+            fdiToothCode: null,
+            showPosition: ''
           }
         ]
       }
     ],
     goalList: [],
     toolList: [],
-    alignerList: []
+    alignerList: [],
+    questionList: []
   },
   getters: {},
   mutations: {
@@ -57,6 +93,14 @@ const store = createStore({
     setAlignerList(state, payload) {
       state.alignerList = payload
     },
+    setOrthQuestionList(state, payload) {
+      state.questionList = payload
+    },
+    setDifficultyLevel(state, payload) {
+      const planList = store.state.planList
+      const plan = planList.find((item) => item.name == payload.name)
+      plan!.difficultyLevel = payload.difficultyLevel
+    },
     setFeatureMeritList(state, payload) {
       const planList = store.state.planList
       const plan = planList.find((item) => item.name == payload.name)
@@ -66,6 +110,11 @@ const store = createStore({
       const planList = store.state.planList
       const plan = planList.find((item) => item.name == payload.name)
       plan!.effectIds = payload.featureList
+    },
+    setPrimaryApplianceId(state, payload) {
+      const planList = store.state.planList
+      const plan = planList.find((item) => item.name == payload.name)
+      plan!.primaryApplianceId = payload.primaryApplianceId
     },
     addStage(state, payload) {
       const planList = store.state.planList
@@ -83,67 +132,138 @@ const store = createStore({
     addPlan(state, payload) {
       const planList = store.state.planList
       const name = planList[planList.length - 1].name
-      if (name.endsWith('一')) {
+      if (planList.length == 1) {
         state.planList.push({
           name: '方案二',
           checked: false,
           difficultyLevel: '',
+          meritIds: [],
+          effectIds: [],
+          primaryApplianceId: '',
           stageList: [
             {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
               stageName: '3个月',
+              submitAble: false,
               targetIds: [],
-
-              toolIds: []
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
             },
             {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
               stageName: '6个月',
+              submitAble: false,
               targetIds: [],
-
-              toolIds: []
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
             },
             {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
               stageName: '9个月',
+              submitAble: false,
               targetIds: [],
-
-              toolIds: []
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
             },
             {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
               stageName: '12个月',
+              submitAble: false,
               targetIds: [],
-
-              toolIds: []
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
             }
           ]
         })
-      } else if (name.endsWith('二')) {
+      } else if (planList.length == 2) {
         state.planList.push({
           name: '方案三',
           checked: false,
           difficultyLevel: '',
+          meritIds: [],
+          effectIds: [],
+          primaryApplianceId: '',
+
           stageList: [
             {
-              stageName: '3个月',
-              targetIds: [],
-
-              toolIds: []
-            },
-            {
-              stageName: '6个月',
-              targetIds: [],
-
-              toolIds: []
-            },
-            {
-              stageName: '9个月',
-              targetIds: [],
-
-              toolIds: []
-            },
-            {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
               stageName: '12个月',
+              submitAble: false,
               targetIds: [],
-
-              toolIds: []
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
+            },
+            {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
+              stageName: '6个月',
+              submitAble: false,
+              targetIds: [],
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
+            },
+            {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
+              stageName: '9个月',
+              submitAble: false,
+              targetIds: [],
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
+            },
+            {
+              bottomLeft: [],
+              bottomRight: [],
+              fdiToothCode: null,
+              position: [],
+              showPosition: '',
+              stageName: '12个月',
+              submitAble: false,
+              targetIds: [],
+              toolIds: [],
+              toothCode: [],
+              topLeft: [],
+              topRight: []
             }
           ]
         })

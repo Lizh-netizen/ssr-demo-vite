@@ -24,7 +24,7 @@
           /> </el-radio-button
       ></template>
       <template v-else>
-        <!-- 刚开始没有牙齿，点击之后悬浮 -->
+        <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
         <template v-if="!option.fdiToothCode">
           <el-popover
             placement="right"

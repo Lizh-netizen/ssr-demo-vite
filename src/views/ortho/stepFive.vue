@@ -8,7 +8,11 @@
             <div>问题列表</div>
           </div>
           <div class="top_left_content">
-            <draggable :list="questionData" :question="true"></draggable>
+            <draggable
+              :list="questionData"
+              :question="true"
+              @changeState="(val) => changeState(val)"
+            ></draggable>
           </div>
         </div>
       </div>
@@ -19,13 +23,27 @@
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
-              <img src="../../assets/svg/goalCheck.svg" />目标
+              <img src="../../assets/svg/goalCheck.svg" style="margin-right: 12px" />目标
             </div>
             <draggable class="ORTHTARGET" :unmutable="true" :list="goalList"></draggable>
             <template v-if="planList.some((plan) => plan.checked)">
               <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
-                <img src="../../assets/svg/tool.svg" />工具
+                <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />工具
               </div>
+              <a-space direction="vertical" size="large">
+                <a-input-search
+                  :style="{
+                    width: '256px',
+                    'margin-top': '12px',
+                    'background-blend-mode': 'multiply'
+                  }"
+                  placeholder="请搜索"
+                  v-model="searchValue"
+                  style="background-color: #f2f3f5"
+                  @search="handleSearch(searchValue)"
+                />
+              </a-space>
+
               <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
             </template>
           </div>
@@ -33,26 +51,33 @@
         <div class="body-right">
           <div
             class="content plan"
-            @click.stop.self="handlePlan(plan)"
             :class="{ checkeded: plan.checked == true }"
-            v-for="plan in planList"
+            v-for="(plan, planIndex) in planList"
             :key="plan.name"
           >
-            <div class="flex">
-              <template v-if="plan.checked == true">
-                <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
-              </template>
-              <template v-else>
-                <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
-              </template>
-              {{ plan.name }}
-
+            <div class="flex" style="position: relative; overflow: visible">
+              <span @click="handlePlan(plan)">
+                <template v-if="plan.checked == true">
+                  <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
+                </template>
+                <template v-else>
+                  <img
+                    src="../../assets/svg/Rectangle.svg"
+                    :style="{ 'margin-right': ' 8px' }"
+                  /> </template
+              ></span>
+              <div contenteditable :style="{ height: '30px' }" class="planName">
+                {{ plan.name }}
+              </div>
+              <div class="planTime">
+                预计{{ plan.stageList[plan.stageList.length - 1].stageName }}
+              </div>
               <div>
                 <a-select
                   class="difficulty"
                   v-model="plan.difficultyLevel"
                   placeholder="选择难度"
-                  @click.stop=""
+                  @change="handleDifficultyLevel(plan.difficultyLevel, plan.name)"
                   :class="{
                     high: plan.difficultyLevel == '难度高',
                     middle: plan.difficultyLevel == '难度中等',
@@ -64,70 +89,86 @@
                   </a-option>
                 </a-select>
                 <a-select
-                  class="orthoTool"
-                  v-model="plan.orthoTool"
+                  class="primaryApplianceId"
+                  v-model="plan.primaryApplianceId"
                   placeholder="选择主矫正器"
-                  @click.stop=""
+                  @change="handleprimaryApplianceId(plan.primaryApplianceId, plan.name)"
                 >
                   <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
                     {{ item.name }}
                   </a-option>
                 </a-select>
-
-                <el-popover
-                  popper-class="feature"
-                  placement="bottom-start"
-                  :width="400"
-                  trigger="click"
-                  content="this is content, this is content, this is content"
-                >
-                  <template #reference>
-                    <div class="addFeature" @click.stop="plan.popVisible = true">
+                <el-dropdown trigger="click">
+                  <span class="el-dropdown-link">
+                    <div class="addFeature" @click="plan.popVisible = true">
                       <a-button class="addFeatureBtn"
                         ><template #icon> <icon-plus /> </template>添加特点
                       </a-button>
+                      <span
+                        class="featureNum"
+                        v-if="plan.meritIds?.length + plan.effectIds?.length > 0"
+                      >
+                        {{ plan.meritIds?.length + plan.effectIds?.length }}
+                      </span>
                     </div>
+                  </span>
+                  <template #dropdown>
+                    <el-checkbox-group
+                      v-model="plan.featureMeritList"
+                      @change="handleMeritFeature(plan.featureMeritList, plan.name)"
+                    >
+                      <el-checkbox
+                        v-for="item in featureMeritList"
+                        :key="item.name"
+                        :label="item.id"
+                        >{{ item.name }}</el-checkbox
+                      >
+                    </el-checkbox-group>
+                    <el-checkbox-group
+                      v-model="plan.featureEffectList"
+                      @change="handleEffectFeature(plan.featureEffectList, plan.name)"
+                    >
+                      <el-checkbox
+                        v-for="item in featureEffectList"
+                        :key="item.name"
+                        :label="item.id"
+                        >{{ item.name }}</el-checkbox
+                      >
+                    </el-checkbox-group>
                   </template>
-                  <el-checkbox-group
-                    v-model="plan.featureMeritList"
-                    @change="handleMeritFeature(plan.featureMeritList, plan.name)"
-                  >
-                    <el-checkbox
-                      v-for="item in featureMeritList"
-                      :key="item.name"
-                      :label="item.id"
-                      >{{ item.name }}</el-checkbox
-                    >
-                  </el-checkbox-group>
-                  <el-checkbox-group
-                    v-model="plan.featureEffectList"
-                    @change="handleEffectFeature(plan.featureEffectList, plan.name)"
-                  >
-                    <el-checkbox
-                      v-for="item in featureEffectList"
-                      :key="item.name"
-                      :label="item.id"
-                      >{{ item.name }}</el-checkbox
-                    >
-                  </el-checkbox-group>
-                </el-popover>
+                </el-dropdown>
               </div>
 
               <div
                 class="tag"
                 v-if="
                   planList.some((plan) =>
-                    plan.stageList.some((stage) =>
-                      stage.targetIds.some((target) => target.name === '拔牙')
+                    plan.stageList?.some((stage) =>
+                      stage.targetIds?.some((target) => target.name === '拔牙')
                     )
                   )
                 "
               >
                 拔牙
               </div>
+              <div style="position: absolute; right: 0">
+                <img
+                  src="../../assets/layout/Copy.svg"
+                  style="cursor: pointer"
+                  @click.stop="handleAddPlan"
+                /><img
+                  style="cursor: pointer"
+                  src="../../assets/layout/Delete.svg"
+                  @click.stop="handleDeletePlan(planIndex)"
+                />
+              </div>
             </div>
             <div class="flex">
-              <div class="cardGroup" v-for="stage in plan.stageList" :key="stage.stageName">
+              <div
+                class="cardGroup"
+                v-for="(stage, stageIndex) in plan.stageList"
+                :key="stage.stageName"
+              >
                 <template v-if="!plan.checked">
                   <div class="card">
                     <div class="time">{{ stage.stageName }}</div>
@@ -136,6 +177,9 @@
                       :list="stage.targetIds"
                       @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                       :showDeleteBtn="true"
+                      :target="true"
+                      :planIndex="planIndex"
+                      :stageIndex="stageIndex"
                     ></draggable>
                   </div>
                   <img src="../../assets/layout/arrowRight.svg" />
@@ -149,6 +193,10 @@
                         :list="stage.targetIds"
                         @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
                         :showDeleteBtn="true"
+                        @submit="handleSubmit"
+                        :target="true"
+                        :planIndex="planIndex"
+                        :stageIndex="stageIndex"
                       ></draggable>
                     </div>
                     <div class="tool card">
@@ -180,12 +228,184 @@
         </div>
       </div>
     </div>
+    <Header text="风险" backgroundColor="#f4f7fd" />
+    <div class="content risk" style="background: #fff; border: none">
+      <template v-for="item in riskData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <template v-if="title.titleName !== '备注'"
+            ><form-item :label="title.titleName">
+              <el-checkbox-group
+                v-model="title.optionId"
+                @change="handleChangeOption(title.optionId, title)"
+              >
+                <template v-for="option in title.orthOptionsList" :key="option.id">
+                  <template v-if="!option.optionSuffix"
+                    ><el-checkbox-button
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      :label="option.id"
+                    >
+                      {{ option.optionName }}
+                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="../../assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </template>
+                  <template v-else>
+                    <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
+                    <template v-if="option.fdiToothCode == null">
+                      <el-popover
+                        placement="right"
+                        :width="490"
+                        trigger="click"
+                        @show="handleBeforeEnterPopover(option)"
+                        @after-leave="handleSubmitTooth(option, title)"
+                      >
+                        <template #reference>
+                          <el-checkbox-button
+                            @click="option.visible = true"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :label="option.id"
+                            @mouseenter="option.hover = true"
+                            @mouseleave="option.hover = false"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
+                            >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                      ? option.hoverColor
+                                      : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <ChooseTooth :option="option"></ChooseTooth>
+                      </el-popover>
+                    </template>
+                    <template v-else>
+                      <el-popover
+                        popper-class="myPopper"
+                        :popper-style="{ width: 'auto', 'min-width': '100px' }"
+                        placement="top-start"
+                        :width="200"
+                        :visible="option.visible"
+                        @mouseleave="option.visible = false"
+                      >
+                        <template #reference>
+                          <el-checkbox-button
+                            @mouseenter="handleMouseEnterBtn(option)"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :label="option.id"
+                            @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
+                            >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                      ? option.hoverColor
+                                      : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <Tooth
+                          :step="5"
+                          :title="option"
+                          :appId="appId"
+                          @submitTooth="(val) => handleSubmitTooth(val, title)"
+                        />
+                      </el-popover>
+                    </template>
+                  </template>
+                </template>
+              </el-checkbox-group>
+            </form-item>
+          </template>
+
+          <template v-else-if="title.titleName == '备注'">
+            <form-item :label="title.titleName" width="72px">
+              <el-input
+                :style="{ width: '100px' }"
+                v-model="title.cephalometricsContent"
+                @blur="handleSubmitAddtionalContent(title)"
+              ></el-input>
+            </form-item>
+          </template>
+        </template>
+      </template>
+    </div>
+    <Header text="备注" backgroundColor="#f4f7fd" />
+    <div class="content" style="background: #fff; border: none">
+      <template v-for="item in remarkData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <form-item :label="title.titleName">
+            <el-input
+              :style="{ width: '400px' }"
+              v-model="title.cephalometricsContent"
+              @blur="handleSubmitAddtionalContent(title)"
+            ></el-input> </form-item></template
+      ></template>
+    </div>
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/list/header.vue'
 import { ref, defineProps, defineExpose, onMounted, watch, nextTick } from 'vue'
+import { GetSymptom } from '@/utils/tooth'
 import FormItem from '@/components/list/formItem.vue'
 import { Get, Post } from '@/utils/request'
 import { useRoute } from 'vue-router'
@@ -195,14 +415,14 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
 import { useStore } from 'vuex'
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
+import Tooth from '@/components/list/tooth.vue'
+import ChooseTooth from '@/components/list/chooseTooth.vue'
 const route = useRoute()
 const appId = route.params.appId
 const store = useStore()
 const clicked = ref(false)
-const goalList = ref()
-goalList.value = store.state.goalList
-const toolList = ref()
-toolList.value = store.state.toolList
+const requestAgain = ref(false)
 const difficultyList = ref([{ label: '难度低' }, { label: '难度中等' }, { label: '难度高' }])
 defineExpose({
   clicked
@@ -210,6 +430,48 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
+// 获取工具数据
+const toolList = ref([])
+async function getOrthToolList() {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHTOOL'
+  })
+  toolList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType
+  }))
+}
+// 搜索工具
+const searchValue = ref('')
+const handleSearch = async (val) => {
+  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
+    dictType: 'ORTHTOOL',
+    dictCodeName: val
+  })
+  toolList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType,
+    showPosition: null
+  }))
+}
+getOrthToolList()
+// 获取目标数据
+const goalList = ref([])
+async function getOrthGoalList() {
+  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
+    dictType: 'ORTHTARGET'
+  })
+  goalList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: item.id,
+    dictType: item.dictType,
+    showPosition: null
+  }))
+  store.commit('setOrthGoalList', goalList.value)
+}
+getOrthGoalList()
 // 获取问题列表数据
 
 // const appId = route.params.appId
@@ -217,10 +479,12 @@ const questionData = ref([])
 async function getOrthQuestionList() {
   const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
   questionData.value = result.data.map((item) => ({
+    ...item,
     name: item.option_names,
     label: item.question_level_one,
-    active: true
+    active: item.active == '1' ? true : false
   }))
+  store.commit('setOrthQuestionList', questionData.value)
 }
 getOrthQuestionList()
 // 新增阶段
@@ -229,19 +493,27 @@ const handleAddStage = (planName) => {
 }
 // 新增方案
 const handleAddPlan = () => {
-  if (planList.length == 3) {
+  if (planList.value.length == 3) {
     ElMessage({
       message: '方案最多添加三个',
       type: 'warning'
     })
+    return
   }
   store.commit('addPlan')
+}
+// 删除方案
+const handleDeletePlan = (index) => {
+  planList.value.splice(index, 1)
 }
 // 方案
 const planList = ref([])
 // 判断是否可以拖拽
 const onMove = (e) => {
   console.log(e)
+}
+const handleDifficultyLevel = (difficultyLevel, name) => {
+  store.commit('setDifficultyLevel', { difficultyLevel, name })
 }
 // 添加特点
 const handleMeritFeature = (featureList, name) => {
@@ -250,38 +522,48 @@ const handleMeritFeature = (featureList, name) => {
 const handleEffectFeature = (featureList, name) => {
   store.commit('setFeatureEffectList', { featureList, name })
 }
+const handleprimaryApplianceId = (primaryApplianceId, name) => {
+  store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
+}
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, planName, stageName, cardName) => {
   const found = planList.value.find((plan) => plan.name == planName)
+
   if (cardName == 'target') {
-    found.stageList.find((item) => item.stageName == stageName).targetIds = val
+    found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
+    if (val.flag) {
+      // 避免修改右侧数据影响左侧
+      goalList.value.find((item) => (item.visible = false))
+      // const item = found.stageList
+      //   .find((item) => item.stageName == stageName)
+      //   .targetIds.find((item) => item.name == '拔牙')
+      // item.visible = true
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const target = stage.targetIds.find((item) => item.name == '拔牙')
+      target.visible = true
+      useFdiToothCodeEffect(target)
+    }
+    if (val.delete) {
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
+
+      stage.targetIds.splice(index, 1)
+    }
   } else {
-    found.stageList.find((item) => item.stageName == stageName).toolIds = val
+    found.stageList.find((item) => item.stageName == stageName).toolIds = val.data
   }
   store.commit('updatePlanList', planList.value)
 }
-const updateGoal = (val) => {
-  val = store.state.goalList
+// 更改问题状态
+const changeState = (val) => {
+  const found = questionData.value.find((item) => item.option_names == val.element.option_names)
+  found.active = val.flag
 }
-
 onMounted(() => {
   planList.value = store.state.planList
-  nextTick(() => {
-    const plan = document.querySelector('.plan')
-    console.log('🚀 ~ nextTick ~ plan:', plan)
-    plan.addEventListener(
-      'click',
-      (e) => {
-        e.stopPropagation()
-        e.preventDefault()
-      },
-      false
-    )
-  })
 })
 const popClose = ref(true)
 const handlePlan = (plan) => {
-  console.log(popClose.value)
   if (!popClose) return
   plan.checked = !plan.checked
 }
@@ -293,7 +575,7 @@ const getAlignerList = async () => {
   })
   alignerList.value = result.data.map((item) => ({
     name: item.dictCodeName,
-    id: item.id,
+    id: +item.id,
     dictType: item.dictType
   }))
   store.commit('setAlignerList', alignerList.value)
@@ -324,9 +606,262 @@ const getFeatureEffect = async () => {
   }))
 }
 getFeatureEffect()
+// 提交过牙齿重新请求一次目标
+const handleSubmit = () => {
+  getOrthGoalList()
+}
+async function handleChangeOption(optionId, title, option, title1, owningModule) {
+  if (owningModule == '目标') {
+    goalClicked.value = true
+  }
+  if (owningModule == '方法') {
+    methodClicked.value = true
+  }
+  if (props.pdfId) {
+    sessionStorage.removeItem(props.pdfId)
+  }
+  if (title.titleName == '矫治风险') {
+    requestAgain.value = true
+    title.orthOptionsList.forEach((option) => {
+      if (optionId.includes(option.id)) {
+        option.clicked = true
+      } else {
+        option.clicked = false
+      }
+    })
+  } else if (title.titleName == '矫治器') {
+    const optionId = title.optionId.filter((optionId) => !title.optionId1.includes(optionId))
+    const optionName = title.orthOptionsList.find((a) => a.id === optionId[0])?.optionName
+    if (optionId && optionName && (optionName == '无托槽隐形矫治' || optionName == '硅胶矫治器')) {
+      title.orthOptionsList.forEach((option) => {
+        if (optionId.includes(option.id)) {
+          option.clicked = true
+          option.visible = true
+        } else {
+          option.clicked = false
+        }
+      })
+    }
+  } else if (title.titleName == '品牌') {
+    option.visible = false
+    useUpdateOption(option.otherContent, title, '', appId)
+    useUpdateOption(title1.optionId, title1, '', appId)
+    return
+  }
+  useChangeOption(optionId, title, appId)
+  const res = await useUpdateOption(title.optionId, title, '', appId)
+  if (requestAgain.value && res.code == 200) {
+    getOrthRiskList()
+  }
+
+  if ((res.code == 200) & (title.titleName == '矫治器')) {
+    getOrthMethodList()
+  }
+}
+const symptomList = ref([])
+symptomList.value = GetSymptom()
+console.log('🚀 ~ symptomList.value:', symptomList.value)
+const handleBeforeEnterPopover = (title) => {
+  symptomList.value.forEach((row) => {
+    row.forEach((a) => {
+      a.active = false
+      if (title.toothCode?.includes(a.value + '')) {
+        a.active = true
+      }
+    })
+  })
+}
+const handleSubmitTooth = (option, title) => {
+  option.visible = false
+  symptomList.value.forEach((row) => row.forEach((item) => (item.active = false)))
+  let obj
+  // 判断是否选择了牙齿/点击了小牙位图，然后再判断是否有牙齿选中
+  if (!option.submitAble) {
+    if (option.id === 237 && !option.toothCode.join()) {
+      title.optionId.splice(
+        title.optionId.findIndex((a) => a == 237),
+        1
+      )
+      const option2 = title.orthOptionsList.find((a) => a.id === 236)
+      obj = {
+        apmtId: appId,
+        titleId: title.id,
+        optionsIdStr: title.optionId,
+        otherContent: '',
+        cephalometricsContent: '',
+        fdiToothCode: option2.toothCode.join(),
+        showPosition: JSON.stringify(option2.position),
+        fdiToothCode1: option.toothCode.join(),
+        showPosition1: JSON.stringify(option.position)
+      }
+    } else if (option.id === 236 && !option.toothCode.join()) {
+      title.optionId.splice(
+        title.optionId.findIndex((a) => a == 236),
+        1
+      )
+      const option2 = title.orthOptionsList.find((a) => a.id === 237)
+      obj = {
+        apmtId: appId,
+        titleId: title.id,
+        optionsIdStr: title.optionId,
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: option2.toothCode.join(),
+        showPosition: JSON.stringify(option2.position),
+        fdiToothCode1: option.toothCode.join(),
+        showPosition1: JSON.stringify(option.position)
+      }
+    }
+  }
+  if (option.id === 237) {
+    const option2 = title.orthOptionsList.find((a) => a.id === 236)
+    if (option2.toothCode) {
+      obj = {
+        apmtId: appId,
+        titleId: title.id,
+        optionsIdStr: title.optionId,
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: option2.toothCode.join(),
+        showPosition: JSON.stringify(option2.position),
+        fdiToothCode1: option.toothCode.join(),
+        showPosition1: JSON.stringify(option.position)
+      }
+    }
+  } else {
+    const option2 = title.orthOptionsList.find((a) => a.id === 237)
+    if (option2.toothCode) {
+      obj = {
+        apmtId: appId,
+        titleId: title.id,
+        optionsIdStr: title.optionId,
+        otherContent: '',
+        cephalometricsContent: '',
+        fdiToothCode1: option2.toothCode.join(),
+        showPosition1: JSON.stringify(option2.position),
+        fdiToothCode: option.toothCode.join(),
+        showPosition: JSON.stringify(option.position)
+      }
+    } else {
+      title.optionId.splice(
+        title.optionId.findIndex((a) => a == 236),
+        1
+      )
+      obj = {
+        apmtId: appId,
+        titleId: title.id,
+        optionsIdStr: title.optionId,
+        otherContent: '',
+        cephalometricsContent: '',
+        fdiToothCode: option2.toothCode.join(),
+        showPosition: JSON.stringify(option2.position),
+        fdiToothCode1: option.toothCode.join(),
+        showPosition1: JSON.stringify(option.position)
+      }
+    }
+  }
+
+  Post('/prod-api/business/optionsResult', obj).then(() => {
+    option.submitAble = false
+    getOrthRiskList()
+  })
+}
+// 有已选中的牙位的悬浮显示选中的牙位
+const handleMouseEnterBtn = (option) => {
+  option.visible = true
+  option.hover = true
+}
+
+let timeout
+const handleMouseLeaveBtn = (e, option) => {
+  option.hover = false
+  timeout = setTimeout(() => {
+    option.visible = false
+  }, 300)
+  const poppers = document.querySelectorAll('.myPopper')
+  Array.from(poppers).forEach((popper) => {
+    popper.addEventListener('mouseenter', () => {
+      clearTimeout(timeout)
+    })
+  })
+}
+const handleSubmitAddtionalContent = (title) => {
+  if (title.cephalometricsContent) {
+    const obj = {
+      apmtId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: '',
+      cephalometricsContent: title.cephalometricsContent,
+      fdiToothCode: '',
+      showPosition: ''
+    }
+    Post('/prod-api/business/optionsResult', obj)
+  }
+}
+const riskData = ref([])
+async function getOrthRiskList() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/风险/${appId}`)
+  riskData.value = result.data
+  riskData.value.forEach((item) => {
+    item.orthTitleList.forEach((i) => {
+      i.orthOptionsList.forEach((a) => {
+        if (a.optionSuffix) {
+          useFdiToothCodeEffect(a)
+        }
+      })
+    })
+  })
+  riskData.value.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+  riskData.value.forEach((item) => {
+    item.orthTitleList.forEach((title) => {
+      if (title.type == 1) {
+        title.optionId = ''
+        title.text = ''
+      } else if (title.type == 2) {
+        title.optionId = []
+        title.optionId1 = []
+        title.text = ''
+        title.showInput = false
+        const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
+        if (choosenOptions.length > 0) {
+          title.optionId = choosenOptions.map((option) => option.id)
+          title.optionId1 = title.optionId
+        }
+      }
+      if (title.titleName == '矫治风险') {
+        title.orthOptionsList.forEach((option) => {
+          if (option.optionName === '牙根吸收' || option.optionName === '乳牙早失') {
+            option.fillColor = '#C9CDD4'
+            option.seriousColor = '#f44c4c'
+            option.hoverColor = '#2e6ce4'
+            option.clicked = option.choosen ? true : false
+          }
+        })
+      }
+    })
+  })
+}
+getOrthRiskList()
+const remarkData = ref([])
+async function getRemark() {
+  const result = await Get(`/prod-api/business/orthClass/list/2/备注/${appId}`)
+  remarkData.value = result.data
+}
+
+getRemark()
 </script>
 
 <style lang="scss" scoped>
+.planName {
+  padding: 6px 10px;
+  &:hover {
+    border: 1px solid #c9cdd4;
+    border-radius: 6px;
+  }
+}
 :deep .el-checkbox {
   margin-right: 8px;
   background: #f2f3f5;
@@ -336,9 +871,7 @@ getFeatureEffect()
   border-radius: 6px;
 }
 @import '../../style/mixins.scss';
-img {
-  margin-right: 16px;
-}
+
 .layout {
   padding: 20px;
   display: flex;
@@ -406,6 +939,7 @@ img {
     margin-right: 20px;
     position: sticky;
     top: 72px;
+    overflow: scroll;
   }
   &-right {
     width: calc(100% - 326px);
@@ -414,6 +948,26 @@ img {
       :deep .list-group {
         height: 200px;
         width: 200px;
+      }
+      .planTime {
+        font-size: 14px;
+        font-weight: normal;
+        line-height: normal;
+        text-align: center;
+        letter-spacing: 0px;
+        padding: 4px 8px;
+        gap: 6px;
+        border-radius: 6px;
+        /* 主色/10% */
+        /* 样式描述：浅色背景/hover等 */
+        background: #eaf0fc;
+
+        box-sizing: border-box;
+        /* 主色/100% */
+        border: 1px solid #2e6ce4;
+        font-variation-settings: 'opsz' auto;
+        /* 主色/100% */
+        color: #2e6ce4;
       }
 
       &.checkeded {
@@ -447,23 +1001,29 @@ img {
         border: 1px solid #c9cdd4;
         border-radius: 6px;
         margin-left: 16px;
-        &.high {
-          background: #f76560;
-          color: #ffffff;
-        }
-        &.middle {
-          background: #ff9a2e;
-          color: #ffffff;
-        }
-        &.low {
-          background: #23c343;
-          color: #ffffff;
-        }
+        // &.high {
+        //   background: #f76560;
+        //   color: #ffffff;
+        // }
+        // &.middle {
+        //   background: #ff9a2e;
+        //   color: #ffffff;
+        // }
+        // &.low {
+        //   background: #23c343;
+        //   color: #ffffff;
+        // }
         &.difficulty {
           width: 110px;
+          &.validateFail {
+            border: 1px solid red;
+          }
         }
-        &.orthoTool {
+        &.primaryApplianceId {
           width: 140px;
+          &.validateFail {
+            border: 1px solid red;
+          }
         }
       }
       .addFeature {
@@ -483,10 +1043,27 @@ img {
           border: 1px solid #e5e6eb;
           box-shadow: 0px 0px 16px 0px rgba(0, 0, 0, 0.12);
         }
+        .featureNum {
+          line-height: 18px;
+          text-align: center;
+          position: absolute;
+          background: #f65b56;
+          border-radius: 100px;
+          width: 18px;
+          height: 18px;
+          top: -6px;
+          color: #ffffff;
+          right: -6px;
+        }
       }
 
       :deep .container {
         height: 220px;
+      }
+      :deep .container.ORTHTOOL {
+        .list-group {
+          margin-top: 8px !important;
+        }
       }
       .period {
         margin-left: 16px;
@@ -525,7 +1102,6 @@ img {
         .time {
           background: #eaf0fc;
           height: 40px;
-          margin: 12px;
           display: flex;
           align-items: center;
           justify-content: flex-start;
@@ -705,6 +1281,218 @@ img {
         }
       }
     }
+  }
+}
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
+:deep .el-radio-button.serious .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: red;
+  background-color: #fff;
+  border-color: red;
+  --el-radio-button-checked-border-color: red;
+}
+
+.formItem__content {
+  display: flow-root;
+  :deep .el-checkbox-group {
+    width: 100%;
+  }
+}
+.content {
+  padding: 20px;
+  padding-bottom: 0;
+  &.period {
+    :deep .el-input {
+      width: 120px;
+    }
+  }
+  :deep .el-checkbox-button.is-focus .el-checkbox-button__inner {
+    --el-checkbox-button-checked-border-color: #dcdfe6;
+  }
+  :deep .el-checkbox-button {
+    &.is-focus {
+      border: none;
+    }
+  }
+  :deep .el-checkbox-button__inner {
+    height: 32px;
+    img {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+    }
+  }
+  :deep .el-radio-button {
+    position: relative;
+    img {
+      position: absolute;
+      right: 4px;
+      bottom: 2px;
+    }
+    svg {
+      position: relative;
+      left: 3px;
+    }
+    &.is-focus {
+      border: none;
+    }
+  }
+
+  :deep .el-checkbox-button__inner {
+    img {
+      display: none;
+    }
+  }
+  :deep .el-checkbox-button.checked {
+    background: #ffffff;
+    --el-checkbox-button-checked-bg-color: none;
+    --el-checkbox-button-checked-border-color: none;
+    --el-checkbox-button-checked-text-color: none;
+    box-shadow: none;
+    img {
+      display: block;
+    }
+    .el-checkbox-button__inner {
+      border: 1px solid #2e6ce4;
+      --el-border: none;
+      color: #2e6ce4;
+      box-shadow: none;
+    }
+    .el-checkbox-button {
+      &.is-focus {
+        border: none;
+      }
+    }
+    &.serious {
+      .el-checkbox-button__inner {
+        border: 1px solid #f44c4c;
+        --el-border: none;
+        color: #f44c4c;
+      }
+    }
+  }
+  &.risk {
+    :deep .el-checkbox-button {
+      margin-bottom: 12px;
+    }
+  }
+}
+.diagramWrapper {
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .diagram {
+    position: relative;
+    .diagramBox {
+      width: 122px;
+      height: 25px;
+      display: flex;
+      div {
+        height: 25px;
+        width: 61px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        box-sizing: border-box;
+      }
+      &:nth-child(1) {
+        border-bottom: 1px solid #d8d8d8;
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+      &:nth-child(2) {
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+    }
+  }
+}
+.selectContainer {
+  .container {
+    display: grid;
+    grid-template-columns: auto auto;
+    .symptomBox {
+      display: flex;
+      .symptomItem {
+        width: 24px;
+        height: 24px;
+        /* border: solid 1px #ccc; */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 2px 2px;
+        cursor: pointer;
+        border: 0.5px solid #e9e9eb;
+        box-sizing: border-box;
+        &.selected {
+          background-color: #0081cc;
+          border-color: #0081cc;
+          color: #fff;
+        }
+      }
+      &.marginTop {
+        margin-top: 16px;
+      }
+      &.marginBottom {
+        margin-bottom: 16px;
+      }
+      &.marginRight {
+        margin-right: 12px;
+      }
+      &.marginLeft {
+        margin-left: 12px;
+      }
+      &.itemAlignRight {
+        justify-content: end;
+      }
+    }
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    width: 1px;
+    height: 138px;
+    left: 247px;
+    top: 16px;
+    background: #d8d8d8;
+  }
+  &:before {
+    content: '';
+    position: absolute;
+    width: 465px;
+    height: 1px;
+    left: 20px;
+    top: 82px;
+    background: #d8d8d8;
+  }
+  .left {
+    position: absolute;
+    width: 26px;
+    height: 20px;
+    z-index: 6;
+    left: 120px;
+    background: #ffffff;
+    top: 72px;
+    text-align: center;
+  }
+  .right {
+    position: absolute;
+    width: 26px;
+    height: 20px;
+    z-index: 6;
+    right: 120px;
+    background: #ffffff;
+    top: 72px;
+    text-align: center;
   }
 }
 :deep .el-radio-button__original-radio:checked + .el-radio-button__inner {

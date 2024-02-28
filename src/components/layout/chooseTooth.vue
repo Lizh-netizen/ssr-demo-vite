@@ -34,10 +34,16 @@
 import { GetSymptom } from '@/utils/tooth'
 // import { defineProps, defineEmits } from 'vue';
 import useSelectTooth from '@/effects/selectTooth.ts'
-const symptomList = ref([])
-const props = defineProps(['option', 'arrange'])
 
-symptomList.value = GetSymptom()
+const props = defineProps(['option', 'arrange', 'symptomList'])
+const symptomList = ref(props.symptomList)
+watch(
+  props,
+  (val) => {
+    symptomList.value = val.symptomList
+  },
+  { deep: true }
+)
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)
@@ -47,6 +53,8 @@ const handleSelectTooth = (item, title) => {
 }
 const handleArrangeTooth = (item, title) => {
   const hasNumber = /\d/.test(title.name)
+  console.log('🚀 ~ handleArrangeTooth ~ title.name:', title)
+
   // 添加牙位信息
   if (item.active) {
     if (!hasNumber) {
@@ -57,7 +65,11 @@ const handleArrangeTooth = (item, title) => {
   }
   // 删除牙位信息
   else {
-    title.name = title.name.replace(';' + String(item.value), '')
+    if (title.name.includes(';')) {
+      title.name = title.name.replace(';' + String(item.value), '')
+    } else {
+      title.name = title.name.replace('(' + String(item.value) + ')', '')
+    }
   }
 }
 </script>

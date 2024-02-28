@@ -88,7 +88,6 @@ import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId'])
 const emit = defineEmits(['submitTooth', 'changePopVisible'])
 const title = ref(props.title)
-console.log('🚀 ~ title:', title)
 
 const data = ref(props.data)
 
@@ -153,7 +152,6 @@ const handleSubmitTooth = (title) => {
   // 清理掉poper
 }
 const openPop = (title, item) => {
-  console.log('🚀 ~ openPop ~ item:', item)
   if (!item?.hasImage) {
     return
   } else {

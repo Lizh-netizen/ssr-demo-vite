@@ -566,7 +566,7 @@ async function handleClassifyPics() {
     })
   }
 }
-console.log(11)
+
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])

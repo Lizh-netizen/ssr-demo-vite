@@ -152,6 +152,7 @@
 </template>
 
 <script setup>
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 // 这里非动态导入，不是路由
 import stepOne from './stepOne.vue'
 import stepTwo from './stepTwo.vue'
@@ -233,24 +234,61 @@ const pdfId = ref()
 //     active.value = 6
 //   }, 200)
 // }
+function validate(planList) {
+  const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
 
+  const applicance = document.querySelectorAll('.arco-select.primaryApplianceId')
+
+  planList.forEach((plan, index) => {
+    if (!plan.primaryApplianceId) {
+      applicance[index].classList.add('validateFail')
+    }
+    if (!plan.difficultyLevel) {
+      difficultySelect[index].classList.add('validateFail')
+    }
+  })
+}
 const handleGeneratePdf = () => {
   if (active.value == 5) {
     const goalList = store.state.goalList
+    // 校验哪个计划的选择器没写
     const planList = store.state.planList
-    console.log(planList)
+    if (planList.some((plan) => !plan.primaryApplianceId || !plan.difficultyLevel)) {
+      validate(planList)
+      return false
+    }
     const transformedData = planList.map((scheme) => {
       if (scheme.id) {
         return {
           id: scheme.id,
+          difficultyLevel: scheme.difficultyLevel,
+          checked: scheme.checked,
           name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
           aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
+          featureTagIds:
+            scheme.effectIds?.length > 0 || scheme.meritIds?.length > 0
+              ? [...scheme.effectIds, ...scheme.meritIds].join(',')
+              : '',
+          primaryApplianceId: scheme.primaryApplianceId,
           stageList: scheme.stageList
             .filter((item) => item.targetIds.length > 0)
             .map((stage) => {
               return {
+                fdiToothCode: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return target.toothCode?.join()
+                  }
+                })[0],
+                optionId: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return target.id
+                  }
+                })[0],
+                showPosition: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return JSON.stringify(target.position)
+                  }
+                })[0],
                 stageName: stage.stageName,
                 targetIds: stage.targetIds.map((target) => target.id).join(','),
                 toolIds: stage.toolIds.map((tool) => tool.id).join(',')
@@ -260,13 +298,33 @@ const handleGeneratePdf = () => {
       } else {
         return {
           name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
+          difficultyLevel: scheme.difficultyLevel,
+          checked: scheme.checked,
+          featureTagIds:
+            scheme.effectIds?.length > 0 || scheme.meritIds?.length > 0
+              ? [...scheme.effectIds, ...scheme.meritIds].join(',')
+              : '',
+          primaryApplianceId: scheme.primaryApplianceId,
           aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
           stageList: scheme.stageList
             .filter((item) => item.targetIds.length > 0)
             .map((stage) => {
               return {
+                fdiToothCode: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return target.toothCode?.join()
+                  }
+                })[0],
+                optionId: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return target.id
+                  }
+                })[0],
+                showPosition: stage.targetIds.map((target) => {
+                  if (target.name.includes('拔牙')) {
+                    return JSON.stringify(target.position)
+                  }
+                })[0],
                 stageName: stage.stageName,
                 targetIds: stage.targetIds.map((target) => target.id).join(','),
                 toolIds: stage.toolIds.map((tool) => tool.id).join(',')
@@ -276,6 +334,12 @@ const handleGeneratePdf = () => {
       }
     })
     Post('/prod-api/emr/public/api/v1/scheme', transformedData)
+    const questionData = store.state.questionList.map((item) => ({
+      id: item.option_result_id,
+      active: item.active ? '1' : '0'
+    }))
+    console.log('🚀 ~ questionData ~ store.state.questionList:', store.state.questionList)
+    Put('/prod-api/business/optionsResult', questionData)
   }
   nextTick(() => {
     editStep.value = active.value
@@ -329,34 +393,7 @@ function getOrthBase() {
 }
 getOrthBase()
 const store = useStore()
-// 获取工具数据
-const toolList = ref([])
-async function getOrthToolList() {
-  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
-    dictType: 'ORTHTOOL'
-  })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
-  store.commit('setOrthToolList', toolList.value)
-}
-getOrthToolList()
-// 获取目标数据
-const goalList = ref([])
-async function getOrthGoalList() {
-  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
-    dictType: 'ORTHTARGET'
-  })
-  goalList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
-  store.commit('setOrthGoalList', goalList.value)
-}
-getOrthGoalList()
+
 const handleNextStep = () => {
   nextTick(() => {
     editStep.value = active.value
@@ -375,11 +412,9 @@ async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {
     const planList = result.data.map((scheme) => ({
-      id: scheme.id,
-      name: scheme.name,
+      ...scheme,
       checked: scheme.checked || false,
       difficultyLevel: scheme.difficultyLevel || '',
-      popVisible: false,
       stageList:
         scheme.stageList?.length == 0
           ? [
@@ -405,7 +440,7 @@ async function getPlanList() {
               }
             ]
           : scheme.stageList?.map((item) => ({
-              stageName: item.stageName,
+              ...item,
               targetIds: item.targetIds?.split(',')?.map((target, index) => ({
                 id: target,
                 name: item.targetNames.split(',')[index],
@@ -434,9 +469,39 @@ async function getPlanList() {
         }
       }
     })
-    console.log('🚀 ~ planList.forEach ~ planList:', planList)
+
+    planList.forEach((plan) => {
+      plan.stageList?.forEach((stage) => {
+        if (stage.showPosition) {
+          const a = stage.targetIds.find((item) => item.name == '拔牙')
+          a.topLeft = []
+          a.topRight = []
+          a.bottomLeft = []
+          a.bottomRight = []
+          const arr = JSON.parse(stage.showPosition)
+          if (stage.fdiToothCode) {
+            a.toothCode = stage.fdiToothCode.split(',')
+            stage.fdiToothCode.split(',').forEach((code, index) => {
+              if (code.startsWith('1') || code.startsWith('5')) {
+                a.topLeft.push(arr[+index][0])
+              } else if (code.startsWith('2') || code.startsWith('6')) {
+                a.topRight.push(arr[+index][0])
+              } else if (code.startsWith('4') || code.startsWith('8')) {
+                a.bottomLeft.push(arr[+index][0])
+              } else if (code.startsWith('3') || code.startsWith('7')) {
+                a.bottomRight.push(arr[+index][0])
+              }
+            })
+          } else {
+            a.toothCode = []
+          }
+          a.position = arr || []
+          a.submitAble = false
+        }
+      })
+    })
     store.state.planList = planList
-  } else {
+    console.log('🚀 ~ getPlanList ~ planList:', planList)
   }
 }
 getPlanList()
