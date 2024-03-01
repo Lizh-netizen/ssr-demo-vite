@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="contain">
     <div class="taskCard">
       <task-card :default="currentTab" @changeTab="changeTab">
         <task-card-item
@@ -1097,7 +1097,7 @@ async function handleSaveOrthDoctor(item) {
   }
 }
 
-.container {
+.contain {
   margin: 15px;
   border-radius: 10px;
   background-color: #fff;

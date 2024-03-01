@@ -9,7 +9,7 @@
       @change="onChange"
     >
       <template #item="{ element }">
-        <template v-if="(!element.visible && !element.position?.length) || unmutable">
+        <template v-if="question || unmutable || !element.position">
           <div
             class="list-group-item"
             :class="{
@@ -20,19 +20,16 @@
             }"
           >
             <img class="drag" src="../../assets/layout/drag.svg" />
-            <div class="list-group-item-name">{{ element.name }}</div>
+            <div class="list-group-item-name">
+              {{ question ? element.title_name + ' ' + element.name : element.name }}
+            </div>
             <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-            <a-popconfirm
-              content="Are you sure you want to delete?"
-              @ok="deleteAt(element)"
-              @cancel="
-                () => {
-                  return false
-                }
-              "
-            >
-              <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-            </a-popconfirm>
+            <img
+              class="deleteBtn"
+              src="../../assets/svg/delete.svg"
+              v-if="showDeleteBtn"
+              @click.stop="deleteAt(element)"
+            />
 
             <el-tooltip
               :visible="element.active && element.showRemoveIcon"
@@ -66,7 +63,7 @@
 
         <template v-else>
           <!-- 刚开始没有牙齿，点击之后悬浮 -->
-          <template v-if="!element.position.length || element.visible">
+          <template v-if="element.visible">
             <el-popover
               popper-class="myPopper1"
               placement="right"
@@ -82,23 +79,19 @@
                     InActive: question && !element.active,
                     question: question == true,
                     planTarget: planTarget == true,
-                    planTool: planTool == true
+                    planTool: planTool == true,
+                    border: element.visible
                   }"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <a-popconfirm
-                    content="Are you sure you want to delete?"
-                    @ok="deleteAt(element)"
-                    @cancel="
-                      () => {
-                        return false
-                      }
-                    "
-                  >
-                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-                  </a-popconfirm>
+                  <img
+                    class="deleteBtn"
+                    src="../../assets/svg/delete.svg"
+                    v-if="showDeleteBtn"
+                    @click.stop="deleteAt(element)"
+                  />
                 </div>
               </template>
               <!-- 从目标拖到计划，是拖的目标的数据 -->
@@ -121,7 +114,7 @@
               <!-- 有牙齿的情况下悬浮显示选中牙位 -->
               <template #reference>
                 <div
-                  class="list-group-item"
+                  class="list-group-item truncate"
                   :class="{
                     InActive: question && !element.active,
                     question: question == true,
@@ -132,17 +125,12 @@
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <a-popconfirm
-                    content="Are you sure you want to delete?"
-                    @ok="deleteAt(element)"
-                    @cancel="
-                      () => {
-                        return false
-                      }
-                    "
-                  >
-                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-                  </a-popconfirm>
+                  <img
+                    class="deleteBtn"
+                    src="../../assets/svg/delete.svg"
+                    v-if="showDeleteBtn"
+                    @click.stop="deleteAt(element)"
+                  />
                 </div>
               </template>
               <ChooseTooth
@@ -166,6 +154,7 @@ import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
 import { averageThreeCourts } from '../../utils/calculate'
 import { GetSymptom } from '../../utils/tooth'
 import cloneDeep from 'lodash/cloneDeep'
+import { Put } from '@/utils/request'
 const props = defineProps({
   list: {
     type: Array,
@@ -243,14 +232,32 @@ const deleteAt = (element) => {
     stageIndex: props.stageIndex,
     delete: true
   })
-  // 从当前数据中删除，并且从store中删除
+  // 删除的时候需要把每个都取消active，handleBeforeEnterPopover没触发
+  symptomList.value.forEach((row) => {
+    row.forEach((a) => {
+      a.active = false
+    })
+  })
+  // 从store中删除
 }
 // 从问题移除
 const handleRemove = (element) => {
+  Put('/prod-api/business/optionsResult', [
+    {
+      id: element.option_result_id,
+      active: '0'
+    }
+  ])
   emit('changeState', { element: element, flag: false })
   element.showDeleteIcon = false
 }
 const handleCancel = (element) => {
+  Put('/prod-api/business/optionsResult', [
+    {
+      id: element.option_result_id,
+      active: '1'
+    }
+  ])
   emit('changeState', { element: element, flag: true })
   element.showCancelIcon = false
 }
@@ -285,6 +292,7 @@ watch(elements, (newVal) => {
 })
 // 先存起来之后下一步的提交
 const handleSaveTooth = (option, title, classId) => {
+  console.log('entwr')
   useSelectTooth(item, title)
 }
 const symptomList = ref([])
@@ -337,6 +345,12 @@ window.addEventListener('click', (e) => {
   align-items: center;
   margin-bottom: 8px;
   margin-right: 8px;
+  &-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 20px;
+  }
   &.InActive {
     border: 1px solid #c9cdd4;
     background-image: url('../../assets/layout/dragBackground.svg');
@@ -368,6 +382,7 @@ window.addEventListener('click', (e) => {
     position: absolute;
     right: 0;
     opacity: 0;
+    top: 12px;
   }
   .remove,
   .cancel {
@@ -378,6 +393,9 @@ window.addEventListener('click', (e) => {
     cursor: pointer;
   }
   &.question {
+    .list-group-item-label {
+      color: #2e6ce4;
+    }
     &:hover {
       /* 设置样式 */
       .drag,
@@ -396,13 +414,16 @@ window.addEventListener('click', (e) => {
     }
   }
   &.planTarget,
-  .planTool {
+  &.planTool {
     &:hover {
       .deleteBtn {
         opacity: 1;
       }
       border: 1px solid #c9cdd4;
     }
+  }
+  &.border {
+    border: 1px solid #c9cdd4;
   }
 }
 </style>

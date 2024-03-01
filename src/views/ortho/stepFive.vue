@@ -5,7 +5,7 @@
         <div class="top_left">
           <div class="top_left_header">
             <img src="../../assets/layout/issuesIcon.svg" />
-            <div>问题列表</div>
+            <div class="title">问题列表</div>
           </div>
           <div class="top_left_content">
             <draggable
@@ -16,19 +16,25 @@
           </div>
         </div>
       </div>
-      <div class="body">
+      <div class="body pb-[16px]">
         <div
           class="body-left content"
-          :style="{ height: planList.some((plan) => plan.checked) ? '680px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '680px' : '390px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
-              <img src="../../assets/svg/goalCheck.svg" style="margin-right: 12px" />目标
+              <img
+                src="../../assets/svg/goalCheck.svg"
+                style="margin-right: 12px"
+                class="object-none"
+              />
+              <div class="title">目标</div>
             </div>
             <draggable class="ORTHTARGET" :unmutable="true" :list="goalList"></draggable>
-            <template v-if="planList.some((plan) => plan.checked)">
+            <template v-if="planList?.some((plan) => plan.checked)">
               <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
-                <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />工具
+                <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
+                <div class="title">工具</div>
               </div>
               <a-space direction="vertical" size="large">
                 <a-input-search
@@ -55,29 +61,27 @@
             v-for="(plan, planIndex) in planList"
             :key="plan.name"
           >
-            <div class="flex" style="position: relative; overflow: visible">
-              <span @click="handlePlan(plan)">
+            <div class="flex items-center mb-[12px]" style="position: relative; overflow: visible">
+              <div @click="handlePlan(plan)" class="w-[20px] h-[20px]">
                 <template v-if="plan.checked == true">
                   <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
                 </template>
                 <template v-else>
-                  <img
-                    src="../../assets/svg/Rectangle.svg"
-                    :style="{ 'margin-right': ' 8px' }"
-                  /> </template
-              ></span>
-              <div contenteditable :style="{ height: '30px' }" class="planName">
+                  <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
+                </template>
+              </div>
+              <div contenteditable :style="{ height: '30px' }" class="title planName">
                 {{ plan.name }}
               </div>
               <div class="planTime">
-                预计{{ plan.stageList[plan.stageList.length - 1].stageName }}
+                预计{{ plan.stageList?.[plan.stageList?.length - 1].stageName }}
               </div>
               <div>
                 <a-select
                   class="difficulty"
                   v-model="plan.difficultyLevel"
                   placeholder="选择难度"
-                  @change="handleDifficultyLevel(plan.difficultyLevel, plan.name)"
+                  @change="handleDifficultyLevel(plan.difficultyLevel, plan)"
                   :class="{
                     high: plan.difficultyLevel == '难度高',
                     middle: plan.difficultyLevel == '难度中等',
@@ -92,7 +96,7 @@
                   class="primaryApplianceId"
                   v-model="plan.primaryApplianceId"
                   placeholder="选择主矫正器"
-                  @change="handleprimaryApplianceId(plan.primaryApplianceId, plan.name)"
+                  @change="handleprimaryApplianceId(plan.primaryApplianceId, plan)"
                 >
                   <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
                     {{ item.name }}
@@ -104,37 +108,35 @@
                       <a-button class="addFeatureBtn"
                         ><template #icon> <icon-plus /> </template>添加特点
                       </a-button>
-                      <span
-                        class="featureNum"
-                        v-if="plan.meritIds?.length + plan.effectIds?.length > 0"
-                      >
-                        {{ plan.meritIds?.length + plan.effectIds?.length }}
+                      <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
+                        {{ plan.featureTagIds?.length }}
                       </span>
                     </div>
                   </span>
                   <template #content>
                     <div style="padding: 16px" class="flex flex-col">
                       <a-checkbox-group
-                        :style="'width: 400px'"
-                        v-model="plan.featureMeritList"
-                        @change="handleMeritFeature(plan.featureMeritList, plan.name)"
+                        :style="'width: 380px'"
+                        v-model="plan.featureTagIds"
+                        @change="handleFeature(plan.featureTagIds, plan)"
                       >
                         <a-checkbox
                           v-for="item in featureMeritList"
                           :key="item.name"
-                          :label="item.id"
+                          :value="item.id"
                           >{{ item.name }}</a-checkbox
                         >
                       </a-checkbox-group>
+                      <a-divider style="margin: 0 0 8px 0" />
                       <a-checkbox-group
-                        :style="'width: 400px'"
-                        v-model="plan.featureEffectList"
-                        @change="handleEffectFeature(plan.featureEffectList, plan.name)"
+                        :style="'width: 380px'"
+                        v-model="plan.featureTagIds"
+                        @change="handleFeature(plan.featureTagIds, plan)"
                       >
                         <a-checkbox
                           v-for="item in featureEffectList"
                           :key="item.name"
-                          :label="item.id"
+                          :value="item.id"
                           >{{ item.name }}</a-checkbox
                         >
                       </a-checkbox-group>
@@ -143,7 +145,7 @@
                 </a-dropdown>
               </div>
 
-              <div
+              <!-- <div
                 class="tag"
                 v-if="
                   planList.some((plan) =>
@@ -154,20 +156,33 @@
                 "
               >
                 拔牙
-              </div>
-              <div style="position: absolute; right: 0">
+              </div> -->
+              <div style="position: absolute; right: 0" class="flex">
                 <img
                   src="../../assets/layout/Copy.svg"
                   style="cursor: pointer"
-                  @click.stop="handleAddPlan"
-                /><img
-                  style="cursor: pointer"
-                  src="../../assets/layout/Delete.svg"
-                  @click.stop="handleDeletePlan(planIndex)"
+                  @click.stop="handleCopyPlan(plan)"
+                  class="mr-[14px]"
                 />
+                <a-popconfirm
+                  content="确定要删除吗？"
+                  @click.self.stop="
+                    () => {
+                      return false
+                    }
+                  "
+                  @ok="handleDeletePlan(plan)"
+                  @cancel="
+                    () => {
+                      return false
+                    }
+                  "
+                >
+                  <img style="cursor: pointer" src="../../assets/layout/Delete.svg" />
+                </a-popconfirm>
               </div>
             </div>
-            <div class="flex">
+            <div class="flex overflow-scroll">
               <div
                 class="cardGroup"
                 v-for="(stage, stageIndex) in plan.stageList"
@@ -175,7 +190,24 @@
               >
                 <template v-if="!plan.checked">
                   <div class="card">
-                    <div class="time">{{ stage.stageName }}</div>
+                    <div class="time flex justify-between! pr-[12px]">
+                      {{ stage.stageName }}
+                      <a-popconfirm
+                        content="确定要删除吗？"
+                        @ok="handleDeleteStage(plan, stage)"
+                        @cancel="
+                          () => {
+                            return false
+                          }
+                        "
+                      >
+                        <img
+                          class="deleteBtn cursor-pointer"
+                          src="../../assets/svg/delete.svg"
+                          v-if="stageIndex == plan.stageList.length - 1"
+                        />
+                      </a-popconfirm>
+                    </div>
                     <draggable
                       class="ORTHTARGET"
                       :list="stage.targetIds"
@@ -219,17 +251,20 @@
                 </template>
               </div>
 
-              <div @click.stop="handleAddStage(plan.name)">
-                <div class="addStage" :style="{ height: plan.checked == true ? '620px' : '308px' }">
+              <div @click.stop="handleAddStage(plan)">
+                <div
+                  class="addStage w-[224px]"
+                  :style="{ height: plan.checked == true ? '600px' : '284px' }"
+                >
                   <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
                   <div>新增阶段</div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- <div class="addPlan flex" @click.stop="handleAddPlan">
-            <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addPlan.svg" />添加新方案
-          </div> -->
+          <div class="addPlan flex" @click.stop="handleAddPlan">
+            <img :style="{ 'margin-right': '12px' }" src="../../assets/layout/add.svg" />添加新方案
+          </div>
         </div>
       </div>
     </div>
@@ -409,10 +444,19 @@
 
 <script setup>
 import Header from '@/components/list/header.vue'
-import { ref, defineProps, defineExpose, onMounted, watch, nextTick } from 'vue'
+import {
+  ref,
+  defineProps,
+  defineExpose,
+  onMounted,
+  watch,
+  nextTick,
+  computed,
+  defineEmits
+} from 'vue'
 import { GetSymptom } from '@/utils/tooth'
 import FormItem from '@/components/list/formItem.vue'
-import { Get, Post } from '@/utils/request'
+import { Get, Post, Delete } from '@/utils/request'
 import { useRoute } from 'vue-router'
 import useChangeOption from '@/effects/changeOption.ts'
 import useUpdateOption from '@/effects/updateOption.ts'
@@ -435,6 +479,7 @@ defineExpose({
 const props = defineProps({
   pdfId: String
 })
+const emit = defineEmits(['requestPlanList'])
 // 获取工具数据
 const toolList = ref([])
 async function getOrthToolList() {
@@ -474,61 +519,457 @@ async function getOrthGoalList() {
     dictType: item.dictType,
     showPosition: null
   }))
-  store.commit('setOrthGoalList', goalList.value)
+  // store.commit('setOrthGoalList', goalList.value)
 }
 getOrthGoalList()
+const planList = ref()
+async function getPlanList() {
+  const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
+  if (result.code == 200 && result.data?.length > 0) {
+    planList.value = result.data.map((scheme) => ({
+      ...scheme,
+      featureTagIds: scheme.featureTagIds.split(','),
+      checked: scheme.checked || false,
+      difficultyLevel: scheme.difficultyLevel || '',
+      stageList:
+        scheme.stageList?.length == 0 || !scheme.stageList
+          ? [
+              {
+                stageName: '3个月',
+                targetIds: [],
+                toolIds: [],
+                meritIds: [],
+                effectIds: []
+              },
+              {
+                stageName: '6个月',
+                targetIds: [],
+                toolIds: [],
+                meritIds: [],
+                effectIds: []
+              },
+              {
+                stageName: '9个月',
+                targetIds: [],
+                toolIds: [],
+                meritIds: [],
+                effectIds: []
+              },
+              {
+                stageName: '12个月',
+                targetIds: [],
+                toolIds: [],
+                meritIds: [],
+                effectIds: []
+              }
+            ]
+          : scheme.stageList?.map((item) => ({
+              ...item,
+              targetIds: item.targetIds?.split(',')?.map((target, index) => ({
+                id: target,
+                name: item.targetNames.split(',')[index],
+                dictType: 'ORTHTARGET'
+              })),
+              toolIds:
+                item.toolIds?.split(',')?.map((tool, index) => ({
+                  id: tool,
+                  name: item.toolNames.split(',')[index],
+                  dictType: 'ORTHTOOL'
+                })) || []
+            }))
+    }))
+    const defaultStage = ['3个月', '6个月', '9个月', '12个月']
+
+    // 不够的打上补丁
+    planList.value.forEach((plan) => {
+      const length = plan.stageList?.length
+      if (plan.stageList?.length < 4) {
+        for (let i = 0; i < 4 - length; i++) {
+          plan.stageList.push({
+            stageName: defaultStage[length + i],
+            targetIds: [],
+            toolIds: [],
+            meritIds: [],
+            effectIds: []
+          })
+        }
+      }
+    })
+    planList.value.forEach((plan) => {
+      plan.stageList?.forEach((stage) => {
+        if (stage.showPosition) {
+          const a = stage.targetIds.find((item) => item.name == '拔牙')
+          a.topLeft = []
+          a.topRight = []
+          a.bottomLeft = []
+          a.bottomRight = []
+          const arr = JSON.parse(stage.showPosition)
+          if (stage.fdiToothCode) {
+            a.toothCode = stage.fdiToothCode.split(',')
+            stage.fdiToothCode.split(',').forEach((code, index) => {
+              if (code.startsWith('1') || code.startsWith('5')) {
+                a.topLeft.push(arr[+index][0])
+              } else if (code.startsWith('2') || code.startsWith('6')) {
+                a.topRight.push(arr[+index][0])
+              } else if (code.startsWith('4') || code.startsWith('8')) {
+                a.bottomLeft.push(arr[+index][0])
+              } else if (code.startsWith('3') || code.startsWith('7')) {
+                a.bottomRight.push(arr[+index][0])
+              }
+            })
+          } else {
+            a.toothCode = []
+          }
+          a.position = arr || []
+          a.submitAble = false
+        }
+      })
+    })
+    planList.value.forEach((plan) => {
+      plan.stageList?.forEach((stage) => {
+        if (stage.targetIds.length > 0) {
+          stage.targetIds?.forEach((target) => {
+            if (target.name.includes('拔牙')) {
+              target.name = '拔牙' + '(' + target.toothCode.join(';') + ')'
+            }
+          })
+        }
+      })
+    })
+  } else {
+    planList.value = [
+      {
+        name: '方案一', //方案名
+        checked: false, //是否选中
+        aptmId: appId, //预约id
+        difficultyLevel: '', //难度选择
+        primaryApplianceId: '', //主矫治器
+        featureTagIds: [], //特点
+        stageList: [
+          {
+            stageName: '3个月',
+            targetIds: [],
+            toolIds: [],
+            meritIds: [],
+            effectIds: []
+          },
+          {
+            stageName: '6个月',
+            targetIds: [],
+            toolIds: [],
+            meritIds: [],
+            effectIds: []
+          },
+          {
+            stageName: '9个月',
+            targetIds: [],
+            toolIds: [],
+            meritIds: [],
+            effectIds: []
+          },
+          {
+            stageName: '12个月',
+            targetIds: [],
+            toolIds: [],
+            meritIds: [],
+            effectIds: []
+          }
+        ]
+      }
+    ]
+  }
+}
+getPlanList()
 // 获取问题列表数据
 
 // const appId = route.params.appId
 const questionData = ref([])
 async function getOrthQuestionList() {
   const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+
   questionData.value = result.data.map((item) => ({
     ...item,
     name: item.option_names,
     label: item.question_level_one,
     active: item.active == '1' ? true : false
   }))
-  store.commit('setOrthQuestionList', questionData.value)
+  // store.commit('setOrthQuestionList', questionData.value)
 }
 getOrthQuestionList()
 // 新增阶段
-const handleAddStage = (planName) => {
-  store.commit('addStage', planName)
-}
-// 新增方案
-const handleAddPlan = () => {
-  if (planList.value.length == 3) {
+const handleAddStage = (plan) => {
+  if (plan.stageList.length >= 12) {
     ElMessage({
-      message: '方案最多添加三个',
+      message: '二期矫正请另行发起方案设计',
       type: 'warning'
     })
     return
   }
-  store.commit('addPlan')
+  const finalStage = plan.stageList[plan.stageList.length - 1].stageName
+  // @ts-expect-error TS(2531): Object is possibly 'null'.
+  const stage = +finalStage.match(/(\d+)/)[0] + 3
+  // @ts-expect-error TS(2532): Object is possibly 'undefined'.
+  plan.stageList.push({
+    stageName: stage + '个月',
+    targetIds: []
+  })
+}
+// 新增方案
+const handleAddPlan = () => {
+  if (planList.value?.length == 4) {
+    ElMessage({
+      message: '方案数超过4个，请删除不需要的方案后重试',
+      type: 'warning'
+    })
+    return
+  }
+  if (planList.value.length == 1) {
+    planList.value.push({
+      name: '方案二',
+      checked: false,
+      difficultyLevel: '',
+      featureTagIds: [],
+      primaryApplianceId: '',
+      stageList: [
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '3个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '6个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '9个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '12个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        }
+      ]
+    })
+  } else if (planList.value.length == 2) {
+    planList.value.push({
+      name: '方案三',
+      checked: false,
+      difficultyLevel: '',
+      featureTagIds: [],
+      primaryApplianceId: '',
+
+      stageList: [
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '3个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '6个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '9个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '3个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        }
+      ]
+    })
+  } else if (planList.value.length == 3) {
+    planList.value.push({
+      name: '方案四',
+      checked: false,
+      difficultyLevel: '',
+      featureTagIds: [],
+      primaryApplianceId: '',
+      stageList: [
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '3个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '6个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '9个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        },
+        {
+          bottomLeft: [],
+          bottomRight: [],
+          fdiToothCode: null,
+          position: [],
+          showPosition: '',
+          stageName: '12个月',
+          submitAble: false,
+          targetIds: [],
+          toolIds: [],
+          toothCode: [],
+          topLeft: [],
+          topRight: []
+        }
+      ]
+    })
+  }
+}
+const handleCopyPlan = (plan) => {
+  if (planList.value.length == 4) {
+    ElMessage({
+      message: '方案数超过4个，请删除不需要的方案后重试',
+      type: 'warning'
+    })
+    return
+  }
+  planList.value.push({
+    ...plan,
+    name: plan.name + '_副本'
+  })
 }
 // 删除方案
-const handleDeletePlan = (index) => {
-  planList.value.splice(index, 1)
+const handleDeletePlan = async (plan) => {
+  Delete(`/prod-api/emr/public/api/v1/scheme/delScheme/${plan.id}`).then(() => {
+    getPlanList()
+  })
 }
-// 方案
-const planList = ref([])
+const handleDeleteStage = (plan, stage) => {
+  Delete(`/prod-api/emr/public/api/v1/scheme/delSchemeStage/${plan.id}/${stage.id}`).then(() => {
+    getPlanList()
+  })
+}
 // 判断是否可以拖拽
-const onMove = (e) => {
-  console.log(e)
-}
-const handleDifficultyLevel = (difficultyLevel, name) => {
-  store.commit('setDifficultyLevel', { difficultyLevel, name })
+const onMove = (e) => {}
+const handleDifficultyLevel = (difficultyLevel, plan) => {
+  const found = planList.value.find((item) => item.name == plan.name)
+  found.difficultyLevel = difficultyLevel
+
+  handleScheme(found)
 }
 // 添加特点
-const handleMeritFeature = (featureList, name) => {
-  store.commit('setFeatureMeritList', { featureList, name })
+const handleFeature = (featureList, plan) => {
+  const found = planList.value.find((item) => item.name == plan.name)
+  found.featureTagIds = featureList
+  handleScheme(found)
+  // store.commit('setFeatureList', { featureList, name })
 }
-const handleEffectFeature = (featureList, name) => {
-  store.commit('setFeatureEffectList', { featureList, name })
-}
-const handleprimaryApplianceId = (primaryApplianceId, name) => {
-  store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
+
+const featureNum = computed(() => {})
+const handleprimaryApplianceId = (primaryApplianceId, plan) => {
+  const found = planList.value.find((item) => item.name == plan.name)
+  found.primaryApplianceId = primaryApplianceId
+  handleScheme(found)
+  // store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
 }
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, planName, stageName, cardName) => {
@@ -539,25 +980,35 @@ const updateList = (val, planName, stageName, cardName) => {
     if (val.flag) {
       // 避免修改右侧数据影响左侧
       goalList.value.find((item) => (item.visible = false))
-      // const item = found.stageList
-      //   .find((item) => item.stageName == stageName)
-      //   .targetIds.find((item) => item.name == '拔牙')
-      // item.visible = true
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const target = stage.targetIds.find((item) => item.name == '拔牙')
       target.visible = true
+
       useFdiToothCodeEffect(target)
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
     }
     if (val.delete) {
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
-
       stage.targetIds.splice(index, 1)
+
+      // handleScheme(planList.value[val.planIndex]).then(() => {
+
+      // })
     }
   } else {
     found.stageList.find((item) => item.stageName == stageName).toolIds = val.data
   }
-  store.commit('updatePlanList', planList.value)
+  handleScheme(found).then(() => {
+    if (val.delete) {
+      getOrthGoalList()
+      // 也要重新请求一次planList
+    }
+  })
 }
 // 更改问题状态
 const changeState = (val) => {
@@ -565,12 +1016,17 @@ const changeState = (val) => {
   found.active = val.flag
 }
 onMounted(() => {
-  planList.value = store.state.planList
+  // planList.value = store.state.planList
 })
-const popClose = ref(true)
+
 const handlePlan = (plan) => {
-  if (!popClose) return
-  plan.checked = !plan.checked
+  planList.value.forEach((item) => {
+    if (item.name == plan.name) {
+      plan.checked = !plan.checked
+    } else {
+      item.checked = false
+    }
+  })
 }
 
 const alignerList = ref()
@@ -583,7 +1039,6 @@ const getAlignerList = async () => {
     id: +item.id,
     dictType: item.dictType
   }))
-  store.commit('setAlignerList', alignerList.value)
 }
 getAlignerList()
 const featureMeritList = ref([])
@@ -596,7 +1051,6 @@ const getFeatureMerit = async () => {
     id: item.id,
     dictType: item.dictType
   }))
-  console.log(featureMeritList.value)
 }
 getFeatureMerit()
 const featureEffectList = ref([])
@@ -857,9 +1311,71 @@ async function getRemark() {
 }
 
 getRemark()
+function validate(planList) {
+  const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
+
+  const applicance = document.querySelectorAll('.arco-select.primaryApplianceId')
+
+  planList.forEach((plan, index) => {
+    if (!plan.primaryApplianceId) {
+      applicance[index].classList.add('validateFail')
+    }
+    if (!plan.difficultyLevel) {
+      difficultySelect[index].classList.add('validateFail')
+    }
+  })
+}
+const handleScheme = async (scheme) => {
+  // 校验哪个计划的选择器没写
+  let obj = {
+    id: scheme.id || null,
+    difficultyLevel: scheme.difficultyLevel,
+    checked: scheme.checked,
+    name: scheme.name,
+    aptmId: appId, // Example value, replace with actual data
+    featureTagIds: scheme.featureTagIds.join(','),
+    primaryApplianceId: scheme.primaryApplianceId,
+    stageList: scheme.stageList.map((stage) => {
+      return {
+        id: stage.id || null,
+        fdiToothCode: stage.targetIds.map((target) => {
+          if (target.name.includes('拔牙')) {
+            return target.toothCode?.join()
+          }
+        })[0],
+        optionId: stage.targetIds.map((target) => {
+          if (target.name.includes('拔牙')) {
+            return target.id
+          }
+        })[0],
+        showPosition: stage.targetIds.map((target) => {
+          if (target.name.includes('拔牙')) {
+            return JSON.stringify(target.position)
+          }
+        })[0],
+        stageName: stage.stageName,
+        targetIds: stage.targetIds.map((target) => target.id).join(','),
+        toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+      }
+    })
+  }
+  // if (planList.value.some((plan) => !plan.primaryApplianceId || !plan.difficultyLevel)) {
+  //   validate(planList.value)
+  //   return false
+  // }
+  Post('/prod-api/emr/public/api/v1/scheme', [obj])
+}
 </script>
 
 <style lang="scss" scoped>
+.deleteBtn {
+  opacity: 0;
+}
+.title {
+  color: #1d2129;
+  font-size: 16px;
+  font-weight: bold;
+}
 .planName {
   padding: 6px 10px;
   &:hover {
@@ -878,7 +1394,6 @@ getRemark()
 @import '../../style/mixins.scss';
 
 .layout {
-  padding: 20px;
   display: flex;
   flex-direction: column;
   .top {
@@ -950,9 +1465,16 @@ getRemark()
     width: calc(100% - 326px);
     .plan {
       margin-bottom: 16px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+
       :deep .list-group {
         height: 200px;
         width: 200px;
+      }
+      :deep(.list-group-item) {
+        margin-right: 0;
       }
       .planTime {
         font-size: 14px;
@@ -976,7 +1498,7 @@ getRemark()
       }
 
       &.checkeded {
-        background: #eaf0fc;
+        background: #f4f7fd;
         border: 2px solid #2e6ce4;
       }
       .tag {
@@ -1114,6 +1636,11 @@ getRemark()
           color: #2e6ce4;
           font-weight: bold;
           border-radius: 8px;
+          &:hover {
+            .deleteBtn {
+              opacity: 1;
+            }
+          }
         }
       }
       .tool {
@@ -1158,18 +1685,10 @@ getRemark()
   /* 线条/一般 */
   border: 1px solid #e5e6eb;
 }
-.flex {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  width: 100%;
-  overflow: scroll;
-}
 
 .stepFour {
   .content {
-    padding: 20px;
-    padding-bottom: 0;
+    padding: 16px;
     .questionItem {
       &__header {
         display: flex;
