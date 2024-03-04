@@ -70,13 +70,18 @@
                   <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
                 </template>
               </div>
-              <div contenteditable :style="{ height: '30px' }" class="title planName">
+              <div
+                contenteditable
+                :style="{ height: '30px' }"
+                class="title planName"
+                @input="(e) => handleInput(e)"
+              >
                 {{ plan.name }}
               </div>
               <div class="planTime">
                 预计{{ plan.stageList?.[plan.stageList?.length - 1].stageName }}
               </div>
-              <div>
+              <div @click.stop="">
                 <a-select
                   class="difficulty"
                   v-model="plan.difficultyLevel"
@@ -96,6 +101,7 @@
                   class="primaryApplianceId"
                   v-model="plan.primaryApplianceId"
                   placeholder="选择主矫正器"
+                  @click.stop=""
                   @change="handleprimaryApplianceId(plan.primaryApplianceId, plan)"
                 >
                   <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
@@ -211,7 +217,7 @@
                     <draggable
                       class="ORTHTARGET"
                       :list="stage.targetIds"
-                      @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                      @update="(val) => updateList(val, plan, stage.stageName, 'target')"
                       :showDeleteBtn="true"
                       :planTarget="true"
                       :planIndex="planIndex"
@@ -227,7 +233,7 @@
                       <draggable
                         class="ORTHTARGET"
                         :list="stage.targetIds"
-                        @update="(val) => updateList(val, plan.name, stage.stageName, 'target')"
+                        @update="(val) => updateList(val, plan, stage.stageName, 'target')"
                         :showDeleteBtn="true"
                         @submit="handleSubmit"
                         :planTarget="true"
@@ -241,8 +247,10 @@
                         class="ORTHTOOL"
                         :list="stage.toolIds"
                         :planTool="true"
-                        @update="(val) => updateList(val, plan.name, stage.stageName, 'tool')"
+                        @update="(val) => updateList(val, plan, stage.stageName, 'tool')"
                         :showDeleteBtn="true"
+                        :planIndex="planIndex"
+                        :stageIndex="stageIndex"
                       ></draggable>
                     </div>
                   </div>
@@ -528,7 +536,7 @@ async function getPlanList() {
   if (result.code == 200 && result.data?.length > 0) {
     planList.value = result.data.map((scheme) => ({
       ...scheme,
-      featureTagIds: scheme.featureTagIds.split(','),
+      featureTagIds: scheme.featureTagIds ? scheme.featureTagIds.split(',') : [],
       checked: scheme.checked || false,
       difficultyLevel: scheme.difficultyLevel || '',
       stageList:
@@ -565,17 +573,20 @@ async function getPlanList() {
             ]
           : scheme.stageList?.map((item) => ({
               ...item,
-              targetIds: item.targetIds?.split(',')?.map((target, index) => ({
-                id: target,
-                name: item.targetNames.split(',')[index],
-                dictType: 'ORTHTARGET'
-              })),
-              toolIds:
-                item.toolIds?.split(',')?.map((tool, index) => ({
-                  id: tool,
-                  name: item.toolNames.split(',')[index],
-                  dictType: 'ORTHTOOL'
-                })) || []
+              targetIds: item.targetIds
+                ? item.targetIds.split(',')?.map((target, index) => ({
+                    id: target,
+                    name: item.targetNames.split(',')[index],
+                    dictType: 'ORTHTARGET'
+                  }))
+                : [],
+              toolIds: item.toolIds
+                ? item.toolIds.split(',')?.map((tool, index) => ({
+                    id: tool,
+                    name: item.toolNames.split(',')[index],
+                    dictType: 'ORTHTOOL'
+                  }))
+                : []
             }))
     }))
     const defaultStage = ['3个月', '6个月', '9个月', '12个月']
@@ -595,14 +606,18 @@ async function getPlanList() {
         }
       }
     })
+
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
-        if (stage.showPosition) {
-          const a = stage.targetIds.find((item) => item.name == '拔牙')
-          a.topLeft = []
-          a.topRight = []
-          a.bottomLeft = []
-          a.bottomRight = []
+        const a = stage.targetIds.find((item) => item.name == '拔牙')
+        if (stage.showPosition && a) {
+          if (a) {
+            a.topLeft = []
+            a.topRight = []
+            a.bottomLeft = []
+            a.bottomRight = []
+          }
+
           const arr = JSON.parse(stage.showPosition)
           if (stage.fdiToothCode) {
             a.toothCode = stage.fdiToothCode.split(',')
@@ -629,8 +644,8 @@ async function getPlanList() {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
           stage.targetIds?.forEach((target) => {
-            if (target.name.includes('拔牙')) {
-              target.name = '拔牙' + '(' + target.toothCode.join(';') + ')'
+            if (target.name?.includes('拔牙')) {
+              target.name = '拔牙' + '(' + target.toothCode?.join(';') + ')'
             }
           })
         }
@@ -686,8 +701,17 @@ getPlanList()
 const questionData = ref([])
 async function getOrthQuestionList() {
   const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
-
-  questionData.value = result.data.map((item) => ({
+  const obj = result.data.reduce((pre, cur) => {
+    if (pre[cur.question_level_one]) {
+      pre[cur.question_level_one].push(cur)
+    } else {
+      pre[cur.question_level_one] = []
+      pre[cur.question_level_one].push(cur)
+    }
+    return pre
+  }, {})
+  const data = Object.values(obj).flat()
+  questionData.value = data.map((item) => ({
     ...item,
     name: item.option_names,
     label: item.question_level_one,
@@ -940,40 +964,49 @@ const handleCopyPlan = (plan) => {
 // 删除方案
 const handleDeletePlan = async (plan) => {
   Delete(`/prod-api/emr/public/api/v1/scheme/delScheme/${plan.id}`).then(() => {
-    getPlanList()
+    setTimeout(() => {
+      getPlanList()
+    }, 1000)
   })
 }
 const handleDeleteStage = (plan, stage) => {
   Delete(`/prod-api/emr/public/api/v1/scheme/delSchemeStage/${plan.id}/${stage.id}`).then(() => {
-    getPlanList()
+    setTimeout(() => {
+      getPlanList()
+    }, 1000)
   })
 }
 // 判断是否可以拖拽
 const onMove = (e) => {}
 const handleDifficultyLevel = (difficultyLevel, plan) => {
-  const found = planList.value.find((item) => item.name == plan.name)
+  const found = planList.value.find((item) => item.id == plan.id)
   found.difficultyLevel = difficultyLevel
-
-  handleScheme(found)
+  handleScheme(found).then(() => {
+    getPlanList()
+  })
 }
 // 添加特点
 const handleFeature = (featureList, plan) => {
-  const found = planList.value.find((item) => item.name == plan.name)
+  const found = planList.value.find((item) => item.id == plan.id)
   found.featureTagIds = featureList
-  handleScheme(found)
+  handleScheme(found).then(() => {
+    getPlanList()
+  })
   // store.commit('setFeatureList', { featureList, name })
 }
 
 const featureNum = computed(() => {})
 const handleprimaryApplianceId = (primaryApplianceId, plan) => {
-  const found = planList.value.find((item) => item.name == plan.name)
+  const found = planList.value.find((item) => item.id == plan.id)
   found.primaryApplianceId = primaryApplianceId
-  handleScheme(found)
+  handleScheme(found).then(() => {
+    getPlanList()
+  })
   // store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
 }
 // 更改store中数据，在下一步的时候提交
-const updateList = (val, planName, stageName, cardName) => {
-  const found = planList.value.find((plan) => plan.name == planName)
+const updateList = (val, plan, stageName, cardName) => {
+  const found = planList.value.find((item) => item.id == plan.id)
 
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
@@ -981,9 +1014,9 @@ const updateList = (val, planName, stageName, cardName) => {
       // 避免修改右侧数据影响左侧
       goalList.value.find((item) => (item.visible = false))
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
-      const target = stage.targetIds.find((item) => item.name == '拔牙')
+      const target = stage.targetIds.find((item) => item.name.includes('拔牙'))
       target.visible = true
-
+      // 设置牙位
       useFdiToothCodeEffect(target)
       symptomList.value.forEach((row) => {
         row.forEach((a) => {
@@ -995,19 +1028,27 @@ const updateList = (val, planName, stageName, cardName) => {
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
       stage.targetIds.splice(index, 1)
-
-      // handleScheme(planList.value[val.planIndex]).then(() => {
-
-      // })
     }
   } else {
     found.stageList.find((item) => item.stageName == stageName).toolIds = val.data
   }
+  if (cardName == 'tool') {
+    // 如果是目标，则先不提交
+    if (val.delete) {
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const index = stage.toolIds.findIndex((item) => item.name == val.element.name)
+      stage.toolIds.splice(index, 1)
+    }
+  }
+  // 如果是拔牙，则先不提交
+  if (val.flag) return
   handleScheme(found).then(() => {
     if (val.delete) {
       getOrthGoalList()
       // 也要重新请求一次planList
     }
+
+    getPlanList()
   })
 }
 // 更改问题状态
@@ -1015,13 +1056,39 @@ const changeState = (val) => {
   const found = questionData.value.find((item) => item.option_names == val.element.option_names)
   found.active = val.flag
 }
+const handleInput = (e) => {
+  if (e.target.innerText.length > 5) {
+    const truncatedContent = e.target.textContent.substring(0, 5)
+    e.target.innerText = truncatedContent
+    e.preventDefault()
+    ElMessage({
+      message: '方案名称不能超过5个字',
+      type: 'warning'
+    })
+  }
+}
 onMounted(() => {
+  const divs = document.querySelectorAll('.planName')
+  console.log('🚀 ~ onMounted ~ divs:', divs)
+  divs.forEach((div) => {
+    div.addEventListener('input', (event) => {
+      const maxLength = 10 // 最大字数限制
+      const currentLength = div.textContent.length
+
+      if (currentLength > maxLength) {
+        const truncatedContent = div.textContent.substring(0, maxLength)
+        div.textContent = truncatedContent
+        event.preventDefault()
+      }
+    })
+  })
+
   // planList.value = store.state.planList
 })
 
 const handlePlan = (plan) => {
   planList.value.forEach((item) => {
-    if (item.name == plan.name) {
+    if (item.id == plan.id) {
       plan.checked = !plan.checked
     } else {
       item.checked = false
@@ -1119,7 +1186,7 @@ async function handleChangeOption(optionId, title, option, title1, owningModule)
 }
 const symptomList = ref([])
 symptomList.value = GetSymptom()
-console.log('🚀 ~ symptomList.value:', symptomList.value)
+
 const handleBeforeEnterPopover = (title) => {
   symptomList.value.forEach((row) => {
     row.forEach((a) => {
@@ -1326,6 +1393,8 @@ function validate(planList) {
   })
 }
 const handleScheme = async (scheme) => {
+  console.log('🚀 ~ handleScheme ~ scheme:', scheme)
+
   // 校验哪个计划的选择器没写
   let obj = {
     id: scheme.id || null,
@@ -1333,37 +1402,33 @@ const handleScheme = async (scheme) => {
     checked: scheme.checked,
     name: scheme.name,
     aptmId: appId, // Example value, replace with actual data
-    featureTagIds: scheme.featureTagIds.join(','),
+    featureTagIds: scheme.featureTagIds?.join(','),
     primaryApplianceId: scheme.primaryApplianceId,
-    stageList: scheme.stageList.map((stage) => {
+    stageList: scheme.stageList?.map((stage) => {
       return {
         id: stage.id || null,
-        fdiToothCode: stage.targetIds.map((target) => {
-          if (target.name.includes('拔牙')) {
-            return target.toothCode?.join()
-          }
-        })[0],
-        optionId: stage.targetIds.map((target) => {
-          if (target.name.includes('拔牙')) {
-            return target.id
-          }
-        })[0],
-        showPosition: stage.targetIds.map((target) => {
-          if (target.name.includes('拔牙')) {
-            return JSON.stringify(target.position)
-          }
-        })[0],
+        fdiToothCode: stage.targetIds
+          .find((target) => target.name?.includes('拔牙'))
+          ?.toothCode?.join(),
+        optionId: stage.targetIds.find((target) => target.name?.includes('拔牙'))?.id,
+        showPosition: stage.targetIds.find((target) => target.name?.includes('拔牙'))
+          ? JSON.stringify(
+              stage.targetIds.find((target) => target.name?.includes('拔牙'))?.position
+            )
+          : '',
         stageName: stage.stageName,
-        targetIds: stage.targetIds.map((target) => target.id).join(','),
-        toolIds: stage.toolIds.map((tool) => tool.id).join(',')
+        targetIds: stage.targetIds?.map((target) => target.id)?.join(','),
+        toolIds: stage.toolIds?.map((tool) => tool.id)?.join(',')
       }
     })
   }
+  console.log(obj)
+
   // if (planList.value.some((plan) => !plan.primaryApplianceId || !plan.difficultyLevel)) {
   //   validate(planList.value)
   //   return false
   // }
-  Post('/prod-api/emr/public/api/v1/scheme', [obj])
+  await Post('/prod-api/emr/public/api/v1/scheme', [obj])
 }
 </script>
 

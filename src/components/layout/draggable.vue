@@ -69,7 +69,7 @@
               placement="right"
               :visible="element.visible"
               :width="490"
-              @before-leave="handleSaveTooth(element, title, classId)"
+              @after-leave="handleSaveTooth(element, title, classId)"
             >
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
@@ -99,6 +99,7 @@
                 :option="element"
                 :arrange="true"
                 :symptomList="symptomList"
+                @getItem="getItem"
               ></ChooseTooth>
             </el-popover>
           </template>
@@ -155,6 +156,7 @@ import { averageThreeCourts } from '../../utils/calculate'
 import { GetSymptom } from '../../utils/tooth'
 import cloneDeep from 'lodash/cloneDeep'
 import { Put } from '@/utils/request'
+import { ElMessage } from 'element-plus'
 const props = defineProps({
   list: {
     type: Array,
@@ -205,11 +207,13 @@ watch(
 watch(data, (val) => {
   data.value = val
 })
-
+let toothItem = ref(null)
 const onChange = (event) => {
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
+
     if (newItem.name == '拔牙') {
+      toothItem.value = newItem
       flag.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
@@ -219,6 +223,7 @@ const onChange = (event) => {
         stageIndex: props.stageIndex
       })
       flag.value = false
+      return
     }
   }
   emit('update', { data: data.value })
@@ -292,7 +297,6 @@ watch(elements, (newVal) => {
 })
 // 先存起来之后下一步的提交
 const handleSaveTooth = (option, title, classId) => {
-  console.log('entwr')
   useSelectTooth(item, title)
 }
 const symptomList = ref([])
@@ -307,19 +311,60 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
+let item = ref()
+const getItem = (val) => {
+  item.value = val
+}
+let hasTooth = false
 window.addEventListener('click', (e) => {
   // 点击空白处，弹窗消失
   const popover = document.querySelector('.el-popper.el-popover.myPopper1')
   // 当点击非popover元素时，弹窗消失，数据中的visible为false
   // 并且将对应的target这一项放回到store中
+
   if (popover) {
     if (e.target !== popover && !popover.contains(e.target)) {
       if (data.value.length > 0 && props.planTarget) {
-        data.value.forEach((element) => {
-          // 弹窗消失时再update一次，存储牙位信息到planList中
-          emit('update', { data: data.value })
-          element.visible = false
-        })
+        hasTooth = data.value.some((element) => element.toothCode?.length > 0)
+        // 有item并且有牙齿才可以提交
+        if (item.value && hasTooth) {
+          emit('update', {
+            data: data.value,
+            planIndex: props.planIndex,
+            stageIndex: props.stageIndex
+          })
+
+          data.value.forEach((element) => {
+            element.visible = false
+          })
+          item.value = null
+        } else if (item.value || !hasTooth) {
+          ElMessage({
+            message: '请先选择牙位',
+            type: 'warning'
+          })
+        }
+
+        // data.value.forEach((element) => {
+        //   if (element.name.includes('拔牙')) {
+        //     console.log('🚀 ~ data.value.forEach ~ element:', element)
+
+        // if (element.toothCode?.length == 0) {
+        //   ElMessage({
+        //     message: '请先选择牙位',
+        //     type: 'warning'
+        //   })
+        //     } else if (element.toothCode?.length > 0) {
+        // emit('update', {
+        //   data: data.value,
+        //   planIndex: props.planIndex,
+        //   stageIndex: props.stageIndex
+        // })
+        // // 弹窗消失时再update一次，存储牙位信息到planList中
+        // element.visible = false
+        //     }
+        //   }
+        // })
       }
     }
   }
