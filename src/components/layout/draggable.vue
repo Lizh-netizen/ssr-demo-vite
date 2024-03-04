@@ -9,7 +9,7 @@
       @change="onChange"
     >
       <template #item="{ element }">
-        <template v-if="(!element.visible && !element.position?.length) || unmutable">
+        <template v-if="question || unmutable || !element.position">
           <div
             class="list-group-item"
             :class="{
@@ -20,19 +20,16 @@
             }"
           >
             <img class="drag" src="../../assets/layout/drag.svg" />
-            <div class="list-group-item-name">{{ element.name }}</div>
+            <div class="list-group-item-name">
+              {{ question ? element.title_name + ' ' + element.name : element.name }}
+            </div>
             <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-            <a-popconfirm
-              content="Are you sure you want to delete?"
-              @ok="deleteAt(element)"
-              @cancel="
-                () => {
-                  return false
-                }
-              "
-            >
-              <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-            </a-popconfirm>
+            <img
+              class="deleteBtn"
+              src="../../assets/svg/delete.svg"
+              v-if="showDeleteBtn"
+              @click.stop="deleteAt(element)"
+            />
 
             <el-tooltip
               :visible="element.active && element.showRemoveIcon"
@@ -66,13 +63,13 @@
 
         <template v-else>
           <!-- 刚开始没有牙齿，点击之后悬浮 -->
-          <template v-if="!element.position.length || element.visible">
+          <template v-if="element.visible">
             <el-popover
               popper-class="myPopper1"
               placement="right"
               :visible="element.visible"
               :width="490"
-              @before-leave="handleSaveTooth(element, title, classId)"
+              @after-leave="handleSaveTooth(element, title, classId)"
             >
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
@@ -82,23 +79,19 @@
                     InActive: question && !element.active,
                     question: question == true,
                     planTarget: planTarget == true,
-                    planTool: planTool == true
+                    planTool: planTool == true,
+                    border: element.visible
                   }"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <a-popconfirm
-                    content="Are you sure you want to delete?"
-                    @ok="deleteAt(element)"
-                    @cancel="
-                      () => {
-                        return false
-                      }
-                    "
-                  >
-                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-                  </a-popconfirm>
+                  <img
+                    class="deleteBtn"
+                    src="../../assets/svg/delete.svg"
+                    v-if="showDeleteBtn"
+                    @click.stop="deleteAt(element)"
+                  />
                 </div>
               </template>
               <!-- 从目标拖到计划，是拖的目标的数据 -->
@@ -106,6 +99,7 @@
                 :option="element"
                 :arrange="true"
                 :symptomList="symptomList"
+                @getItem="getItem"
               ></ChooseTooth>
             </el-popover>
           </template>
@@ -121,7 +115,7 @@
               <!-- 有牙齿的情况下悬浮显示选中牙位 -->
               <template #reference>
                 <div
-                  class="list-group-item"
+                  class="list-group-item truncate"
                   :class="{
                     InActive: question && !element.active,
                     question: question == true,
@@ -132,17 +126,12 @@
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
                   <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <a-popconfirm
-                    content="Are you sure you want to delete?"
-                    @ok="deleteAt(element)"
-                    @cancel="
-                      () => {
-                        return false
-                      }
-                    "
-                  >
-                    <img class="deleteBtn" src="../../assets/svg/delete.svg" v-if="showDeleteBtn" />
-                  </a-popconfirm>
+                  <img
+                    class="deleteBtn"
+                    src="../../assets/svg/delete.svg"
+                    v-if="showDeleteBtn"
+                    @click.stop="deleteAt(element)"
+                  />
                 </div>
               </template>
               <ChooseTooth
@@ -166,6 +155,8 @@ import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
 import { averageThreeCourts } from '../../utils/calculate'
 import { GetSymptom } from '../../utils/tooth'
 import cloneDeep from 'lodash/cloneDeep'
+import { Put } from '@/utils/request'
+import { ElMessage } from 'element-plus'
 const props = defineProps({
   list: {
     type: Array,
@@ -216,11 +207,13 @@ watch(
 watch(data, (val) => {
   data.value = val
 })
-
+let toothItem = ref(null)
 const onChange = (event) => {
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
+
     if (newItem.name == '拔牙') {
+      toothItem.value = newItem
       flag.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
@@ -230,6 +223,7 @@ const onChange = (event) => {
         stageIndex: props.stageIndex
       })
       flag.value = false
+      return
     }
   }
   emit('update', { data: data.value })
@@ -243,14 +237,32 @@ const deleteAt = (element) => {
     stageIndex: props.stageIndex,
     delete: true
   })
-  // 从当前数据中删除，并且从store中删除
+  // 删除的时候需要把每个都取消active，handleBeforeEnterPopover没触发
+  symptomList.value.forEach((row) => {
+    row.forEach((a) => {
+      a.active = false
+    })
+  })
+  // 从store中删除
 }
 // 从问题移除
 const handleRemove = (element) => {
+  Put('/prod-api/business/optionsResult', [
+    {
+      id: element.option_result_id,
+      active: '0'
+    }
+  ])
   emit('changeState', { element: element, flag: false })
   element.showDeleteIcon = false
 }
 const handleCancel = (element) => {
+  Put('/prod-api/business/optionsResult', [
+    {
+      id: element.option_result_id,
+      active: '1'
+    }
+  ])
   emit('changeState', { element: element, flag: true })
   element.showCancelIcon = false
 }
@@ -299,19 +311,60 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
+let item = ref()
+const getItem = (val) => {
+  item.value = val
+}
+let hasTooth = false
 window.addEventListener('click', (e) => {
   // 点击空白处，弹窗消失
   const popover = document.querySelector('.el-popper.el-popover.myPopper1')
   // 当点击非popover元素时，弹窗消失，数据中的visible为false
   // 并且将对应的target这一项放回到store中
+
   if (popover) {
     if (e.target !== popover && !popover.contains(e.target)) {
       if (data.value.length > 0 && props.planTarget) {
-        data.value.forEach((element) => {
-          // 弹窗消失时再update一次，存储牙位信息到planList中
-          emit('update', { data: data.value })
-          element.visible = false
-        })
+        hasTooth = data.value.some((element) => element.toothCode?.length > 0)
+        // 有item并且有牙齿才可以提交
+        if (item.value && hasTooth) {
+          emit('update', {
+            data: data.value,
+            planIndex: props.planIndex,
+            stageIndex: props.stageIndex
+          })
+
+          data.value.forEach((element) => {
+            element.visible = false
+          })
+          item.value = null
+        } else if (item.value || !hasTooth) {
+          ElMessage({
+            message: '请先选择牙位',
+            type: 'warning'
+          })
+        }
+
+        // data.value.forEach((element) => {
+        //   if (element.name.includes('拔牙')) {
+        //     console.log('🚀 ~ data.value.forEach ~ element:', element)
+
+        // if (element.toothCode?.length == 0) {
+        //   ElMessage({
+        //     message: '请先选择牙位',
+        //     type: 'warning'
+        //   })
+        //     } else if (element.toothCode?.length > 0) {
+        // emit('update', {
+        //   data: data.value,
+        //   planIndex: props.planIndex,
+        //   stageIndex: props.stageIndex
+        // })
+        // // 弹窗消失时再update一次，存储牙位信息到planList中
+        // element.visible = false
+        //     }
+        //   }
+        // })
       }
     }
   }
@@ -337,6 +390,12 @@ window.addEventListener('click', (e) => {
   align-items: center;
   margin-bottom: 8px;
   margin-right: 8px;
+  &-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 20px;
+  }
   &.InActive {
     border: 1px solid #c9cdd4;
     background-image: url('../../assets/layout/dragBackground.svg');
@@ -368,6 +427,7 @@ window.addEventListener('click', (e) => {
     position: absolute;
     right: 0;
     opacity: 0;
+    top: 12px;
   }
   .remove,
   .cancel {
@@ -378,6 +438,9 @@ window.addEventListener('click', (e) => {
     cursor: pointer;
   }
   &.question {
+    .list-group-item-label {
+      color: #2e6ce4;
+    }
     &:hover {
       /* 设置样式 */
       .drag,
@@ -396,13 +459,16 @@ window.addEventListener('click', (e) => {
     }
   }
   &.planTarget,
-  .planTool {
+  &.planTool {
     &:hover {
       .deleteBtn {
         opacity: 1;
       }
       border: 1px solid #c9cdd4;
     }
+  }
+  &.border {
+    border: 1px solid #c9cdd4;
   }
 }
 </style>

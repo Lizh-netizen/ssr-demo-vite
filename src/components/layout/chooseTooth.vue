@@ -36,6 +36,7 @@ import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 
 const props = defineProps(['option', 'arrange', 'symptomList'])
+const emit = defineEmits(['getItem'])
 const symptomList = ref(props.symptomList)
 watch(
   props,
@@ -70,6 +71,7 @@ const handleArrangeTooth = (item, title) => {
       title.name = title.name.replace('(' + String(item.value) + ')', '')
     }
   }
+  emit('getItem', title)
 }
 </script>
 

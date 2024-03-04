@@ -15,6 +15,7 @@
   "dependencies": {
     "@arco-design/web-vue": "^2.52.1",
     "@element-plus/icons-vue": "^2.1.0",
+    "@unocss/preset-wind": "^0.58.5",
     "animate.css": "^4.1.1",
     "axios": "^1.6.0",
     "dayjs": "^1.11.10",
