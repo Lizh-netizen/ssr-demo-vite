@@ -241,7 +241,26 @@ const pdfId = ref()
 //   }, 200)
 // }
 
+function validate(planList) {
+  const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
+
+  const applicance = document.querySelectorAll('.arco-select.primaryApplianceId')
+
+  planList.forEach((plan, index) => {
+    if (!plan.primaryApplianceId) {
+      applicance[index].classList.add('validateFail')
+    }
+    if (!plan.difficultyLevel) {
+      difficultySelect[index].classList.add('validateFail')
+    }
+  })
+}
+
 const handleGeneratePdf = () => {
+  if (active.value == 5) {
+    validate(step5.value.planList)
+    return
+  }
   nextTick(() => {
     editStep.value = active.value
     active.value++

@@ -71,7 +71,7 @@ const handleArrangeTooth = (item, title) => {
       title.name = title.name.replace('(' + String(item.value) + ')', '')
     }
   }
-  emit('getItem', title)
+  emit('getItem', { item: title, changeStatus: true })
 }
 </script>
 

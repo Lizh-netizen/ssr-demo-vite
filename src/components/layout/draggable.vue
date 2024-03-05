@@ -138,6 +138,7 @@
                 :option="element"
                 :arrange="true"
                 :symptomList="symptomList"
+                @getItem="getItem"
               ></ChooseTooth>
             </el-popover>
           </template>
@@ -326,8 +327,9 @@ window.addEventListener('click', (e) => {
     if (e.target !== popover && !popover.contains(e.target)) {
       if (data.value.length > 0 && props.planTarget) {
         hasTooth = data.value.some((element) => element.toothCode?.length > 0)
+        console.log('🚀 ~ window.addEventListener ~ hasTooth:', hasTooth, item.value)
         // 有item并且有牙齿才可以提交
-        if (item.value && hasTooth) {
+        if ((item.value?.item || item.value?.changeStatus) && hasTooth) {
           emit('update', {
             data: data.value,
             planIndex: props.planIndex,
@@ -344,27 +346,39 @@ window.addEventListener('click', (e) => {
             type: 'warning'
           })
         }
+      }
+    }
+  }
+})
+window.addEventListener('click', (e) => {
+  // 点击空白处，弹窗消失
+  const popover = document.querySelector('.el-popper.el-popover.myPopper')
+  // 当点击非popover元素时，弹窗消失，数据中的visible为false
+  // 并且将对应的target这一项放回到store中
 
-        // data.value.forEach((element) => {
-        //   if (element.name.includes('拔牙')) {
-        //     console.log('🚀 ~ data.value.forEach ~ element:', element)
+  if (popover) {
+    if (e.target !== popover && !popover.contains(e.target)) {
+      if (data.value.length > 0 && props.planTarget) {
+        hasTooth = data.value.some((element) => element.toothCode?.length > 0)
+        console.log('🚀 ~ window.addEventListener ~ hasTooth:', hasTooth, item.value)
+        // 有item并且有牙齿才可以提交
+        if (item.value?.item || item.value?.changeStatus) {
+          emit('update', {
+            data: data.value,
+            planIndex: props.planIndex,
+            stageIndex: props.stageIndex
+          })
 
-        // if (element.toothCode?.length == 0) {
-        //   ElMessage({
-        //     message: '请先选择牙位',
-        //     type: 'warning'
-        //   })
-        //     } else if (element.toothCode?.length > 0) {
-        // emit('update', {
-        //   data: data.value,
-        //   planIndex: props.planIndex,
-        //   stageIndex: props.stageIndex
-        // })
-        // // 弹窗消失时再update一次，存储牙位信息到planList中
-        // element.visible = false
-        //     }
-        //   }
-        // })
+          data.value.forEach((element) => {
+            element.visible = false
+          })
+          item.value = null
+        } else if (item.value || !hasTooth) {
+          ElMessage({
+            message: '请先选择牙位',
+            type: 'warning'
+          })
+        }
       }
     }
   }
@@ -463,6 +477,7 @@ window.addEventListener('click', (e) => {
     &:hover {
       .deleteBtn {
         opacity: 1;
+        z-index: 100;
       }
       border: 1px solid #c9cdd4;
     }

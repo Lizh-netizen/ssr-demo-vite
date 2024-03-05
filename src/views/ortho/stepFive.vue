@@ -74,7 +74,8 @@
                 contenteditable
                 :style="{ height: '30px' }"
                 class="title planName"
-                @input="(e) => handleInput(e)"
+                @input="(e) => handleInput(e, plan)"
+                @blur="(e) => handleBlur(e, plan)"
               >
                 {{ plan.name }}
               </div>
@@ -177,7 +178,7 @@
                       return false
                     }
                   "
-                  @ok="handleDeletePlan(plan)"
+                  @ok="handleDeletePlan(plan, planIndex)"
                   @cancel="
                     () => {
                       return false
@@ -200,7 +201,7 @@
                       {{ stage.stageName }}
                       <a-popconfirm
                         content="确定要删除吗？"
-                        @ok="handleDeleteStage(plan, stage)"
+                        @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
                         @cancel="
                           () => {
                             return false
@@ -229,7 +230,24 @@
                 <template v-else>
                   <div>
                     <div class="card">
-                      <div class="time">{{ stage.stageName }}</div>
+                      <div class="time flex justify-between! pr-[12px]">
+                        {{ stage.stageName
+                        }}<a-popconfirm
+                          content="确定要删除吗？"
+                          @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
+                          @cancel="
+                            () => {
+                              return false
+                            }
+                          "
+                        >
+                          <img
+                            class="deleteBtn cursor-pointer"
+                            src="../../assets/svg/delete.svg"
+                            v-if="stageIndex == plan.stageList.length - 1"
+                          />
+                        </a-popconfirm>
+                      </div>
                       <draggable
                         class="ORTHTARGET"
                         :list="stage.targetIds"
@@ -481,9 +499,7 @@ const store = useStore()
 const clicked = ref(false)
 const requestAgain = ref(false)
 const difficultyList = ref([{ label: '难度低' }, { label: '难度中等' }, { label: '难度高' }])
-defineExpose({
-  clicked
-})
+
 const props = defineProps({
   pdfId: String
 })
@@ -956,42 +972,112 @@ const handleCopyPlan = (plan) => {
     })
     return
   }
-  planList.value.push({
-    ...plan,
-    name: plan.name + '_副本'
-  })
+  // 深拷贝，第二个不会影响到第一个
+  planList.value.push(
+    JSON.parse(
+      JSON.stringify({
+        ...plan,
+        name: plan.name + '_副本',
+        id: '',
+        checked: false
+      })
+    )
+  )
 }
 // 删除方案
-const handleDeletePlan = async (plan) => {
+const handleDeletePlan = async (plan, index) => {
   Delete(`/prod-api/emr/public/api/v1/scheme/delScheme/${plan.id}`).then(() => {
-    setTimeout(() => {
-      getPlanList()
-    }, 1000)
+    planList.value.splice(index, 1)
+    if (planList.value.length == 0) {
+      planList.value.push({
+        name: '方案一',
+        checked: false,
+        difficultyLevel: '',
+        featureTagIds: [],
+        primaryApplianceId: '',
+        stageList: [
+          {
+            bottomLeft: [],
+            bottomRight: [],
+            fdiToothCode: null,
+            position: [],
+            showPosition: '',
+            stageName: '3个月',
+            submitAble: false,
+            targetIds: [],
+            toolIds: [],
+            toothCode: [],
+            topLeft: [],
+            topRight: []
+          },
+          {
+            bottomLeft: [],
+            bottomRight: [],
+            fdiToothCode: null,
+            position: [],
+            showPosition: '',
+            stageName: '6个月',
+            submitAble: false,
+            targetIds: [],
+            toolIds: [],
+            toothCode: [],
+            topLeft: [],
+            topRight: []
+          },
+          {
+            bottomLeft: [],
+            bottomRight: [],
+            fdiToothCode: null,
+            position: [],
+            showPosition: '',
+            stageName: '9个月',
+            submitAble: false,
+            targetIds: [],
+            toolIds: [],
+            toothCode: [],
+            topLeft: [],
+            topRight: []
+          },
+          {
+            bottomLeft: [],
+            bottomRight: [],
+            fdiToothCode: null,
+            position: [],
+            showPosition: '',
+            stageName: '12个月',
+            submitAble: false,
+            targetIds: [],
+            toolIds: [],
+            toothCode: [],
+            topLeft: [],
+            topRight: []
+          }
+        ]
+      })
+    }
   })
 }
-const handleDeleteStage = (plan, stage) => {
-  Delete(`/prod-api/emr/public/api/v1/scheme/delSchemeStage/${plan.id}/${stage.id}`).then(() => {
-    setTimeout(() => {
-      getPlanList()
-    }, 1000)
-  })
+const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
+  if (!stage.id) {
+    planList.value[planIndex].stageList.splice(stageIndex, 1)
+  } else {
+    Delete(`/prod-api/emr/public/api/v1/scheme/delSchemeStage/${plan.id}/${stage.id}`).then(() => {
+      planList.value[planIndex].stageList.splice(stageIndex, 1)
+    })
+  }
 }
 // 判断是否可以拖拽
 const onMove = (e) => {}
 const handleDifficultyLevel = (difficultyLevel, plan) => {
   const found = planList.value.find((item) => item.id == plan.id)
   found.difficultyLevel = difficultyLevel
-  handleScheme(found).then(() => {
-    getPlanList()
-  })
+  handleScheme(found).then(() => {})
 }
 // 添加特点
 const handleFeature = (featureList, plan) => {
   const found = planList.value.find((item) => item.id == plan.id)
   found.featureTagIds = featureList
-  handleScheme(found).then(() => {
-    getPlanList()
-  })
+  handleScheme(found).then(() => {})
   // store.commit('setFeatureList', { featureList, name })
 }
 
@@ -999,9 +1085,7 @@ const featureNum = computed(() => {})
 const handleprimaryApplianceId = (primaryApplianceId, plan) => {
   const found = planList.value.find((item) => item.id == plan.id)
   found.primaryApplianceId = primaryApplianceId
-  handleScheme(found).then(() => {
-    getPlanList()
-  })
+  handleScheme(found).then(() => {})
   // store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
 }
 // 更改store中数据，在下一步的时候提交
@@ -1048,7 +1132,7 @@ const updateList = (val, plan, stageName, cardName) => {
       // 也要重新请求一次planList
     }
 
-    getPlanList()
+    // getPlanList()
   })
 }
 // 更改问题状态
@@ -1056,33 +1140,33 @@ const changeState = (val) => {
   const found = questionData.value.find((item) => item.option_names == val.element.option_names)
   found.active = val.flag
 }
-const handleInput = (e) => {
-  if (e.target.innerText.length > 5) {
-    const truncatedContent = e.target.textContent.substring(0, 5)
+const handleInput = (e, plan) => {
+  if (e.target.innerText.length > 20) {
+    const truncatedContent = e.target.textContent.substring(0, 20)
     e.target.innerText = truncatedContent
     e.preventDefault()
     ElMessage({
-      message: '方案名称不能超过5个字',
+      message: '方案名称不能超过10个字',
       type: 'warning'
     })
   }
 }
+const handleBlur = (e, plan) => {
+  plan.name = e.target.innerHTML
+}
 onMounted(() => {
-  const divs = document.querySelectorAll('.planName')
-  console.log('🚀 ~ onMounted ~ divs:', divs)
-  divs.forEach((div) => {
-    div.addEventListener('input', (event) => {
-      const maxLength = 10 // 最大字数限制
-      const currentLength = div.textContent.length
-
-      if (currentLength > maxLength) {
-        const truncatedContent = div.textContent.substring(0, maxLength)
-        div.textContent = truncatedContent
-        event.preventDefault()
-      }
-    })
-  })
-
+  // const divs = document.querySelectorAll('.planName')
+  // divs.forEach((div) => {
+  //   div.addEventListener('input', (event) => {
+  //     const maxLength = 20 // 最大字数限制
+  //     const currentLength = div.textContent.length
+  //     if (currentLength > maxLength) {
+  //       const truncatedContent = div.textContent.substring(0, maxLength)
+  //       div.textContent = truncatedContent
+  //       event.preventDefault()
+  //     }
+  //   })
+  // })
   // planList.value = store.state.planList
 })
 
@@ -1378,23 +1462,8 @@ async function getRemark() {
 }
 
 getRemark()
-function validate(planList) {
-  const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
 
-  const applicance = document.querySelectorAll('.arco-select.primaryApplianceId')
-
-  planList.forEach((plan, index) => {
-    if (!plan.primaryApplianceId) {
-      applicance[index].classList.add('validateFail')
-    }
-    if (!plan.difficultyLevel) {
-      difficultySelect[index].classList.add('validateFail')
-    }
-  })
-}
 const handleScheme = async (scheme) => {
-  console.log('🚀 ~ handleScheme ~ scheme:', scheme)
-
   // 校验哪个计划的选择器没写
   let obj = {
     id: scheme.id || null,
@@ -1422,20 +1491,23 @@ const handleScheme = async (scheme) => {
       }
     })
   }
-  console.log(obj)
-
   // if (planList.value.some((plan) => !plan.primaryApplianceId || !plan.difficultyLevel)) {
   //   validate(planList.value)
   //   return false
   // }
   await Post('/prod-api/emr/public/api/v1/scheme', [obj])
 }
+defineExpose({
+  clicked,
+  planList
+})
 </script>
 
 <style lang="scss" scoped>
 .deleteBtn {
   opacity: 0;
 }
+
 .title {
   color: #1d2129;
   font-size: 16px;
@@ -1704,6 +1776,7 @@ const handleScheme = async (scheme) => {
           &:hover {
             .deleteBtn {
               opacity: 1;
+              z-index: 100;
             }
           }
         }
