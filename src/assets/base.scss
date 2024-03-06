@@ -114,5 +114,14 @@ img {
   max-height:400px !important;
 }
 .arco-dropdown {
-  height: 256px !important;
+  height: 220px !important;
+}
+.arco-popconfirm-popup-content .arco-popconfirm-body .arco-popconfirm-icon .arco-icon-info-circle-fill{
+  color: red !important;
+}
+.arco-divider-horizontal{
+  border-bottom:1px dashed rgba(229,230,235.1) !important;
+}
+.arco-dropdown{
+  border-radius: 12px !important;
 }

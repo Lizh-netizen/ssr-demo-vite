@@ -1,5 +1,5 @@
 <template>
-  <div class="stepFour">
+  <div class="stepFiveLayout" @click.stop="">
     <div class="layout">
       <div class="top box">
         <div class="top_left">
@@ -62,7 +62,7 @@
             :key="plan.name"
           >
             <div class="flex items-center mb-[12px]" style="position: relative; overflow: visible">
-              <div @click="handlePlan(plan)" class="w-[20px] h-[20px]">
+              <div @click.stop="handlePlan(plan)" class="w-[20px] h-[20px]">
                 <template v-if="plan.checked == true">
                   <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
                 </template>
@@ -458,11 +458,12 @@
       <template v-for="item in remarkData" :key="item.id">
         <template v-for="title in item.orthTitleList" :key="title.id">
           <form-item :label="title.titleName">
-            <el-input
-              :style="{ width: '400px' }"
+            <a-textarea
+              :style="{ width: '400px', 'border-radius': '8px' }"
+              allow-clear
               v-model="title.cephalometricsContent"
               @blur="handleSubmitAddtionalContent(title)"
-            ></el-input> </form-item></template
+            /> </form-item></template
       ></template>
     </div>
   </div>
@@ -737,7 +738,7 @@ async function getOrthQuestionList() {
 }
 getOrthQuestionList()
 // 新增阶段
-const handleAddStage = (plan) => {
+const handleAddStage = async (plan) => {
   if (plan.stageList.length >= 12) {
     ElMessage({
       message: '二期矫正请另行发起方案设计',
@@ -750,12 +751,17 @@ const handleAddStage = (plan) => {
   const stage = +finalStage.match(/(\d+)/)[0] + 3
   // @ts-expect-error TS(2532): Object is possibly 'undefined'.
   plan.stageList.push({
+    id: null,
     stageName: stage + '个月',
-    targetIds: []
+    targetIds: [],
+    toolIds: []
+  })
+  handleScheme(plan).then(() => {
+    getPlanList()
   })
 }
 // 新增方案
-const handleAddPlan = () => {
+const handleAddPlan = async () => {
   if (planList.value?.length == 4) {
     ElMessage({
       message: '方案数超过4个，请删除不需要的方案后重试',
@@ -763,206 +769,56 @@ const handleAddPlan = () => {
     })
     return
   }
-  if (planList.value.length == 1) {
-    planList.value.push({
-      name: '方案二',
-      checked: false,
-      difficultyLevel: '',
-      featureTagIds: [],
-      primaryApplianceId: '',
-      stageList: [
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '3个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '6个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '9个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '12个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        }
-      ]
-    })
-  } else if (planList.value.length == 2) {
-    planList.value.push({
-      name: '方案三',
-      checked: false,
-      difficultyLevel: '',
-      featureTagIds: [],
-      primaryApplianceId: '',
-
-      stageList: [
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '3个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '6个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '9个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '3个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        }
-      ]
-    })
-  } else if (planList.value.length == 3) {
-    planList.value.push({
-      name: '方案四',
-      checked: false,
-      difficultyLevel: '',
-      featureTagIds: [],
-      primaryApplianceId: '',
-      stageList: [
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '3个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '6个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '9个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        },
-        {
-          bottomLeft: [],
-          bottomRight: [],
-          fdiToothCode: null,
-          position: [],
-          showPosition: '',
-          stageName: '12个月',
-          submitAble: false,
-          targetIds: [],
-          toolIds: [],
-          toothCode: [],
-          topLeft: [],
-          topRight: []
-        }
-      ]
-    })
+  let obj = {
+    id: null,
+    checked: false,
+    difficultyLevel: '',
+    aptmId: appId,
+    featureTagIds: '',
+    primaryApplianceId: '',
+    stageList: [
+      {
+        stageName: '3个月',
+        id: null,
+        targetIds: '',
+        toolIds: '',
+        showPosition: ''
+      },
+      {
+        stageName: '6个月',
+        id: null,
+        targetIds: '',
+        toolIds: '',
+        showPosition: ''
+      },
+      {
+        stageName: '9个月',
+        id: null,
+        targetIds: '',
+        toolIds: '',
+        showPosition: ''
+      },
+      {
+        stageName: '12个月',
+        id: null,
+        targetIds: '',
+        toolIds: '',
+        showPosition: ''
+      }
+    ]
   }
+  if (planList.value.length == 1) {
+    obj.name = '方案二'
+    planList.value.push(obj)
+  } else if (planList.value.length == 2) {
+    obj.name = '方案三'
+    planList.value.push(obj)
+  } else if (planList.value.length == 3) {
+    obj.name = '方案四'
+    planList.value.push(obj)
+  }
+  await Post('/prod-api/emr/public/api/v1/scheme', [obj])
+  getPlanList()
 }
 const handleCopyPlan = (plan) => {
   if (planList.value.length == 4) {
@@ -1090,7 +946,7 @@ const handleprimaryApplianceId = (primaryApplianceId, plan) => {
 }
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, plan, stageName, cardName) => {
-  const found = planList.value.find((item) => item.id == plan.id)
+  const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
 
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
@@ -1139,6 +995,7 @@ const updateList = (val, plan, stageName, cardName) => {
 const changeState = (val) => {
   const found = questionData.value.find((item) => item.option_names == val.element.option_names)
   found.active = val.flag
+  getOrthQuestionList()
 }
 const handleInput = (e, plan) => {
   if (e.target.innerText.length > 20) {
@@ -1146,7 +1003,7 @@ const handleInput = (e, plan) => {
     e.target.innerText = truncatedContent
     e.preventDefault()
     ElMessage({
-      message: '方案名称不能超过10个字',
+      message: '方案名称不能超过20个字',
       type: 'warning'
     })
   }
@@ -1476,15 +1333,17 @@ const handleScheme = async (scheme) => {
     stageList: scheme.stageList?.map((stage) => {
       return {
         id: stage.id || null,
-        fdiToothCode: stage.targetIds
-          .find((target) => target.name?.includes('拔牙'))
-          ?.toothCode?.join(),
-        optionId: stage.targetIds.find((target) => target.name?.includes('拔牙'))?.id,
-        showPosition: stage.targetIds.find((target) => target.name?.includes('拔牙'))
-          ? JSON.stringify(
-              stage.targetIds.find((target) => target.name?.includes('拔牙'))?.position
-            )
-          : '',
+        fdiToothCode:
+          stage.targetIds &&
+          stage.targetIds.find((target) => target.name?.includes('拔牙'))?.toothCode?.join(),
+        optionId:
+          stage.targetIds && stage.targetIds.find((target) => target.name?.includes('拔牙'))?.id,
+        showPosition:
+          stage.targetIds && stage.targetIds.find((target) => target.name?.includes('拔牙'))
+            ? JSON.stringify(
+                stage.targetIds.find((target) => target.name?.includes('拔牙'))?.position
+              )
+            : '',
         stageName: stage.stageName,
         targetIds: stage.targetIds?.map((target) => target.id)?.join(','),
         toolIds: stage.toolIds?.map((tool) => tool.id)?.join(',')

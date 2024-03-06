@@ -152,7 +152,7 @@
 import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
 import ChooseTooth from './chooseTooth.vue'
-import { watch, defineProps, ref, defineEmits, nextTick, computed } from 'vue'
+import { watch, defineProps, ref, defineEmits, nextTick, computed, onMounted } from 'vue'
 import { averageThreeCourts } from '../../utils/calculate'
 import { GetSymptom } from '../../utils/tooth'
 import cloneDeep from 'lodash/cloneDeep'
@@ -247,8 +247,8 @@ const deleteAt = (element) => {
   // 从store中删除
 }
 // 从问题移除
-const handleRemove = (element) => {
-  Put('/prod-api/business/optionsResult', [
+const handleRemove = async (element) => {
+  await Put('/prod-api/business/optionsResult', [
     {
       id: element.option_result_id,
       active: '0'
@@ -257,8 +257,8 @@ const handleRemove = (element) => {
   emit('changeState', { element: element, flag: false })
   element.showDeleteIcon = false
 }
-const handleCancel = (element) => {
-  Put('/prod-api/business/optionsResult', [
+const handleCancel = async (element) => {
+  await Put('/prod-api/business/optionsResult', [
     {
       id: element.option_result_id,
       active: '1'
@@ -316,72 +316,73 @@ let item = ref()
 const getItem = (val) => {
   item.value = val
 }
-let hasTooth = false
-window.addEventListener('click', (e) => {
-  // 点击空白处，弹窗消失
-  const popover = document.querySelector('.el-popper.el-popover.myPopper1')
-  // 当点击非popover元素时，弹窗消失，数据中的visible为false
-  // 并且将对应的target这一项放回到store中
+let toothFlag = false
+onMounted(() => {
+  // 刚开始没有牙齿的情况
+  const div = document.querySelector('.stepFiveLayout')
+  div.addEventListener('click', (e) => {
+    // 点击空白处，弹窗消失
+    const popover = document.querySelector('.el-popper.el-popover.myPopper1')
+    // 当点击非popover元素时，弹窗消失，数据中的visible为false
 
-  if (popover) {
-    if (e.target !== popover && !popover.contains(e.target)) {
-      if (data.value.length > 0 && props.planTarget) {
-        hasTooth = data.value.some((element) => element.toothCode?.length > 0)
-        console.log('🚀 ~ window.addEventListener ~ hasTooth:', hasTooth, item.value)
-        // 有item并且有牙齿才可以提交
-        if ((item.value?.item || item.value?.changeStatus) && hasTooth) {
-          emit('update', {
-            data: data.value,
-            planIndex: props.planIndex,
-            stageIndex: props.stageIndex
-          })
+    if (popover && popover?.style.display !== 'none') {
+      if (e.target !== popover && !popover.contains(e.target)) {
+        if (data.value.length > 0 && props.planTarget) {
+          toothFlag = data.value.some(
+            (element) => element.toothCode?.length == 0 && element.name == '拔牙'
+          )
 
-          data.value.forEach((element) => {
-            element.visible = false
-          })
-          item.value = null
-        } else if (item.value || !hasTooth) {
-          ElMessage({
-            message: '请先选择牙位',
-            type: 'warning'
-          })
+          // 有item并且有牙齿才可以提交
+          if (item.value?.changeStatus) {
+            emit('update', {
+              data: data.value,
+              planIndex: props.planIndex,
+              stageIndex: props.stageIndex
+            })
+
+            data.value.forEach((element) => {
+              element.visible = false
+            })
+            item.value = null
+          } else if (toothFlag) {
+            ElMessage({
+              message: '请先选择牙位',
+              type: 'warning'
+            })
+          }
         }
       }
     }
-  }
-})
-window.addEventListener('click', (e) => {
-  // 点击空白处，弹窗消失
-  const popover = document.querySelector('.el-popper.el-popover.myPopper')
-  // 当点击非popover元素时，弹窗消失，数据中的visible为false
-  // 并且将对应的target这一项放回到store中
+  })
+  div.addEventListener('click', (e) => {
+    // 有牙齿的情况
+    const popover = document.querySelector('.el-popper.el-popover.myPopper')
+    console.log('🚀 ~ div.addEventListener ~ item.value?.changeStatus):', item.value?.changeStatus)
+    if (popover && popover?.style.display !== 'none') {
+      if (e.target !== popover && !popover.contains(e.target)) {
+        if (data.value.length > 0 && props.planTarget) {
+          // 有item并且有牙齿才可以提交
+          if (item.value?.item || item.value?.changeStatus) {
+            emit('update', {
+              data: data.value,
+              planIndex: props.planIndex,
+              stageIndex: props.stageIndex
+            })
 
-  if (popover) {
-    if (e.target !== popover && !popover.contains(e.target)) {
-      if (data.value.length > 0 && props.planTarget) {
-        hasTooth = data.value.some((element) => element.toothCode?.length > 0)
-        console.log('🚀 ~ window.addEventListener ~ hasTooth:', hasTooth, item.value)
-        // 有item并且有牙齿才可以提交
-        if (item.value?.item || item.value?.changeStatus) {
-          emit('update', {
-            data: data.value,
-            planIndex: props.planIndex,
-            stageIndex: props.stageIndex
-          })
-
-          data.value.forEach((element) => {
-            element.visible = false
-          })
-          item.value = null
-        } else if (item.value || !hasTooth) {
-          ElMessage({
-            message: '请先选择牙位',
-            type: 'warning'
-          })
+            data.value.forEach((element) => {
+              element.visible = false
+            })
+          }
+          // else if (item.value || !toothFlag) {
+          //   ElMessage({
+          //     message: '请先选择牙位',
+          //     type: 'warning'
+          //   })
+          // }
         }
       }
     }
-  }
+  })
 })
 </script>
 

@@ -254,12 +254,12 @@ function validate(planList) {
       difficultySelect[index].classList.add('validateFail')
     }
   })
+  return planList.some((plan) => !plan.difficultyLevel || !plan.primaryApplianceId)
 }
 
 const handleGeneratePdf = () => {
   if (active.value == 5) {
-    validate(step5.value.planList)
-    return
+    if (validate(step5.value.planList)) return false
   }
   nextTick(() => {
     editStep.value = active.value
