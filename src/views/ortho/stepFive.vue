@@ -823,7 +823,7 @@ const handleAddPlan = async () => {
   await Post('/prod-api/emr/public/api/v1/scheme', [obj])
   getPlanList()
 }
-const handleCopyPlan = (plan) => {
+const handleCopyPlan = async (plan) => {
   if (planList.value.length == 4) {
     ElMessage({
       message: '方案数超过4个，请删除不需要的方案后重试',
@@ -832,89 +832,37 @@ const handleCopyPlan = (plan) => {
     return
   }
   // 深拷贝，第二个不会影响到第一个
-  planList.value.push(
-    JSON.parse(
-      JSON.stringify({
-        ...plan,
-        name: plan.name + '_副本',
-        id: '',
-        checked: false
-      })
-    )
+  let obj = JSON.parse(
+    JSON.stringify({
+      ...plan,
+      name: plan.name + '_副本',
+      id: null,
+      checked: false
+    })
   )
+  await handleScheme(obj)
+  planList.value.push(obj)
+  getPlanList()
 }
 // 删除方案
 const handleDeletePlan = async (plan, index) => {
-  Delete(`/prod-api/emr/public/api/v1/scheme/delScheme/${plan.id}`).then(() => {
-    planList.value.splice(index, 1)
-    if (planList.value.length == 0) {
-      planList.value.push({
-        name: '方案一',
-        checked: false,
-        difficultyLevel: '',
-        featureTagIds: [],
-        primaryApplianceId: '',
-        stageList: [
-          {
-            bottomLeft: [],
-            bottomRight: [],
-            fdiToothCode: null,
-            position: [],
-            showPosition: '',
-            stageName: '3个月',
-            submitAble: false,
-            targetIds: [],
-            toolIds: [],
-            toothCode: [],
-            topLeft: [],
-            topRight: []
-          },
-          {
-            bottomLeft: [],
-            bottomRight: [],
-            fdiToothCode: null,
-            position: [],
-            showPosition: '',
-            stageName: '6个月',
-            submitAble: false,
-            targetIds: [],
-            toolIds: [],
-            toothCode: [],
-            topLeft: [],
-            topRight: []
-          },
-          {
-            bottomLeft: [],
-            bottomRight: [],
-            fdiToothCode: null,
-            position: [],
-            showPosition: '',
-            stageName: '9个月',
-            submitAble: false,
-            targetIds: [],
-            toolIds: [],
-            toothCode: [],
-            topLeft: [],
-            topRight: []
-          },
-          {
-            bottomLeft: [],
-            bottomRight: [],
-            fdiToothCode: null,
-            position: [],
-            showPosition: '',
-            stageName: '12个月',
-            submitAble: false,
-            targetIds: [],
-            toolIds: [],
-            toothCode: [],
-            topLeft: [],
-            topRight: []
-          }
-        ]
-      })
-    }
-  })
+  if (planList.value.length == 1) {
+    plan.difficultyLevel = ''
+    plan.featureTagIds = []
+    plan.primaryApplianceId = ''
+    plan.stageList.forEach((stage) => {
+      stage.showPosition = ''
+      stage.fdiToothCode = null
+      stage.targetIds = []
+      stage.toolIds = []
+    })
+    await handleScheme(plan)
+    getPlanList()
+  } else {
+    Delete(`/prod-api/emr/public/api/v1/scheme/delScheme/${plan.id}`).then(() => {
+      planList.value.splice(index, 1)
+    })
+  }
 }
 const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
   if (!stage.id) {
@@ -951,9 +899,10 @@ const handleprimaryApplianceId = (primaryApplianceId, plan) => {
 const updateList = (val, plan, stageName, cardName) => {
   console.log('🚀 ~ updateList ~ val, plan:', val, plan)
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
-
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
+
+    // 刚开始选择牙位
     if (val.flag) {
       // 避免修改右侧数据影响左侧
       goalList.value.find((item) => (item.visible = false))
@@ -973,6 +922,8 @@ const updateList = (val, plan, stageName, cardName) => {
       const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
       stage.targetIds.splice(index, 1)
     }
+    if (val.removeFlag) {
+    }
   } else {
     found.stageList.find((item) => item.stageName == stageName).toolIds = val.data
   }
@@ -985,14 +936,13 @@ const updateList = (val, plan, stageName, cardName) => {
     }
   }
   // 如果是拔牙，则先不提交
-  if (val.flag) return
+  if (val.flag || val.addFlag) return
   handleScheme(found).then(() => {
     if (val.delete) {
       getOrthGoalList()
       // 也要重新请求一次planList
     }
-
-    // getPlanList()
+    getPlanList()
   })
 }
 // 更改问题状态

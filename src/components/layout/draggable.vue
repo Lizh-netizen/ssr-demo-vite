@@ -7,12 +7,13 @@
       :group="elements"
       item-key="id"
       @change="onChange"
-      @start="handleDragStart"
     >
       <template #item="{ element }">
         <div v-if="question || unmutable || !element.position">
           <div
             class="list-group-item"
+            @dragover="handleDragOver"
+            @dragleave="handleDragLeave"
             :class="{
               InActive: question && !element.active,
               question: question == true,
@@ -74,6 +75,8 @@
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
                 <div
+                  @dragover="handleDragOver"
+                  @dragleave="handleDragLeave"
                   class="list-group-item"
                   :class="{
                     InActive: question && !element.active,
@@ -115,6 +118,8 @@
               <!-- 有牙齿的情况下悬浮显示选中牙位 -->
               <template #reference>
                 <div
+                  @dragover="handleDragOver"
+                  @dragleave="handleDragLeave"
                   class="list-group-item truncate"
                   :class="{
                     InActive: question && !element.active,
@@ -209,6 +214,12 @@ watch(data, (val) => {
   data.value = val
 })
 let toothItem = ref(null)
+const handleDragOver = (e) => {
+  e.target.classList.add('dragOver')
+}
+const handleDragLeave = (e) => {
+  e.target.classList.remove('dragOver')
+}
 const onChange = (event) => {
   if (event.removed && event.removed.element) {
     const newItem = JSON.parse(JSON.stringify(event.removed.element))
@@ -225,6 +236,7 @@ const onChange = (event) => {
       return
     }
   }
+  // 没牙位的时候
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
 
@@ -239,6 +251,20 @@ const onChange = (event) => {
         stageIndex: props.stageIndex
       })
       flag.value = false
+      return
+    }
+  }
+  // 有牙位的时候
+  if (event.added && event.added.element) {
+    const newItem = JSON.parse(JSON.stringify(event.added.element))
+
+    if (newItem.name.includes('拔牙')) {
+      emit('update', {
+        data: data.value,
+        addFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
       return
     }
   }
@@ -373,7 +399,6 @@ onMounted(() => {
   div.addEventListener('click', (e) => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
-    console.log('🚀 ~ div.addEventListener ~ item.value?.changeStatus):', item.value?.changeStatus)
     if (popover && popover?.style.display !== 'none') {
       if (e.target !== popover && !popover.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
@@ -501,6 +526,9 @@ onMounted(() => {
   }
   &.border {
     border: 1px solid #c9cdd4;
+  }
+  &.dragOver {
+    box-shadow: 2px 2px 2px 2px rgba(255, 0, 0, 0.2);
   }
 }
 </style>
