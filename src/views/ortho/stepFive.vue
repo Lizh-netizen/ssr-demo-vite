@@ -40,12 +40,11 @@
                 <a-input-search
                   :style="{
                     width: '256px',
-                    'margin-top': '12px',
-                    'background-blend-mode': 'multiply'
+                    'margin-top': '12px'
                   }"
+                  class="border-rd-[7px]! bg-#E6E8EB!"
                   placeholder="请搜索"
                   v-model="searchValue"
-                  style="background-color: #f2f3f5"
                   @search="handleSearch(searchValue)"
                 />
               </a-space>
@@ -670,48 +669,46 @@ async function getPlanList() {
       })
     })
   } else {
-    planList.value = [
-      {
-        name: '方案一', //方案名
-        id: null,
-        checked: false,
-        difficultyLevel: '',
-        aptmId: appId,
-        featureTagIds: '',
-        primaryApplianceId: '',
-        stageList: [
-          {
-            stageName: '3个月',
-            id: null,
-            targetIds: '',
-            toolIds: '',
-            showPosition: ''
-          },
-          {
-            stageName: '6个月',
-            id: null,
-            targetIds: '',
-            toolIds: '',
-            showPosition: ''
-          },
-          {
-            stageName: '9个月',
-            id: null,
-            targetIds: '',
-            toolIds: '',
-            showPosition: ''
-          },
-          {
-            stageName: '12个月',
-            id: null,
-            targetIds: '',
-            toolIds: '',
-            showPosition: ''
-          }
-        ]
-      }
-    ]
-    await handleScheme(planList)
+    let obj = {
+      name: '方案一', //方案名
+      id: null,
+      checked: false,
+      difficultyLevel: '',
+      aptmId: appId,
+      featureTagIds: [],
+      primaryApplianceId: '',
+      stageList: [
+        {
+          stageName: '3个月',
+          id: null,
+          targetIds: [],
+          toolIds: [],
+          showPosition: ''
+        },
+        {
+          stageName: '6个月',
+          id: null,
+          targetIds: [],
+          toolIds: [],
+          showPosition: ''
+        },
+        {
+          stageName: '9个月',
+          id: null,
+          targetIds: [],
+          toolIds: [],
+          showPosition: ''
+        },
+        {
+          stageName: '12个月',
+          id: null,
+          targetIds: [],
+          toolIds: [],
+          showPosition: ''
+        }
+      ]
+    }
+    await handleScheme(obj)
     getPlanList()
   }
 }
@@ -841,6 +838,7 @@ const handleCopyPlan = async (plan) => {
       checked: false
     })
   )
+  obj.stageList.forEach((stage) => (stage.id = null))
   await handleScheme(obj)
   planList.value.push(obj)
   getPlanList()
@@ -1316,6 +1314,11 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+.container.ORTHTOOL {
+  :deep(.list-group) {
+    margin-top: 10px !important;
+  }
+}
 .deleteBtn {
   opacity: 0;
 }
