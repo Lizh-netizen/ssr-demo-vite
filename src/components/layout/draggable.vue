@@ -11,9 +11,9 @@
       <template #item="{ element }">
         <div v-if="question || unmutable || !element.position">
           <div
+            @dragover.stop="handleDragOver"
+            @dragleave.stop="handleDragLeave"
             class="list-group-item"
-            @dragover="handleDragOver"
-            @dragleave="handleDragLeave"
             :class="{
               InActive: question && !element.active,
               question: question == true,
@@ -75,8 +75,8 @@
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
                 <div
-                  @dragover="handleDragOver"
-                  @dragleave="handleDragLeave"
+                  @dragover.stop="handleDragOver"
+                  @dragleave.stop="handleDragLeave"
                   class="list-group-item"
                   :class="{
                     InActive: question && !element.active,
@@ -118,8 +118,8 @@
               <!-- 有牙齿的情况下悬浮显示选中牙位 -->
               <template #reference>
                 <div
-                  @dragover="handleDragOver"
-                  @dragleave="handleDragLeave"
+                  @dragover.stop="handleDragOver"
+                  @dragleave.stop="handleDragLeave"
                   class="list-group-item truncate"
                   :class="{
                     InActive: question && !element.active,
@@ -218,8 +218,11 @@ const handleDragOver = (e) => {
   e.target.classList.add('dragOver')
 }
 const handleDragLeave = (e) => {
+  console.log('🚀 ~ handleDragLeave ~ e.target.parentElement.classList:', e.target, e)
+  e.target.parentElement.classList
   e.target.classList.remove('dragOver')
 }
+
 const onChange = (event) => {
   if (event.removed && event.removed.element) {
     const newItem = JSON.parse(JSON.stringify(event.removed.element))
@@ -528,7 +531,8 @@ onMounted(() => {
     border: 1px solid #c9cdd4;
   }
   &.dragOver {
-    box-shadow: 2px 2px 2px 2px rgba(255, 0, 0, 0.2);
+    background-color: #e5e6eb;
+    // box-shadow: 2px 2px 2px 2px #f2f3f5;
   }
 }
 </style>

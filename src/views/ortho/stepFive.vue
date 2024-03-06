@@ -172,7 +172,8 @@
                   class="mr-[14px]"
                 />
                 <a-popconfirm
-                  content="确定要删除吗？"
+                  :style="{ width: planList.length > 1 ? 'auto' : '260px' }"
+                  :content="planList.length > 1 ? '确定要删除吗？' : '方案必须有一个，确定清空吗？'"
                   @click.self.stop="
                     () => {
                       return false
@@ -897,7 +898,6 @@ const handleprimaryApplianceId = (primaryApplianceId, plan) => {
 }
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, plan, stageName, cardName) => {
-  console.log('🚀 ~ updateList ~ val, plan:', val, plan)
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
@@ -942,7 +942,6 @@ const updateList = (val, plan, stageName, cardName) => {
       getOrthGoalList()
       // 也要重新请求一次planList
     }
-    getPlanList()
   })
 }
 // 更改问题状态
