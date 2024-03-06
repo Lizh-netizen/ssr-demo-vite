@@ -7,9 +7,10 @@
       :group="elements"
       item-key="id"
       @change="onChange"
+      @start="handleDragStart"
     >
       <template #item="{ element }">
-        <template v-if="question || unmutable || !element.position">
+        <div v-if="question || unmutable || !element.position">
           <div
             class="list-group-item"
             :class="{
@@ -30,7 +31,6 @@
               v-if="showDeleteBtn"
               @click.stop="deleteAt(element)"
             />
-
             <el-tooltip
               :visible="element.active && element.showRemoveIcon"
               class="box-item"
@@ -58,12 +58,12 @@
                 @click.stop="handleCancel(element)"
                 v-if="question && !element.active"
               />
-            </el-tooltip></div
-        ></template>
-
-        <template v-else>
+            </el-tooltip>
+          </div>
+        </div>
+        <div v-else>
           <!-- 刚开始没有牙齿，点击之后悬浮 -->
-          <template v-if="element.visible">
+          <div v-if="element.visible">
             <el-popover
               popper-class="myPopper1"
               placement="right"
@@ -102,8 +102,8 @@
                 @getItem="getItem"
               ></ChooseTooth>
             </el-popover>
-          </template>
-          <template v-else>
+          </div>
+          <div v-else>
             <el-popover
               popper-class="myPopper"
               :popper-style="{ width: 'auto', 'min-width': '100px' }"
@@ -141,8 +141,8 @@
                 @getItem="getItem"
               ></ChooseTooth>
             </el-popover>
-          </template>
-        </template>
+          </div>
+        </div>
       </template>
     </draggable>
   </div>
@@ -210,6 +210,21 @@ watch(data, (val) => {
 })
 let toothItem = ref(null)
 const onChange = (event) => {
+  if (event.removed && event.removed.element) {
+    const newItem = JSON.parse(JSON.stringify(event.removed.element))
+
+    if (newItem.name.includes('拔牙')) {
+      flag.value = true
+      // 刚开始显示十字牙位时update一次，控制visible的显示
+      emit('update', {
+        data: data.value,
+        removeFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      return
+    }
+  }
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
 
@@ -227,6 +242,7 @@ const onChange = (event) => {
       return
     }
   }
+  // 非拔牙的拖拽逻辑
   emit('update', { data: data.value })
 }
 // 删除

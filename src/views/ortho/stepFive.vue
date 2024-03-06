@@ -672,43 +672,46 @@ async function getPlanList() {
     planList.value = [
       {
         name: '方案一', //方案名
-        checked: false, //是否选中
-        aptmId: appId, //预约id
-        difficultyLevel: '', //难度选择
-        primaryApplianceId: '', //主矫治器
-        featureTagIds: [], //特点
+        id: null,
+        checked: false,
+        difficultyLevel: '',
+        aptmId: appId,
+        featureTagIds: '',
+        primaryApplianceId: '',
         stageList: [
           {
             stageName: '3个月',
-            targetIds: [],
-            toolIds: [],
-            meritIds: [],
-            effectIds: []
+            id: null,
+            targetIds: '',
+            toolIds: '',
+            showPosition: ''
           },
           {
             stageName: '6个月',
-            targetIds: [],
-            toolIds: [],
-            meritIds: [],
-            effectIds: []
+            id: null,
+            targetIds: '',
+            toolIds: '',
+            showPosition: ''
           },
           {
             stageName: '9个月',
-            targetIds: [],
-            toolIds: [],
-            meritIds: [],
-            effectIds: []
+            id: null,
+            targetIds: '',
+            toolIds: '',
+            showPosition: ''
           },
           {
             stageName: '12个月',
-            targetIds: [],
-            toolIds: [],
-            meritIds: [],
-            effectIds: []
+            id: null,
+            targetIds: '',
+            toolIds: '',
+            showPosition: ''
           }
         ]
       }
     ]
+    await handleScheme(planList)
+    getPlanList()
   }
 }
 getPlanList()
@@ -946,6 +949,7 @@ const handleprimaryApplianceId = (primaryApplianceId, plan) => {
 }
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, plan, stageName, cardName) => {
+  console.log('🚀 ~ updateList ~ val, plan:', val, plan)
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
 
   if (cardName == 'target') {
