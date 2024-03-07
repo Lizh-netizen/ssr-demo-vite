@@ -62,13 +62,13 @@
         </div>
         <div v-else>
           <!-- 刚开始没有牙齿，点击之后悬浮 -->
-          <div v-if="element.visible">
+          <div>
             <el-popover
-              popper-class="myPopper1"
+              popper-class="myPopper"
               placement="right"
               :visible="element.visible"
               :width="490"
-              @after-leave="handleSaveTooth(element, title, classId)"
+              @before-enter="handleBeforeEnterPopover(element)"
             >
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
@@ -81,6 +81,7 @@
                     planTool: planTool == true,
                     border: element.visible
                   }"
+                  @click="element.visible = true"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
@@ -94,45 +95,6 @@
                 </div>
               </template>
               <!-- 从目标拖到计划，是拖的目标的数据 -->
-              <ChooseTooth
-                :option="element"
-                :arrange="true"
-                :symptomList="symptomList"
-                @getItem="getItem"
-              ></ChooseTooth>
-            </el-popover>
-          </div>
-          <div v-else>
-            <el-popover
-              popper-class="myPopper"
-              :popper-style="{ width: 'auto', 'min-width': '100px' }"
-              placement="top-start"
-              trigger="click"
-              @before-enter="handleBeforeEnterPopover(element)"
-              :width="490"
-            >
-              <!-- 有牙齿的情况下悬浮显示选中牙位 -->
-              <template #reference>
-                <div
-                  class="list-group-item truncate"
-                  :class="{
-                    InActive: question && !element.active,
-                    question: question == true,
-                    planTarget: planTarget == true,
-                    planTool: planTool == true
-                  }"
-                >
-                  <img class="drag" src="../../assets/layout/drag.svg" />
-                  <div class="list-group-item-name">{{ element.name }}</div>
-                  <span v-if="question" class="list-group-item-label">{{ element.label }}</span>
-                  <img
-                    class="deleteBtn"
-                    src="../../assets/svg/delete.svg"
-                    v-if="showDeleteBtn"
-                    @click.stop="deleteAt(element)"
-                  />
-                </div>
-              </template>
               <ChooseTooth
                 :option="element"
                 :arrange="true"
@@ -192,6 +154,8 @@ const props = defineProps({
   }
 })
 const data = ref(props.list)
+// popover要有初始值
+data.value.forEach((item) => (item.visible = false))
 const dragOptions = computed(() => {
   return { animation: 200, group: 'description', disabled: false, ghostClass: 'ghost' }
 })
@@ -246,7 +210,7 @@ const onChange = (event) => {
 
     if (newItem.name == '拔牙') {
       showMask.value = true
-      console.log('🚀 ~ onChange ~ newItem:', newItem)
+
       toothItem.value = newItem
       flag.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
@@ -345,9 +309,7 @@ watch(elements, (newVal) => {
   elements.value = newVal
 })
 // 先存起来之后下一步的提交
-const handleSaveTooth = (option, title, classId) => {
-  useSelectTooth(item, title)
-}
+
 const symptomList = ref([])
 symptomList.value = GetSymptom()
 const handleBeforeEnterPopover = (title) => {
@@ -377,51 +339,26 @@ let toothFlag = false
 onMounted(() => {
   // 刚开始没有牙齿的情况
   const div = document.querySelector('.stepFiveLayout')
+
   div.addEventListener('click', (e) => {
-    // 点击空白处，弹窗消失
-    const popover1 = document.querySelector('.el-popper.el-popover.myPopper1')
+    // 有牙齿的情况
+    const popover = document.querySelector('.el-popper.el-popover.myPopper')
 
-    // 当点击非popover元素时，弹窗消失，数据中的visible为false
-
-    if (popover1 && popover1?.ariaHidden == 'false') {
-      if (e.target !== popover1 && !popover1.contains(e.target)) {
+    if (popover) {
+      if (e.target !== popover && !popover.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           toothFlag = data.value.some(
             (element) => element.toothCode?.length == 0 && element.name == '拔牙'
           )
-
-          // 有item并且有牙齿才可以提交
-          if (item.value?.changeStatus) {
-            emit('update', {
-              data: data.value,
-              planIndex: props.planIndex,
-              stageIndex: props.stageIndex
-            })
-
-            data.value.forEach((element) => {
-              element.visible = false
-            })
-            item.value = null
-          } else if (toothFlag) {
+          if (toothFlag) {
             ElMessage({
               message: '请先选择牙位',
               type: 'warning'
             })
           }
-        }
-      }
-      item.value.changeStatus = false
-    }
-  })
-  div.addEventListener('click', (e) => {
-    // 有牙齿的情况
-    const popover = document.querySelector('.el-popper.el-popover.myPopper')
 
-    if (popover && popover?.ariaHidden == 'false') {
-      if (e.target !== popover && !popover.contains(e.target)) {
-        if (data.value.length > 0 && props.planTarget) {
           // 有item并且有牙齿才可以提交
-          if (item.value?.item || item.value?.changeStatus) {
+          else if (item.value?.changeStatus) {
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
@@ -432,12 +369,6 @@ onMounted(() => {
               element.visible = false
             })
           }
-          // else if (item.value || !toothFlag) {
-          //   ElMessage({
-          //     message: '请先选择牙位',
-          //     type: 'warning'
-          //   })
-          // }
         }
       }
       item.value.changeStatus = false
