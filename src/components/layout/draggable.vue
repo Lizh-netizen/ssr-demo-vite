@@ -11,8 +11,6 @@
       <template #item="{ element }">
         <div v-if="question || unmutable || !element.position">
           <div
-            @dragover.stop="handleDragOver"
-            @dragleave.stop="handleDragLeave"
             class="list-group-item"
             :class="{
               InActive: question && !element.active,
@@ -75,8 +73,6 @@
               <template #reference>
                 <!-- 这里是浮上去的时候改变图标的颜色 -->
                 <div
-                  @dragover.stop="handleDragOver"
-                  @dragleave.stop="handleDragLeave"
                   class="list-group-item"
                   :class="{
                     InActive: question && !element.active,
@@ -118,8 +114,6 @@
               <!-- 有牙齿的情况下悬浮显示选中牙位 -->
               <template #reference>
                 <div
-                  @dragover.stop="handleDragOver"
-                  @dragleave.stop="handleDragLeave"
                   class="list-group-item truncate"
                   :class="{
                     InActive: question && !element.active,
@@ -218,7 +212,6 @@ const handleDragOver = (e) => {
   e.target.classList.add('dragOver')
 }
 const handleDragLeave = (e) => {
-  console.log('🚀 ~ handleDragLeave ~ e.target.parentElement.classList:', e.target, e)
   e.target.parentElement.classList
   e.target.classList.remove('dragOver')
 }
@@ -228,6 +221,11 @@ const onChange = (event) => {
     const newItem = JSON.parse(JSON.stringify(event.removed.element))
 
     if (newItem.name.includes('拔牙')) {
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
       flag.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
@@ -402,7 +400,7 @@ onMounted(() => {
   div.addEventListener('click', (e) => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
-    if (popover && popover?.style.display !== 'none') {
+    if (popover) {
       if (e.target !== popover && !popover.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           // 有item并且有牙齿才可以提交

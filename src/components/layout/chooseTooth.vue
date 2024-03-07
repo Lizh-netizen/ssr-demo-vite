@@ -66,7 +66,16 @@ const handleArrangeTooth = (item, title) => {
   // 删除牙位信息
   else {
     if (title.name.includes(';')) {
-      title.name = title.name.replace(';' + String(item.value), '')
+      // 将输入字符串拆分为数组
+      const teeth = title.name.slice(3, -1).split(';')
+      // 查找要移除的牙齿在数组中的索引
+      const toothIndex = teeth.indexOf(item.value.toString())
+      // 如果牙齿存在，则将其移除
+      if (toothIndex !== -1) {
+        teeth.splice(toothIndex, 1)
+      }
+      // 将更新后的牙齿数组重新连接成字符串
+      title.name = `拔牙(${teeth.join(';')})`
     } else {
       title.name = title.name.replace('(' + String(item.value) + ')', '')
     }

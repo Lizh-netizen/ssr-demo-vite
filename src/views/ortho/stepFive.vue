@@ -108,7 +108,7 @@
                     {{ item.name }}
                   </a-option>
                 </a-select>
-                <a-dropdown trigger="click">
+                <a-dropdown trigger="click" class="mt-[4px]!">
                   <span class="el-dropdown-link">
                     <div class="addFeature" @click="plan.popVisible = true">
                       <a-button class="addFeatureBtn"
@@ -1407,11 +1407,14 @@ defineExpose({
   flex: 1;
   margin-top: 20px;
   &-left {
-    width: 326px;
+    width: 250px;
     margin-right: 20px;
     position: sticky;
     top: 72px;
     overflow: scroll;
+    :deep(.list-group-item) {
+      margin-right: 0;
+    }
   }
   &-right {
     width: calc(100% - 326px);
@@ -1504,6 +1507,11 @@ defineExpose({
             border: 1px solid red;
           }
         }
+      }
+      :deep .arco-select-view-single.arco-select-view-focus {
+        background-color: var(--color-bg-2);
+        border-color: rgb(var(--primary-6));
+        box-shadow: 0 0 0 0 var(--color-primary-light-2);
       }
       .addFeature {
         position: relative;
@@ -1780,7 +1788,7 @@ defineExpose({
   }
 }
 .content {
-  padding: 20px;
+  padding: 16px;
   padding-bottom: 0;
   &.period {
     :deep .el-input {
