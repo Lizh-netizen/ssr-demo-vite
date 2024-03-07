@@ -5,8 +5,17 @@
       v-model="data"
       :move="onMove"
       :group="elements"
-      item-key="id"
+      item-key="order"
       @change="onChange"
+      tag="transition-group"
+      :component-data="{
+        tag: 'ul',
+        type: 'transition-group',
+        name: !drag ? 'people' : null
+      }"
+      v-bind="dragOptions"
+      @start="drag = true"
+      @end="drag = false"
     >
       <template #item="{ element }">
         <div v-if="question || unmutable || !element.position">
@@ -192,7 +201,12 @@ const props = defineProps({
   }
 })
 const data = ref(props.list)
-
+const dragOptions = ref({
+  animation: 200,
+  group: 'description',
+  disabled: false,
+  ghostClass: 'ghost'
+})
 const emit = defineEmits(['update', 'changeState'])
 // data可以监听到props的变化
 watch(
@@ -429,6 +443,10 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
 .container {
   width: 100%;
   overflow: auto;

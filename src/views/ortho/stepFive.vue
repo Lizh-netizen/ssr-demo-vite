@@ -56,11 +56,15 @@
         <div class="body-right">
           <div
             class="content plan"
+            :style="{ padding: '0px', 'padding-right': plan.stageList.length > 4 ? '0' : '12px' }"
             :class="{ checkeded: plan.checked == true }"
             v-for="(plan, planIndex) in planList"
             :key="plan.name"
           >
-            <div class="flex items-center mb-[12px]" style="position: relative; overflow: visible">
+            <div
+              class="flex items-center mb-[12px] p-[12px]"
+              style="position: relative; overflow: visible"
+            >
               <div @click.stop="handlePlan(plan)" class="w-[20px] h-[20px]">
                 <template v-if="plan.checked == true">
                   <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
@@ -163,7 +167,7 @@
               >
                 拔牙
               </div> -->
-              <div style="position: absolute; right: 0" class="flex">
+              <div style="position: absolute; right: 12px" class="flex">
                 <img
                   src="../../assets/layout/Copy.svg"
                   style="cursor: pointer"
@@ -189,7 +193,10 @@
                 </a-popconfirm>
               </div>
             </div>
-            <div class="flex overflow-scroll">
+            <div
+              class="flex overflow-scroll"
+              :style="{ 'padding-left': plan.stageList.length > 4 ? '0' : '12px' }"
+            >
               <div
                 class="cardGroup"
                 v-for="(stage, stageIndex) in plan.stageList"
@@ -711,6 +718,11 @@ async function getPlanList() {
     await handleScheme(obj)
     getPlanList()
   }
+  planList.value.forEach((plan) => {
+    if (plan.stageList.length > 4) {
+      plan.contentOverflow = true
+    }
+  })
 }
 getPlanList()
 // 获取问题列表数据
@@ -941,6 +953,7 @@ const updateList = (val, plan, stageName, cardName) => {
       // 也要重新请求一次planList
     }
   })
+  getOrthGoalList()
 }
 // 更改问题状态
 const changeState = (val) => {
@@ -1417,7 +1430,7 @@ defineExpose({
     }
   }
   &-right {
-    width: calc(100% - 326px);
+    width: calc(100% - 250px);
     .plan {
       margin-bottom: 16px;
       &:last-child {
