@@ -39,7 +39,6 @@
               <a-space direction="vertical" size="large">
                 <a-input-search
                   :style="{
-                    width: '212px',
                     'margin-top': '12px'
                   }"
                   class="border-rd-[7px]! bg-#E6E8EB!"
@@ -206,9 +205,7 @@
                   <div class="card">
                     <div class="time flex justify-between! pr-[12px]">
                       {{ stage.stageName }}
-                      <template
-                        v-if="stageIndex == plan.stageList.length - 1 && plan.stageList.length > 1"
-                      >
+                      <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex > 0">
                         <a-popconfirm
                           content="确定要删除吗？"
                           @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
@@ -218,17 +215,15 @@
                             }
                           "
                         >
-                          <img
-                            class="deleteBtn cursor-pointer"
-                            src="../../assets/svg/delete.svg"
-                            @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
-                          />
+                          <img class="deleteBtn cursor-pointer" src="../../assets/svg/delete.svg" />
                         </a-popconfirm>
                       </template>
-                      <template
-                        v-if="stageIndex == plan.stageList.length - 1 && plan.stageList.length == 1"
-                      >
-                        <img class="deleteBtn cursor-pointer" src="../../assets/svg/delete.svg" />
+                      <template v-else>
+                        <img
+                          class="deleteBtn cursor-pointer"
+                          src="../../assets/svg/delete.svg"
+                          @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
+                        />
                       </template>
                     </div>
                     <draggable
@@ -248,11 +243,7 @@
                     <div class="card">
                       <div class="time flex justify-between! pr-[12px]">
                         {{ stage.stageName }}
-                        <template
-                          v-if="
-                            stageIndex == plan.stageList.length - 1 && plan.stageList.length > 1
-                          "
-                        >
+                        <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex > 0">
                           <a-popconfirm
                             content="确定要删除吗？"
                             @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
@@ -268,11 +259,7 @@
                             />
                           </a-popconfirm>
                         </template>
-                        <template
-                          v-if="
-                            stageIndex == plan.stageList.length - 1 && plan.stageList.length == 1
-                          "
-                        >
+                        <template v-else>
                           <img
                             class="deleteBtn cursor-pointer"
                             src="../../assets/svg/delete.svg"
@@ -689,11 +676,12 @@ async function getPlanList() {
         }
       })
     })
+    console.log(planList.value)
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
           stage.targetIds?.forEach((target) => {
-            if (target.name?.includes('拔牙')) {
+            if (target.name?.includes('拔牙') && target.toothCode?.length > 0) {
               target.name = '拔牙' + '(' + target.toothCode?.join(';') + ')'
             }
           })
@@ -910,6 +898,14 @@ const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
   }
 }
 const handleDeleteStage1 = async (plan, stage, planIndex, stageIndex) => {
+  console.log(
+    '🚀 ~ handleDeleteStage1 ~ plan, stage, planIndex, stageIndex:',
+    plan,
+    stage,
+    planIndex,
+    stageIndex
+  )
+
   if (!stage.id) {
     return
   } else {
