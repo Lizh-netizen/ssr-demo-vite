@@ -39,7 +39,7 @@
               <a-space direction="vertical" size="large">
                 <a-input-search
                   :style="{
-                    width: '256px',
+                    width: '212px',
                     'margin-top': '12px'
                   }"
                   class="border-rd-[7px]! bg-#E6E8EB!"
@@ -206,21 +206,30 @@
                   <div class="card">
                     <div class="time flex justify-between! pr-[12px]">
                       {{ stage.stageName }}
-                      <a-popconfirm
-                        content="确定要删除吗？"
-                        @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
-                        @cancel="
-                          () => {
-                            return false
-                          }
-                        "
+                      <template
+                        v-if="stageIndex == plan.stageList.length - 1 && plan.stageList.length > 1"
                       >
-                        <img
-                          class="deleteBtn cursor-pointer"
-                          src="../../assets/svg/delete.svg"
-                          v-if="stageIndex == plan.stageList.length - 1"
-                        />
-                      </a-popconfirm>
+                        <a-popconfirm
+                          content="确定要删除吗？"
+                          @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
+                          @cancel="
+                            () => {
+                              return false
+                            }
+                          "
+                        >
+                          <img
+                            class="deleteBtn cursor-pointer"
+                            src="../../assets/svg/delete.svg"
+                            @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
+                          />
+                        </a-popconfirm>
+                      </template>
+                      <template
+                        v-if="stageIndex == plan.stageList.length - 1 && plan.stageList.length == 1"
+                      >
+                        <img class="deleteBtn cursor-pointer" src="../../assets/svg/delete.svg" />
+                      </template>
                     </div>
                     <draggable
                       class="ORTHTARGET"
@@ -238,22 +247,38 @@
                   <div>
                     <div class="card">
                       <div class="time flex justify-between! pr-[12px]">
-                        {{ stage.stageName
-                        }}<a-popconfirm
-                          content="确定要删除吗？"
-                          @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
-                          @cancel="
-                            () => {
-                              return false
-                            }
+                        {{ stage.stageName }}
+                        <template
+                          v-if="
+                            stageIndex == plan.stageList.length - 1 && plan.stageList.length > 1
+                          "
+                        >
+                          <a-popconfirm
+                            content="确定要删除吗？"
+                            @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
+                            @cancel="
+                              () => {
+                                return false
+                              }
+                            "
+                          >
+                            <img
+                              class="deleteBtn cursor-pointer"
+                              src="../../assets/svg/delete.svg"
+                            />
+                          </a-popconfirm>
+                        </template>
+                        <template
+                          v-if="
+                            stageIndex == plan.stageList.length - 1 && plan.stageList.length == 1
                           "
                         >
                           <img
                             class="deleteBtn cursor-pointer"
                             src="../../assets/svg/delete.svg"
-                            v-if="stageIndex == plan.stageList.length - 1"
+                            @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
                           />
-                        </a-popconfirm>
+                        </template>
                       </div>
                       <draggable
                         class="ORTHTARGET"
@@ -613,23 +638,23 @@ async function getPlanList() {
                 : []
             }))
     }))
-    const defaultStage = ['3个月', '6个月', '9个月', '12个月']
+    // const defaultStage = ['3个月', '6个月', '9个月', '12个月']
 
     // 不够的打上补丁
-    planList.value.forEach((plan) => {
-      const length = plan.stageList?.length
-      if (plan.stageList?.length < 4) {
-        for (let i = 0; i < 4 - length; i++) {
-          plan.stageList.push({
-            stageName: defaultStage[length + i],
-            targetIds: [],
-            toolIds: [],
-            meritIds: [],
-            effectIds: []
-          })
-        }
-      }
-    })
+    // planList.value.forEach((plan) => {
+    //   const length = plan.stageList?.length
+    //   if (plan.stageList?.length < 4) {
+    //     for (let i = 0; i < 4 - length; i++) {
+    //       plan.stageList.push({
+    //         stageName: defaultStage[length + i],
+    //         targetIds: [],
+    //         toolIds: [],
+    //         meritIds: [],
+    //         effectIds: []
+    //       })
+    //     }
+    //   }
+    // })
 
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
@@ -884,6 +909,20 @@ const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
     })
   }
 }
+const handleDeleteStage1 = async (plan, stage, planIndex, stageIndex) => {
+  if (!stage.id) {
+    return
+  } else {
+    plan.stageList.forEach((stage) => {
+      stage.showPosition = ''
+      stage.fdiToothCode = null
+      stage.targetIds = []
+      stage.toolIds = []
+    })
+    await handleScheme(plan)
+    getPlanList()
+  }
+}
 // 判断是否可以拖拽
 const onMove = (e) => {}
 const handleDifficultyLevel = (difficultyLevel, plan) => {
@@ -953,6 +992,9 @@ const updateList = (val, plan, stageName, cardName) => {
       // 也要重新请求一次planList
     }
   })
+  if (cardName == 'tool') {
+    getOrthToolList()
+  }
   getOrthGoalList()
 }
 // 更改问题状态

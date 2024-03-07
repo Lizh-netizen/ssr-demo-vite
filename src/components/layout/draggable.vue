@@ -5,17 +5,8 @@
       v-model="data"
       :move="onMove"
       :group="elements"
-      item-key="order"
+      item-key="id"
       @change="onChange"
-      tag="transition-group"
-      :component-data="{
-        tag: 'ul',
-        type: 'transition-group',
-        name: !drag ? 'people' : null
-      }"
-      v-bind="dragOptions"
-      @start="drag = true"
-      @end="drag = false"
     >
       <template #item="{ element }">
         <div v-if="question || unmutable || !element.position">
@@ -201,11 +192,8 @@ const props = defineProps({
   }
 })
 const data = ref(props.list)
-const dragOptions = ref({
-  animation: 200,
-  group: 'description',
-  disabled: false,
-  ghostClass: 'ghost'
+const dragOptions = computed(() => {
+  return { animation: 200, group: 'description', disabled: false, ghostClass: 'ghost' }
 })
 const emit = defineEmits(['update', 'changeState'])
 // data可以监听到props的变化
@@ -254,7 +242,7 @@ const onChange = (event) => {
   // 没牙位的时候
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
-
+    console.log('enter')
     if (newItem.name == '拔牙') {
       toothItem.value = newItem
       flag.value = true
@@ -369,21 +357,24 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-let item = ref()
+let item = ref({ changeStatus: false })
+
 const getItem = (val) => {
   item.value = val
 }
+
 let toothFlag = false
 onMounted(() => {
   // 刚开始没有牙齿的情况
   const div = document.querySelector('.stepFiveLayout')
   div.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
-    const popover = document.querySelector('.el-popper.el-popover.myPopper1')
+    const popover1 = document.querySelector('.el-popper.el-popover.myPopper1')
+
     // 当点击非popover元素时，弹窗消失，数据中的visible为false
 
-    if (popover && popover?.style.display !== 'none') {
-      if (e.target !== popover && !popover.contains(e.target)) {
+    if (popover1 && popover1?.style.display !== 'none') {
+      if (e.target !== popover1 && !popover1.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           toothFlag = data.value.some(
             (element) => element.toothCode?.length == 0 && element.name == '拔牙'
@@ -409,12 +400,14 @@ onMounted(() => {
           }
         }
       }
+      item.value.changeStatus = false
     }
   })
   div.addEventListener('click', (e) => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
-    if (popover) {
+
+    if (popover && popover?.ariaHidden) {
       if (e.target !== popover && !popover.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           // 有item并且有牙齿才可以提交
@@ -437,6 +430,7 @@ onMounted(() => {
           // }
         }
       }
+      item.value.changeStatus = false
     }
   })
 })

@@ -472,7 +472,7 @@ const labelList = [
   border-radius: 12px;
   justify-content: center;
   align-items: center;
-  z-index: 20;
+  z-index: 2000;
   .step {
     display: flex;
     width: 15%;
