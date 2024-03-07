@@ -195,6 +195,7 @@ const data = ref(props.list)
 const dragOptions = computed(() => {
   return { animation: 200, group: 'description', disabled: false, ghostClass: 'ghost' }
 })
+
 const emit = defineEmits(['update', 'changeState'])
 // data可以监听到props的变化
 watch(
@@ -242,8 +243,10 @@ const onChange = (event) => {
   // 没牙位的时候
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
-    console.log('enter')
+
     if (newItem.name == '拔牙') {
+      showMask.value = true
+      console.log('🚀 ~ onChange ~ newItem:', newItem)
       toothItem.value = newItem
       flag.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
@@ -362,7 +365,14 @@ let item = ref({ changeStatus: false })
 const getItem = (val) => {
   item.value = val
 }
-
+const showMask = ref(false)
+const handleClickMask = (e) => {
+  ElMessage({
+    message: '请先选择牙位',
+    type: 'warning'
+  })
+  e.stopPropagation()
+}
 let toothFlag = false
 onMounted(() => {
   // 刚开始没有牙齿的情况
@@ -373,7 +383,7 @@ onMounted(() => {
 
     // 当点击非popover元素时，弹窗消失，数据中的visible为false
 
-    if (popover1 && popover1?.style.display !== 'none') {
+    if (popover1 && popover1?.ariaHidden == 'false') {
       if (e.target !== popover1 && !popover1.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           toothFlag = data.value.some(
@@ -407,7 +417,7 @@ onMounted(() => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
 
-    if (popover && popover?.ariaHidden) {
+    if (popover && popover?.ariaHidden == 'false') {
       if (e.target !== popover && !popover.contains(e.target)) {
         if (data.value.length > 0 && props.planTarget) {
           // 有item并且有牙齿才可以提交
@@ -437,6 +447,14 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.mask {
+  z-index: 2000;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
 .ghost {
   opacity: 0.5;
   background: #c8ebfb;

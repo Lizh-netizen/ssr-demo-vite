@@ -1,5 +1,5 @@
 <template>
-  <div class="stepFiveLayout" @click.stop="">
+  <div class="stepFiveLayout">
     <div class="layout">
       <div class="top box">
         <div class="top_left">
@@ -218,7 +218,7 @@
                           <img class="deleteBtn cursor-pointer" src="../../assets/svg/delete.svg" />
                         </a-popconfirm>
                       </template>
-                      <template v-else>
+                      <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex == 0">
                         <img
                           class="deleteBtn cursor-pointer"
                           src="../../assets/svg/delete.svg"
@@ -259,7 +259,7 @@
                             />
                           </a-popconfirm>
                         </template>
-                        <template v-else>
+                        <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex == 0">
                           <img
                             class="deleteBtn cursor-pointer"
                             src="../../assets/svg/delete.svg"
@@ -676,7 +676,6 @@ async function getPlanList() {
         }
       })
     })
-    console.log(planList.value)
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
@@ -941,6 +940,7 @@ const handleprimaryApplianceId = (primaryApplianceId, plan) => {
   handleScheme(found).then(() => {})
   // store.commit('setPrimaryApplianceId', { primaryApplianceId, name })
 }
+
 // 更改store中数据，在下一步的时候提交
 const updateList = (val, plan, stageName, cardName) => {
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
@@ -953,6 +953,7 @@ const updateList = (val, plan, stageName, cardName) => {
       goalList.value.find((item) => (item.visible = false))
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const target = stage.targetIds.find((item) => item.name.includes('拔牙'))
+
       target.visible = true
       // 设置牙位
       useFdiToothCodeEffect(target)
