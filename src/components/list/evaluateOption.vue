@@ -175,6 +175,7 @@ import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import { Post } from '../../utils/request.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
+import ChooseTooth from '@/components/list/chooseTooth.vue'
 const props = defineProps({
   title: {
     type: Object,
