@@ -687,6 +687,7 @@ async function getPlanList() {
         }
       })
     })
+    console.log(planList.value)
   } else {
     let obj = {
       name: '方案一', //方案名

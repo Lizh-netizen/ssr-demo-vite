@@ -156,10 +156,9 @@ const props = defineProps({
 })
 const data = ref(props.list)
 // popover要有初始值
-data.value.forEach((item) => (item.visible = false))
-const dragOptions = computed(() => {
-  return { animation: 200, group: 'description', disabled: false, ghostClass: 'ghost' }
-})
+if (data.value.length > 0) {
+  data.value?.forEach((item) => (item.visible = false))
+}
 
 const emit = defineEmits(['update', 'changeState'])
 // data可以监听到props的变化
