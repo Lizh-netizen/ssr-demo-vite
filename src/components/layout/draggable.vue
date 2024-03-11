@@ -106,6 +106,7 @@
         </div>
       </template>
     </draggable>
+    <div class="mask" v-if="toothFlag"></div>
   </div>
 </template>
 
@@ -335,30 +336,43 @@ const handleClickMask = (e) => {
   })
   e.stopPropagation()
 }
-let toothFlag = false
+let toothFlag = ref(false)
 onMounted(() => {
   // 刚开始没有牙齿的情况
-  const div = document.querySelector('.stepFiveLayout')
+  // const div = document.querySelector('.stepFiveLayout')
 
-  div.addEventListener('click', (e) => {
+  window.addEventListener('click', (e) => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
-
     if (popover) {
-      if (e.target !== popover && !popover.contains(e.target)) {
+      if (e.target !== popover) {
         if (data.value.length > 0 && props.planTarget) {
-          toothFlag = data.value.some(
+          toothFlag.value = data.value.some(
             (element) => element.toothCode?.length == 0 && element.name == '拔牙'
           )
-          if (toothFlag) {
+          // 存在没有选牙位的拔牙选项，出现mask，并且给提醒
+          if (toothFlag.value) {
             ElMessage({
               message: '请先选择牙位',
               type: 'warning'
             })
+            e.stopPropagation()
+            e.preventDefault()
+            return
+          }
+          // 都有牙齿
+          if (!toothFlag && popover?.compareDocumentPosition(e.target) == 2) {
+            data.value.forEach((element) => {
+              element.visible = false
+            })
           }
 
           // 有item并且有牙齿才可以提交
-          else if (item.value?.changeStatus) {
+          else if (
+            item.value.changeStatus &&
+            popover?.compareDocumentPosition(e.target) !== 4 &&
+            popover?.compareDocumentPosition(e.target) !== 20
+          ) {
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
@@ -368,10 +382,10 @@ onMounted(() => {
             data.value.forEach((element) => {
               element.visible = false
             })
+            item.value.changeStatus = false
           }
         }
       }
-      item.value.changeStatus = false
     }
   })
 })

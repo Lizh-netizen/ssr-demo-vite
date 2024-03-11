@@ -1366,6 +1366,14 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+.mask {
+  z-index: 2000;
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
 .container.ORTHTOOL {
   :deep(.list-group) {
     margin-top: 10px !important;
