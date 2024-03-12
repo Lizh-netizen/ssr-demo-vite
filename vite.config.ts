@@ -6,6 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver, ArcoResolver } from 'unplugin-vue-components/resolvers'
+import UnoCSS from 'unocss/vite'
 import { vitePluginForArco } from '@arco-plugins/vite-vue'
 // import importToCDN from 'vite-plugin-cdn-import'
 // import viteCompression from 'vite-plugin-compression';
@@ -52,7 +53,8 @@ export default defineConfig(({ mode }) => {
       }),
       Components({
         resolvers: [ElementPlusResolver(), ArcoResolver()]
-      })
+      }),
+      UnoCSS()
       // viteCompression()
     ],
     resolve: {

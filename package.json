@@ -15,6 +15,7 @@
   "dependencies": {
     "@arco-design/web-vue": "^2.52.1",
     "@element-plus/icons-vue": "^2.1.0",
+    "@unocss/preset-wind": "^0.58.5",
     "animate.css": "^4.1.1",
     "axios": "^1.6.0",
     "dayjs": "^1.11.10",
@@ -22,6 +23,7 @@
     "element-resize-detector": "^1.2.4",
     "gsap": "^3.12.4",
     "html2pdf.js": "^0.10.1",
+    "lodash": "^4.17.21",
     "mitt": "^3.0.1",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
@@ -48,6 +50,7 @@
     "terser": "^5.23.0",
     "terser-webpack-plugin": "^5.3.9",
     "ts-migrate": "^0.1.35",
+    "unocss": "^0.58.5",
     "unplugin-auto-import": "^0.16.7",
     "unplugin-vue-components": "^0.25.2",
     "unplugin-vue-macros": "^2.7.0",

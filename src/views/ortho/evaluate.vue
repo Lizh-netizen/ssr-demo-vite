@@ -1,9 +1,9 @@
 <template>
-  <div class="drawer">
+  <div class="drawer p-[12px]">
     <div
       :style="{ marginBottom: '10px', cursor: 'pointer' }"
       @click="handleBackToList"
-      class="section-header"
+      class="section-header border-rd-[12px]"
     >
       <el-icon><ArrowLeft /></el-icon>返回列表
     </div>
@@ -18,6 +18,7 @@
                 :appId="appId"
                 @refreshList="refreshList"
                 owningModule="check"
+                :classId="checkData.id"
               ></Option>
             </form-item>
           </template>
@@ -72,6 +73,7 @@
                       :appId="appId"
                       @refreshList="refreshList"
                       owningModule="face"
+                      :classId="item.id"
                     ></Option>
                   </form-item>
                 </template>
@@ -142,137 +144,8 @@
                         owningModule="mouth"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
+                        :classId="item.id"
                       ></Option>
-                      <!-- <el-radio-group
-                        v-if="title.type == 1"
-                        v-model="title.optionId"
-                        @change="handleChangeOption(title.optionId, title)"
-                        @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
-                      >
-                        <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
-                          <template v-if="!option.optionSuffix">
-                            <el-radio-button
-                              :class="{
-                                serious: option.serious == '1',
-                                checked: option.choosen === true
-                              }"
-                              :label="option.id"
-                            >
-                              {{ option.optionName }}
-                              <img
-                                class="aiFlagImg"
-                                src="@/assets/svg/AIFlagForFront.svg"
-                                v-show="title.aiFlag == '1' && option.choosen"
-                              /> </el-radio-button
-                          ></template>
-                          <template v-else>
-                            <template v-if="option.fdiToothCode == null">
-                              <el-popover
-                                placement="right"
-                                :width="490"
-                                trigger="click"
-                                @show="handleBeforeEnterPopover(option)"
-                                @after-leave="handleSubmitTooth(option, title)"
-                              >
-                                <template #reference>
-                                  <el-radio-button
-                                    @click="option.visible = true"
-                                    :class="{
-                                      serious: option.serious == '1',
-                                      checked: option.choosen === true
-                                    }"
-                                    :label="option.id"
-                                    @mouseenter="option.hover = true"
-                                    @mouseleave="option.hover = false"
-                                  >
-                                    {{ option.optionName
-                                    }}<svg
-                                      v-if="option.optionSuffix"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      xmlns:xlink="http://www.w3.org/1999/xlink"
-                                      fill="none"
-                                      version="1.1"
-                                      width="9.999975204467773"
-                                      height="9.999975204467773"
-                                      viewBox="0 0 9.999975204467773 9.999975204467773"
-                                    >
-                                      <g>
-                                        <path
-                                          d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                                          fill-rule="evenodd"
-                                          :fill="
-                                            option.clicked
-                                              ? option.seriousColor
-                                              : option.hover
-                                              ? option.hoverColor
-                                              : option.fillColor
-                                          "
-                                          fill-opacity="1"
-                                        />
-                                      </g>
-                                    </svg>
-                                  </el-radio-button>
-                                </template>
-                                <ChooseTooth :option="option"></ChooseTooth>
-                              </el-popover>
-                            </template>
-                            <template v-else>
-                              <el-popover
-                                popper-class="myPopper"
-                                :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                                placement="top-start"
-                                :width="200"
-                                :visible="option.visible"
-                              >
-                                <template #reference>
-                                  <el-radio-button
-                                    @mouseenter="handleMouseEnterBtn(option)"
-                                    :class="{
-                                      serious: option.serious == '1',
-                                      checked: option.choosen === true
-                                    }"
-                                    :label="option.id"
-                                    @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
-                                  >
-                                    {{ option.optionName
-                                    }}<svg
-                                      v-if="option.optionSuffix"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      xmlns:xlink="http://www.w3.org/1999/xlink"
-                                      fill="none"
-                                      version="1.1"
-                                      width="9.999975204467773"
-                                      height="9.999975204467773"
-                                      viewBox="0 0 9.999975204467773 9.999975204467773"
-                                    >
-                                      <g>
-                                        <path
-                                          d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                                          fill-rule="evenodd"
-                                          :fill="
-                                            option.clicked
-                                              ? option.seriousColor
-                                              : option.hover
-                                              ? option.hoverColor
-                                              : option.fillColor
-                                          "
-                                          fill-opacity="1"
-                                        />
-                                      </g>
-                                    </svg>
-                                  </el-radio-button>
-                                </template>
-                                <Tooth
-                                  :step="5"
-                                  :title="option"
-                                  :appId="appId"
-                                  @submitTooth="(val) => handleSubmitTooth(val, title)"
-                                />
-                              </el-popover>
-                            </template>
-                          </template>
-                        </template>
-                      </el-radio-group> -->
                     </form-item>
                   </template>
                 </div>
@@ -321,50 +194,24 @@
                         <el-radio-group
                           v-if="title.type == 1"
                           v-model="title.optionId"
-                          @change="handleChangeOption(title.optionId, title)"
-                          @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
+                          @change="handleChangeOption(title.optionId, title, panoramicData[0].id)"
                         >
-                          <el-radio-button
-                            :disabled="!panoramicData[0].hasImage"
-                            :class="{
-                              serious: option.serious == '1',
-                              checked: option.choosen === true
-                            }"
-                            v-for="option in title.orthOptionsList"
+                          <template
+                            v-for="(option, index) in title.orthOptionsList"
                             :key="option.id"
-                            :label="option.id"
                           >
-                            {{ option.optionName }}
-                          </el-radio-button>
-                        </el-radio-group>
-                        <el-input
-                          v-if="title.optionId == 136"
-                          placeholder="请输入"
-                          v-model="title.otherContent"
-                          @blur="handleSubmit(title.optionId, title)"
-                        />
-                        <el-checkbox-group
-                          v-model="title.optionId"
-                          v-else-if="title.type == 2"
-                          @change="handleChangeOption(title.optionId, title)"
+                            <el-radio-button
+                              v-if="!option.optionSuffix"
+                              :class="{
+                                serious: option.serious == '1'
+                              }"
+                              :label="option.id"
+                              :disabled="!panoramicData[0].hasImage"
+                            >
+                              {{ option.optionName }}
+                            </el-radio-button></template
+                          ></el-radio-group
                         >
-                          <el-checkbox-button
-                            :disabled="!panoramicData[0].hasImage"
-                            :class="{
-                              serious: option.serious == '1',
-                              checked: option.choosen === true
-                            }"
-                            v-for="option in title.orthOptionsList"
-                            :key="option.id"
-                            :label="option.id"
-                          >
-                            {{ option.optionName }}
-                            <img
-                              src="../../assets/svg/checked.svg"
-                              v-if="option.serious == '0'"
-                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
-                          </el-checkbox-button>
-                        </el-checkbox-group>
                       </form-item>
                     </template>
                   </template>
@@ -376,99 +223,14 @@
                   >
                     <template v-if="index >= 2">
                       <form-item :label="title.titleName" width="120px">
-                        <el-popover
-                          :width="490"
-                          :visible="title.popVisible"
-                          @show="handleBeforeEnterPopover(title)"
-                          @after-leave="handleSubmitTooth(null, title, true)"
-                        >
-                          <template #reference>
-                            <div
-                              class="diagramWrapper"
-                              @click.stop="openPop(title, panoramicData[0])"
-                            >
-                              <div class="diagram">
-                                <div class="diagramBox">
-                                  <div class="toothItem1">
-                                    {{
-                                      title.topLeft
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem2">
-                                    {{
-                                      title.topRight
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                                <div class="diagramBox">
-                                  <div class="toothItem3">
-                                    {{
-                                      title.bottomLeft
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                  <div class="toothItem4">
-                                    {{
-                                      title.bottomRight
-                                        ?.sort((a, b) => a.sort - b.sort)
-                                        .map((a) => a.value)
-                                        .join('')
-                                    }}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </template>
-                          <div class="selectContainer" id="selectContainer">
-                            <div class="container">
-                              <template v-for="(row, rowindex) in symptomList" :key="rowindex">
-                                <div
-                                  class="symptomBox"
-                                  :class="{
-                                    itemAlignRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginTop: rowindex == 4 || rowindex == 5,
-                                    marginBottom: rowindex == 2 || rowindex == 3,
-                                    marginRight:
-                                      rowindex === 2 ||
-                                      rowindex === 4 ||
-                                      rowindex === 0 ||
-                                      rowindex === 6,
-                                    marginLeft:
-                                      rowindex === 1 ||
-                                      rowindex === 3 ||
-                                      rowindex === 5 ||
-                                      rowindex === 7
-                                  }"
-                                >
-                                  <div
-                                    class="symptomItem"
-                                    :class="{ selected: item.active === true }"
-                                    :id="item.value"
-                                    v-for="(item, index) in row"
-                                    :key="index"
-                                    @click.stop="handleSelectTooth(item, title)"
-                                  >
-                                    {{ item.label }}
-                                  </div>
-                                </div>
-                              </template>
-                            </div>
-                            <div class="left">右</div>
-                            <div class="right">左</div>
-                          </div>
-                        </el-popover>
+                        <Tooth
+                          :step="2"
+                          :title="title"
+                          :appId="appId"
+                          :data="panoramicData[0]"
+                          module="evaluate"
+                          :classId="panoramicData[0].id"
+                        />
                       </form-item>
                     </template>
                   </template>
@@ -502,14 +264,18 @@
                   </div> </template></template
               ><template #content>
                 <template v-for="title in item.orthTitleList" :key="title.id">
-                  <form-item :label="title.titleName" width="120px">
+                  <form-item
+                    :label="title.titleName"
+                    width="120px"
+                    class="flex! items-start! textarea"
+                  >
                     <el-input
                       type="textarea"
-                      placeholder="输入备注"
+                      placeholder="输入描述"
                       v-model="title.cephalometricsContent"
                       :rows="4"
                       :style="{ width: '100%' }"
-                      @blur="handleSubmitRemark(title)"
+                      @blur="handleSubmitRemark(title, item.id)"
                     ></el-input>
                   </form-item>
                 </template>
@@ -605,7 +371,6 @@ import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
 
-import useSelectTooth from '../../effects/selectTooth'
 import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
@@ -614,6 +379,8 @@ import ImageDialog from '@/components/list/imageDialog.vue'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
+import updateOption from '@/effects/evaluateUpdateOption.ts'
+
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -720,7 +487,10 @@ onMounted(() => {
     }
   })
 })
-
+//
+const handleChangeOption = (optionId, title, classId) => {
+  updateOption(title.optionId, title, appId, classId)
+}
 const imgUrl = ref()
 const handleClose = () => {
   imgDialogVisible.value = false
@@ -887,6 +657,17 @@ async function getMouthList() {
     } else {
       item.hasImage = true
     }
+    // 添加hover和点击时的颜色
+    item.orthTitleList.forEach((title) => {
+      title.orthOptionsList.forEach((option) => {
+        if (option.optionSuffix) {
+          option.fillColor = '#C9CDD4'
+          option.seriousColor = '#f44c4c'
+          option.hoverColor = '#2e6ce4'
+          option.clicked = option.choosen ? true : false
+        }
+      })
+    })
     item.orthTitleList.forEach((title) => {
       title.orthOptionsList.forEach((a) => {
         if (a.optionSuffix) {
@@ -940,76 +721,6 @@ async function getMouthList() {
         const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
         item.orthTitleList.splice(index, 1)
       }
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '前牙覆合') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '前牙反覆合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '前牙覆盖') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '前牙反覆盖') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
-    }
-    if (item.className == '磨牙关系（左侧）') {
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '后牙') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '左侧后牙反合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '锁HE') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
-    }
-    if (item.className == '磨牙关系（右侧）') {
-      item.orthTitleList.forEach((title) => {
-        if (title.titleName == '后牙') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '右侧后牙反合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-        if (title.titleName == '锁HE') {
-          title.orthOptionsList.forEach((option) => {
-            if (option.optionName === '正锁合' || option.optionName === '反锁合') {
-              option.fillColor = '#C9CDD4'
-              option.seriousColor = '#f44c4c'
-              option.hoverColor = '#2e6ce4'
-              option.clicked = option.choosen ? true : false
-            }
-          })
-        }
-      })
     }
   })
 }
@@ -1024,6 +735,7 @@ const classId = ref()
 async function getPanoramicList() {
   const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
   panoramicData.value = result.data
+  console.log('🚀 ~ getPanoramicList ~ panoramicData.value:', panoramicData.value)
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
     classId.value = item.id
@@ -1124,23 +836,6 @@ function handlePanoData(panoramicData) {
     })
   })
 }
-// const modelData = ref([])
-// async function getModelList() {
-//   const result = await Get(
-//     `/prod-api/business/orthClass/list/1/模型分析/${appId}`
-//   )
-//   modelData.value = result.data[0]
-
-//   modelData.value.orthTitleList.forEach((title) => {
-//     title.optionId = ''
-//     const choosenOptions = title.orthOptionsList.filter(
-//       (option) => option.choosen === true
-//     )
-//     if (choosenOptions.length > 0) {
-//       title.optionId = choosenOptions[0].id
-//     }
-//   })
-// }
 
 getCheckList()
 getFaceAccessList()
@@ -1148,7 +843,7 @@ getMouthList()
 getPanoramicList()
 getFreePic()
 // getModelList()
-async function handleEmptyRadio(optionId, title, owningModule) {
+async function handleEmptyRadio(optionId, title, owningModule, classId) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
@@ -1162,7 +857,8 @@ async function handleEmptyRadio(optionId, title, owningModule) {
       otherContent: title.otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      classId: classId
     }
 
     Post('/prod-api/business/facialResult', obj)
@@ -1179,98 +875,8 @@ async function handleEmptyRadio(optionId, title, owningModule) {
   }
 }
 const requestAgain = ref(false)
-const handleChangeOption = (optionId, title) => {
-  let choosenOption
-  if (
-    title.titleName == '前牙覆合' ||
-    title.titleName == '前牙覆盖' ||
-    title.titleName == '后牙' ||
-    title.titleName == '锁HE'
-  ) {
-    requestAgain.value = true
-    title.orthOptionsList.forEach((option) => {
-      if (optionId == option.id) {
-        option.clicked = true
-      } else {
-        option.clicked = false
-      }
-    })
-  }
-  const found = mouthData.value.find((item) => item.className == '正面咬合')
-  if (title.titleName == '前牙覆合') {
-    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
-    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
-      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆合程度')
-      // 判断凹面型表现是否需要清空
-      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆盖')
-      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
-        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
-        title2.optionId = []
-        updateOption(null, title2)
-      }
-      title1.optionId = []
-      updateOption(null, title1)
-      //  点击完需要重新请求接口
-    }
-    // getOrthFaceAccessList()
-  }
-  // 还有一个凹面型需要判断
-  if (title.titleName == '前牙覆盖') {
-    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆盖') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆合程度')
-    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆盖') {
-      found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '反覆盖程度')
-      const title1 = savedTitleList.value.find((title) => title.titleName == '反覆盖程度')
-      // 判断凹面型表现是否需要清空
-      const title2 = savedTitleList.value.find((title) => title.titleName == '前牙覆合')
-      if (!title2.orthOptionsList.some((a) => a.choosen == true)) {
-        found.orthTitleList = savedTitleList.value.filter((t) => t.titleName !== '凹面型表现')
-        title2.optionId = []
-        updateOption(null, title2)
-      }
-      title1.optionId = []
-      updateOption(null, title1)
-    }
-    // getOrthFaceAccessList()
-  }
-  if (title.type == 2) {
-    // 无和别的选项互斥逻辑
-    if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 10)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(10) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(10)
-    ) {
-      title.optionId1 = [10]
-      title.optionId = [10]
-      title.otherContent = ''
-    }
-    title.orthOptionsList.forEach((option) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
-  }
-  if (title.type == 1) {
-    choosenOption = title.orthOptionsList.find((a) => a.id == optionId)
-    title.orthOptionsList.forEach((option) => {
-      if (optionId !== option.id) {
-        option.choosen = false
-      }
-    })
-  }
-  updateOption(title.optionId, title, choosenOption)
-  if (requestAgain.value) {
-    // getMouthList()
-  }
-}
-async function handleSubmitRemark(title) {
+
+async function handleSubmitRemark(title, classId) {
   if (!freeImageUrl.value) {
     ElMessage({
       message: '请先上传图片',
@@ -1285,37 +891,12 @@ async function handleSubmitRemark(title) {
     otherContent: '',
     cephalometricsContent: title.cephalometricsContent,
     fdiToothCode: '',
-    showPosition: ''
+    showPosition: '',
+    classId: classId
   }
   const res = await Post('/prod-api/business/facialResult', obj)
 }
-async function updateOption(optionId, title, option) {
-  let obj = null
-  if (title.type == 1) {
-    obj = {
-      apmtId: appId,
-      titleId: title.id,
-      optionsIdStr: [optionId],
-      otherContent: title.otherContent,
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      optionSuffix: option.optionSuffix
-    }
-  } else if (title.type == 2) {
-    obj = {
-      apmtId: appId,
-      titleId: title.id,
-      optionsIdStr: optionId,
-      otherContent: title.otherContent,
-      cephalometricsContent: '',
-      fdiToothCode: '',
-      showPosition: '',
-      optionSuffix: option.optionSuffix
-    }
-  }
-  await Post('/prod-api/business/facialResult', obj)
-}
+
 const imgDialogVisible = ref(false)
 const imageList = ref([
   {
@@ -1488,71 +1069,8 @@ const handleOpenImageDialogue = (caption) => {
 
 const src = ref()
 
-// 上传图片
-// file是拖拽的，image是被拖的
-
-const openPop = (title, item) => {
-  if (!item.hasImage) {
-    return
-  } else {
-    // 点击下一个十字牙位时，先吧之前的清空
-    panoramicData.value[0].orthTitleList.forEach((t) => {
-      if (title !== t) {
-        t.popVisible = false
-      }
-    })
-    title.popVisible = !title.popVisible
-  }
-}
-const handleSubmitTooth = (option, title, isTitle) => {
-  // symptomList.value.forEach((row) =>
-  //   row.forEach((item) => (item.active = false))
-  // )
-  console.log('evelaute')
-  if (isTitle && !title.submitAble) {
-    return
-  }
-  if (!isTitle && !option.submitAble) {
-    return
-  }
-
-  let obj = {
-    apmtId: appId,
-    titleId: title.id,
-    optionsIdStr: isTitle ? [] : [title.optionId],
-    otherContent: '',
-    optionSuffix: '牙位图',
-    cephalometricsContent: '',
-    fdiToothCode: isTitle ? title.toothCode.join() : option.toothCode.join(),
-    showPosition: isTitle ? JSON.stringify(title.position) : JSON.stringify(option.position)
-  }
-  Post('/prod-api/business/facialResult', obj).then(() => {
-    title.submitAble = false
-  })
-}
-const handleSubmit = (optionId, title) => {
-  updateOption(optionId, title)
-}
-const handleSelectTooth = (item, title) => {
-  useSelectTooth(item, title)
-}
 // 保存图片
 async function handleSavePics() {
-  // imgDialogVisible.value = false
-  // imageList.value.forEach((item) => (item.reminder = false))
-  // const orthImageList = imageList.value.filter((item) => item.fileUrl !== placeholderUrl)
-  // const arr = orthImageList.map((item) => ({
-  //   imageType: item.caption,
-  //   imageUrl: item.fileUrl
-  // }))
-  // Post('/prod-api/business/orthImage', {
-  //   apmtId: appId,
-  //   orthImageList: arr
-  // }).then((res) => {
-  //   if (res.code == 200) {
-  //     getAllData()
-  //   }
-  // })
   getAllData()
 }
 
@@ -1627,6 +1145,11 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .formItem.textarea {
+  .formItem__label {
+    margin-top: 10px;
+  }
+}
 :deep .imageItem.frontCoverImage {
   border-bottom: none !important;
   padding: 0;
