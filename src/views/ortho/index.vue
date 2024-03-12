@@ -14,7 +14,7 @@
           'align-items': 'center',
           'margin-right': '40px',
           cursor: 'pointer',
-          width: '100px',
+          'min-width': '100px',
           'margin-left': '20px'
         }"
         @click="handleBackToList"
@@ -61,7 +61,13 @@
           ref="step3"
           :dentitionType="dentitionType"
         /><stepFour v-if="active === 4" :pdfId="pdfId" ref="step4" />
-        <stepFive v-if="active === 5" :id="id" :pdfId="pdfId" ref="step5" />
+        <stepFive
+          v-if="active === 5"
+          :id="id"
+          :pdfId="pdfId"
+          ref="step5"
+          @requestPlanList="requestPlanList"
+        />
         <pdf1 v-if="active === 6" @getPdfResult="getPdfResult" :id="id" ref="pdfComp" />
       </div>
       <div class="footer">
@@ -152,6 +158,7 @@
 </template>
 
 <script setup>
+import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 // 这里非动态导入，不是路由
 import stepOne from './stepOne.vue'
 import stepTwo from './stepTwo.vue'
@@ -234,48 +241,25 @@ const pdfId = ref()
 //   }, 200)
 // }
 
+function validate(planList) {
+  const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
+
+  const applicance = document.querySelectorAll('.arco-select.primaryApplianceId')
+
+  planList.forEach((plan, index) => {
+    if (!plan.primaryApplianceId) {
+      applicance[index].classList.add('validateFail')
+    }
+    if (!plan.difficultyLevel) {
+      difficultySelect[index].classList.add('validateFail')
+    }
+  })
+  return planList.some((plan) => !plan.difficultyLevel || !plan.primaryApplianceId)
+}
+
 const handleGeneratePdf = () => {
   if (active.value == 5) {
-    const goalList = store.state.goalList
-    const planList = store.state.planList
-    console.log(planList)
-    const transformedData = planList.map((scheme) => {
-      if (scheme.id) {
-        return {
-          id: scheme.id,
-          name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
-          aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
-          stageList: scheme.stageList
-            .filter((item) => item.targetIds.length > 0)
-            .map((stage) => {
-              return {
-                stageName: stage.stageName,
-                targetIds: stage.targetIds.map((target) => target.id).join(','),
-                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
-              }
-            })
-        }
-      } else {
-        return {
-          name: scheme.name,
-          checked: scheme.checked, // You can set this value based on your logic
-          aptmId: appId, // Example value, replace with actual data
-          difficultyLevel: scheme.difficultyLevel, // Example value, replace with actual data
-          stageList: scheme.stageList
-            .filter((item) => item.targetIds.length > 0)
-            .map((stage) => {
-              return {
-                stageName: stage.stageName,
-                targetIds: stage.targetIds.map((target) => target.id).join(','),
-                toolIds: stage.toolIds.map((tool) => tool.id).join(',')
-              }
-            })
-        }
-      }
-    })
-    Post('/prod-api/emr/public/api/v1/scheme', transformedData)
+    if (validate(step5.value.planList)) return false
   }
   nextTick(() => {
     editStep.value = active.value
@@ -290,6 +274,9 @@ const handleGeneratePdf = () => {
   })
 }
 
+const requestPlanList = () => {
+  getPlanList()
+}
 const getPdfResult = (val) => {
   if (val) {
     loading.value?.close()
@@ -329,34 +316,7 @@ function getOrthBase() {
 }
 getOrthBase()
 const store = useStore()
-// 获取工具数据
-const toolList = ref([])
-async function getOrthToolList() {
-  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
-    dictType: 'ORTHTOOL'
-  })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
-  store.commit('setOrthToolList', toolList.value)
-}
-getOrthToolList()
-// 获取目标数据
-const goalList = ref([])
-async function getOrthGoalList() {
-  const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
-    dictType: 'ORTHTARGET'
-  })
-  goalList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
-  store.commit('setOrthGoalList', goalList.value)
-}
-getOrthGoalList()
+
 const handleNextStep = () => {
   nextTick(() => {
     editStep.value = active.value
@@ -371,75 +331,7 @@ const handleNextStep = () => {
     window.scrollTo(0, 0)
   })
 }
-async function getPlanList() {
-  const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
-  if (result.code == 200 && result.data?.length > 0) {
-    const planList = result.data.map((scheme) => ({
-      id: scheme.id,
-      name: scheme.name,
-      checked: scheme.checked || false,
-      difficultyLevel: scheme.difficultyLevel || '',
-      popVisible: false,
-      stageList:
-        scheme.stageList?.length == 0
-          ? [
-              {
-                stageName: '3个月',
-                targetIds: [],
-                toolIds: []
-              },
-              {
-                stageName: '6个月',
-                targetIds: [],
-                toolIds: []
-              },
-              {
-                stageName: '9个月',
-                targetIds: [],
-                toolIds: []
-              },
-              {
-                stageName: '12个月',
-                targetIds: [],
-                toolIds: []
-              }
-            ]
-          : scheme.stageList?.map((item) => ({
-              stageName: item.stageName,
-              targetIds: item.targetIds?.split(',')?.map((target, index) => ({
-                id: target,
-                name: item.targetNames.split(',')[index],
-                dictType: 'ORTHTARGET'
-              })),
-              toolIds:
-                item.toolIds?.split(',')?.map((tool, index) => ({
-                  id: tool,
-                  name: item.toolNames.split(',')[index],
-                  dictType: 'ORTHTOOL'
-                })) || []
-            }))
-    }))
-    const defaultStage = ['3个月', '6个月', '9个月', '12个月']
 
-    // 不够的打上补丁
-    planList.forEach((plan) => {
-      const length = plan.stageList?.length
-      if (plan.stageList?.length < 4) {
-        for (let i = 0; i < 4 - length; i++) {
-          plan.stageList.push({
-            stageName: defaultStage[length + i],
-            targetIds: [],
-            toolIds: []
-          })
-        }
-      }
-    })
-    console.log('🚀 ~ planList.forEach ~ planList:', planList)
-    store.state.planList = planList
-  } else {
-  }
-}
-getPlanList()
 const handlePreStep = () => {
   if (active.value == 1) {
     return
@@ -580,7 +472,7 @@ const labelList = [
   border-radius: 12px;
   justify-content: center;
   align-items: center;
-  z-index: 20;
+  z-index: 2000;
   .step {
     display: flex;
     width: 15%;

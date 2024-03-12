@@ -42,8 +42,7 @@ export const columns_config_evaluate = [
   {
     type: 'operation',
     title: '操作',
-    fixed: 'right',
-    width: '360px'
+    fixed: 'right'
   }
 ]
 export const columns_config_ortho = [
@@ -90,8 +89,7 @@ export const columns_config_ortho = [
   {
     type: 'operation',
     title: '操作',
-    fixed: 'right',
-    width: '360px'
+    fixed: 'right'
   }
 ]
 export const columns_config_aptm = [

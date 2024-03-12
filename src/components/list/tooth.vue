@@ -152,7 +152,6 @@ const handleSubmitTooth = (title) => {
   // 清理掉poper
 }
 const openPop = (title, item) => {
-  console.log('🚀 ~ openPop ~ item:', item)
   if (!item?.hasImage) {
     return
   } else {

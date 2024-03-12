@@ -1,9 +1,9 @@
 <template>
-  <div class="drawer">
+  <div class="drawer p-[12px]">
     <div
       :style="{ marginBottom: '10px', cursor: 'pointer' }"
       @click="handleBackToList"
-      class="section-header"
+      class="section-header border-rd-[12px]"
     >
       <el-icon><ArrowLeft /></el-icon>返回列表
     </div>
@@ -264,7 +264,11 @@
                   </div> </template></template
               ><template #content>
                 <template v-for="title in item.orthTitleList" :key="title.id">
-                  <form-item :label="title.titleName" width="120px">
+                  <form-item
+                    :label="title.titleName"
+                    width="120px"
+                    class="flex! items-start! textarea"
+                  >
                     <el-input
                       type="textarea"
                       placeholder="输入描述"
@@ -1141,6 +1145,11 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+:deep .formItem.textarea {
+  .formItem__label {
+    margin-top: 10px;
+  }
+}
 :deep .imageItem.frontCoverImage {
   border-bottom: none !important;
   padding: 0;

@@ -6,7 +6,9 @@ html {
   width: 100%;
   height: 100%;
 }
-
+#app{
+  position: relative;
+}
 .icon {
   width: 1em;
 }
@@ -109,4 +111,19 @@ img {
 .el-dialog {
   --el-border-radius-small: 12px;
   --el-dialog-border-radius: 12px;
+}
+.arco-dropdown-list-wrapper{
+  max-height:400px !important;
+}
+.arco-dropdown {
+  height: 220px !important;
+}
+.arco-popconfirm-popup-content .arco-popconfirm-body .arco-popconfirm-icon .arco-icon-info-circle-fill{
+  color: red !important;
+}
+.arco-divider-horizontal{
+  border-bottom:1px dashed rgba(229,230,235.1) !important;
+}
+.arco-dropdown{
+  border-radius: 12px !important;
 }
