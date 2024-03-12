@@ -152,6 +152,7 @@ const handleSubmitTooth = (title) => {
   // 清理掉poper
 }
 const openPop = (title, item) => {
+  // 如果没有图片，就不显示popover
   if (!item?.hasImage) {
     return
   } else {

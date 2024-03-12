@@ -14,7 +14,6 @@
             checked: option.choosen === true
           }"
           :label="option.id"
-          :disabled="disabled"
         >
           {{ option.optionName }}
           <img
@@ -36,7 +35,6 @@
             <template #reference>
               <!-- 这里是浮上去的时候改变图标的颜色 -->
               <el-radio-button
-                :disabled="disabled"
                 @mouseenter="handleMouseEnter(option)"
                 @mouseleave="handleMouseLeave(option)"
                 @click="handleClickOption(option)"
@@ -88,7 +86,6 @@
             <!-- 有牙齿的情况下悬浮显示选中牙位 -->
             <template #reference>
               <el-radio-button
-                :disabled="disabled"
                 @mouseenter="handleMouseEnterBtn(option)"
                 :class="{
                   serious: option.serious == '1',
@@ -149,7 +146,6 @@
       v-for="option in title.orthOptionsList"
       :key="option.id"
       :label="option.id"
-      :disabled="disabled"
     >
       {{ option.optionName }}
       <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -201,10 +197,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  disabled: {
-    type: Boolean,
-    default: false
-  },
+  // disabled: {
+  //   type: Boolean,
+  //   default: false
+  // },
   savedTitleList: {
     type: Array,
     default: () => []
@@ -227,7 +223,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-const emit = defineEmits(['refreshList'])
+const emit = defineEmits(['refreshList', 'syncOption'])
 async function handleEmptyRadio(optionId, title, owningModule, classId) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
@@ -332,6 +328,8 @@ const handleChangeOption = (optionId, title, classId) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId) => {
+  console.log('🚀 ~ handleSubmitTooth ~ option, title, classId:', option, title, classId)
+
   let obj
   if (option) {
     option.visible = false
@@ -363,6 +361,9 @@ const handleSubmitTooth = (option, title, classId) => {
       })
       return
     }
+  }
+  if (option.optionName == '前牙反覆合' || option.optionName == '前牙反覆盖') {
+    emit('syncOption', option)
   }
   updateOption(title.optionId, title, props.appId, classId, option).then(() => {
     if (option) {

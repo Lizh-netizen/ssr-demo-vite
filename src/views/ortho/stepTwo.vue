@@ -398,7 +398,7 @@
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
   <ImageDialog
-    page="ortho"
+    module="ortho"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"

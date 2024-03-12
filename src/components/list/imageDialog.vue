@@ -13,7 +13,11 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～
+              {{
+                module == 'ortho'
+                  ? '可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～'
+                  : '可直接拖拽照片到右侧指定位置～'
+              }}
             </div>
             <div class="title__right file-upload">
               <div class="file-upload__label">
@@ -94,7 +98,7 @@
             </template>
           </div>
 
-          <div class="classifyWrapper">
+          <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
           </div>
@@ -185,7 +189,7 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
 
 const props = defineProps({
-  page: {
+  module: {
     type: String,
     default: ''
   },
@@ -338,7 +342,7 @@ const handleLoadPic = () => {
 
 // 右侧分类图片占位
 const imageList =
-  props.page == 'ortho'
+  props.module == 'ortho'
     ? ref([
         {
           caption: '正面像',
