@@ -690,8 +690,8 @@ onBeforeMount(() => {
     sessionStorage.setItem(
       [element],
       JSON.stringify({
-        doctorId: jc_odos_user.ljProviderId,
-        officeId: jc_odos_user.ljOfficeId,
+        doctorId: jc_odos_user?.ljProviderId,
+        officeId: jc_odos_user?.ljOfficeId,
         date: element !== 'aptm' ? date.value : [firstDate.value, date.value]
       })
     )
@@ -701,9 +701,9 @@ onBeforeMount(() => {
     // 初始化
     pagesStorage.value = strategy[currentTab.value].page
     const val = sessionStorage.getItem('currentTab')
-    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
 
-    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
+    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
 
     for (let key in strategy) {
       if (key == '面评') {

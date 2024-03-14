@@ -308,6 +308,7 @@ async function getClassifiedImgList() {
         if (item.imageType == a.caption) {
           a.fileUrl = item.imageUrl
           a.id = item.id
+          a.startTime = item.startTime
         }
       })
     })
@@ -740,7 +741,8 @@ async function handleSingleImage(file, image) {
           {
             ljUrl: file.imgUrl,
             ljId: file.id,
-            LJCreateDatetime: file.timestamp
+            LJCreateDatetime: file.timestamp,
+            startTime: file.StartTime
           }
         ]
       })
@@ -750,6 +752,7 @@ async function handleSingleImage(file, image) {
   if (res.code == 200 && res.data[0].fileUrl) {
     image.fileUrl = res.data[0].fileUrl
     image.imageId = res.data[0].fileId
+    image.startTime = res.data[0].startTime
   } else {
     image.fileUrl = placeholderUrl
     if (failCount.value == 0) {
@@ -771,13 +774,13 @@ async function handleSingleImage(file, image) {
 async function handleSavePics() {
   emit('cancel')
   imageList.value.forEach((item) => (item.reminder = false))
+
   const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  const date = getDate()
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
     imageId: item.fileId || null,
-    startTime: date
+    startTime: item.startTime
   }))
   Post('/prod-api/business/orthImage', {
     apmtId: props.appId,

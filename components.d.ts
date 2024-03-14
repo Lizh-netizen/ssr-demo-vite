@@ -53,7 +53,7 @@ declare module 'vue' {
     Header: typeof import('./src/components/list/header.vue')['default']
     ImageDialog: typeof import('./src/components/list/imageDialog.vue')['default']
     ImageItem: typeof import('./src/components/list/imageItem.vue')['default']
-    List: typeof import('./src/components/pdf/list.vue')['default']
+    List: typeof import('./src/components/evaluatePdf/list.vue')['default']
     ModelAnalysis: typeof import('./src/components/list/modelAnalysis.vue')['default']
     Option: typeof import('./src/components/list/option.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
