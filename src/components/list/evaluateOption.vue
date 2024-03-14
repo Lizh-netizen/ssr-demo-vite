@@ -362,8 +362,12 @@ const handleSubmitTooth = (option, title, classId) => {
       return
     }
   }
-  if (option.optionName == '前牙反覆合' || option.optionName == '前牙反覆盖') {
-    emit('syncOption', option)
+  if (
+    option.optionName == '前牙反覆合' ||
+    option.optionName == '前牙反覆盖' ||
+    option.optionName == '前牙对刃'
+  ) {
+    emit('syncOption', { option: option, titleName: title.titleName })
   }
   updateOption(title.optionId, title, props.appId, classId, option).then(() => {
     if (option) {

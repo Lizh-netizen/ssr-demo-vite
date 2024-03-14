@@ -30,7 +30,12 @@
               />
               <div class="title">目标</div>
             </div>
-            <draggable class="ORTHTARGET" :unmutable="true" :list="goalList"></draggable>
+            <draggable
+              class="ORTHTARGET"
+              :unmutable="true"
+              :list="goalList"
+              :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : 'auto' }"
+            ></draggable>
             <template v-if="planList?.some((plan) => plan.checked)">
               <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
                 <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
@@ -167,12 +172,14 @@
                 拔牙
               </div> -->
               <div style="position: absolute; right: 12px" class="flex">
-                <img
-                  src="../../assets/layout/Copy.svg"
-                  style="cursor: pointer"
-                  @click.stop="handleCopyPlan(plan)"
-                  class="mr-[14px]"
-                />
+                <el-tooltip class="box-item" effect="dark" content="复制方案" placement="top"
+                  ><img
+                    src="../../assets/layout/Copy.svg"
+                    style="cursor: pointer"
+                    @click.stop="handleCopyPlan(plan)"
+                    class="mr-[14px]"
+                /></el-tooltip>
+
                 <a-popconfirm
                   :style="{ width: planList.length > 1 ? 'auto' : '260px' }"
                   :content="planList.length > 1 ? '确定要删除吗？' : '方案必须有一个，确定清空吗？'"
@@ -188,8 +195,9 @@
                     }
                   "
                 >
-                  <img style="cursor: pointer" src="../../assets/layout/Delete.svg" />
-                </a-popconfirm>
+                  <a-tooltip class="box-item" effect="dark" content="删除方案" placement="top">
+                    <img style="cursor: pointer" src="../../assets/layout/Delete.svg" /> </a-tooltip
+                ></a-popconfirm>
               </div>
             </div>
             <div
@@ -279,7 +287,7 @@
                       ></draggable>
                     </div>
                     <div class="tool card">
-                      <div class="tool_title">工具</div>
+                      <div class="tool_title ml-[12px]">工具</div>
                       <draggable
                         class="ORTHTOOL"
                         :list="stage.toolIds"

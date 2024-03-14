@@ -301,7 +301,7 @@ const requestAble = ref({})
 const aptmAble = ref(false)
 const orthoAble = ref(false)
 const evalAble = ref(false)
-
+const userInfo = ref()
 if (params.token) {
   sessionStorage.odos_token = params.token
 }
@@ -616,9 +616,30 @@ const handleViewOrth = (item) => {
   router.push(`/ortho/${item.apmtId}/${item.patientId}`)
   window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
 }
+const orthStatus = ref(-1)
+const hasPermission = ref(false)
+async function verifyPermission() {
+  const res = await Get(
+    `/prod-api/emr/public/api/v1/assessment/getOrthDoctorInfoByDoctorId/${userInfo.value?.ljProviderId}`
+  )
+  if (res.code == 200 && res.data.length == 1) {
+    hasPermission.value = true
+    orthStatus.value = +res.data[0].orth_status
+  }
+}
+verifyPermission()
 const handleEvaluateOrth = (item) => {
+  if (import.meta.env.MODE == 'prod' && !hasPermission.value) {
+    ElMessage.warning('无面评操作权限')
+    return
+  }
+
   sessionStorage.setItem('patientInfo', JSON.stringify(item))
-  const path = `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  let path = ''
+  path =
+    orthStatus.value !== -1
+      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}${orthStatus.value}`
+      : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
   router.push(path)
 }
 const handleCompareOrth = (item) => {
@@ -657,8 +678,10 @@ watch(
   },
   { immediate: true }
 )
+
 onBeforeMount(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
+  userInfo.value = jc_odos_user
   const list = ['aptm', 'ortho', 'evaluate']
   list.forEach((element) => {
     if (sessionStorage.getItem(element)) {

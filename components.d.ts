@@ -20,6 +20,7 @@ declare module 'vue' {
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASpace: typeof import('@arco-design/web-vue')['Space']
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
+    ATooltip: typeof import('@arco-design/web-vue')['Tooltip']
     Button: typeof import('./src/components/template/button.vue')['default']
     Checkbox: typeof import('./src/components/list/checkbox.vue')['default']
     ChooseTooth: typeof import('./src/components/layout/chooseTooth.vue')['default']

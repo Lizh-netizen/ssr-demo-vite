@@ -292,6 +292,7 @@ const handleMouseEnter = (option) => {
 let timeout
 const handleMouseLeave = (option) => {
   option.hover = false
+  if (!option.otherContent) return
   timeout = setTimeout(() => {
     option.visible = false
   }, 300)

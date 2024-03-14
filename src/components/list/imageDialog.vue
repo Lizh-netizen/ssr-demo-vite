@@ -766,15 +766,30 @@ async function handleSingleImage(file, image) {
     }
   }
 }
+function getDate() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const seconds = String(now.getSeconds()).padStart(2, '0')
+
+  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+
+  return formattedDateTime
+}
 // 保存图片
 async function handleSavePics() {
   emit('cancel')
   imageList.value.forEach((item) => (item.reminder = false))
   const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
+  const date = getDate()
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
-    imageId: item.fileId || null
+    imageId: item.fileId || null,
+    startTime: date
   }))
   Post('/prod-api/business/orthImage', {
     apmtId: props.appId,
