@@ -432,8 +432,8 @@ const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const orthStatus = route.params.patientId.orthStatus
-const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo'))
-const facialId = patientInfo.facialId
+const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
+const facialId = patientInfo?.facialId
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
 
 // 面评弹窗逻辑
@@ -442,8 +442,8 @@ const frankList = ref([
   { value: 2, label: '中' },
   { value: 3, label: '差' }
 ])
-const facialAdviseRemark = ref(patientInfo.facialAdviseRemark || '')
-const patientCompliance = ref(patientInfo.patientCompliance || '')
+const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
+const patientCompliance = ref(patientInfo?.patientCompliance || '')
 const handleClickFrank = (item) => {
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
@@ -454,17 +454,17 @@ const handleClickFrank = (item) => {
 const adviceVisible = ref(false)
 const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(
-  patientInfo.facialAdvise == 1
+  patientInfo?.facialAdvise == 1
     ? '立即矫正'
-    : patientInfo.facialAdvise == 2
+    : patientInfo?.facialAdvise == 2
     ? '无需矫正'
-    : patientInfo.facialAdvise == 3
+    : patientInfo?.facialAdvise == 3
     ? '后续面评'
-    : patientInfo.facialAdvise == 4
+    : patientInfo?.facialAdvise == 4
     ? '转三级面评'
     : '待定'
 )
-const time = ref(patientInfo.facialTime?.slice(0, 10) || '')
+const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -543,6 +543,7 @@ async function handleAdvice() {
     console.log(err)
   }
   handleBackToList()
+  // router.push(`/evaluatePdf/${appId}/${patientId}`)
 }
 const rangeShortcuts = [
   {
@@ -1258,7 +1259,7 @@ const chooseImgNum = computed(() => {
   return num
 })
 
-const orthDoctorId = ref(+patientInfo.facialOrthDoctorId || '')
+const orthDoctorId = ref(+patientInfo?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1271,7 +1272,7 @@ async function getOrthDoctorList() {
     })
   }
 }
-const threeLevelDoctorId = ref(+patientInfo.facialReferralToDoctorId || '')
+const threeLevelDoctorId = ref(+patientInfo?.facialReferralToDoctorId || '')
 const threeLevelDoctorList = ref([])
 async function getThreeLevelDoctorList() {
   const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)

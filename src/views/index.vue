@@ -627,7 +627,7 @@ async function verifyPermission() {
     orthStatus.value = +res.data[0].orth_status
   }
 }
-verifyPermission()
+
 const handleEvaluateOrth = (item) => {
   if (import.meta.env.MODE == 'prod' && !hasPermission.value) {
     ElMessage.warning('无面评操作权限')
@@ -745,6 +745,7 @@ onBeforeMount(() => {
     }
     storageName.value = strategy[val].storage
     pagesStorage.value = strategy[val].page
+    verifyPermission()
   })
 
 // 看板数据

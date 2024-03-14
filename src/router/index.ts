@@ -39,6 +39,12 @@ const routes = [
     component: () => import('../views/ortho/evaluate.vue')
   },
   {
+    path: '/evaluatePdf/:appId/:patientId',
+    name: 'evaluatePdf',
+    // @ts-expect-error TS(2307): Cannot find module '../views/ortho/evaluate.vue' o... Remove this comment to see the full error message
+    component: () => import('../views/ortho/evaluatePdf.vue')
+  },
+  {
     path: '/list',
     name: 'list',
     // @ts-expect-error TS(2307): Cannot find module '../views/list.vue' or its corr... Remove this comment to see the full error message
