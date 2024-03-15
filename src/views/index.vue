@@ -622,7 +622,7 @@ async function verifyPermission() {
   const res = await Get(
     `/prod-api/emr/public/api/v1/assessment/getOrthDoctorInfoByDoctorId/${userInfo.value?.ljProviderId}`
   )
-  if (res.code == 200 && res.data.length == 1) {
+  if (res.code == 200 && res.data[0].orthLevel) {
     hasPermission.value = true
     if (res.data[0].orthLevel.includes('一')) {
       orthStatus.value = 1
