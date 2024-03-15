@@ -644,7 +644,7 @@ const handleEvaluateOrth = (item) => {
   let path = ''
   path =
     orthStatus.value !== -1
-      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}${orthStatus.value}`
+      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
       : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
   router.push(path)
 }
