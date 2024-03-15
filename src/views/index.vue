@@ -629,7 +629,7 @@ async function verifyPermission() {
 }
 
 const handleEvaluateOrth = (item) => {
-  if (import.meta.env.MODE == 'prod' && !hasPermission.value) {
+  if (!hasPermission.value) {
     ElMessage.warning('无面评操作权限')
     return
   }

@@ -431,7 +431,7 @@ const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
-const orthStatus = route.params.patientId.orthStatus
+const orthStatus = route.params.orthStatus
 const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
 const facialId = patientInfo?.facialId
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
@@ -937,6 +937,7 @@ const syncOption = (val) => {
   let asyncOption = val.option
   let optionId = ''
   let item1 = mouthData.value.find((item) => item.className == '正面咬合')
+  // 选了一个同步另一个
   if (val.option.optionName == '前牙反覆合') {
     title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
     optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆盖').id
@@ -952,9 +953,11 @@ const syncOption = (val) => {
       optionId = title.orthOptionsList.find((option) => option.optionName == '前牙对刃').id
     }
   }
+
   asyncOption.id = optionId
   updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
 }
+
 const panoImageUrl = ref()
 const panoramicData = ref([])
 const requestMouth = ref(false)

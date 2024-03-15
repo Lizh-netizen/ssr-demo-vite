@@ -254,20 +254,31 @@ const handleChangeOption = (optionId, title, classId) => {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
       found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆盖程度')
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
-      const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
-      const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
-      // 反覆合如果有选中的，需要取消
-      if (title1Choose) {
-        updateOption(null, title1, props.appId, classId)
-      }
+      if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙对刃') {
+        const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
+        const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
 
-      // 判断凹面型表现是否需要清空
-      const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆盖')
-      const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
-      const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
-      const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
-      if (!option.choosen && title3Choose) {
-        updateOption(null, title3, props.appId, classId)
+        // 反覆合如果有选中的，需要取消
+        if (title1Choose) {
+          updateOption(null, title1, props.appId, classId)
+        }
+
+        // 判断凹面型表现是否需要清空
+        const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆盖')
+        // 如果前牙覆盖中的反覆盖选项被选中，需要清空
+        const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
+        const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
+        if (option.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        if (option1.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+        const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+        if (!option.choosen && title3Choose) {
+          updateOption(null, title3, props.appId, classId)
+        }
       }
     }
   }
@@ -328,8 +339,6 @@ const handleChangeOption = (optionId, title, classId) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId) => {
-  console.log('🚀 ~ handleSubmitTooth ~ option, title, classId:', option, title, classId)
-
   let obj
   if (option) {
     option.visible = false
@@ -369,6 +378,7 @@ const handleSubmitTooth = (option, title, classId) => {
   ) {
     emit('syncOption', { option: option, titleName: title.titleName })
   }
+
   updateOption(title.optionId, title, props.appId, classId, option).then(() => {
     if (option) {
       option.submitAble = false
