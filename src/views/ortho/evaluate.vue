@@ -1,6 +1,6 @@
 <template>
   <div class="drawer p-[12px] pt-[0] mt-[0]!">
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between stickyHeader">
       <div
         class="section-header flex items-center cursor-pointer border-rd-[12px]"
         @click="handleBackToList"
@@ -1389,6 +1389,12 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
 :deep(.questionItem__header) {
   border-top: 1px solid #e5e6eb;
   &:first-child {
