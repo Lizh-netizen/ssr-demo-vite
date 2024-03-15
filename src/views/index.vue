@@ -624,7 +624,13 @@ async function verifyPermission() {
   )
   if (res.code == 200 && res.data.length == 1) {
     hasPermission.value = true
-    orthStatus.value = +res.data[0].orth_status
+    if (res.data[0].orthLevel.includes('一')) {
+      orthStatus.value = 1
+    } else if (res.data[0].orthLevel.includes('二')) {
+      orthStatus.value = 2
+    } else if (res.data[0].orthLevel.includes('三')) {
+      orthStatus.value = 3
+    }
   }
 }
 
