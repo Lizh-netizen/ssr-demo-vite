@@ -533,7 +533,9 @@ async function handleAdvice() {
       patientCompliance: patientCompliance.value || '',
       facialAdviseRemark: facialAdviseRemark.value || ''
     }
-
+    // 如果是1，2级矫正医生
+    obj.facialOrthDoctorId = userInfo.value.ljProviderId
+    obj.facialOrthDoctorName = userInfo.value.userName
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
     adviceVisible.value = false
     if (res.code === 200) {
