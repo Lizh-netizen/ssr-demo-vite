@@ -1,5 +1,5 @@
 <template>
-  <div class="drawer p-[12px] pt-[0] mt-[0]!">
+  <div class="drawer p-[12px] pt-[0]">
     <div class="flex items-center justify-between stickyHeader">
       <div
         class="section-header flex items-center cursor-pointer border-rd-[12px]"
@@ -8,14 +8,25 @@
         <img src="@/assets/evaluate/Back.svg" class="mr-[12px]" />返回列表
       </div>
 
-      <div class="flex gap-[48px]">
-        <div><span class="color-[#4E5969]">姓名：</span>{{ patientInfo.patientName }}</div>
-        <div><span class="color-[#4E5969]">病历号：</span>{{ patientInfo.privateId || '' }}</div>
+      <div class="flex gap-[48px] font-size-[16px]">
+        <div>
+          <span class="color-[#4E5969]">姓名：</span
+          ><span class="font-500">{{ patientInfo.patientName }}</span>
+        </div>
+        <div>
+          <span class="color-[#4E5969]">病历号：</span
+          ><span class="font-500">{{ patientInfo.privateId || '' }}</span>
+        </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
-          >{{ patientInfo.Sex == 1 ? '男' : patientInfo.Sex == 2 ? '女' : '未知' }}
+          ><span class="font-500">{{
+            patientInfo.Sex == 1 ? '男' : patientInfo.Sex == 2 ? '女' : '未知'
+          }}</span>
         </div>
-        <div><span class="color-[#4E5969]">出生日期：</span>{{ patientInfo.age }}</div>
+        <div>
+          <span class="color-[#4E5969]">出生日期：</span
+          ><span class="font-500">{{ patientInfo.age }}</span>
+        </div>
       </div>
       <div class="flex items-center button" @click="handleOpenImageDialogue">
         <img src="../../assets/svg/arrange.svg" class="mr-[8px]" />图像管理
@@ -123,7 +134,7 @@
                   </div>
                 </template>
                 <template v-if="item.className == '正面咬合'">
-                  <div :style="{ 'margin-top': '30px' }">
+                  <div :style="{ 'margin-top': '40px' }">
                     <template v-if="frontCover"
                       ><img
                         :src="frontCover"
@@ -139,7 +150,7 @@
                         <img :src="imgUrl" class="addPic" />
                       </div>
                     </template>
-                    <div :style="{ 'margin-bottom': '10px' }">前牙覆盖</div>
+                    <div :style="{ 'margin-bottom': '10px' }" class="color-[#4E5969]">前牙覆盖</div>
                   </div>
                 </template> </template
               ><template #content>
@@ -387,7 +398,7 @@
       </el-select>
     </div>
     <div class="flex mt-[16px]">
-      <div class="min-w-[70px] mr-[16px] text-right">备注</div>
+      <div class="min-w-[70px] mr-[16px] text-right pt-[8px]">备注</div>
       <a-textarea
         allow-clear
         class="border-rd-[8px]! bg-[#fff]! b-1px b-solid b-#E5E6EB"
