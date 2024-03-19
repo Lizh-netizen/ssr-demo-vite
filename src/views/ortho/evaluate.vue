@@ -538,8 +538,18 @@ async function handleAdvice() {
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
       facialAdvise: facialAdvise,
-      facialOrthDoctorId: advice.value === '立即矫正' ? orthDoctorId.value : '',
-      facialOrthDoctorName: advice.value === '立即矫正' ? orthDoctorName : '',
+      facialOrthDoctorId:
+        advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
+          ? userInfo.value.ljProviderId
+          : advice.value === '立即矫正' && orthStatus == 3
+          ? orthDoctorId.value
+          : '',
+      facialOrthDoctorName:
+        advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
+          ? userInfo.value.userName
+          : advice.value === '立即矫正' && orthStatus == 3
+          ? orthDoctorName
+          : '',
       facialTime: advice.value === '后续面评' ? time.value : null,
       facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
       facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : '',
@@ -547,8 +557,6 @@ async function handleAdvice() {
       facialAdviseRemark: facialAdviseRemark.value || ''
     }
     // 如果是1，2级矫正医生
-    obj.facialOrthDoctorId = userInfo.value.ljProviderId
-    obj.facialOrthDoctorName = userInfo.value.userName
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
     adviceVisible.value = false
     if (res.code === 200) {
