@@ -553,7 +553,7 @@ async function handleAdvice() {
       facialTime: advice.value === '后续面评' ? time.value : null,
       facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
       facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : '',
-      patientCompliance: patientCompliance.value || '',
+      patientCompliance: advice.value === '立即矫正' ? patientCompliance.value : '',
       facialAdviseRemark: facialAdviseRemark.value || ''
     }
     // 如果是1，2级矫正医生
