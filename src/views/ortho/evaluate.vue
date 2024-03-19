@@ -368,7 +368,7 @@
             >
           </el-select>
         </template>
-        <template v-else>{{ patientInfo.facialOrthDoctorName }}</template>
+        <template v-else>{{ doctorName }}</template>
       </div>
     </div>
     <div v-if="advice === '转三级面评'" class="flex items-center">
@@ -435,6 +435,7 @@ const orthStatus = route.params.orthStatus
 const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
 const facialId = patientInfo?.facialId
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
+const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.userName)
 
 // 面评弹窗逻辑
 const frankList = ref([
