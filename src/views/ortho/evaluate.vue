@@ -33,11 +33,7 @@
       </div>
     </div>
     <!-- <div class="h-[2px] w-full bg-#E5E6EB"></div> -->
-<<<<<<< HEAD
     <div class="check section px-[12px]">
-=======
-    <div class="check section mx-[15px] px-[12px]">
->>>>>>> 8536dc9 (样式修复)
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
@@ -55,11 +51,8 @@
         </template>
       </div>
     </div>
-<<<<<<< HEAD
+
     <div class="image section px-[12px]">
-=======
-    <div class="image section mx-[15px] px-[12px]">
->>>>>>> 8536dc9 (样式修复)
       <Header text="图像分析" backgroundColor="#EAF0FC"
         ><div
           :style="{
@@ -317,11 +310,7 @@
         </div>
       </div>
     </div>
-<<<<<<< HEAD
     <div class="footer px-[12px]">
-=======
-    <div class="footer mx-[15px] px-[12px]">
->>>>>>> 8536dc9 (样式修复)
       <span class="dialog-footer">
         <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
@@ -1631,10 +1620,9 @@ const handleBackToList = () => {
   box-sizing: border-box;
   // font-family: 思源黑体;
   // padding: 20px;
-<<<<<<< HEAD
+
   padding-bottom: 20px;
-=======
->>>>>>> 8536dc9 (样式修复)
+
   background: #fff;
   border-radius: 10px;
   .section {
