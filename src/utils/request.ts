@@ -92,17 +92,17 @@ instance.interceptors.response.use(
     //   }
     // }
     // 在这里调用后端接口统一处理
-    Post('/prod-api/business/globalDict/getDictListByType', {
-      dictType: 'HTTPSTATUS',
-      dictCode: '200'
-    }).then((res) => {
-      // @ts-expect-error TS(2571): Object is of type 'unknown'.
-      const found = res.data.find((item: any) => error.response.status == item.dictCode)
-      ElMessage({
-        type: 'error',
-        message: found.dictCodeName
-      })
-    })
+    // Post('/prod-api/business/globalDict/getDictListByType', {
+    //   dictType: 'HTTPSTATUS',
+    //   dictCode: '200'
+    // }).then((res) => {
+    //   // @ts-expect-error TS(2571): Object is of type 'unknown'.
+    //   const found = res.data.find((item: any) => error.response.status == item.dictCode)
+    //   ElMessage({
+    //     type: 'error',
+    //     message: found.dictCodeName
+    //   })
+    // })
     return Promise.reject(error)
   }
 )

@@ -623,13 +623,15 @@ async function verifyPermission() {
     `/prod-api/emr/public/api/v1/assessment/getOrthDoctorInfoByDoctorId/${userInfo.value?.ljProviderId}`
   )
   if (res.code == 200 && res.data[0].orthLevel) {
-    hasPermission.value = true
-    if (res.data[0].orthLevel.includes('一')) {
+    if (res.data[0].orthLevel == '一级正畸医生') {
       orthStatus.value = 1
-    } else if (res.data[0].orthLevel.includes('二')) {
+      hasPermission.value = true
+    } else if (res.data[0].orthLevel == '二级正畸医生') {
       orthStatus.value = 2
-    } else if (res.data[0].orthLevel.includes('三')) {
+      hasPermission.value = true
+    } else if (res.data[0].orthLevel == '三级正畸医生') {
       orthStatus.value = 3
+      hasPermission.value = true
     }
   }
 }
@@ -639,7 +641,6 @@ const handleEvaluateOrth = (item) => {
     ElMessage.warning('无面评操作权限')
     return
   }
-
   sessionStorage.setItem('patientInfo', JSON.stringify(item))
   let path = ''
   path =

@@ -368,7 +368,7 @@
             >
           </el-select>
         </template>
-        <template v-else>{{ userInfo.userName }}</template>
+        <template v-else>{{ patientInfo.facialOrthDoctorName }}</template>
       </div>
     </div>
     <div v-if="advice === '转三级面评'" class="flex items-center">
@@ -484,6 +484,7 @@ const handleInput = (e) => {
     })
   }
 }
+let facialOrthDoctorName = ref()
 async function handleAdvice() {
   try {
     let orthDoctorName
