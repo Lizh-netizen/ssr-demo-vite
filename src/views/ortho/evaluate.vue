@@ -446,7 +446,7 @@ const orthStatus = route.params.orthStatus
 const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
 const facialId = patientInfo?.facialId
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
-const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.value.userName)
+const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.userName)
 
 // 面评弹窗逻辑
 const frankList = ref([
