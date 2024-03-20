@@ -1,5 +1,5 @@
 <template>
-  <div class="drawer pt-[0]">
+  <div class="drawer p-[12px] pt-[0]">
     <div class="flex items-center justify-between stickyHeader">
       <div
         class="section-header flex items-center cursor-pointer border-rd-[12px]"
@@ -32,8 +32,7 @@
         <img src="../../assets/svg/arrange.svg" class="mr-[8px]" />图像管理
       </div>
     </div>
-    <!-- <div class="h-[2px] w-full bg-#E5E6EB"></div> -->
-    <div class="check section mx-[15px] px-[12px]">
+    <div class="check section">
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
@@ -51,7 +50,7 @@
         </template>
       </div>
     </div>
-    <div class="image section mx-[15px] px-[12px]">
+    <div class="image section">
       <Header text="图像分析" backgroundColor="#EAF0FC"
         ><div
           :style="{
@@ -309,7 +308,7 @@
         </div>
       </div>
     </div>
-    <div class="footer mx-[15px] px-[12px]">
+    <div class="footer">
       <span class="dialog-footer">
         <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
@@ -1421,9 +1420,6 @@ const handleBackToList = () => {
   top: 0;
   background: #fff;
   z-index: 10;
-  border-bottom: 1px solid #e5e6eb;
-  margin-bottom: 8px;
-  padding: 0 26px;
 }
 :deep(.questionItem__header) {
   border-top: 1px solid #e5e6eb;
@@ -1618,6 +1614,7 @@ const handleBackToList = () => {
   box-sizing: border-box;
   // font-family: 思源黑体;
   // padding: 20px;
+  margin: 15px;
   background: #fff;
   border-radius: 10px;
   .section {
