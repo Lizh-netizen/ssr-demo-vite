@@ -1,7 +1,7 @@
 <template>
   <div class="contain">
     <div class="taskCard">
-      <task-card :default="currentTab" @changeTab="changeTab">
+      <!-- <task-card :default="currentTab" @changeTab="changeTab">
         <task-card-item
           v-for="item in tabData"
           :svg_name="item.svg_name"
@@ -11,7 +11,7 @@
           :left_text="item.left_text"
           :right_text="item.right_text"
         ></task-card-item>
-      </task-card>
+      </task-card> -->
     </div>
     <div class="content-wrapper">
       <div class="content">
