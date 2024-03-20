@@ -361,7 +361,7 @@ const handleSubmitTooth = (option, title, classId) => {
   // 选项中的牙位
   if (option) {
     if (option.toothCode.length == 0) {
-      let item1 = props.mouthData.find((item) => item.className == '正面咬合')
+      // let item1 = props.mouthData.find((item) => item.className == '正面咬合')
       obj = {
         apmtId: props.appId,
         titleId: title.id,
@@ -373,29 +373,29 @@ const handleSubmitTooth = (option, title, classId) => {
         showPosition: '',
         classId: classId
       }
-      const obj1 = {
-        apmtId: props.appId,
-        titleId: '',
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId
-      }
-      let title1 = {}
-      if (option.optionName == '前牙反覆合') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
-      } else if (option.optionName == '前牙反覆盖') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
-      } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
-      } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
-      }
-      obj1.titleId = title1.id
-      Post('/prod-api/business/facialResult', obj1)
+      // const obj1 = {
+      //   apmtId: props.appId,
+      //   titleId: '',
+      //   optionsIdStr: [],
+      //   otherContent: '',
+      //   cephalometricsContent: '',
+      //   optionSuffix: '牙位图',
+      //   fdiToothCode: '',
+      //   showPosition: '',
+      //   classId: classId
+      // }
+      // let title1 = {}
+      // if (option.optionName == '前牙反覆合') {
+      //   title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      // } else if (option.optionName == '前牙反覆盖') {
+      //   title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      // } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
+      //   title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      // } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
+      //   title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      // }
+      // obj1.titleId = title1.id
+      // Post('/prod-api/business/facialResult', obj1)
       Post('/prod-api/business/facialResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
@@ -409,7 +409,6 @@ const handleSubmitTooth = (option, title, classId) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    console.log(22)
     emit('syncOption', { option: option, titleName: title.titleName })
   }
 
