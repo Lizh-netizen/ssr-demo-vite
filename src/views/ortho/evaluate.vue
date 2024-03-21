@@ -32,7 +32,6 @@
         <img src="../../assets/svg/arrange.svg" class="mr-[8px]" />图像管理
       </div>
     </div>
-    <!-- <div class="h-[2px] w-full bg-#E5E6EB"></div> -->
     <div class="check section px-[12px]">
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
@@ -458,6 +457,7 @@ const frankList = ref([
 const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
 const patientCompliance = ref(patientInfo?.patientCompliance || '')
 const handleClickFrank = (item) => {
+  console.log('🚀 ~ handleClickFrank ~ item:', item, patientCompliance.value)
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
   } else {
@@ -470,12 +470,12 @@ const advice = ref(
   patientInfo?.facialAdvise == 1
     ? '立即矫正'
     : patientInfo?.facialAdvise == 2
-    ? '无需矫正'
-    : patientInfo?.facialAdvise == 3
-    ? '后续面评'
-    : patientInfo?.facialAdvise == 4
-    ? '转三级面评'
-    : '待定'
+      ? '无需矫正'
+      : patientInfo?.facialAdvise == 3
+        ? '后续面评'
+        : patientInfo?.facialAdvise == 4
+          ? '转三级面评'
+          : '待定'
 )
 const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
@@ -514,10 +514,10 @@ async function handleAdvice() {
       advice.value === '立即矫正'
         ? 1
         : advice.value === '后续面评'
-        ? 3
-        : advice.value === '转三级面评'
-        ? 4
-        : 2
+          ? 3
+          : advice.value === '转三级面评'
+            ? 4
+            : 2
     if (advice.value === '立即矫正') {
       time.value = ''
       threeLevelDoctorId.value = ''
@@ -543,14 +543,14 @@ async function handleAdvice() {
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
           ? userInfo.value.ljProviderId
           : advice.value === '立即矫正' && orthStatus == 3
-          ? orthDoctorId.value
-          : '',
+            ? orthDoctorId.value
+            : '',
       facialOrthDoctorName:
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
           ? userInfo.value.userName
           : advice.value === '立即矫正' && orthStatus == 3
-          ? orthDoctorName
-          : '',
+            ? orthDoctorName
+            : '',
       facialTime: advice.value === '后续面评' ? time.value : null,
       facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
       facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : '',
@@ -1421,9 +1421,6 @@ const handleBackToList = () => {
   top: 0;
   background: #fff;
   z-index: 10;
-  border-bottom: 1px solid #e5e6eb;
-  margin-bottom: 8px;
-  padding: 0 26px;
 }
 :deep(.questionItem__header) {
   border-top: 1px solid #e5e6eb;
@@ -1615,12 +1612,12 @@ const handleBackToList = () => {
 }
 
 .drawer {
-  margin: 12px;
   box-sizing: border-box;
   // font-family: 思源黑体;
   // padding: 20px;
-  padding-bottom: 20px;
+  margin: 12px;
   background: #fff;
+  padding-bottom: 20px;
   border-radius: 10px;
   .section {
     .content {

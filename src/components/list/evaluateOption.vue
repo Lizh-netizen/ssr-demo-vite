@@ -409,7 +409,6 @@ const handleSubmitTooth = (option, title, classId) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    console.log(22)
     emit('syncOption', { option: option, titleName: title.titleName })
   }
 
