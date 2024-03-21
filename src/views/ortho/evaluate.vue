@@ -1,5 +1,5 @@
 <template>
-  <div class="drawer p-[12px] pt-[0]">
+  <div class="drawer pt-[0]">
     <div class="flex items-center justify-between stickyHeader">
       <div
         class="section-header flex items-center cursor-pointer border-rd-[12px]"
@@ -32,7 +32,7 @@
         <img src="../../assets/svg/arrange.svg" class="mr-[8px]" />图像管理
       </div>
     </div>
-    <div class="check section">
+    <div class="check section px-[12px]">
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
@@ -50,7 +50,7 @@
         </template>
       </div>
     </div>
-    <div class="image section">
+    <div class="image section px-[12px]">
       <Header text="图像分析" backgroundColor="#EAF0FC"
         ><div
           :style="{
@@ -308,7 +308,7 @@
         </div>
       </div>
     </div>
-    <div class="footer">
+    <div class="footer px-[12px]">
       <span class="dialog-footer">
         <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
@@ -446,7 +446,7 @@ const orthStatus = route.params.orthStatus
 const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
 const facialId = patientInfo?.facialId
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
-const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.userName)
+const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.value.userName)
 
 // 面评弹窗逻辑
 const frankList = ref([
@@ -457,6 +457,7 @@ const frankList = ref([
 const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
 const patientCompliance = ref(patientInfo?.patientCompliance || '')
 const handleClickFrank = (item) => {
+  console.log('🚀 ~ handleClickFrank ~ item:', item, patientCompliance.value)
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
   } else {
@@ -469,12 +470,12 @@ const advice = ref(
   patientInfo?.facialAdvise == 1
     ? '立即矫正'
     : patientInfo?.facialAdvise == 2
-    ? '无需矫正'
-    : patientInfo?.facialAdvise == 3
-    ? '后续面评'
-    : patientInfo?.facialAdvise == 4
-    ? '转三级面评'
-    : '待定'
+      ? '无需矫正'
+      : patientInfo?.facialAdvise == 3
+        ? '后续面评'
+        : patientInfo?.facialAdvise == 4
+          ? '转三级面评'
+          : '待定'
 )
 const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
@@ -513,10 +514,10 @@ async function handleAdvice() {
       advice.value === '立即矫正'
         ? 1
         : advice.value === '后续面评'
-        ? 3
-        : advice.value === '转三级面评'
-        ? 4
-        : 2
+          ? 3
+          : advice.value === '转三级面评'
+            ? 4
+            : 2
     if (advice.value === '立即矫正') {
       time.value = ''
       threeLevelDoctorId.value = ''
@@ -542,14 +543,14 @@ async function handleAdvice() {
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
           ? userInfo.value.ljProviderId
           : advice.value === '立即矫正' && orthStatus == 3
-          ? orthDoctorId.value
-          : '',
+            ? orthDoctorId.value
+            : '',
       facialOrthDoctorName:
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
           ? userInfo.value.userName
           : advice.value === '立即矫正' && orthStatus == 3
-          ? orthDoctorName
-          : '',
+            ? orthDoctorName
+            : '',
       facialTime: advice.value === '后续面评' ? time.value : null,
       facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
       facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : '',
@@ -1614,8 +1615,9 @@ const handleBackToList = () => {
   box-sizing: border-box;
   // font-family: 思源黑体;
   // padding: 20px;
-  margin: 15px;
+  margin: 12px;
   background: #fff;
+  padding-bottom: 20px;
   border-radius: 10px;
   .section {
     .content {
