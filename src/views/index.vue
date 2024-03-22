@@ -83,10 +83,10 @@
               row.difficultyLevel == 1
                 ? '低风险'
                 : row.difficultyLevel == 2
-                ? '中风险'
-                : row.difficultyLevel == 3
-                ? '高风险'
-                : ''
+                  ? '中风险'
+                  : row.difficultyLevel == 3
+                    ? '高风险'
+                    : ''
             }}
           </template>
           <template #orthDoctorName="{ row }">
@@ -105,12 +105,12 @@
                 row.facialAdvise == 1
                   ? '立即矫正'
                   : row.facialAdvise == 2
-                  ? '无需矫正'
-                  : row.facialAdvise == 3
-                  ? '后续面评'
-                  : row.facialAdvise == 4
-                  ? '转三级面评'
-                  : '未评估'
+                    ? '无需矫正'
+                    : row.facialAdvise == 3
+                      ? '后续面评'
+                      : row.facialAdvise == 4
+                        ? '转三级面评'
+                        : '未评估'
               }}
             </div>
           </template>
@@ -317,12 +317,14 @@ const changeTab = (val) => {
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
   storageName.value = strategy[val].storage
+
   pagesStorage.value = strategy[val].page
   if (strategy[currentTab.value].firstReq) {
     const args = getCache(currentTab)
     strategy[val].request(args)
   }
 }
+
 // 只有在一次点击卡片的时候才会执行watch中的请求
 watch(requestAble.value, (newVal) => {
   if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
@@ -373,6 +375,9 @@ const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
+watch(storageName, (newVal) => {
+  console.log('🚀 ~ watch ~ newVal:', newVal)
+})
 // const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
 // const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
 const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
