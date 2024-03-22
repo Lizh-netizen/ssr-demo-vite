@@ -16,7 +16,6 @@ import path from 'path'
 
 // 可视化资源面板
 
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
@@ -34,6 +33,7 @@ export default defineConfig(({ mode }) => {
         style: 'css',
         componentPrefix: 'arco'
       }),
+      // 可视化资源面板
       createSvgIconsPlugin({
         // 指定图标文件夹，绝对路径
         iconDirs: [path.join(__dirname, 'src/assets/icons')]

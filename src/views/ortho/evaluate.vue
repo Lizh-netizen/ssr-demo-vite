@@ -253,6 +253,7 @@
                           :data="panoramicData[0]"
                           module="evaluate"
                           :classId="panoramicData[0].id"
+                          :owningModule="panoramicData[0].owningModule"
                         />
                       </form-item>
                     </template>
@@ -320,7 +321,6 @@
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
-    :caption="title"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
