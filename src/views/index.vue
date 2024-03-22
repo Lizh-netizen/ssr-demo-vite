@@ -16,6 +16,7 @@
     <div class="content-wrapper">
       <div class="content">
         <filter-search
+          v-if="isChangeTab"
           @filter="filter"
           :storageName="storageName"
           @setInitialState="setInitialState"
@@ -312,7 +313,9 @@ const setInitialState = (val) => {
 }
 // 切换卡片
 // 首次渲染的时候也执行了
-const changeTab = (val) => {
+const isChangeTab = ref(true)
+const changeTab = async (val) => {
+  isChangeTab.value = await Promise.resolve(false)
   currentTab.value = val
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
@@ -323,6 +326,7 @@ const changeTab = (val) => {
     const args = getCache(currentTab)
     strategy[val].request(args)
   }
+  isChangeTab.value = await Promise.resolve(true)
 }
 
 // 只有在一次点击卡片的时候才会执行watch中的请求
