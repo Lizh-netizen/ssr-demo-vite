@@ -63,8 +63,8 @@
                         option.choosen
                           ? option.seriousColor
                           : option.hover
-                          ? option.hoverColor
-                          : option.fillColor
+                            ? option.hoverColor
+                            : option.fillColor
                       "
                       fill-opacity="1"
                     />
@@ -113,8 +113,8 @@
                         option.clicked
                           ? option.seriousColor
                           : option.hover
-                          ? option.hoverColor
-                          : option.fillColor
+                            ? option.hoverColor
+                            : option.fillColor
                       "
                       fill-opacity="1"
                     />
@@ -166,7 +166,6 @@
 </template>
 
 <script setup>
-import useChangeOption from '@/effects/changeOption.ts'
 import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import { Post } from '../../utils/request.ts'

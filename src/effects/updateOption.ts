@@ -1,25 +1,33 @@
 import { Post } from '../utils/request'
 // 发送请求
-async function useUpdateOption (optionId: any, title: any, otherContent: any, appId: any) {
-  console.log(optionId)
+async function useUpdateOption(
+  optionId: any,
+  title: any,
+  appId: any,
+  classId: any,
+  owningModule: any,
+  otherContent: any
+) {
   let obj
   if (title.type == 1) {
     obj = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: optionId ? [optionId] : [],
       otherContent: otherContent || '',
       cephalometricsContent: '',
       fdiToothCode: '',
       showPosition: '',
-      aiFlag: title.aiFlag
+      aiFlag: title.aiFlag,
+      classId: classId,
+      owningModule: owningModule
     }
   } else if (title.type == 2) {
     if (title.titleName === '矫治风险' && optionId.includes(237)) {
       const option = title.orthOptionsList.find((a: any) => a.id === 237)
       const option2 = title.orthOptionsList.find((a: any) => a.id === 236)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: optionId,
         otherContent: title.otherContent,
@@ -27,32 +35,38 @@ async function useUpdateOption (optionId: any, title: any, otherContent: any, ap
         fdiToothCode: option2.fdiToothCode,
         showPosition: option2.showPosition,
         fdiToothCode1: option.fdiToothCode,
-        showPosition1: option.showPosition
+        showPosition1: option.showPosition,
+        classId: classId,
+        owningModule: owningModule
       }
     } else if (title.titleName === '矫治风险' && optionId.includes(236)) {
       const option = title.orthOptionsList.find((a: any) => a.id === 236)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: optionId,
         otherContent: title.otherContent,
         cephalometricsContent: '',
         fdiToothCode: option.fdiToothCode || '',
-        showPosition: option.showPosition
+        showPosition: option.showPosition,
+        classId: classId,
+        owningModule: owningModule
       }
     } else {
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: optionId,
         otherContent: title.otherContent,
         cephalometricsContent: '',
         fdiToothCode: '',
-        showPosition: ''
+        showPosition: '',
+        classId: classId,
+        owningModule: owningModule
       }
     }
   }
-  const res = await Post('/prod-api/business/optionsResult', obj)
+  const res = await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   return res
 }
 export default useUpdateOption

@@ -329,7 +329,7 @@
             ><form-item :label="title.titleName">
               <el-checkbox-group
                 v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
+                @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <template v-if="!option.optionSuffix"
@@ -387,8 +387,8 @@
                                     option.clicked
                                       ? option.seriousColor
                                       : option.hover
-                                      ? option.hoverColor
-                                      : option.fillColor
+                                        ? option.hoverColor
+                                        : option.fillColor
                                   "
                                   fill-opacity="1"
                                 />
@@ -441,8 +441,8 @@
                                     option.clicked
                                       ? option.seriousColor
                                       : option.hover
-                                      ? option.hoverColor
-                                      : option.fillColor
+                                        ? option.hoverColor
+                                        : option.fillColor
                                   "
                                   fill-opacity="1"
                                 />
@@ -1089,7 +1089,7 @@ getFeatureEffect()
 const handleSubmit = () => {
   getOrthGoalList()
 }
-async function handleChangeOption(optionId, title, option, title1, owningModule) {
+async function handleChangeOption(optionId, title, classId, owningModule) {
   if (owningModule == '目标') {
     goalClicked.value = true
   }
@@ -1121,14 +1121,9 @@ async function handleChangeOption(optionId, title, option, title1, owningModule)
         }
       })
     }
-  } else if (title.titleName == '品牌') {
-    option.visible = false
-    useUpdateOption(option.otherContent, title, '', appId)
-    useUpdateOption(title1.optionId, title1, '', appId)
-    return
   }
-  useChangeOption(optionId, title, appId)
-  const res = await useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule)
+  const res = await useUpdateOption(title.optionId, title, appId, classId, owningModule)
   if (requestAgain.value && res.code == 200) {
     getOrthRiskList()
   }
@@ -1242,7 +1237,7 @@ const handleSubmitTooth = (option, title) => {
     }
   }
 
-  Post('/prod-api/business/optionsResult', obj).then(() => {
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
     option.submitAble = false
     getOrthRiskList()
   })
@@ -1277,7 +1272,7 @@ const handleSubmitAddtionalContent = (title) => {
       fdiToothCode: '',
       showPosition: ''
     }
-    Post('/prod-api/business/optionsResult', obj)
+    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   }
 }
 const riskData = ref([])

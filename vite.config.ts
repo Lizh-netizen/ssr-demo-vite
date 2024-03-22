@@ -15,7 +15,6 @@ import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import path from 'path'
 
 // 可视化资源面板
-import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -35,7 +34,6 @@ export default defineConfig(({ mode }) => {
         componentPrefix: 'arco'
       }),
       // 可视化资源面板
-      visualizer({ open: false }),
       createSvgIconsPlugin({
         // 指定图标文件夹，绝对路径
         iconDirs: [path.join(__dirname, 'src/assets/icons')]
