@@ -358,8 +358,10 @@
           <el-radio-button
             v-for="i in frankList"
             :key="i"
+            :label="i.label"
             :value="i.value"
             class="patientCompliance"
+            @click.native.prevent="handleClickFrank(i.value)"
             >{{ i.label }}</el-radio-button
           >
         </el-radio-group>
@@ -468,7 +470,13 @@ const frankList = ref([
 ])
 const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
 const patientCompliance = ref(patientInfo?.patientCompliance || '')
-
+const handleClickFrank = (item) => {
+  if (item == patientCompliance.value) {
+    patientCompliance.value = ''
+  } else {
+    patientCompliance.value = item
+  }
+}
 const adviceVisible = ref(false)
 const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(

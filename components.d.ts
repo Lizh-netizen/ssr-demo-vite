@@ -16,6 +16,8 @@ declare module 'vue' {
     AInputSearch: typeof import('@arco-design/web-vue')['InputSearch']
     AOption: typeof import('@arco-design/web-vue')['Option']
     APopconfirm: typeof import('@arco-design/web-vue')['Popconfirm']
+    ARadioButton: typeof import('@arco-design/web-vue')['RadioButton']
+    ARadioGroup: typeof import('@arco-design/web-vue')['RadioGroup']
     ASelect: typeof import('@arco-design/web-vue')['Select']
     ASpace: typeof import('@arco-design/web-vue')['Space']
     ATextarea: typeof import('@arco-design/web-vue')['Textarea']
