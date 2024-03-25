@@ -349,13 +349,13 @@
                   </template>
                   <template v-else>
                     <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
-                    <template v-if="option.fdiToothCode == null">
+                    <template v-if="!option.fdiToothCode">
                       <el-popover
                         placement="right"
                         :width="490"
                         trigger="click"
                         @show="handleBeforeEnterPopover(option)"
-                        @after-leave="handleSubmitTooth(option, title)"
+                        @after-leave="handleSubmitTooth(option, title, item.id, item.owningModule)"
                       >
                         <template #reference>
                           <el-checkbox-button
@@ -458,7 +458,9 @@
                           :step="5"
                           :title="option"
                           :appId="appId"
-                          @submitTooth="(val) => handleSubmitTooth(val, title)"
+                          @submitTooth="
+                            (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
+                          "
                         />
                       </el-popover>
                     </template>
@@ -1145,7 +1147,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-const handleSubmitTooth = (option, title) => {
+const handleSubmitTooth = (option, title, classId, owningModule) => {
   option.visible = false
   symptomList.value.forEach((row) => row.forEach((item) => (item.active = false)))
   let obj
@@ -1163,6 +1165,8 @@ const handleSubmitTooth = (option, title) => {
         optionsIdStr: title.optionId,
         otherContent: '',
         cephalometricsContent: '',
+        classId: classId,
+        owningModule: owningModule,
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
@@ -1184,7 +1188,9 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     }
   }
@@ -1201,7 +1207,9 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     }
   } else {
@@ -1216,7 +1224,9 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode1: option2.toothCode.join(),
         showPosition1: JSON.stringify(option2.position),
         fdiToothCode: option.toothCode.join(),
-        showPosition: JSON.stringify(option.position)
+        showPosition: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     } else {
       title.optionId.splice(
@@ -1232,7 +1242,9 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     }
   }

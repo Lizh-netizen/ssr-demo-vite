@@ -52,6 +52,7 @@
         ></filter-search>
 
         <CustomTable
+          v-if="isChangeTab"
           :data="patientList"
           :columns="columns"
           :pagination="true"
@@ -379,9 +380,7 @@ const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
-watch(storageName, (newVal) => {
-  console.log('🚀 ~ watch ~ newVal:', newVal)
-})
+
 // const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
 // const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
 const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
@@ -683,12 +682,15 @@ watch(
   (val) => {
     if (val == '面评') {
       patientList.value = evaluateList.value
+      total.value = 0
     } else if (val == '矫正方案') {
       patientList.value = orthoList.value
+      total.value = 0
     } else {
       patientList.value = aptmList.value.map((i) => ({
         ...i
       }))
+      total.value = 0
     }
     columns.value = strategy[val].config
   },
@@ -720,7 +722,6 @@ onBeforeMount(() => {
     const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
 
     const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-
     for (let key in strategy) {
       if (key == '面评') {
         const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
@@ -762,6 +763,7 @@ onBeforeMount(() => {
     storageName.value = strategy[val].storage
     pagesStorage.value = strategy[val].page
     verifyPermission()
+    strategy[currentTab.value].request()
   })
 
 // 看板数据
