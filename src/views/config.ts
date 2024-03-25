@@ -1,12 +1,12 @@
 export const columns_config_evaluate = [
   {
-    prop: 'StartTime',
-    title: '预约时间',
+    prop: 'patientName',
+    title: '患者姓名',
     type: 'text'
   },
   {
-    prop: 'patientName',
-    title: '患者姓名',
+    prop: 'StartTime',
+    title: '预约时间',
     type: 'text'
   },
   {

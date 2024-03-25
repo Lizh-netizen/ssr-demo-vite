@@ -807,14 +807,14 @@ async function getAptmCount(val) {
 }
 
 const tabData = ref([
-  {
-    svg_name: 'cardSvg1',
-    name: '面评矫正预约率',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
-  },
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '面评矫正预约率',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // },
   {
     svg_name: 'cardSvg1',
     name: '面评',
@@ -822,15 +822,15 @@ const tabData = ref([
     right_num: 0,
     left_text: '已面评人数',
     right_text: '预约面型发育评估人数'
-  },
-  {
-    svg_name: 'cardSvg1',
-    name: '矫正方案',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
   }
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '矫正方案',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // }
 ])
 
 async function changeNote(val) {
