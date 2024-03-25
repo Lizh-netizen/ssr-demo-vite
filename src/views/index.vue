@@ -321,22 +321,21 @@ const changeTab = async (val) => {
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
   storageName.value = strategy[val].storage
-
   pagesStorage.value = strategy[val].page
-  if (strategy[currentTab.value].firstReq) {
-    const args = getCache(currentTab)
-    strategy[val].request(args)
-  }
+  // if (strategy[currentTab.value].firstReq) {
+  const args = getCache(currentTab)
+  strategy[val].request(args)
+  // }
   isChangeTab.value = await Promise.resolve(true)
 }
 
 // 只有在一次点击卡片的时候才会执行watch中的请求
 watch(requestAble.value, (newVal) => {
-  if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
-    const args = getCache(currentTab)
-    strategy[currentTab.value].request(args)
-    strategy[currentTab.value].firstReq = true
-  }
+  // if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
+  const args = getCache(currentTab)
+  strategy[currentTab.value].request(args)
+  strategy[currentTab.value].firstReq = true
+  // }
 })
 const strategy = {
   面评: {
@@ -763,7 +762,6 @@ onBeforeMount(() => {
     storageName.value = strategy[val].storage
     pagesStorage.value = strategy[val].page
     verifyPermission()
-    strategy[currentTab.value].request()
   })
 
 // 看板数据
