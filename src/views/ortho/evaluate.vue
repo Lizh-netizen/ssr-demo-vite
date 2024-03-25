@@ -244,19 +244,19 @@
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index >= 2">
-                      <form-item :label="title.titleName" width="120px">
-                        <Tooth
-                          :step="2"
-                          :title="title"
-                          :appId="appId"
-                          :data="panoramicData[0]"
-                          module="evaluate"
-                          :classId="panoramicData[0].id"
-                          :owningModule="panoramicData[0].owningModule"
-                        />
-                      </form-item>
-                    </template>
+                    <!-- <template v-if="index >= 2"> -->
+                    <form-item :label="title.titleName" width="120px">
+                      <Tooth
+                        :step="2"
+                        :title="title"
+                        :appId="appId"
+                        :data="panoramicData[0]"
+                        module="evaluate"
+                        :classId="panoramicData[0].id"
+                        :owningModule="panoramicData[0].owningModule"
+                      />
+                    </form-item>
+                    <!-- </template> -->
                   </template>
                 </div>
               </div>
@@ -1002,7 +1002,11 @@ async function getPanoramicList() {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
     classId.value = item.id
     panoTime.value = item.orthImageStartTime?.slice(0, 10)
-
+    item.orthTitleList.forEach((title) => {
+      title.showInput = false
+      title.popVisible = false
+    })
+    console.log(panoramicData.value)
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
@@ -1020,18 +1024,14 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+          codeTitleList.value = res.data.slice(7)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
         }
       })
     }
-    item.orthTitleList.forEach((title) => {
-      title.showInput = false
-      title.popVisible = false
-    })
   })
   if (!requestMouth.value) {
     handlePanoData(panoramicData)

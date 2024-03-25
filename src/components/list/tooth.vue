@@ -154,18 +154,15 @@ const handleSubmitTooth = (title) => {
 }
 const openPop = (title, item) => {
   // 如果没有图片，就不显示popover
-  if (!item?.hasImage) {
-    return
-  } else {
-    // 点击下一个十字牙位时，先吧之前的清空
 
-    item.orthTitleList.forEach((t) => {
-      if (title !== t) {
-        t.popVisible = false
-      }
-    })
-    title.popVisible = !title.popVisible
-  }
+  // 点击下一个十字牙位时，先吧之前的清空
+
+  item.orthTitleList.forEach((t) => {
+    if (title !== t) {
+      t.popVisible = false
+    }
+  })
+  title.popVisible = !title.popVisible
 }
 const handleClick = (title, data) => {
   openPop(title, data)
