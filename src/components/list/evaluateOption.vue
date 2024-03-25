@@ -244,7 +244,9 @@ const handleChangeOption = (optionId, title, classId) => {
     title.titleName == '后牙' ||
     title.titleName == '锁HE' ||
     title.titleName == '反覆合程度' ||
-    title.titleName == '反覆盖程度'
+    title.titleName == '反覆盖程度' ||
+    title.titleName == '左侧后牙' ||
+    title.titleName == '右侧后牙'
   ) {
     requestAgain.value = true
   }
@@ -383,18 +385,34 @@ const handleSubmitTooth = (option, title, classId) => {
         showPosition: '',
         classId: classId
       }
+      const obj2 = {
+        apmtId: props.appId,
+        titleId: '',
+        optionsIdStr: [],
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: '',
+        showPosition: '',
+        classId: classId
+      }
       let title1 = {}
+      let title2 = {}
       if (option.optionName == '前牙反覆合') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+        title2 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
       } else if (option.optionName == '前牙反覆盖') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+        title2 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
       } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
       } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
       }
       obj1.titleId = title1.id
+      obj2.titleId = title2.id
       Post('/prod-api/business/facialResult', obj1)
+      Post('/prod-api/business/facialResult', obj2)
       Post('/prod-api/business/facialResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
