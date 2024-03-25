@@ -1427,7 +1427,7 @@ const handleBackToList = () => {
   z-index: 10;
   padding: 0 12px;
   border-bottom: 1px solid #e5e6eb;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 :deep(.questionItem__header) {
   border-top: 1px solid #e5e6eb;
