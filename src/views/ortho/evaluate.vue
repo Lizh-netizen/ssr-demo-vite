@@ -356,19 +356,24 @@
         <div class="w-[70px] text-right mr-[16px]">患者依从性</div>
         <el-radio-group v-model="patientCompliance">
           <el-radio-button
-            :label="i.label"
             v-for="i in frankList"
             :key="i"
             :value="i.value"
-            @click.native.prevent="handleClickFrank(i.label)"
             class="patientCompliance"
-          />
+            >{{ i.label }}</el-radio-button
+          >
         </el-radio-group>
       </div>
       <div class="flex items-center mt-[16px]">
         <div class="w-[70px] text-right mr-[16px]">矫正医生</div>
         <template v-if="orthStatus == 3"
-          ><el-select placeholder="请选择" allow-search filterable v-model="orthDoctorId">
+          ><el-select
+            placeholder="请选择"
+            allow-search
+            filterable
+            v-model="orthDoctorId"
+            class="w-[120px]!"
+          >
             <el-option
               v-for="item in orthDoctorList"
               :key="item.value"
@@ -386,7 +391,13 @@
       <div :style="{ display: 'inline-block' }" class="w-[70px] text-right mr-[16px]">
         <div>转诊至</div>
       </div>
-      <el-select placeholder="请选择" allow-search filterable v-model="threeLevelDoctorId">
+      <el-select
+        placeholder="请选择"
+        allow-search
+        filterable
+        class="w-[120px]!"
+        v-model="threeLevelDoctorId"
+      >
         <el-option
           v-for="item in threeLevelDoctorList"
           :key="item.value"
@@ -456,14 +467,7 @@ const frankList = ref([
 ])
 const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
 const patientCompliance = ref(patientInfo?.patientCompliance || '')
-const handleClickFrank = (item) => {
-  console.log('🚀 ~ handleClickFrank ~ item:', item, patientCompliance.value)
-  if (item == patientCompliance.value) {
-    patientCompliance.value = ''
-  } else {
-    patientCompliance.value = item
-  }
-}
+
 const adviceVisible = ref(false)
 const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(
@@ -1353,7 +1357,7 @@ const handleBackToList = () => {
   padding-bottom: 10px;
 }
 .advice.el-dialog {
-  width: 500px;
+  width: 520px;
   border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;

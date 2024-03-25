@@ -812,11 +812,11 @@ const handleCloseImgDialog = () => {
   position: relative;
   display: flex;
   .title {
-    width: 557px;
+    width: 547px;
     height: 50px;
     position: absolute;
+    background: #ffffff;
     display: flex;
-    background: #fff;
     z-index: 2;
     align-items: center;
     padding: 0 16px;
@@ -853,7 +853,7 @@ const handleCloseImgDialog = () => {
   }
   .file-upload {
     position: relative;
-    cursor: pointer;
+    cursor: pointer !important;
   }
 
   .file-upload__label {
@@ -980,8 +980,8 @@ const handleCloseImgDialog = () => {
     }
   }
   .classifyWrapper {
-    width: 554px;
-    right: 580px;
+    width: 544px;
+    right: 570px;
     bottom: 0px;
     position: absolute;
     height: 50px;
