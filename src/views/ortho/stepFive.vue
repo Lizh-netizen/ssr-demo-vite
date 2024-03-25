@@ -1160,7 +1160,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
       )
       const option2 = title.orthOptionsList.find((a) => a.id === 236)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1180,7 +1180,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
       )
       const option2 = title.orthOptionsList.find((a) => a.id === 237)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1199,7 +1199,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     const option2 = title.orthOptionsList.find((a) => a.id === 236)
     if (option2.toothCode) {
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1217,7 +1217,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     const option2 = title.orthOptionsList.find((a) => a.id === 237)
     if (option2.toothCode) {
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1236,7 +1236,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         1
       )
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
