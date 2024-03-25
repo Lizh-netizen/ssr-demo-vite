@@ -1006,7 +1006,6 @@ async function getPanoramicList() {
       title.showInput = false
       title.popVisible = false
     })
-    console.log(panoramicData.value)
     if (!item.imageUrl) {
       item.hasImage = false
     } else {

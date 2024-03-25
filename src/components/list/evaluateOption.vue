@@ -407,17 +407,31 @@ const handleSubmitTooth = (option, title, classId) => {
         showPosition: '',
         classId: classId
       }
+      const obj4 = {
+        apmtId: props.appId,
+        titleId: '',
+        optionsIdStr: [],
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: '',
+        showPosition: '',
+        classId: classId
+      }
       let title1 = {}
       let title2 = {}
       let title3 = {}
+      let title4 = {}
       if (option.optionName == '前牙反覆合') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
         title2 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
         title3 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+        title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
       } else if (option.optionName == '前牙反覆盖') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
         title2 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
         title3 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
+        title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
       } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
         title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
       } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
@@ -426,9 +440,11 @@ const handleSubmitTooth = (option, title, classId) => {
       obj1.titleId = title1.id
       obj2.titleId = title2.id
       obj3.titleId = title3.id
+      obj4.titleId = title4.id
       Post('/prod-api/business/facialResult', obj1)
       Post('/prod-api/business/facialResult', obj2)
       Post('/prod-api/business/facialResult', obj3)
+      Post('/prod-api/business/facialResult', obj4)
       Post('/prod-api/business/facialResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
