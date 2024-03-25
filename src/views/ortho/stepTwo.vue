@@ -636,7 +636,7 @@ const handleBlurInput = (title) => {
       }
       title.inputVal = title.cephalometricsContent
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult/updateAIType', {
+      Post('/prod-api/business/optionsResult/updateAIType', {
         apmtId: appId,
         cephalometricsList: [
           {
@@ -1021,7 +1021,7 @@ const faceSet = ref([])
 const FrontalReposeImageUrl = ref()
 const FrontalSmileImageUrl = ref()
 async function getOrthFaceAccessList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -1159,7 +1159,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
 }
 const mouthData = ref([])
 async function getOrthMouthList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1275,7 +1275,7 @@ function handlePanoData(panoramicData) {
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1326,7 +1326,7 @@ function isChineseOrEnglish(char) {
 }
 const cephaClassId = ref()
 async function getOrthCephaList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/侧位片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`)
   cephaClassId.value = result.data[0].id
   cephaData.value = result.data[0].orthTitleList
   cephaImage.value = result.data[0].imageUrl
@@ -1739,7 +1739,7 @@ const handleZoomOutPic = (fromBtn) => {
           aiType: 1
         }))
       // 是坐标引起的变化
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult/updateAIType', {
+      Post('/prod-api/business/optionsResult/updateAIType', {
         apmtId: appId,
         cephalometricsList: list
       })
@@ -2193,7 +2193,7 @@ async function updateResult() {
     if (!['颈椎分期', '腺样体', '扁桃体'].includes(item.titleName)) {
       item.measured = true
       let obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: item.id,
         optionsIdStr: [],
         otherContent: '',
@@ -2207,7 +2207,7 @@ async function updateResult() {
         if (res.code == 200 && res.data.optionsId) {
           item.optionId = res.data.optionsId
           let obj1 = {
-            apmtId: appId,
+            aptmId: appId,
             titleId: item.id,
             optionsIdStr: [res.data.optionsId],
             otherContent: '',
@@ -2231,7 +2231,7 @@ function afterGetPoint() {
   calculateAllPoints()
   updateResult()
   // if (pointMoved.value) {
-  //   Get(`/prod-api/business/orthClass/list/2/侧位片/${appId}`).then((res) => {
+  //   Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`).then((res) => {
   //     res.data[0].orthTitleList.forEach((a) => {
   //       cephaData.value.forEach((title) => {
   //         if (a.titleName == title.titleName) {
@@ -2490,7 +2490,7 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
 
   if (className == '侧位片') {
     title.aiFlag = '0'
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult/updateAIType', {
+    Post('/prod-api/business/optionsResult/updateAIType', {
       apmtId: appId,
       cephalometricsList: [
         {

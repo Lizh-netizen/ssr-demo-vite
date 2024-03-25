@@ -151,7 +151,7 @@ getOrthQuestionList()
 
 const diagnoseData = ref([])
 async function getOrthDiagnoseList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/诊断/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/诊断/${appId}`)
   diagnoseData.value = result.data
   if (result.data[0].classFlag) {
     clicked.value = true

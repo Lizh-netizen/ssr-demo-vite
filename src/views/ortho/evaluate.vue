@@ -384,7 +384,9 @@
             >
           </el-select>
         </template>
-        <template v-else>{{ doctorName }}</template>
+        <template v-else
+          ><a-select :defaultValue="doctorName" class="w-[120px]!" disabled></a-select
+        ></template>
       </div>
     </div>
     <div v-if="advice === '转三级面评'" class="flex items-center">
@@ -411,7 +413,6 @@
     <div class="flex mt-[16px]">
       <div class="min-w-[70px] mr-[16px] text-right pt-[8px]">备注</div>
       <a-textarea
-        allow-clear
         class="border-rd-[8px]! bg-[#fff]! b-1px b-solid b-#E5E6EB"
         v-model="facialAdviseRemark"
         :max-length="100"
@@ -1425,6 +1426,9 @@ const handleBackToList = () => {
   top: 0;
   background: #fff;
   z-index: 10;
+  padding: 0 12px;
+  border-bottom: 1px solid #e5e6eb;
+  margin-bottom: 8px;
 }
 :deep(.questionItem__header) {
   border-top: 1px solid #e5e6eb;
