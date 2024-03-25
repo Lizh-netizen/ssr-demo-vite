@@ -1170,7 +1170,8 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        optionSuffix: '牙位图'
       }
     } else if (option.id === 236 && !option.toothCode.join()) {
       title.optionId.splice(
@@ -1226,7 +1227,8 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         fdiToothCode: option.toothCode.join(),
         showPosition: JSON.stringify(option.position),
         classId: classId,
-        owningModule: owningModule
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     } else {
       title.optionId.splice(
@@ -1244,7 +1246,8 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         fdiToothCode1: option.toothCode.join(),
         showPosition1: JSON.stringify(option.position),
         classId: classId,
-        owningModule: owningModule
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     }
   }

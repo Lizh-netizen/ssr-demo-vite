@@ -37,7 +37,8 @@ async function useUpdateOption(
         fdiToothCode1: option.fdiToothCode,
         showPosition1: option.showPosition,
         classId: classId,
-        owningModule: owningModule
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     } else if (title.titleName === '矫治风险' && optionId.includes(236)) {
       const option = title.orthOptionsList.find((a: any) => a.id === 236)
@@ -50,7 +51,8 @@ async function useUpdateOption(
         fdiToothCode: option.fdiToothCode || '',
         showPosition: option.showPosition,
         classId: classId,
-        owningModule: owningModule
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     } else {
       obj = {
