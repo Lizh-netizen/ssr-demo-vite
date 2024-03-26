@@ -1,13 +1,38 @@
 <template>
-  <div class="drawer p-[12px]">
-    <div
-      :style="{ marginBottom: '10px', cursor: 'pointer' }"
-      @click="handleBackToList"
-      class="section-header border-rd-[12px]"
-    >
-      <el-icon><ArrowLeft /></el-icon>返回列表
+  <div class="drawer pt-[0]">
+    <div class="flex items-center justify-between stickyHeader">
+      <div
+        class="section-header flex items-center cursor-pointer border-rd-[12px]"
+        @click="handleBackToList"
+      >
+        <img src="@/assets/evaluate/Back.svg" class="mr-[12px]" />返回列表
+      </div>
+
+      <div class="flex gap-[48px] font-size-[16px]">
+        <div>
+          <span class="color-[#4E5969]">姓名：</span
+          ><span class="font-500">{{ patientInfo.patientName }}</span>
+        </div>
+        <div>
+          <span class="color-[#4E5969]">病历号：</span
+          ><span class="font-500">{{ patientInfo.privateId || '' }}</span>
+        </div>
+        <div>
+          <span class="color-[#4E5969]">性别：</span
+          ><span class="font-500">{{
+            patientInfo.Sex == 1 ? '男' : patientInfo.Sex == 2 ? '女' : '未知'
+          }}</span>
+        </div>
+        <div>
+          <span class="color-[#4E5969]">出生日期：</span
+          ><span class="font-500">{{ patientInfo.age }}</span>
+        </div>
+      </div>
+      <div class="flex items-center button" @click="handleOpenImageDialogue">
+        <img src="../../assets/svg/arrange.svg" class="mr-[8px]" />图像管理
+      </div>
     </div>
-    <div class="check section">
+    <div class="check section px-[12px]">
       <Header text="临床检查" backgroundColor="#f4f7fd" />
       <div class="content">
         <template v-for="title in checkData.orthTitleList" :key="title.id">
@@ -25,7 +50,7 @@
         </template>
       </div>
     </div>
-    <div class="image section">
+    <div class="image section px-[12px]">
       <Header text="图像分析" backgroundColor="#EAF0FC"
         ><div
           :style="{
@@ -36,10 +61,8 @@
             cursor: 'pointer'
           }"
           @click="openImgDialog"
-        >
-          <img src="../../assets/svg/imageUpload.svg" />图像管理
-        </div></Header
-      >
+        ></div
+      ></Header>
       <div class="content" :style="{ 'padding-top': '0' }">
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
@@ -68,7 +91,6 @@
                 <template v-for="title in item.orthTitleList" :key="title.id">
                   <form-item :label="title.titleName" width="120px">
                     <Option
-                      :disabled="!item.hasImage"
                       :title="title"
                       :appId="appId"
                       @refreshList="refreshList"
@@ -112,7 +134,7 @@
                   </div>
                 </template>
                 <template v-if="item.className == '正面咬合'">
-                  <div :style="{ 'margin-top': '30px' }">
+                  <div :style="{ 'margin-top': '40px' }">
                     <template v-if="frontCover"
                       ><img
                         :src="frontCover"
@@ -128,7 +150,7 @@
                         <img :src="imgUrl" class="addPic" />
                       </div>
                     </template>
-                    <div :style="{ 'margin-bottom': '10px' }">前牙覆盖</div>
+                    <div :style="{ 'margin-bottom': '10px' }" class="color-[#4E5969]">前牙覆盖</div>
                   </div>
                 </template> </template
               ><template #content>
@@ -137,10 +159,10 @@
                   <template v-for="title in item.orthTitleList" :key="title.id">
                     <form-item :label="title.titleName" width="120px">
                       <Option
-                        :disabled="!item.hasImage"
                         :title="title"
                         :appId="appId"
                         @refreshList="refreshList"
+                        @syncOption="syncOption"
                         owningModule="mouth"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
@@ -155,7 +177,9 @@
         </div>
         <div class="questionItem__header">
           <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title"
-            >全景片</span
+            >全景片<span v-if="panoTime" class="color-#4E5969 ml-[4px]">{{
+              '(' + panoTime + ')'
+            }}</span></span
           >
         </div>
         <template v-for="item in panoramicData" :key="item.id">
@@ -206,7 +230,6 @@
                                 serious: option.serious == '1'
                               }"
                               :label="option.id"
-                              :disabled="!panoramicData[0].hasImage"
                             >
                               {{ option.optionName }}
                             </el-radio-button></template
@@ -221,18 +244,19 @@
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index >= 2">
-                      <form-item :label="title.titleName" width="120px">
-                        <Tooth
-                          :step="2"
-                          :title="title"
-                          :appId="appId"
-                          :data="panoramicData[0]"
-                          module="evaluate"
-                          :classId="panoramicData[0].id"
-                        />
-                      </form-item>
-                    </template>
+                    <!-- <template v-if="index >= 2"> -->
+                    <form-item :label="title.titleName" width="120px">
+                      <Tooth
+                        :step="2"
+                        :title="title"
+                        :appId="appId"
+                        :data="panoramicData[0]"
+                        module="evaluate"
+                        :classId="panoramicData[0].id"
+                        :owningModule="panoramicData[0].owningModule"
+                      />
+                    </form-item>
+                    <!-- </template> -->
                   </template>
                 </div>
               </div>
@@ -285,7 +309,7 @@
         </div>
       </div>
     </div>
-    <div class="footer">
+    <div class="footer px-[12px]">
       <span class="dialog-footer">
         <el-button @click="handleBackToList">取消</el-button>
         <el-button type="primary" @click="handleConfirm"> 确认 </el-button>
@@ -293,11 +317,10 @@
     </div>
   </div>
   <ImageDialog
-    page="evaluate"
+    module="evaluate"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
-    :caption="title"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
@@ -310,37 +333,75 @@
   />
   <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
     <div style="margin-top: 20px" class="advice__state">
-      状态选择：
+      <div class="w-[70px] text-right mr-[16px]">状态选择</div>
       <el-radio-group v-model="advice">
-        <el-radio-button label="立即矫正" />
-        <el-radio-button label="后续面评" />
-        <el-radio-button label="转三级面评" />
-        <el-radio-button label="无需矫正" />
+        <el-radio-button :label="i" v-for="i in advices" :key="i" />
       </el-radio-group>
     </div>
-    <div v-if="advice === '后续面评'">
-      时间选择：<el-date-picker
+    <div v-if="advice === '后续面评'" class="flex items-center">
+      <div class="w-[70px] text-right mr-[16px]">时间选择</div>
+      <el-date-picker
+        unlink-panels
         v-model="time"
+        class="datePicker"
         type="date"
         placeholder="请选择"
         value-format="YYYY-MM-DD"
+        :shortcuts="rangeShortcuts"
+        @selectShortcut="selectShortcutFn"
       ></el-date-picker>
     </div>
     <div v-if="advice === '立即矫正'">
-      医生选择：<el-select placeholder="请选择" allow-search filterable v-model="orthDoctorId">
-        <el-option
-          v-for="item in orthDoctorList"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        >
-          {{ item.label }}</el-option
-        >
-      </el-select>
+      <div class="flex items-center">
+        <div class="w-[70px] text-right mr-[16px]">患者依从性</div>
+        <el-radio-group v-model="patientCompliance">
+          <el-radio-button
+            v-for="i in frankList"
+            :key="i"
+            :label="i.label"
+            :value="i.value"
+            class="patientCompliance"
+            @click.native.prevent="handleClickFrank(i.value)"
+            >{{ i.label }}</el-radio-button
+          >
+        </el-radio-group>
+      </div>
+      <div class="flex items-center mt-[16px]">
+        <div class="w-[70px] text-right mr-[16px]">矫正医生</div>
+        <template v-if="orthStatus == 3"
+          ><el-select
+            placeholder="请选择"
+            allow-search
+            filterable
+            v-model="orthDoctorId"
+            class="w-[120px]!"
+          >
+            <el-option
+              v-for="item in orthDoctorList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+              {{ item.label }}</el-option
+            >
+          </el-select>
+        </template>
+        <template v-else
+          ><a-select :defaultValue="doctorName" class="w-[120px]!" disabled></a-select
+        ></template>
+      </div>
     </div>
-    <div v-if="advice === '转三级面评'">
-      <div :style="{ width: '70px', display: 'inline-block' }">转诊至：</div>
-      <el-select placeholder="请选择" allow-search filterable v-model="threeLevelDoctorId">
+    <div v-if="advice === '转三级面评'" class="flex items-center">
+      <div :style="{ display: 'inline-block' }" class="w-[70px] text-right mr-[16px]">
+        <div>转诊至</div>
+      </div>
+      <el-select
+        placeholder="请选择"
+        allow-search
+        filterable
+        class="w-[120px]!"
+        v-model="threeLevelDoctorId"
+      >
         <el-option
           v-for="item in threeLevelDoctorList"
           :key="item.value"
@@ -350,6 +411,16 @@
           {{ item.label }}</el-option
         >
       </el-select>
+    </div>
+    <div class="flex mt-[16px]">
+      <div class="min-w-[70px] mr-[16px] text-right pt-[8px]">备注</div>
+      <a-textarea
+        class="border-rd-[8px]! bg-[#fff]! b-1px b-solid b-#E5E6EB"
+        v-model="facialAdviseRemark"
+        :max-length="100"
+        show-word-limit
+        @input="handleInput"
+      />
     </div>
     <template #footer>
       <span class="dialog-footer">
@@ -363,7 +434,7 @@
 <script setup>
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, onBeforeMount } from 'vue'
 import Header from '../../components/list/header.vue'
 import { Get, Post, Delete, Put } from '../../utils/request'
 import formItem from '../../components/list/formItem.vue'
@@ -385,23 +456,41 @@ const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
-const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo'))
-const facialId = patientInfo.facialId
+const orthStatus = route.params.orthStatus
+const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
+const facialId = patientInfo?.facialId
+const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
+const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.value.userName)
 
 // 面评弹窗逻辑
+const frankList = ref([
+  { value: 1, label: '好' },
+  { value: 2, label: '中' },
+  { value: 3, label: '差' }
+])
+const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
+const patientCompliance = ref(patientInfo?.patientCompliance || '')
+const handleClickFrank = (item) => {
+  if (item == patientCompliance.value) {
+    patientCompliance.value = ''
+  } else {
+    patientCompliance.value = item
+  }
+}
 const adviceVisible = ref(false)
+const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(
-  patientInfo.facialAdvise == 1
+  patientInfo?.facialAdvise == 1
     ? '立即矫正'
-    : patientInfo.facialAdvise == 2
-    ? '无需矫正'
-    : patientInfo.facialAdvise == 3
-    ? '后续面评'
-    : patientInfo.facialAdvise == 4
-    ? '转三级面评'
-    : '待定'
+    : patientInfo?.facialAdvise == 2
+      ? '无需矫正'
+      : patientInfo?.facialAdvise == 3
+        ? '后续面评'
+        : patientInfo?.facialAdvise == 4
+          ? '转三级面评'
+          : '待定'
 )
-const time = ref(patientInfo.facialTime?.slice(0, 10) || '')
+const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -412,6 +501,16 @@ async function getId() {
   id.value = res.data.id
 }
 getId()
+// 限制字数
+const handleInput = (e) => {
+  if (e.length > 100) {
+    ElMessage({
+      message: '字数限制100字以内',
+      type: 'warning'
+    })
+  }
+}
+let facialOrthDoctorName = ref()
 async function handleAdvice() {
   try {
     let orthDoctorName
@@ -428,10 +527,10 @@ async function handleAdvice() {
       advice.value === '立即矫正'
         ? 1
         : advice.value === '后续面评'
-        ? 3
-        : advice.value === '转三级面评'
-        ? 4
-        : 2
+          ? 3
+          : advice.value === '转三级面评'
+            ? 4
+            : 2
     if (advice.value === '立即矫正') {
       time.value = ''
       threeLevelDoctorId.value = ''
@@ -453,13 +552,25 @@ async function handleAdvice() {
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
       facialAdvise: facialAdvise,
-      facialOrthDoctorId: advice.value === '立即矫正' ? orthDoctorId.value : '',
-      facialOrthDoctorName: advice.value === '立即矫正' ? orthDoctorName : '',
+      facialOrthDoctorId:
+        advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
+          ? userInfo.value.ljProviderId
+          : advice.value === '立即矫正' && orthStatus == 3
+            ? orthDoctorId.value
+            : '',
+      facialOrthDoctorName:
+        advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
+          ? userInfo.value.userName
+          : advice.value === '立即矫正' && orthStatus == 3
+            ? orthDoctorName
+            : '',
       facialTime: advice.value === '后续面评' ? time.value : null,
       facialReferralToDoctorId: advice.value === '转三级面评' ? threeLevelDoctorId.value : '',
-      facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : ''
+      facialReferralToDoctorName: advice.value === '转三级面评' ? facialDoctorName : '',
+      patientCompliance: advice.value === '立即矫正' ? patientCompliance.value : '',
+      facialAdviseRemark: facialAdviseRemark.value || ''
     }
-
+    // 如果是1，2级矫正医生
     const res = await Post('/prod-api/emr/public/api/v1/assessment/add', obj)
     adviceVisible.value = false
     if (res.code === 200) {
@@ -469,8 +580,141 @@ async function handleAdvice() {
     console.log(err)
   }
   handleBackToList()
+  // router.push(`/evaluatePdf/${appId}/${patientId}`)
+}
+const rangeShortcuts = [
+  {
+    text: '1个月后',
+    value: () => {
+      // 获取当前日期
+      const today = new Date()
+
+      // 加上一个月的时间
+      const nextMonth = new Date(today)
+      nextMonth.setMonth(today.getMonth() + 1)
+
+      // 获取年、月、日
+      const year = nextMonth.getFullYear()
+      const month = (nextMonth.getMonth() + 1).toString().padStart(2, '0')
+      const day = nextMonth.getDate().toString().padStart(2, '0')
+
+      // 格式化为 "YYYY-MM-DD"
+      const formattedDate = `${year}-${month}-${day}`
+
+      return formattedDate
+    }
+  },
+  {
+    text: '3个月后',
+    value: () => {
+      // 获取当前日期
+      const today = new Date()
+
+      // 加上一个月的时间
+      const nextMonth = new Date(today)
+      nextMonth.setMonth(today.getMonth() + 3)
+
+      // 获取年、月、日
+      const year = nextMonth.getFullYear()
+      const month = (nextMonth.getMonth() + 1).toString().padStart(2, '0')
+      const day = nextMonth.getDate().toString().padStart(2, '0')
+
+      // 格式化为 "YYYY-MM-DD"
+      const formattedDate = `${year}-${month}-${day}`
+
+      return formattedDate
+    }
+  },
+  {
+    text: '6个月后',
+    value: () => {
+      // 获取当前日期
+      const today = new Date()
+
+      // 加上一个月的时间
+      const nextMonth = new Date(today)
+      nextMonth.setMonth(today.getMonth() + 6)
+
+      // 获取年、月、日
+      const year = nextMonth.getFullYear()
+      const month = (nextMonth.getMonth() + 1).toString().padStart(2, '0')
+      const day = nextMonth.getDate().toString().padStart(2, '0')
+
+      // 格式化为 "YYYY-MM-DD"
+      const formattedDate = `${year}-${month}-${day}`
+
+      return formattedDate
+    }
+  },
+  {
+    text: '1年后',
+    value: () => {
+      // 获取当前日期
+      const today = new Date()
+
+      // 加上一年的时间
+      const nextYear = new Date(today)
+      nextYear.setFullYear(today.getFullYear() + 1)
+
+      // 获取年、月、日
+      const year = nextYear.getFullYear()
+      const month = (nextYear.getMonth() + 1).toString().padStart(2, '0')
+      const day = nextYear.getDate().toString().padStart(2, '0')
+
+      // 格式化为 "YYYY-MM-DD"
+      const formattedDate = `${year}-${month}-${day}`
+
+      return formattedDate
+    }
+  },
+  {
+    text: '2年后',
+    value: () => {
+      // 获取当前日期
+      const today = new Date()
+
+      // 加上一年的时间
+      const nextYear = new Date(today)
+      nextYear.setFullYear(today.getFullYear() + 2)
+
+      // 获取年、月、日
+      const year = nextYear.getFullYear()
+      const month = (nextYear.getMonth() + 1).toString().padStart(2, '0')
+      const day = nextYear.getDate().toString().padStart(2, '0')
+
+      // 格式化为 "YYYY-MM-DD"
+      const formattedDate = `${year}-${month}-${day}`
+
+      return formattedDate
+    }
+  }
+]
+
+const selectShortcutFn = (shortcut) => {
+  let cacheStart = form.value.expectedUseCarTime
+  let cacheEnd = form.value.expectedReturnCarTime
+  // 移除副作用 start
+  // 由于没有配置 value 点击之后会进行清空，此时将当前值（点击快捷选择前的值）重新赋值，使页面不会出现清空情况
+  nextTick(() => {
+    // 如果当前picker为 form 一部分，需要清除必填提示
+    formRef.value.clearValidate('timeRange')
+    form.value.timeRange = [cacheStart, cacheEnd]
+    form.value.expectedUseCarTime = cacheStart
+    form.value.expectedReturnCarTime = cacheEnd
+  })
+  // 移除副作用 end
+  quickDateItemClicked(shortcut.label).then((val) => {
+    let startStr = val[0]
+    let endStr = val[1]
+    form.value.expectedUseCarTime = startStr
+    form.value.expectedReturnCarTime = endStr
+    form.value.timeRange = [startStr, endStr]
+  })
 }
 
+onBeforeMount(() => {
+  // 判断医生等级
+})
 onMounted(() => {
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
@@ -724,6 +968,32 @@ async function getMouthList() {
     }
   })
 }
+// 同步牙位信息
+const syncOption = (val) => {
+  let title = {}
+  let asyncOption = val.option
+  let optionId = ''
+  let item1 = mouthData.value.find((item) => item.className == '正面咬合')
+  // 选了一个同步另一个
+  if (val.option.optionName == '前牙反覆合') {
+    title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+    optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆盖').id
+  } else if (val.option.optionName == '前牙反覆盖') {
+    title = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+    optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆合').id
+  } else if (val.option.optionName == '前牙对刃') {
+    if (val.titleName == '前牙覆合') {
+      title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      optionId = title.orthOptionsList.find((option) => option.optionName == '前牙对刃').id
+    } else if (val.titleName == '前牙覆盖') {
+      title = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      optionId = title.orthOptionsList.find((option) => option.optionName == '前牙对刃').id
+    }
+  }
+
+  asyncOption.id = optionId
+  updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
+}
 
 const panoImageUrl = ref()
 const panoramicData = ref([])
@@ -732,13 +1002,18 @@ const requestMouth = ref(false)
 const codeTitleList = ref([])
 const sourceApmtId = ref()
 const classId = ref()
+const panoTime = ref()
 async function getPanoramicList() {
   const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
   panoramicData.value = result.data
-  console.log('🚀 ~ getPanoramicList ~ panoramicData.value:', panoramicData.value)
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
     classId.value = item.id
+    panoTime.value = item.orthImageStartTime?.slice(0, 10)
+    item.orthTitleList.forEach((title) => {
+      title.showInput = false
+      title.popVisible = false
+    })
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
@@ -756,18 +1031,14 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+          codeTitleList.value = res.data.slice(7)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
         }
       })
     }
-    item.orthTitleList.forEach((title) => {
-      title.showInput = false
-      title.popVisible = false
-    })
   })
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
@@ -1027,7 +1298,7 @@ const chooseImgNum = computed(() => {
   return num
 })
 
-const orthDoctorId = ref(+patientInfo.facialOrthDoctorId || '')
+const orthDoctorId = ref(+patientInfo?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1040,7 +1311,7 @@ async function getOrthDoctorList() {
     })
   }
 }
-const threeLevelDoctorId = ref(+patientInfo.facialReferralToDoctorId || '')
+const threeLevelDoctorId = ref(+patientInfo?.facialReferralToDoctorId || '')
 const threeLevelDoctorList = ref([])
 async function getThreeLevelDoctorList() {
   const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)
@@ -1094,7 +1365,7 @@ const handleBackToList = () => {
   padding-bottom: 10px;
 }
 .advice.el-dialog {
-  width: 500px;
+  width: 520px;
   border-radius: 12px;
   .el-dialog__body {
     padding: 0 24px;
@@ -1143,8 +1414,57 @@ const handleBackToList = () => {
 .el-input.measured .el-input__wrapper:hover {
   box-shadow: 0 0 0 1px #dcdfe6;
 }
+.el-picker-panel__shortcut:hover {
+  color: #1d2129;
+  background: #f2f3f5 !important;
+  width: 102px;
+  border-radius: 4px;
+}
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text {
+  background-color: #2e6ce4;
+  width: 32px;
+  height: 24px;
+  border-radius: 6px;
+}
 </style>
 <style lang="scss" scoped>
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+  padding: 0 12px;
+  border-bottom: 1px solid #e5e6eb;
+  margin-bottom: 20px;
+}
+:deep(.questionItem__header) {
+  border-top: 1px solid #e5e6eb;
+  &:first-child {
+    border-top: none;
+  }
+}
+:deep(.arco-textarea-wrapper) {
+  background: #ffffff;
+
+  box-sizing: border-box;
+  /* 线条/一般 */
+  border: 1px solid #e5e6eb;
+}
+
+.button {
+  width: 122px;
+  height: 32px;
+  border-radius: 8px;
+  opacity: 1;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 20px;
+  color: #ffffff;
+  background: #2e6ce4;
+}
 :deep .formItem.textarea {
   .formItem__label {
     margin-top: 10px;
@@ -1178,7 +1498,11 @@ const handleBackToList = () => {
 :deep .el-textarea__inner {
   width: 300px;
 }
-
+.patientCompliance {
+  :deep(.el-radio-button__inner) {
+    width: 88px;
+  }
+}
 :deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
   color: #2e6ce4;
   background-color: #fff;
@@ -1306,8 +1630,9 @@ const handleBackToList = () => {
   box-sizing: border-box;
   // font-family: 思源黑体;
   // padding: 20px;
-  margin: 15px;
+  margin: 12px;
   background: #fff;
+  padding-bottom: 20px;
   border-radius: 10px;
   .section {
     .content {
@@ -1318,7 +1643,6 @@ const handleBackToList = () => {
       }
     }
     &-header {
-      margin-bottom: 10px;
       cursor: pointer;
       position: sticky;
       top: 0px;

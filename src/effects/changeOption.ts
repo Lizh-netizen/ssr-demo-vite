@@ -1,6 +1,14 @@
 import { Post } from '../utils/request'
 //
-const useChangeOption = (optionId: any, title: any, appId: any, isShow: any, checkData: any) => {
+const useChangeOption = (
+  optionId: any,
+  title: any,
+  appId: any,
+  classId: any,
+  owningModule: any,
+  isShow: any,
+  checkData: any
+) => {
   if (title.titleName == '关节弹响') {
     if (title.orthOptionsList.find((a: any) => a.id == optionId)?.optionName == '弹响') {
       isShow.value = true
@@ -23,7 +31,9 @@ const useChangeOption = (optionId: any, title: any, appId: any, isShow: any, che
         }
       })
 
-      const sideTitle = checkData.value.orthTitleList.find((title1: any) => title1.titleName == '侧关节')
+      const sideTitle = checkData.value.orthTitleList.find(
+        (title1: any) => title1.titleName == '侧关节'
+      )
       let obj1 = {
         apmtId: appId,
         titleId: sideTitle.id,
@@ -31,10 +41,12 @@ const useChangeOption = (optionId: any, title: any, appId: any, isShow: any, che
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode: '',
-        showPosition: ''
+        showPosition: '',
+        classId: classId,
+        owningModule: owningModule
       }
       // 把侧位片的也清空
-      Post('/prod-api/business/optionsResult', obj1)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
     }
   } else if (
     title.titleName == '骨龄' &&

@@ -38,7 +38,8 @@
                   :title="title"
                   :appId="appId"
                   @refreshList="refreshList"
-                  owningModule="mouth"
+                  :classId="item.id"
+                  :owningModule="item.owningModule"
                   :notShowSvg="false"
                 ></Option>
               </form-item>
@@ -77,8 +78,9 @@
                     :disabled="!item.hasImage"
                     :title="title"
                     :appId="appId"
+                    :classId="item.id"
                     @refreshList="refreshList"
-                    owningModule="mouth"
+                    :owningModule="item.owningModule"
                     :notShowSvg="false"
                   ></Option>
                 </form-item>
@@ -120,8 +122,17 @@
                       <el-radio-group
                         v-if="title.type == 1"
                         v-model="title.optionId"
-                        @change="handleChangeOption(title.optionId, title)"
-                        @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
+                        @dblclick="
+                          handleEmptyRadio(title.optionId, title, item.id, item.owningModule)
+                        "
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -140,12 +151,26 @@
                         v-if="title.optionId == 136"
                         placeholder="请输入"
                         v-model="title.otherContent"
-                        @blur="handleSubmit(title.optionId, title)"
+                        @blur="
+                          handleSubmit(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
                       />
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
-                        @change="handleChangeOption(title.optionId, title)"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
                       >
                         <el-checkbox-button
                           :disabled="!panoramicData[0].hasImage"
@@ -175,8 +200,17 @@
                       <el-radio-group
                         v-if="title.type == 1"
                         v-model="title.optionId"
-                        @change="handleChangeOption(title.optionId, title)"
-                        @dblclick="handleEmptyRadio(title.optionId, title, 'pano')"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
+                        @dblclick="
+                          handleEmptyRadio(title.optionId, title, item.id, item.owningModule)
+                        "
                       >
                         <el-radio-button
                           :disabled="!panoramicData[0].hasImage"
@@ -195,12 +229,26 @@
                         v-if="title.optionId == 136"
                         placeholder="请输入"
                         v-model="title.otherContent"
-                        @blur="handleSubmit(title.optionId, title)"
+                        @blur="
+                          handleSubmit(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
                       />
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
-                        @change="handleChangeOption(title.optionId, title)"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
                       >
                         <el-checkbox-button
                           :disabled="!panoramicData[0].hasImage"
@@ -227,7 +275,14 @@
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
                   <template v-if="index >= 6 && index <= 12">
                     <form-item :label="title.titleName" width="120px">
-                      <Tooth :step="2" :title="title" :appId="appId" :data="panoramicData[0]" />
+                      <Tooth
+                        :step="2"
+                        :title="title"
+                        :appId="appId"
+                        :data="panoramicData[0]"
+                        :classId="panoramicData[0].id"
+                        :owningModule="panoramicData[0].owningModule"
+                      />
                     </form-item>
                   </template>
                 </template>
@@ -294,8 +349,8 @@
                     title.titleName == 'Wits'
                       ? title.titleName + `(mm)`
                       : title.titleName == 'S-Go/N-Me' || title.titleName == 'S-N/Go`-Me'
-                      ? title.titleName + `(%)`
-                      : title.titleName + `(˚)`
+                        ? title.titleName + `(%)`
+                        : title.titleName + `(˚)`
                   }}
                 </div>
                 <el-tooltip
@@ -345,7 +400,9 @@
                   </div>
                   <el-radio-group
                     class="cephaRadio"
-                    @change="handleChangeOption(title.optionId, title, '侧位片')"
+                    @change="
+                      handleChangeOption(title.optionId, title, cephaClassId, '侧位片', '侧位片')
+                    "
                     v-model="title.optionId"
                     ><el-radio-button
                       :disabled="!cephaImage"
@@ -373,8 +430,10 @@
                 <div class="formItem__content">
                   <el-radio-group
                     v-model="title.optionId"
-                    @change="handleChangeOption(title.optionId, title)"
-                    @dblclick="handleEmptyRadio(title.optionId, title, 'cepha')"
+                    @change="
+                      handleChangeOption(title.optionId, title, cephaClassId, '侧位片', '侧位片')
+                    "
+                    @dblclick="handleEmptyRadio(title.optionId, title, cephaClassId, '侧位片')"
                     ><el-radio-button
                       :disabled="!cephaImage"
                       :label="option.id"
@@ -398,11 +457,10 @@
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
   <!-- 影像管理弹窗 -->
   <ImageDialog
-    page="ortho"
+    module="ortho"
     :appId="appId"
     :patientId="patientId"
     :dialogVisible="imgDialogVisible"
-    :caption="title"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
@@ -564,7 +622,7 @@ const handleBlurInput = (title) => {
     fdiToothCode: '',
     showPosition: ''
   }
-  Post('/prod-api/business/optionsResult', obj).then((res) => {
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
     if (res.code == 200 && res.data.optionsId) {
       title.optionId = res.data.optionsId
       let obj1 = {
@@ -577,7 +635,7 @@ const handleBlurInput = (title) => {
         showPosition: ''
       }
       title.inputVal = title.cephalometricsContent
-      Post('/prod-api/business/optionsResult', obj1)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
       Post('/prod-api/business/optionsResult/updateAIType', {
         apmtId: appId,
         cephalometricsList: [
@@ -877,7 +935,7 @@ function drawPointsOnCanvas(ctx, image, canvas, pointList) {
   drawLineOnCanvas(ctx, canvas)
 }
 // 计算正貌
-async function calculateFrontal1(pointList) {
+async function calculateFrontal1(pointList, classId, owningModule) {
   const leftDistance = perpendicularDistance(pointList[6], pointList[0], pointList[3])
   const rightDistance = perpendicularDistance(pointList[5], pointList[0], pointList[3])
   const frontTitle = faceAccessData.value[0].orthTitleList[0]
@@ -885,50 +943,50 @@ async function calculateFrontal1(pointList) {
   frontTitle.aiTest = true
   if (leftDistance < rightDistance) {
     const optionId = frontTitle.orthOptionsList[2].id
-    await useUpdateOption(optionId, frontTitle, '', appId)
+    await useUpdateOption(optionId, frontTitle, appId, classId, owningModule)
   } else if (leftDistance > rightDistance) {
     const optionId = frontTitle.orthOptionsList[1].id
-    await useUpdateOption(optionId, frontTitle, '', appId)
+    await useUpdateOption(optionId, frontTitle, appId, classId, owningModule)
   } else {
     const optionId = frontTitle.orthOptionsList[0].id
-    await useUpdateOption(optionId, frontTitle, '', appId)
+    await useUpdateOption(optionId, frontTitle, appId, classId, owningModule)
   }
 }
 // 计算面中
-async function calculateFrontal2(pointList) {
+async function calculateFrontal2(pointList, classId, owningModule) {
   const middleTitle = faceAccessData.value[0].orthTitleList[3]
   middleTitle.aiFlag = '1'
   middleTitle.aiTest = true
   const middleDistance = perpendicularDistance(pointList[3], pointList[2], pointList[1])
   const averageDistance = averageThreeCourts(pointList)
-  compareThreeCourts(middleDistance, averageDistance, middleTitle)
+  compareThreeCourts(middleDistance, averageDistance, middleTitle, classId, owningModule)
 }
 // 计算面下
-async function calculateFrontal3(pointList) {
+async function calculateFrontal3(pointList, classId, owningModule) {
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
   const bottomDistance = calculateDistanceEffect(pointList[3], pointList[4])
   const averageDistance = averageThreeCourts(pointList)
-  compareThreeCourts(bottomDistance, averageDistance, bottomTitle)
+  compareThreeCourts(bottomDistance, averageDistance, bottomTitle, classId, owningModule)
 }
-async function calculateFront(pointList) {
-  await calculateFrontal1(pointList)
-  await calculateFrontal2(pointList)
-  await calculateFrontal3(pointList)
+async function calculateFront(pointList, classId, owningModule) {
+  await calculateFrontal1(pointList, classId, owningModule)
+  await calculateFrontal2(pointList, classId, owningModule)
+  await calculateFrontal3(pointList, classId, owningModule)
   getOrthFaceAccessList()
 }
 const AiTest = ref(false)
-async function compareThreeCourts(distance, averageDistance, title) {
+async function compareThreeCourts(distance, averageDistance, title, classId, owningModule) {
   if (distance > averageDistance) {
     const optionId = title.orthOptionsList[2].id
-    await useUpdateOption(optionId, title, '', appId)
+    await useUpdateOption(optionId, title, appId, classId, owningModule)
   } else if (distance < averageDistance) {
     const optionId = title.orthOptionsList[1].id
-    await useUpdateOption(optionId, title, '', appId)
+    await useUpdateOption(optionId, title, appId, classId, owningModule)
   } else {
     const optionId = title.orthOptionsList[0].id
-    await useUpdateOption(optionId, title, '', appId)
+    await useUpdateOption(optionId, title, appId, classId, owningModule)
   }
   getOrthFaceAccessList()
 }
@@ -963,7 +1021,7 @@ const faceSet = ref([])
 const FrontalReposeImageUrl = ref()
 const FrontalSmileImageUrl = ref()
 async function getOrthFaceAccessList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -998,7 +1056,7 @@ async function getOrthFaceAccessList() {
               y: item.ycoordinate
             }))
             if (AiTest.value) {
-              calculateFront(faceSet.value)
+              calculateFront(faceSet.value, item.id, item.owningModule)
             }
             // nextTick(() => {
             // 如果快速切换了页面，那么就不画图了
@@ -1023,7 +1081,7 @@ async function getOrthFaceAccessList() {
                     x: data[a].x * scaleFactorWidth,
                     y: data[a].y * scaleFactorHeight
                   }))
-                  calculateFront(faceSet.value)
+                  calculateFront(faceSet.value, item.id, item.owningModule)
                   const set = faceSet.value.map((item) => [item.label, item.x, item.y])
                   addFaceset(set)
                 }
@@ -1101,7 +1159,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
 }
 const mouthData = ref([])
 async function getOrthMouthList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1217,7 +1275,7 @@ function handlePanoData(panoramicData) {
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1266,8 +1324,10 @@ function isChineseOrEnglish(char) {
   const pattern = /^[a-zA-Z]$/ // 匹配中文字符范围（\u4E00-\u9FFF）和英文字母（大小写）
   return pattern.test(char)
 }
+const cephaClassId = ref()
 async function getOrthCephaList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/侧位片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`)
+  cephaClassId.value = result.data[0].id
   cephaData.value = result.data[0].orthTitleList
   cephaImage.value = result.data[0].imageUrl
   if (cephaData.value.some((i) => i.aiFlag == '0')) {
@@ -1589,7 +1649,7 @@ const handleZoomOutPic = (fromBtn) => {
               fdiToothCode: '',
               showPosition: ''
             }
-            Post('/prod-api/business/optionsResult', obj).then((res) => {
+            Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
               if (res.code == 200 && res.data.optionsId) {
                 item.optionId = res.data.optionsId
                 let obj1 = {
@@ -1601,7 +1661,7 @@ const handleZoomOutPic = (fromBtn) => {
                   fdiToothCode: '',
                   showPosition: ''
                 }
-                Post('/prod-api/business/optionsResult', obj1)
+                Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
               }
             })
           }
@@ -1619,7 +1679,7 @@ const handleZoomOutPic = (fromBtn) => {
             fdiToothCode: '',
             showPosition: ''
           }
-          Post('/prod-api/business/optionsResult', obj).then((res) => {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
             if (res.code == 200) {
               item.optionId = res.data.optionsId
               let obj1 = {
@@ -1631,7 +1691,7 @@ const handleZoomOutPic = (fromBtn) => {
                 fdiToothCode: '',
                 showPosition: ''
               }
-              Post('/prod-api/business/optionsResult', obj1)
+              Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
             }
           })
         } else if (
@@ -1648,7 +1708,7 @@ const handleZoomOutPic = (fromBtn) => {
             fdiToothCode: '',
             showPosition: ''
           }
-          Post('/prod-api/business/optionsResult', obj).then((res) => {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
             if (res.code == 200 && res.data.optionsId) {
               item.optionId = res.data.optionsId
               let obj1 = {
@@ -1660,7 +1720,7 @@ const handleZoomOutPic = (fromBtn) => {
                 fdiToothCode: '',
                 showPosition: ''
               }
-              Post('/prod-api/business/optionsResult', obj1)
+              Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
             }
           })
         }
@@ -2133,7 +2193,7 @@ async function updateResult() {
     if (!['颈椎分期', '腺样体', '扁桃体'].includes(item.titleName)) {
       item.measured = true
       let obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: item.id,
         optionsIdStr: [],
         otherContent: '',
@@ -2142,12 +2202,12 @@ async function updateResult() {
         showPosition: '',
         aiFlag: '1'
       }
-      Post('/prod-api/business/optionsResult', obj).then((res) => {
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
         // 返回的有optionsId的时候再调用选项的接口
         if (res.code == 200 && res.data.optionsId) {
           item.optionId = res.data.optionsId
           let obj1 = {
-            apmtId: appId,
+            aptmId: appId,
             titleId: item.id,
             optionsIdStr: [res.data.optionsId],
             otherContent: '',
@@ -2155,7 +2215,7 @@ async function updateResult() {
             fdiToothCode: '',
             showPosition: ''
           }
-          Post('/prod-api/business/optionsResult', obj1)
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
         }
       })
     }
@@ -2171,7 +2231,7 @@ function afterGetPoint() {
   calculateAllPoints()
   updateResult()
   // if (pointMoved.value) {
-  //   Get(`/prod-api/business/orthClass/list/2/侧位片/${appId}`).then((res) => {
+  //   Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`).then((res) => {
   //     res.data[0].orthTitleList.forEach((a) => {
   //       cephaData.value.forEach((title) => {
   //         if (a.titleName == title.titleName) {
@@ -2390,7 +2450,7 @@ onMounted(() => {
 })
 
 // 上传数据调用接口
-const handleChangeOption = (optionId, title, className) => {
+const handleChangeOption = (optionId, title, classId, owningModule, className) => {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -2400,13 +2460,13 @@ const handleChangeOption = (optionId, title, className) => {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       // 点击凸面型，凹面型的选项设置为空
-      useUpdateOption(null, title2, '', appId)
+      useUpdateOption(null, title2, appId, classId, owningModule)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-      useUpdateOption(null, title1, '', appId)
+      useUpdateOption(null, title1, appId, classId, owningModule)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2420,8 +2480,8 @@ const handleChangeOption = (optionId, title, className) => {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       title1.optionId = []
       title2.optionId = []
-      useUpdateOption(null, title1, '', appId)
-      useUpdateOption(null, title2, '', appId)
+      useUpdateOption(null, title1, appId, classId, owningModule)
+      useUpdateOption(null, title2, appId, classId, owningModule)
       //  点击完直面型需要重新请求接口
       getOrthFaceAccessList()
     }
@@ -2440,8 +2500,8 @@ const handleChangeOption = (optionId, title, className) => {
       ]
     })
   }
-  useChangeOption(optionId, title, appId)
-  useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule)
+  useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 
 // const handleSubmitTooth = (title) => {
@@ -2458,28 +2518,28 @@ const handleChangeOption = (optionId, title, className) => {
 //     fdiToothCode: title.toothCode.join(),
 //     showPosition: JSON.stringify(title.position)
 //   }
-//   Post('/prod-api/business/optionsResult', obj).then(() => {
+//   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
 //     title.submitAble = false
 //   })
 // }
-const handleSubmit = (optionId, title) => {
-  useUpdateOption(optionId, title, '', appId)
+const handleSubmit = (optionId, title, classId, owningModule) => {
+  useUpdateOption(optionId, title, appId, classId, owningModule)
 }
-async function handleEmptyRadio(optionId, title, owningModule) {
+async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
-    if (owningModule == 'face') {
+    useUpdateOption(null, title, appId, classId, owningModule)
+    if (owningModule == '面型评估') {
       getOrthFaceAccessList()
-    } else if (owningModule == 'mouth') {
+    } else if (owningModule == '口内照') {
       getOrthMouthList()
-    } else if (owningModule == 'pano') {
+    } else if (owningModule == '全景片') {
       getOrthPanoramicList()
-    } else if (owningModule == 'cepha') {
+    } else if (owningModule == '侧位片') {
       getOrthCephaList()
     }
     // 重新请求数据

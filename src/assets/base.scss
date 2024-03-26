@@ -8,6 +8,7 @@ html {
 }
 #app{
   position: relative;
+  height: 100%;
 }
 .icon {
   width: 1em;
@@ -126,4 +127,10 @@ img {
 }
 .arco-dropdown{
   border-radius: 12px !important;
+}
+.el-dialog__body{
+  padding: 0 18px!important;
+}
+.el-dialog{
+  background: #fff!important;
 }

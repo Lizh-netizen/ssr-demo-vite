@@ -163,7 +163,7 @@
         </template>
       </ArcoSpace>
     </div>
-    <div class="btn" v-if="showFilterBtn">
+    <div class="btn" v-if="true">
       <ArcoSpace size="medium">
         <template v-if="isShowUnfold">
           <ArcoButton type="text" @click="isspread = !isspread">
@@ -264,19 +264,40 @@ onBeforeMount(() => {
 // 筛选的响应式条件
 const modelVal = ref()
 
-watchEffect(() => {
-  if (storageName) {
-    if (!storageObj.value[storageName]) {
-      storageObj.value[storageName] = 1
-    } else {
-      storageObj.value[storageName] = storageObj.value[storageName] + 1
-    }
-    const storageList = JSON.parse(sessionStorage.getItem(storageName))
-    // 刚开始只是传递一个name，并没有缓存
-    if (storageList) {
-      // 有缓存直接用缓存，没有的话最开始初始化一个新的
-      modelVal.value = storageList
-      emit('setInitialState', storageName)
+watch(
+  () => storageName,
+  () => {
+    if (storageName) {
+      if (!storageObj.value[storageName]) {
+        storageObj.value[storageName] = 1
+      } else {
+        storageObj.value[storageName] = storageObj.value[storageName] + 1
+      }
+      const storageList = JSON.parse(sessionStorage.getItem(storageName))
+      // 刚开始只是传递一个name，并没有缓存
+      if (storageList) {
+        // 有缓存直接用缓存，没有的话最开始初始化一个新的
+        modelVal.value = storageList
+        emit('setInitialState', storageName)
+      } else {
+        modelVal.value = list.reduce((sum, item) => {
+          if (item.type === 'date' && item.defaultDate) {
+            if (item.dateType === 'range') {
+              sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
+            } else {
+              sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
+            }
+          } else if (item.type === 'tab') {
+            sum[item.prop] = item.tabOptions[0].value
+          } else {
+            sum[item.prop] = null
+          }
+          return sum
+        }, {})
+        modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+        modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+        emit('setInitialState', storageName)
+      }
     } else {
       modelVal.value = list.reduce((sum, item) => {
         if (item.type === 'date' && item.defaultDate) {
@@ -292,27 +313,9 @@ watchEffect(() => {
         }
         return sum
       }, {})
-      modelVal.value.officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
-      modelVal.value.doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-      emit('setInitialState', storageName)
     }
-  } else {
-    modelVal.value = list.reduce((sum, item) => {
-      if (item.type === 'date' && item.defaultDate) {
-        if (item.dateType === 'range') {
-          sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
-        } else {
-          sum[item.prop] = dayjs(item.defaultDate).format('YYYY-MM-DD')
-        }
-      } else if (item.type === 'tab') {
-        sum[item.prop] = item.tabOptions[0].value
-      } else {
-        sum[item.prop] = null
-      }
-      return sum
-    }, {})
   }
-})
+)
 // 当options为空数组，对应的当前选项清除
 watchEffect(() => {
   if (!updateProp) return
