@@ -149,6 +149,7 @@
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
               >进入面评</el-button
             >
+            <el-button @click="handleViewPdf(row)" v-if="currentTab == '面评'">查看报告</el-button>
             <el-button @click="handleViewOrth(row)" v-if="currentTab == '矫正方案'"
               >进入正畸方案</el-button
             >
@@ -642,7 +643,10 @@ async function verifyPermission() {
     }
   }
 }
-
+const handleViewPdf = (item) => {
+  sessionStorage.setItem('patientInfo', JSON.stringify(item))
+  window.open(item.pdfUrl)
+}
 const handleEvaluateOrth = (item) => {
   if (!hasPermission.value) {
     ElMessage.warning('无面评操作权限')
@@ -807,14 +811,14 @@ async function getAptmCount(val) {
 }
 
 const tabData = ref([
-  // {
-  //   svg_name: 'cardSvg1',
-  //   name: '面评矫正预约率',
-  //   left_num: 0,
-  //   right_num: 0,
-  //   left_text: '已录入矫正方案人数',
-  //   right_text: '需要矫正人数'
-  // },
+  {
+    svg_name: 'cardSvg1',
+    name: '面评矫正预约率',
+    left_num: 0,
+    right_num: 0,
+    left_text: '已录入矫正方案人数',
+    right_text: '需要矫正人数'
+  },
   {
     svg_name: 'cardSvg1',
     name: '面评',
@@ -822,15 +826,15 @@ const tabData = ref([
     right_num: 0,
     left_text: '已面评人数',
     right_text: '预约面型发育评估人数'
+  },
+  {
+    svg_name: 'cardSvg1',
+    name: '矫正方案',
+    left_num: 0,
+    right_num: 0,
+    left_text: '已录入矫正方案人数',
+    right_text: '需要矫正人数'
   }
-  // {
-  //   svg_name: 'cardSvg1',
-  //   name: '矫正方案',
-  //   left_num: 0,
-  //   right_num: 0,
-  //   left_text: '已录入矫正方案人数',
-  //   right_text: '需要矫正人数'
-  // }
 ])
 
 async function changeNote(val) {

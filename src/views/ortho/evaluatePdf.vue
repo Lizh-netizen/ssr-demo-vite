@@ -1,16 +1,22 @@
 <template>
   <template v-if="!src">
-    <div class="pdfContent" :style="{ display: 'none' }">
+    <div class="pdfContent">
       <div class="pdfPage">
         <div class="patientInfo color-#fff font-500">
           <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />patientInfo
+            <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
+              patientInfo.patientName
+            }}
           </div>
           <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />222
+            <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
+              patientInfo.privateId
+            }}
           </div>
           <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />222
+            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
+              patientInfo.StartTime.split(' ')[0]
+            }}
           </div>
         </div>
         <div class="pt-[150px]">
