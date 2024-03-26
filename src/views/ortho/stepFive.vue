@@ -30,7 +30,12 @@
               />
               <div class="title">目标</div>
             </div>
-            <draggable class="ORTHTARGET" :unmutable="true" :list="goalList"></draggable>
+            <draggable
+              class="ORTHTARGET"
+              :unmutable="true"
+              :list="goalList"
+              :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : 'auto' }"
+            ></draggable>
             <template v-if="planList?.some((plan) => plan.checked)">
               <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
                 <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
@@ -167,12 +172,14 @@
                 拔牙
               </div> -->
               <div style="position: absolute; right: 12px" class="flex">
-                <img
-                  src="../../assets/layout/Copy.svg"
-                  style="cursor: pointer"
-                  @click.stop="handleCopyPlan(plan)"
-                  class="mr-[14px]"
-                />
+                <el-tooltip class="box-item" effect="dark" content="复制方案" placement="top"
+                  ><img
+                    src="../../assets/layout/Copy.svg"
+                    style="cursor: pointer"
+                    @click.stop="handleCopyPlan(plan)"
+                    class="mr-[14px]"
+                /></el-tooltip>
+
                 <a-popconfirm
                   :style="{ width: planList.length > 1 ? 'auto' : '260px' }"
                   :content="planList.length > 1 ? '确定要删除吗？' : '方案必须有一个，确定清空吗？'"
@@ -188,8 +195,9 @@
                     }
                   "
                 >
-                  <img style="cursor: pointer" src="../../assets/layout/Delete.svg" />
-                </a-popconfirm>
+                  <a-tooltip class="box-item" effect="dark" content="删除方案" placement="top">
+                    <img style="cursor: pointer" src="../../assets/layout/Delete.svg" /> </a-tooltip
+                ></a-popconfirm>
               </div>
             </div>
             <div
@@ -279,7 +287,7 @@
                       ></draggable>
                     </div>
                     <div class="tool card">
-                      <div class="tool_title">工具</div>
+                      <div class="tool_title ml-[12px]">工具</div>
                       <draggable
                         class="ORTHTOOL"
                         :list="stage.toolIds"
@@ -321,7 +329,7 @@
             ><form-item :label="title.titleName">
               <el-checkbox-group
                 v-model="title.optionId"
-                @change="handleChangeOption(title.optionId, title)"
+                @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
               >
                 <template v-for="option in title.orthOptionsList" :key="option.id">
                   <template v-if="!option.optionSuffix"
@@ -341,13 +349,13 @@
                   </template>
                   <template v-else>
                     <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
-                    <template v-if="option.fdiToothCode == null">
+                    <template v-if="!option.fdiToothCode">
                       <el-popover
                         placement="right"
                         :width="490"
                         trigger="click"
                         @show="handleBeforeEnterPopover(option)"
-                        @after-leave="handleSubmitTooth(option, title)"
+                        @after-leave="handleSubmitTooth(option, title, item.id, item.owningModule)"
                       >
                         <template #reference>
                           <el-checkbox-button
@@ -379,8 +387,8 @@
                                     option.clicked
                                       ? option.seriousColor
                                       : option.hover
-                                      ? option.hoverColor
-                                      : option.fillColor
+                                        ? option.hoverColor
+                                        : option.fillColor
                                   "
                                   fill-opacity="1"
                                 />
@@ -433,8 +441,8 @@
                                     option.clicked
                                       ? option.seriousColor
                                       : option.hover
-                                      ? option.hoverColor
-                                      : option.fillColor
+                                        ? option.hoverColor
+                                        : option.fillColor
                                   "
                                   fill-opacity="1"
                                 />
@@ -450,7 +458,9 @@
                           :step="5"
                           :title="option"
                           :appId="appId"
-                          @submitTooth="(val) => handleSubmitTooth(val, title)"
+                          @submitTooth="
+                            (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
+                          "
                         />
                       </el-popover>
                     </template>
@@ -1081,7 +1091,7 @@ getFeatureEffect()
 const handleSubmit = () => {
   getOrthGoalList()
 }
-async function handleChangeOption(optionId, title, option, title1, owningModule) {
+async function handleChangeOption(optionId, title, classId, owningModule) {
   if (owningModule == '目标') {
     goalClicked.value = true
   }
@@ -1113,14 +1123,9 @@ async function handleChangeOption(optionId, title, option, title1, owningModule)
         }
       })
     }
-  } else if (title.titleName == '品牌') {
-    option.visible = false
-    useUpdateOption(option.otherContent, title, '', appId)
-    useUpdateOption(title1.optionId, title1, '', appId)
-    return
   }
-  useChangeOption(optionId, title, appId)
-  const res = await useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule)
+  const res = await useUpdateOption(title.optionId, title, appId, classId, owningModule)
   if (requestAgain.value && res.code == 200) {
     getOrthRiskList()
   }
@@ -1142,7 +1147,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-const handleSubmitTooth = (option, title) => {
+const handleSubmitTooth = (option, title, classId, owningModule) => {
   option.visible = false
   symptomList.value.forEach((row) => row.forEach((item) => (item.active = false)))
   let obj
@@ -1155,15 +1160,18 @@ const handleSubmitTooth = (option, title) => {
       )
       const option2 = title.orthOptionsList.find((a) => a.id === 236)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
         cephalometricsContent: '',
+        classId: classId,
+        owningModule: owningModule,
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        optionSuffix: '牙位图'
       }
     } else if (option.id === 236 && !option.toothCode.join()) {
       title.optionId.splice(
@@ -1172,7 +1180,7 @@ const handleSubmitTooth = (option, title) => {
       )
       const option2 = title.orthOptionsList.find((a) => a.id === 237)
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1181,7 +1189,9 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     }
   }
@@ -1189,7 +1199,7 @@ const handleSubmitTooth = (option, title) => {
     const option2 = title.orthOptionsList.find((a) => a.id === 236)
     if (option2.toothCode) {
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1198,14 +1208,16 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule
       }
     }
   } else {
     const option2 = title.orthOptionsList.find((a) => a.id === 237)
     if (option2.toothCode) {
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1213,7 +1225,10 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode1: option2.toothCode.join(),
         showPosition1: JSON.stringify(option2.position),
         fdiToothCode: option.toothCode.join(),
-        showPosition: JSON.stringify(option.position)
+        showPosition: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     } else {
       title.optionId.splice(
@@ -1221,7 +1236,7 @@ const handleSubmitTooth = (option, title) => {
         1
       )
       obj = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: title.optionId,
         otherContent: '',
@@ -1229,12 +1244,15 @@ const handleSubmitTooth = (option, title) => {
         fdiToothCode: option2.toothCode.join(),
         showPosition: JSON.stringify(option2.position),
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position)
+        showPosition1: JSON.stringify(option.position),
+        classId: classId,
+        owningModule: owningModule,
+        optionSuffix: '牙位图'
       }
     }
   }
 
-  Post('/prod-api/business/optionsResult', obj).then(() => {
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
     option.submitAble = false
     getOrthRiskList()
   })
@@ -1269,12 +1287,12 @@ const handleSubmitAddtionalContent = (title) => {
       fdiToothCode: '',
       showPosition: ''
     }
-    Post('/prod-api/business/optionsResult', obj)
+    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   }
 }
 const riskData = ref([])
 async function getOrthRiskList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/风险/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/风险/${appId}`)
   riskData.value = result.data
   riskData.value.forEach((item) => {
     item.orthTitleList.forEach((i) => {
@@ -1318,7 +1336,7 @@ async function getOrthRiskList() {
 getOrthRiskList()
 const remarkData = ref([])
 async function getRemark() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/备注/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/备注/${appId}`)
   remarkData.value = result.data
 }
 

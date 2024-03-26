@@ -13,7 +13,11 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～
+              {{
+                module == 'ortho'
+                  ? '可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～'
+                  : '可直接拖拽照片到右侧指定位置～'
+              }}
             </div>
             <div class="title__right file-upload">
               <div class="file-upload__label">
@@ -94,7 +98,7 @@
             </template>
           </div>
 
-          <div class="classifyWrapper">
+          <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
           </div>
@@ -185,7 +189,7 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
 
 const props = defineProps({
-  page: {
+  module: {
     type: String,
     default: ''
   },
@@ -304,6 +308,7 @@ async function getClassifiedImgList() {
         if (item.imageType == a.caption) {
           a.fileUrl = item.imageUrl
           a.id = item.id
+          a.startTime = item.startTime
         }
       })
     })
@@ -338,7 +343,7 @@ const handleLoadPic = () => {
 
 // 右侧分类图片占位
 const imageList =
-  props.page == 'ortho'
+  props.module == 'ortho'
     ? ref([
         {
           caption: '正面像',
@@ -736,7 +741,8 @@ async function handleSingleImage(file, image) {
           {
             ljUrl: file.imgUrl,
             ljId: file.id,
-            LJCreateDatetime: file.timestamp
+            LJCreateDatetime: file.timestamp,
+            startTime: file.StartTime
           }
         ]
       })
@@ -746,6 +752,7 @@ async function handleSingleImage(file, image) {
   if (res.code == 200 && res.data[0].fileUrl) {
     image.fileUrl = res.data[0].fileUrl
     image.imageId = res.data[0].fileId
+    image.startTime = res.data[0].startTime
   } else {
     image.fileUrl = placeholderUrl
     if (failCount.value == 0) {
@@ -762,15 +769,18 @@ async function handleSingleImage(file, image) {
     }
   }
 }
+
 // 保存图片
 async function handleSavePics() {
   emit('cancel')
   imageList.value.forEach((item) => (item.reminder = false))
+
   const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
-    imageId: item.fileId || null
+    imageId: item.fileId || null,
+    startTime: item.startTime
   }))
   Post('/prod-api/business/orthImage', {
     apmtId: props.appId,
@@ -802,11 +812,11 @@ const handleCloseImgDialog = () => {
   position: relative;
   display: flex;
   .title {
-    width: 557px;
+    width: 547px;
     height: 50px;
     position: absolute;
+    background: #ffffff;
     display: flex;
-    background: #fff;
     z-index: 2;
     align-items: center;
     padding: 0 16px;
@@ -843,7 +853,7 @@ const handleCloseImgDialog = () => {
   }
   .file-upload {
     position: relative;
-    cursor: pointer;
+    cursor: pointer !important;
   }
 
   .file-upload__label {
@@ -970,8 +980,8 @@ const handleCloseImgDialog = () => {
     }
   }
   .classifyWrapper {
-    width: 554px;
-    right: 580px;
+    width: 544px;
+    right: 570px;
     bottom: 0px;
     position: absolute;
     height: 50px;

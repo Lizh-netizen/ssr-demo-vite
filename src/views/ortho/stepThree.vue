@@ -11,7 +11,9 @@
         <template v-if="index <= 1">
           <el-radio-group
             v-model="title.optionId"
-            @change="handleChangeOption(title.optionId, title)"
+            @change="
+              handleChangeOption(title.optionId, title, modelData.id, modelData.owningModule)
+            "
             @dblclick="handleEmptyRadio(title.optionId, title)"
           >
             <template v-for="option in title.orthOptionsList" :key="option.id">
@@ -51,7 +53,7 @@
 
 <script setup>
 import ModelAnalysis from '@/components/list/modelAnalysis.vue'
-import { ref, defineProps, defineExpose } from 'vue'
+import { ref, defineProps, defineExpose, onBeforeMount } from 'vue'
 import Header from '@/components/list/header.vue'
 import FormItem from '@/components/list/customFormItem.vue'
 import { Get, Post } from '@/utils/request'
@@ -72,7 +74,7 @@ const route = useRoute()
 const appId = route.params.appId
 const modelData = ref({})
 async function getOrthModelList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/模型分析/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/模型分析/${appId}`)
   const a = result.data[0].orthTitleList[2]
   result.data[0].orthTitleList.splice(2, 1)
   result.data[0].orthTitleList.splice(3, 0, a)
@@ -108,8 +110,8 @@ async function getOrthModelList() {
             +title.cephalometricsContent < 0
               ? title.left
               : +title.cephalometricsContent > 2
-              ? title.right
-              : title.middle
+                ? title.right
+                : title.middle
         } else {
           title.conclusion = ''
         }
@@ -141,15 +143,15 @@ const handleChange = (val, title) => {
         title.value < +title.min.slice(0, 1)
           ? title.left
           : title.value > +title.max.slice(0, 1)
-          ? title.right
-          : title.middle
+            ? title.right
+            : title.middle
     } else {
       title.conclusion =
         title.value < +title.min.slice(0, 5)
           ? title.left
           : title.value > +title.max.slice(0, 5)
-          ? title.right
-          : title.middle
+            ? title.right
+            : title.middle
     }
   }
   const obj = {
@@ -161,16 +163,15 @@ const handleChange = (val, title) => {
     fdiToothCode: '',
     showPosition: ''
   }
-  Post('/prod-api/business/optionsResult', obj)
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
-const handleChangeOption = (optionId, title) => {
+const handleChangeOption = (optionId, title, classId, owningModule) => {
   clicked.value = true
-  console.log(props.pdfId)
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
-  useChangeOption(optionId, title, appId)
-  useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule)
+  useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title) {
   if (
@@ -179,7 +180,7 @@ async function handleEmptyRadio(optionId, title) {
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
+    useUpdateOption(null, title, appId, classId, owningModule)
     getOrthModelList()
     // 重新请求数据
   }

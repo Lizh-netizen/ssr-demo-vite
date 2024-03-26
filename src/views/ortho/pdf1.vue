@@ -100,12 +100,12 @@
               <list :list="item.list" />
             </div>
             <div class="subTitle" v-if="data.find((item) => item.owningModule == '方案')">方案</div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule == '方案').list"
-                v-if="data.find((item) => item.owningModule == '方案')"
-              />
-            </div>
+            <!-- <div class="content">
+            <list
+              :list="data.find((item) => item.owningModule == '方案').list"
+              v-if="data.find((item) => item.owningModule == '方案')"
+            />
+          </div> -->
           </div>
         </template>
         <template v-if="item.owningModule === '面型评估'">
@@ -274,20 +274,51 @@
             </div>
           </div>
         </template>
-        <template v-if="item.owningModule === '目标'">
+        <template v-if="item.owningModule === '风险' || item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="目标&方法&风险" />
-            <div class="subTitle">目标</div>
+            <div class="subTitle">方案</div>
             <div class="content">
-              <list :list="item.list" />
-            </div>
-            <template v-if="item.method">
-              <div class="subTitle">方法</div>
-              <div class="content">
-                <list :list="item.method.list" />
+              <div v-for="item in mockData" :key="item.planName">
+                <div class="color-#404682 mb-[8px]! flex items-center">
+                  <div class="font-size-[13px]">{{ item.planName }}</div>
+                  <div
+                    v-if="item.checked"
+                    class="bg-#F99020 border-rd-[4px] font-size-[10px] px-[8px]! py-[3px]! color-#FFFFFF ml-[8px]!"
+                  >
+                    当前方案
+                  </div>
+                </div>
+                <div class="flex gap-[4px]">
+                  <div
+                    v-for="feature in item.featureList"
+                    :key="feature"
+                    class="planItem mb-[8px]!"
+                  >
+                    {{ feature.label }}
+                  </div>
+                </div>
+                <div
+                  v-if="item.stageList.length"
+                  class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] py-[8px]! px-[12px]!"
+                  style="border: 1px solid #e5e6eb"
+                >
+                  <div></div>
+                  <div v-for="stage in item.stageList" :key="stage.stageName">
+                    <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
+                      <div>{{ stage.stageName }}</div>
+                      <div class="flex">
+                        <div v-for="goal in stage.goalList">{{ goal.label }}</div>
+                      </div>
+                      <div class="flex">
+                        <div v-for="tool in stage.toolList">{{ tool.label }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </template>
+            </div>
             <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
             <div class="content">
               <list
@@ -495,7 +526,39 @@ async function getDataList() {
       )
     }
   }
+  console.log(data.value)
 }
+const mockData = [
+  {
+    planName: '方案一',
+    checked: true,
+    featureList: [{ label: '中等难度' }, { label: '中等难度' }],
+    stageList: [
+      { stageName: '阶段', goalList: [{ label: '目标' }], toolList: [{ label: '工具' }] },
+      {
+        stageName: '3个月',
+        goalList: [{ label: '目标1' }, { label: '目标2' }],
+        toolList: [{ label: '工具1' }, { label: '工具2' }]
+      },
+      {
+        stageName: '6个月',
+        goalList: [{ label: '目标1' }, { label: '目标2' }],
+        toolList: [{ label: '工具1' }, { label: '工具2' }]
+      }
+    ]
+  },
+  {
+    planName: '方案er',
+    checked: false,
+    featureList: [{ label: '中等难度' }, { label: '中等难度' }],
+    stageList: [
+      {
+        stageName: '3个月',
+        goalList: [{ label: '目标1' }, { label: '目标2' }]
+      }
+    ]
+  }
+]
 const imgCount = ref(0)
 // 获取完数据在其中添加图片
 async function getClassifiedImgList() {
@@ -669,6 +732,13 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+.planItem {
+  background: rgba(64, 70, 130, 0.1);
+  border-radius: 4px;
+  color: #404682;
+  font-size: 10px;
+  padding: 3px 8px;
+}
 .FrontalSmile1Wrapper {
   position: absolute;
   width: 500px;

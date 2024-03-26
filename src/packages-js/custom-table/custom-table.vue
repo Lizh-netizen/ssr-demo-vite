@@ -76,9 +76,9 @@ import CustomTableItem from '../custom-table-item/custom-table-item.vue'
 // 接收
 const {
   data,
-  pagination = false,
+  pagination = true,
   total,
-  hideOnSinglePage = false,
+  hideOnSinglePage = true,
   columns,
   pagesStorage,
   showSet

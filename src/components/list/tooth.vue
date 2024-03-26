@@ -85,7 +85,7 @@ import { ref, watch, onMounted } from 'vue'
 import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
-const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId'])
+const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId', 'owningModule'])
 const emit = defineEmits(['submitTooth', 'changePopVisible'])
 const title = ref(props.title)
 
@@ -134,15 +134,16 @@ const handleSubmitTooth = (title) => {
       cephalometricsContent: '',
       optionSuffix: '牙位图',
       fdiToothCode: title.toothCode.join(),
-      showPosition: JSON.stringify(title.position)
+      showPosition: JSON.stringify(title.position),
+      classId: props.classId,
+      owningModule: props.owningModule
     }
     if (props.module == 'evaluate') {
-      obj.classId = props.classId
       Post('/prod-api/business/facialResult', obj).then(() => {
         title.submitAble = false
       })
     } else {
-      Post('/prod-api/business/optionsResult', obj).then(() => {
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
         title.submitAble = false
       })
     }
@@ -152,18 +153,16 @@ const handleSubmitTooth = (title) => {
   // 清理掉poper
 }
 const openPop = (title, item) => {
-  if (!item?.hasImage) {
-    return
-  } else {
-    // 点击下一个十字牙位时，先吧之前的清空
+  // 如果没有图片，就不显示popover
 
-    item.orthTitleList.forEach((t) => {
-      if (title !== t) {
-        t.popVisible = false
-      }
-    })
-    title.popVisible = !title.popVisible
-  }
+  // 点击下一个十字牙位时，先吧之前的清空
+
+  item.orthTitleList.forEach((t) => {
+    if (title !== t) {
+      t.popVisible = false
+    }
+  })
+  title.popVisible = !title.popVisible
 }
 const handleClick = (title, data) => {
   openPop(title, data)

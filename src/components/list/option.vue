@@ -62,8 +62,8 @@
                     option.clicked
                       ? option.seriousColor
                       : option.hover
-                      ? option.hoverColor
-                      : option.fillColor
+                        ? option.hoverColor
+                        : option.fillColor
                   "
                   fill-opacity="1"
                 />
@@ -153,8 +153,13 @@ const props = defineProps({
   notShowSvg: {
     type: Boolean,
     default: false
+  },
+  classId: {
+    type: Number,
+    default: 0
   }
 })
+
 const emit = defineEmits(['refreshList'])
 async function handleEmptyRadio(optionId, title, owningModule) {
   if (
@@ -163,7 +168,7 @@ async function handleEmptyRadio(optionId, title, owningModule) {
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', props.appId)
+    useUpdateOption(null, title, props.appId, props.classId, props.owningModule)
     emit('refreshList', props.owningModule)
     // 重新请求数据
   }
@@ -174,9 +179,8 @@ async function handleChangeOption(optionId, title) {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
-
   useChangeOption(optionId, title, props.appId, props.isShow, props.checkData)
-  await useUpdateOption(title.optionId, title, '', props.appId)
+  await useUpdateOption(title.optionId, title, props.appId, props.classId, props.owningModule)
 }
 const handleSubmit = (optionId, title) => {
   useUpdateOption(optionId, title, '', props.appId)

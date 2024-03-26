@@ -40,7 +40,8 @@
                   :title="title"
                   :appId="appId"
                   @refreshList="refreshList"
-                  owningModule="inquiry"
+                  owningModule="问诊"
+                  :classId="item.id"
                 ></Option>
               </form-item>
             </div>
@@ -58,7 +59,8 @@
                 :title="title"
                 :appId="appId"
                 @refreshList="refreshList"
-                owningModule="inquiry"
+                owningModule="问诊"
+                :classId="item.id"
               ></Option>
             </form-item>
           </div>
@@ -73,8 +75,12 @@
             <el-radio-group
               v-if="title.type == 1"
               v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title)"
-              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
+              @change="
+                handleChangeOption(title.optionId, title, checkData.id, checkData.owningModule)
+              "
+              @dblclick="
+                handleEmptyRadio(title.optionId, title, checkData.id, checkData.owningModule)
+              "
             >
               <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
                 <el-radio-button
@@ -126,8 +132,8 @@
                               option.clicked
                                 ? option.seriousColor
                                 : option.hover
-                                ? option.hoverColor
-                                : option.fillColor
+                                  ? option.hoverColor
+                                  : option.fillColor
                             "
                             fill-opacity="1"
                           />
@@ -139,7 +145,15 @@
                     maxlength="2"
                     :ref="inputRefs[index - 2]"
                     v-model="option.otherContent"
-                    @blur="handleSubmitContent(title.optionId, title, option)"
+                    @blur="
+                      handleSubmitContent(
+                        title.optionId,
+                        title,
+                        option,
+                        checkData.id,
+                        checkData.owningModule
+                      )
+                    "
                     :class="{
                       borderless: option.otherContent
                     }"
@@ -151,7 +165,9 @@
             <el-checkbox-group
               v-model="title.optionId"
               v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title)"
+              @change="
+                handleChangeOption(title.optionId, title, checkData.id, checkData.owningModule)
+              "
             >
               <el-checkbox-button
                 :class="{
@@ -176,7 +192,7 @@
               "
               placeholder="请输入"
               v-model="title.otherContent"
-              @blur="handleSubmit(title.optionId, title)"
+              @blur="handleSubmit(title.optionId, title, checkData.id, checkData.owningModule)"
             />
           </form-item>
         </template>
@@ -189,8 +205,12 @@
             <el-radio-group
               class="specialRadio"
               v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title)"
-              @dblclick="handleEmptyRadio(title.optionId, title, 'check')"
+              @change="
+                handleChangeOption(title.optionId, title, checkData.id, checkData.owningModule)
+              "
+              @dblclick="
+                handleEmptyRadio(title.optionId, title, checkData.id, checkData.owningModule)
+              "
             >
               <el-radio-button
                 :class="{
@@ -274,7 +294,7 @@ const props = defineProps({
   pdfId: String
 })
 const refreshList = (val) => {
-  if (val == 'inquiry') {
+  if (val == '问诊') {
     getOrthInquiryList()
   }
 }
@@ -292,6 +312,7 @@ const handleMouseEnter = (option) => {
 let timeout
 const handleMouseLeave = (option) => {
   option.hover = false
+  if (!option.otherContent) return
   timeout = setTimeout(() => {
     option.visible = false
   }, 300)
@@ -302,10 +323,17 @@ const handleMouseLeave = (option) => {
     })
   })
 }
-async function handleSubmitContent(optionId, title, option) {
+async function handleSubmitContent(optionId, title, option, classId, owningModule) {
   option.visible = false
   if (option.otherContent) {
-    const res = await useUpdateOption(optionId, title, option.otherContent, appId)
+    const res = await useUpdateOption(
+      optionId,
+      title,
+      appId,
+      classId,
+      owningModule,
+      option.otherContent
+    )
     if ((res.code == 200) & (title.titleName == '骨龄')) {
       getOrthCheckList()
     }
@@ -328,7 +356,7 @@ getPatientInfo()
 
 const inquiryData = ref([])
 async function getOrthInquiryList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/问诊/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/问诊/${appId}`)
   inquiryData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -365,7 +393,7 @@ getOrthInquiryList()
 const checkData = ref({})
 const inputRefs = ref([])
 async function getOrthCheckList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/临床检查/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/临床检查/${appId}`)
 
   checkData.value = result.data[0]
   result.data.forEach((item) => {
@@ -455,14 +483,14 @@ getOrthCheckList()
 // 上传调用接口
 const isShow = ref(false)
 
-async function handleChangeOption(optionId, title) {
+async function handleChangeOption(optionId, title, classId, owningModule) {
   clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
 
-  useChangeOption(optionId, title, appId, isShow, checkData)
-  await useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule, isShow, checkData)
+  await useUpdateOption(title.optionId, title, appId, classId, owningModule)
   // if ((res.code == 200) & (title.titleName == '骨龄')) {
   //   // getOrthCheckList()
   // }
@@ -484,7 +512,7 @@ async function handleChange(obj, title) {
       fdiToothCode: '',
       showPosition: ''
     }
-    await Post('/prod-api/business/optionsResult', obj1)
+    await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
   }
   if (title.titleName == '侧关节') {
     let obj1 = {
@@ -496,22 +524,22 @@ async function handleChange(obj, title) {
       fdiToothCode: '',
       showPosition: ''
     }
-    await Post('/prod-api/business/optionsResult', obj1)
+    await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
   }
 }
 
-const handleSubmit = (optionId, title) => {
-  useUpdateOption(optionId, title, '', appId)
+const handleSubmit = (optionId, title, classId, owningModule) => {
+  useUpdateOption(optionId, title, appId, classId, owningModule)
 }
-async function handleEmptyRadio(optionId, title, owningModule) {
+async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
-    if (owningModule == 'inquiry') {
+    useUpdateOption(null, title, appId, classId, owningModule)
+    if (owningModule == '问诊') {
       getOrthInquiryList()
     } else {
       getOrthCheckList()

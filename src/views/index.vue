@@ -16,6 +16,7 @@
     <div class="content-wrapper">
       <div class="content">
         <filter-search
+          v-if="isChangeTab"
           @filter="filter"
           :storageName="storageName"
           @setInitialState="setInitialState"
@@ -51,6 +52,7 @@
         ></filter-search>
 
         <CustomTable
+          v-if="isChangeTab"
           :data="patientList"
           :columns="columns"
           :pagination="true"
@@ -83,10 +85,10 @@
               row.difficultyLevel == 1
                 ? '低风险'
                 : row.difficultyLevel == 2
-                ? '中风险'
-                : row.difficultyLevel == 3
-                ? '高风险'
-                : ''
+                  ? '中风险'
+                  : row.difficultyLevel == 3
+                    ? '高风险'
+                    : ''
             }}
           </template>
           <template #orthDoctorName="{ row }">
@@ -105,12 +107,12 @@
                 row.facialAdvise == 1
                   ? '立即矫正'
                   : row.facialAdvise == 2
-                  ? '无需矫正'
-                  : row.facialAdvise == 3
-                  ? '后续面评'
-                  : row.facialAdvise == 4
-                  ? '转三级面评'
-                  : '未评估'
+                    ? '无需矫正'
+                    : row.facialAdvise == 3
+                      ? '后续面评'
+                      : row.facialAdvise == 4
+                        ? '转三级面评'
+                        : '未评估'
               }}
             </div>
           </template>
@@ -301,7 +303,7 @@ const requestAble = ref({})
 const aptmAble = ref(false)
 const orthoAble = ref(false)
 const evalAble = ref(false)
-
+const userInfo = ref()
 if (params.token) {
   sessionStorage.odos_token = params.token
 }
@@ -312,24 +314,28 @@ const setInitialState = (val) => {
 }
 // 切换卡片
 // 首次渲染的时候也执行了
-const changeTab = (val) => {
+const isChangeTab = ref(true)
+const changeTab = async (val) => {
+  isChangeTab.value = await Promise.resolve(false)
   currentTab.value = val
   sessionStorage.setItem('currentTab', val)
   // 添加缓存
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
-  if (strategy[currentTab.value].firstReq) {
-    const args = getCache(currentTab)
-    strategy[val].request(args)
-  }
+  // if (strategy[currentTab.value].firstReq) {
+  const args = getCache(currentTab)
+  strategy[val].request(args)
+  // }
+  isChangeTab.value = await Promise.resolve(true)
 }
+
 // 只有在一次点击卡片的时候才会执行watch中的请求
 watch(requestAble.value, (newVal) => {
-  if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
-    const args = getCache(currentTab)
-    strategy[currentTab.value].request(args)
-    strategy[currentTab.value].firstReq = true
-  }
+  // if (newVal[strategy[currentTab.value].storage] && !strategy[currentTab.value].firstReq) {
+  const args = getCache(currentTab)
+  strategy[currentTab.value].request(args)
+  strategy[currentTab.value].firstReq = true
+  // }
 })
 const strategy = {
   面评: {
@@ -373,6 +379,7 @@ const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
+
 // const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
 // const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
 const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
@@ -616,9 +623,37 @@ const handleViewOrth = (item) => {
   router.push(`/ortho/${item.apmtId}/${item.patientId}`)
   window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
 }
+const orthStatus = ref(-1)
+const hasPermission = ref(false)
+async function verifyPermission() {
+  const res = await Get(
+    `/prod-api/emr/public/api/v1/assessment/getOrthDoctorInfoByDoctorId/${userInfo.value?.ljProviderId}`
+  )
+  if (res.code == 200 && res.data.length > 0 && res.data[0].orthLevel) {
+    if (res.data[0].orthLevel == '一级正畸医生') {
+      orthStatus.value = 1
+      hasPermission.value = true
+    } else if (res.data[0].orthLevel == '二级正畸医生') {
+      orthStatus.value = 2
+      hasPermission.value = true
+    } else if (res.data[0].orthLevel == '三级正畸医生') {
+      orthStatus.value = 3
+      hasPermission.value = true
+    }
+  }
+}
+
 const handleEvaluateOrth = (item) => {
+  if (!hasPermission.value) {
+    ElMessage.warning('无面评操作权限')
+    return
+  }
   sessionStorage.setItem('patientInfo', JSON.stringify(item))
-  const path = `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  let path = ''
+  path =
+    orthStatus.value !== -1
+      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
+      : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
   router.push(path)
 }
 const handleCompareOrth = (item) => {
@@ -646,19 +681,24 @@ watch(
   (val) => {
     if (val == '面评') {
       patientList.value = evaluateList.value
+      total.value = 0
     } else if (val == '矫正方案') {
       patientList.value = orthoList.value
+      total.value = 0
     } else {
       patientList.value = aptmList.value.map((i) => ({
         ...i
       }))
+      total.value = 0
     }
     columns.value = strategy[val].config
   },
   { immediate: true }
 )
+
 onBeforeMount(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
+  userInfo.value = jc_odos_user
   const list = ['aptm', 'ortho', 'evaluate']
   list.forEach((element) => {
     if (sessionStorage.getItem(element)) {
@@ -667,8 +707,8 @@ onBeforeMount(() => {
     sessionStorage.setItem(
       [element],
       JSON.stringify({
-        doctorId: jc_odos_user.ljProviderId,
-        officeId: jc_odos_user.ljOfficeId,
+        doctorId: jc_odos_user?.ljProviderId,
+        officeId: jc_odos_user?.ljOfficeId,
         date: element !== 'aptm' ? date.value : [firstDate.value, date.value]
       })
     )
@@ -678,10 +718,9 @@ onBeforeMount(() => {
     // 初始化
     pagesStorage.value = strategy[currentTab.value].page
     const val = sessionStorage.getItem('currentTab')
-    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
 
-    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljProviderId
-
+    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
     for (let key in strategy) {
       if (key == '面评') {
         const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
@@ -722,6 +761,7 @@ onBeforeMount(() => {
     }
     storageName.value = strategy[val].storage
     pagesStorage.value = strategy[val].page
+    verifyPermission()
   })
 
 // 看板数据
@@ -767,14 +807,14 @@ async function getAptmCount(val) {
 }
 
 const tabData = ref([
-  {
-    svg_name: 'cardSvg1',
-    name: '面评矫正预约率',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
-  },
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '面评矫正预约率',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // },
   {
     svg_name: 'cardSvg1',
     name: '面评',
@@ -782,15 +822,15 @@ const tabData = ref([
     right_num: 0,
     left_text: '已面评人数',
     right_text: '预约面型发育评估人数'
-  },
-  {
-    svg_name: 'cardSvg1',
-    name: '矫正方案',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
   }
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '矫正方案',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // }
 ])
 
 async function changeNote(val) {

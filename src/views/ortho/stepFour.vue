@@ -40,7 +40,7 @@
             <el-radio-group
               v-if="title.type == 1"
               v-model="title.optionId"
-              @change="handleChangeOption(title.optionId, title)"
+              @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
               @dblclick="handleEmptyRadio(title.optionId, title)"
             >
               <template v-for="option in title.orthOptionsList" :key="option.id">
@@ -58,7 +58,7 @@
             <el-checkbox-group
               v-model="title.optionId"
               v-if="title.type == 2"
-              @change="handleChangeOption(title.optionId, title)"
+              @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
             >
               <el-checkbox-button
                 :class="{
@@ -151,7 +151,7 @@ getOrthQuestionList()
 
 const diagnoseData = ref([])
 async function getOrthDiagnoseList() {
-  const result = await Get(`/prod-api/business/orthClass/list/2/诊断/${appId}`)
+  const result = await Get(`/prod-api/emr/orthPlan/list/2/诊断/${appId}`)
   diagnoseData.value = result.data
   if (result.data[0].classFlag) {
     clicked.value = true
@@ -182,13 +182,13 @@ async function getOrthDiagnoseList() {
   })
 }
 getOrthDiagnoseList()
-const handleChangeOption = (optionId, title) => {
+const handleChangeOption = (optionId, title, classId, owningModule) => {
   clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
-  useChangeOption(optionId, title, appId)
-  useUpdateOption(title.optionId, title, '', appId)
+  useChangeOption(optionId, title, appId, classId, owningModule)
+  useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title) {
   if (
@@ -197,7 +197,7 @@ async function handleEmptyRadio(optionId, title) {
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    useUpdateOption(null, title, '', appId)
+    useUpdateOption(null, title, appId, classId, owningModule)
     getOrthDiagnoseList()
     // 重新请求数据
   }
