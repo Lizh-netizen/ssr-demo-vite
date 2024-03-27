@@ -450,7 +450,7 @@
           </div>
         </div>
         <div class="pt-[150px]">
-          <div class="check">
+          <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
               class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
             >
@@ -465,7 +465,10 @@
           <div class="px-[20px] py-[10px]">
             <div class="flex">
               <!-- 面型评估 -->
-              <div class="mr-[10px] borderBox">
+              <div
+                class="mr-[10px] borderBox"
+                v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
+              >
                 <div
                   class="h-[50px] w-[420px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500"
                 >
@@ -486,7 +489,10 @@
               </div>
 
               <!-- 全景片 -->
-              <div class="flex-1 borderBox">
+              <div
+                class="flex-1 borderBox"
+                v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
+              >
                 <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
                   全景片
                 </div>
@@ -505,7 +511,10 @@
               </div>
             </div>
             <!-- 口内照 -->
-            <div class="mt-[12px] borderBox">
+            <div
+              class="mt-[12px] borderBox"
+              v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
+            >
               <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
                 口内照
               </div>
@@ -520,7 +529,7 @@
                     :key="image.imageUrl"
                   />
                 </div>
-                <div class="flex-1"><List :list="mouthDataPdf?.list" /></div>
+                <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
               </div>
             </div>
           </div>
@@ -682,12 +691,13 @@ async function handleAdvice() {
   }
   loading.value = ElLoading.service({
     lock: true,
-    text: '报告生成中',
+    text: '保存中',
     // 把颜色改成不透明的，就看不到后面的pdf的内容了
     background: 'rgba(37, 38, 38, 1)'
   })
   main()
 }
+
 const loading = ref()
 
 const rangeShortcuts = [
@@ -1500,7 +1510,7 @@ async function getDataList(appId) {
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
-  console.log('🚀 ~ getDataList ~ panoData.value:', panoData.value)
+
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
 }
 // 得到当天日期
@@ -1515,7 +1525,7 @@ const formattedDate = `${year}-${month}-${day}`
 const generatePDF = () => {
   try {
     const options = {
-      filename: `${patientInfo.patientName}__正畸报告__${formattedDate}.pdf`,
+      filename: `${patientInfo.patientName}__面评报告__${formattedDate}.pdf`,
       margin: 0,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, dpi: 96 },
@@ -1548,7 +1558,7 @@ const generatePDF = () => {
               })
               ElMessage({
                 type: 'success',
-                message: '报告生成成功'
+                message: '保存成功'
               })
             } else {
               ElMessage({

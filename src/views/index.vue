@@ -644,6 +644,10 @@ async function verifyPermission() {
   }
 }
 const handleViewPdf = (item) => {
+  if (!item.pdfUrl) {
+    ElMessage.warning('暂无报告哦')
+    return
+  }
   sessionStorage.setItem('patientInfo', JSON.stringify(item))
   window.open(item.pdfUrl)
 }
@@ -652,12 +656,24 @@ const handleEvaluateOrth = (item) => {
     ElMessage.warning('无面评操作权限')
     return
   }
-  sessionStorage.setItem('patientInfo', JSON.stringify(item))
+
   let path = ''
   path =
     orthStatus.value !== -1
       ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
       : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  if (!item.facialId) {
+    Post('/prod-api/emr/public/api/v1/assessment/add', {
+      patientId: item.patientId,
+      aptmId: item.apmtId
+    }).then(({ data }) => {
+      item.facialId = data.facialId
+      sessionStorage.setItem('patientInfo', JSON.stringify(item))
+    })
+  } else {
+    sessionStorage.setItem('patientInfo', JSON.stringify(item))
+  }
+
   router.push(path)
 }
 const handleCompareOrth = (item) => {
@@ -811,14 +827,14 @@ async function getAptmCount(val) {
 }
 
 const tabData = ref([
-  {
-    svg_name: 'cardSvg1',
-    name: '面评矫正预约率',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
-  },
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '面评矫正预约率',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // },
   {
     svg_name: 'cardSvg1',
     name: '面评',
@@ -826,15 +842,15 @@ const tabData = ref([
     right_num: 0,
     left_text: '已面评人数',
     right_text: '预约面型发育评估人数'
-  },
-  {
-    svg_name: 'cardSvg1',
-    name: '矫正方案',
-    left_num: 0,
-    right_num: 0,
-    left_text: '已录入矫正方案人数',
-    right_text: '需要矫正人数'
   }
+  // {
+  //   svg_name: 'cardSvg1',
+  //   name: '矫正方案',
+  //   left_num: 0,
+  //   right_num: 0,
+  //   left_text: '已录入矫正方案人数',
+  //   right_text: '需要矫正人数'
+  // }
 ])
 
 async function changeNote(val) {
