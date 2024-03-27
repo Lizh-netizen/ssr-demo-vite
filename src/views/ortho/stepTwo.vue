@@ -2200,7 +2200,9 @@ async function updateResult() {
         cephalometricsContent: item.cephalometricsContent,
         fdiToothCode: '',
         showPosition: '',
-        aiFlag: '1'
+        aiFlag: '1',
+        classId: cephaClassId.value,
+        owningModule: '侧位片'
       }
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
         // 返回的有optionsId的时候再调用选项的接口
@@ -2213,7 +2215,9 @@ async function updateResult() {
             otherContent: '',
             cephalometricsContent: '',
             fdiToothCode: '',
-            showPosition: ''
+            showPosition: '',
+            classId: cephaClassId.value,
+            owningModule: '侧位片'
           }
           Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
         }
