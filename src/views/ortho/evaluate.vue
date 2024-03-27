@@ -1487,6 +1487,9 @@ function processData(data) {
     const { owningModule, imageUrl, titleName, optionsNames } = item
 
     if (imageUrl) {
+      if (result[owningModule].imageList.find((i) => i.imageUrl == imageUrl)) {
+        return false
+      }
       result[owningModule].imageList.push({ imageUrl })
     }
 
@@ -1510,6 +1513,7 @@ async function getDataList(appId) {
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
+  console.log('🚀 ~ getDataList ~ panoData.value:', panoData.value)
 
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
 }
