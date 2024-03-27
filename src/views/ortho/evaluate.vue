@@ -11,21 +11,21 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo.patientName }}</span>
+          ><span class="font-500">{{ patientInfo?.patientName }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo.privateId || '' }}</span>
+          ><span class="font-500">{{ patientInfo?.privateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
           ><span class="font-500">{{
-            patientInfo.Sex == 1 ? '男' : patientInfo.Sex == 2 ? '女' : '未知'
+            patientInfo?.Sex == 1 ? '男' : patientInfo?.Sex == 2 ? '女' : '未知'
           }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">出生日期：</span
-          ><span class="font-500">{{ patientInfo.age }}</span>
+          ><span class="font-500">{{ patientInfo?.age }}</span>
         </div>
       </div>
       <div class="flex items-center button" @click="handleOpenImageDialogue">
@@ -435,17 +435,17 @@
         <div class="patientInfo color-#fff font-500">
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-              patientInfo.patientName
+              patientInfo?.patientName
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-              patientInfo.privateId
+              patientInfo?.privateId
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-              patientInfo.StartTime.split(' ')[0]
+              patientInfo?.StartTime.split(' ')[0]
             }}
           </div>
         </div>
@@ -477,7 +477,7 @@
                 <div class="p-[10px] max-w-[400px]">
                   <div class="grid grid-cols-3 w-full gap-[10px]">
                     <img
-                      :src="image.imageUrl"
+                      :src="image.imageUrl + `?random=${Math.random()}`"
                       crossOrigin="anonymous"
                       class="w-[120px]"
                       v-for="image in facialData?.imageList"
@@ -499,7 +499,7 @@
                 <div class="p-[10px]">
                   <div>
                     <img
-                      :src="image.imageUrl"
+                      :src="image.imageUrl + `?random=${Math.random()}`"
                       v-for="image in panoData?.imageList"
                       :key="image.imageUrl"
                       crossOrigin="anonymous"
@@ -522,7 +522,7 @@
                 <!-- 这里是图片, grid布局-->
                 <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
                   <img
-                    :src="image.imageUrl"
+                    :src="image.imageUrl + `?random=${Math.random()}`"
                     class="w-[150px]"
                     crossOrigin="anonymous"
                     v-for="image in mouthDataPdf?.imageList"
@@ -562,15 +562,18 @@ import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
 
+import { useStore } from 'vuex'
+const store = useStore()
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const orthStatus = route.params.orthStatus
-const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
-const facialId = patientInfo?.facialId
+const patientInfo = computed(() => store.state.patientInfo)
+
+const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
-const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.value.userName)
+const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)
 
 // 面评弹窗逻辑
 const frankList = ref([
@@ -578,8 +581,9 @@ const frankList = ref([
   { value: 2, label: '中' },
   { value: 3, label: '差' }
 ])
-const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
-const patientCompliance = ref(patientInfo?.patientCompliance || '')
+
+const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
+const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
 const handleClickFrank = (item) => {
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
@@ -590,17 +594,17 @@ const handleClickFrank = (item) => {
 const adviceVisible = ref(false)
 const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(
-  patientInfo?.facialAdvise == 1
+  patientInfo.value?.facialAdvise == 1
     ? '立即矫正'
-    : patientInfo?.facialAdvise == 2
+    : patientInfo.value?.facialAdvise == 2
       ? '无需矫正'
-      : patientInfo?.facialAdvise == 3
+      : patientInfo.value?.facialAdvise == 3
         ? '后续面评'
-        : patientInfo?.facialAdvise == 4
+        : patientInfo.value?.facialAdvise == 4
           ? '转三级面评'
           : '待定'
 )
-const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
+const time = ref(patientInfo.value?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -653,9 +657,9 @@ async function handleAdvice() {
       orthDoctorName = ''
       time.value = ''
     }
-
+    console.log(patientInfo)
     const obj = {
-      id: facialId,
+      id: patientInfo.value.facialId,
       patientId: patientId,
       aptmId: appId,
       orthDoctorName: orthDoctorName || '',
@@ -829,10 +833,10 @@ const selectShortcutFn = (shortcut) => {
     form.value.timeRange = [startStr, endStr]
   })
 }
-
-onBeforeMount(() => {
-  // 判断医生等级
+watch(patientInfo.value, (newVal) => {
+  nextTick()
 })
+onBeforeMount(() => {})
 onMounted(() => {
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
@@ -1416,7 +1420,7 @@ const chooseImgNum = computed(() => {
   return num
 })
 
-const orthDoctorId = ref(+patientInfo?.facialOrthDoctorId || '')
+const orthDoctorId = ref(+patientInfo.value?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1429,7 +1433,7 @@ async function getOrthDoctorList() {
     })
   }
 }
-const threeLevelDoctorId = ref(+patientInfo?.facialReferralToDoctorId || '')
+const threeLevelDoctorId = ref(+patientInfo.value?.facialReferralToDoctorId || '')
 const threeLevelDoctorList = ref([])
 async function getThreeLevelDoctorList() {
   const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)
@@ -1487,10 +1491,13 @@ function processData(data) {
     const { owningModule, imageUrl, titleName, optionsNames } = item
 
     if (imageUrl) {
-      if (result[owningModule].imageList.find((i) => i.imageUrl == imageUrl)) {
+      if (
+        result[owningModule] &&
+        result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)
+      ) {
         return false
       }
-      result[owningModule].imageList.push({ imageUrl })
+      result[owningModule]?.imageList.push({ imageUrl })
     }
 
     if (titleName || optionsNames) {
@@ -1510,10 +1517,10 @@ async function getDataList(appId) {
     `prod-api/emr/facialAssessment/getFacialIssuesList?aptmId=${appId}&location=1`
   )
   data.value = Object.values(processData(res.data))
+  console.log('🚀 ~ getDataList ~ data.value:', data.value)
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
-  console.log('🚀 ~ getDataList ~ panoData.value:', panoData.value)
 
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
 }
@@ -1529,7 +1536,7 @@ const formattedDate = `${year}-${month}-${day}`
 const generatePDF = () => {
   try {
     const options = {
-      filename: `${patientInfo.patientName}__面评报告__${formattedDate}.pdf`,
+      filename: `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`,
       margin: 0,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, dpi: 96 },
@@ -1549,15 +1556,14 @@ const generatePDF = () => {
         formData.append(
           'file',
           perBlob,
-          `${patientInfo.patientName}__面评报告__${formattedDate}.pdf`
+          `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`
         )
-        console.log('entewr')
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {
             if (res.code == 200) {
               src.value = res.msg
               Post('/prod-api/emr/public/api/v1/assessment/updatePdfUrl', {
-                id: patientInfo.facialId,
+                id: patientInfo.value.facialId,
                 pdfUrl: src.value
               })
               ElMessage({

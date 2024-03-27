@@ -296,8 +296,9 @@ import datePicker from '../packages-js/date-picker/date-picker.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
-import store from '../store'
 
+import { useStore } from 'vuex'
+const store = useStore()
 const route = useRoute()
 const params = route.query
 const requestAble = ref({})
@@ -668,10 +669,10 @@ const handleEvaluateOrth = (item) => {
       aptmId: item.apmtId
     }).then(({ data }) => {
       item.facialId = data.facialId
-      sessionStorage.setItem('patientInfo', JSON.stringify(item))
+      store.commit('setPatientInfo', item)
     })
   } else {
-    sessionStorage.setItem('patientInfo', JSON.stringify(item))
+    store.commit('setPatientInfo', item)
   }
 
   router.push(path)
