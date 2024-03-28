@@ -1048,6 +1048,7 @@ const handlePlan = (plan) => {
     } else {
       item.checked = false
     }
+    handleScheme(plan)
   })
 }
 

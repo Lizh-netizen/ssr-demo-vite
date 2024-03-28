@@ -66,6 +66,7 @@ const useChangeOption = (
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
     // type 2 多选
+
     if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
       title.optionId1 = title.optionId.filter((o: any) => o !== 10)
       title.optionId = title.optionId1

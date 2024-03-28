@@ -670,9 +670,11 @@ const handleEvaluateOrth = (item) => {
     }).then(({ data }) => {
       item.facialId = data.facialId
       store.commit('setPatientInfo', item)
+      sessionStorage.setItem('patientInfo', JSON.stringify(item))
     })
   } else {
     store.commit('setPatientInfo', item)
+    sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }
 
   router.push(path)

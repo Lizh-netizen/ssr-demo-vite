@@ -429,114 +429,125 @@
       </span>
     </template>
   </el-dialog>
-  <template v-if="!src">
-    <div class="pdfContent" :style="{ display: 'none' }">
-      <div class="pdfPage">
-        <div class="patientInfo color-#fff font-500">
-          <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-              patientInfo?.patientName
-            }}
+  <!-- <template v-if="!src"> -->
+  <div class="pdfContent">
+    <div class="pdfPage">
+      <div class="patientInfo color-#fff font-500">
+        <div class="mb-[8px] flex items-center">
+          <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
+            patientInfo?.patientName
+          }}
+        </div>
+        <div class="mb-[8px] flex items-center">
+          <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
+            patientInfo?.privateId
+          }}
+        </div>
+        <div class="mb-[8px] flex items-center">
+          <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
+            patientInfo?.StartTime?.split(' ')[0]
+          }}
+        </div>
+      </div>
+      <div class="pt-[150px]">
+        <div class="check" v-if="checkDataPdf?.list.length > 0">
+          <div
+            class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
+          >
+            临床检查
           </div>
-          <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-              patientInfo?.privateId
-            }}
-          </div>
-          <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-              patientInfo?.StartTime.split(' ')[0]
-            }}
+          <div class="bg-#F7FBFD mt-[-6px] z--1 py-[16px] px-[20px] pb-0">
+            <div><List :list="checkDataPdf?.list" class="checkList grid! grid-cols-3!" /></div>
           </div>
         </div>
-        <div class="pt-[150px]">
-          <div class="check" v-if="checkDataPdf?.list.length > 0">
-            <div
-              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
-            >
-              临床检查
-            </div>
-            <div class="bg-#F7FBFD mt-[-6px] z--1 py-[16px] px-[20px] pb-0">
-              <div><List :list="checkDataPdf?.list" class="checkList grid! grid-cols-3!" /></div>
-            </div>
-          </div>
 
-          <!-- 其他内容 -->
-          <div class="px-[20px] py-[10px]">
-            <div class="flex">
-              <!-- 面型评估 -->
-              <div
-                class="mr-[10px] borderBox"
-                v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
-              >
-                <div
-                  class="h-[50px] w-[420px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500"
-                >
-                  面型评估
-                </div>
-                <div class="p-[10px] max-w-[400px]">
-                  <div class="grid grid-cols-3 w-full gap-[10px]">
-                    <img
-                      :src="image.imageUrl + `?random=${Math.random()}`"
-                      crossOrigin="anonymous"
-                      class="w-[120px]"
-                      v-for="image in facialData?.imageList"
-                      :key="image.imageUrl"
-                    />
-                  </div>
-                  <div><List :list="facialData?.list" /></div>
-                </div>
-              </div>
-
-              <!-- 全景片 -->
-              <div
-                class="flex-1 borderBox"
-                v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
-              >
-                <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
-                  全景片
-                </div>
-                <div class="p-[10px]">
-                  <div>
-                    <img
-                      :src="image.imageUrl + `?random=${Math.random()}`"
-                      v-for="image in panoData?.imageList"
-                      :key="image.imageUrl"
-                      crossOrigin="anonymous"
-                      class="w-[290px]"
-                    />
-                  </div>
-                  <div><List :list="panoData?.list" :pano="true" /></div>
-                </div>
-              </div>
-            </div>
-            <!-- 口内照 -->
+        <!-- 其他内容 -->
+        <div class="px-[20px] py-[10px]">
+          <div class="flex">
+            <!-- 面型评估 -->
             <div
-              class="mt-[12px] borderBox"
-              v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
+              class="mr-[10px] borderBox"
+              v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
             >
-              <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
-                口内照
+              <div class="h-[50px] w-[420px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+                面型评估
               </div>
-              <div class="flex items-center p-[10px]">
-                <!-- 这里是图片, grid布局-->
-                <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
+              <div class="p-[10px] max-w-[400px]">
+                <div class="grid grid-cols-3 w-full gap-[10px]">
                   <img
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[150px]"
                     crossOrigin="anonymous"
-                    v-for="image in mouthDataPdf?.imageList"
+                    class="w-[120px]"
+                    v-for="image in facialData?.imageList"
                     :key="image.imageUrl"
                   />
                 </div>
-                <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
+                <div><List :list="facialData?.list" /></div>
               </div>
+            </div>
+
+            <!-- 全景片 -->
+            <div
+              class="flex-1 borderBox"
+              v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
+            >
+              <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+                全景片
+              </div>
+              <div class="p-[10px]">
+                <div>
+                  <img
+                    :src="image.imageUrl + `?random=${Math.random()}`"
+                    v-for="image in panoData?.imageList"
+                    :key="image.imageUrl"
+                    crossOrigin="anonymous"
+                    class="w-[290px]"
+                  />
+                </div>
+                <div><List :list="panoData?.list" :pano="true" /></div>
+              </div>
+            </div>
+          </div>
+          <!-- 口内照 -->
+          <div
+            class="mt-[12px] borderBox"
+            v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
+          >
+            <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+              口内照
+            </div>
+            <div class="flex items-center p-[10px]">
+              <!-- 这里是图片, grid布局-->
+              <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
+                <img
+                  :src="image.imageUrl + `?random=${Math.random()}`"
+                  class="w-[150px]"
+                  crossOrigin="anonymous"
+                  v-for="image in mouthDataPdf?.imageList"
+                  :key="image.imageUrl"
+                />
+              </div>
+              <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
             </div>
           </div>
         </div>
       </div>
+      <div class="facialAdvise">
+        评估结果：{{
+          patientInfo?.facialAdvise == 1
+            ? '立即矫正'
+            : patientInfo?.facialAdvise == 2
+              ? '无需矫正'
+              : patientInfo?.facialAdvise == 3
+                ? '后续面评'
+                : patientInfo?.facialAdvise == 4
+                  ? '转三级面评'
+                  : '待定'
+        }}
+      </div>
     </div>
-  </template>
+  </div>
+  <!-- </template> -->
 </template>
 
 <script setup>
@@ -569,7 +580,10 @@ const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const orthStatus = route.params.orthStatus
-const patientInfo = computed(() => store.state.patientInfo)
+const patientInfo = computed(() => {
+  return JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+})
+console.log('🚀 ~ patientInfo ~ patientInfo:', patientInfo)
 
 const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
@@ -583,8 +597,11 @@ const frankList = ref([
 ])
 
 const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
+
 const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
+console.log('🚀 ~ patientCompliance:', patientCompliance)
 const handleClickFrank = (item) => {
+  console.log(item, patientCompliance)
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
   } else {
@@ -699,9 +716,8 @@ async function handleAdvice() {
     // 把颜色改成不透明的，就看不到后面的pdf的内容了
     background: 'rgba(37, 38, 38, 1)'
   })
-  main()
 }
-
+main()
 const loading = ref()
 
 const rangeShortcuts = [
@@ -833,9 +849,16 @@ const selectShortcutFn = (shortcut) => {
     form.value.timeRange = [startStr, endStr]
   })
 }
-watch(patientInfo.value, (newVal) => {
-  nextTick()
-})
+watch(
+  patientInfo,
+  (newVal) => {
+    patientCompliance.value = +newVal?.patientCompliance || ''
+    console.log('🚀 ~ watch ~ newVal?.facialCompliance:', newVal.patientCompliance)
+  },
+  {
+    immediate: true
+  }
+)
 onBeforeMount(() => {})
 onMounted(() => {
   window.addEventListener('click', (e) => {
@@ -1185,8 +1208,8 @@ function handlePanoData(panoramicData) {
       const arr = JSON.parse(a.showPosition)
 
       if (a.fdiToothCode) {
-        a.toothCode = a.fdiToothCode.split(',')
-        a.fdiToothCode.split(',').forEach((code, index) => {
+        a.toothCode = a.fdiToothCode?.split(',')
+        a.fdiToothCode?.split(',').forEach((code, index) => {
           if (code.startsWith('1') || code.startsWith('5')) {
             a.topLeft.push(arr[index][0])
           } else if (code.startsWith('2') || code.startsWith('6')) {
@@ -1580,7 +1603,7 @@ const generatePDF = () => {
           })
           .finally(() => {
             loading.value?.close()
-            handleBackToList()
+            // handleBackToList()
           })
       })
   } catch (err) {
@@ -2266,6 +2289,18 @@ async function main() {
       border: 2px solid #216fb0;
       .mouthImage {
       }
+    }
+    .facialAdvise {
+      position: absolute;
+      font-style: italic;
+      font-family: YouSheBiaoTiHei;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: normal;
+      letter-spacing: 0.04em;
+      bottom: 30px;
+      right: 80px;
+      color: #1d458d;
     }
   }
 }

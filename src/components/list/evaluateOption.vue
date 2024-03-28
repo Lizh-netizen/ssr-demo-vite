@@ -334,6 +334,25 @@ const handleChangeOption = (optionId, title, classId) => {
         option.choosen = true
       }
     })
+    if (title.optionId1.includes(299) && title.optionId1.length < title.optionId.length) {
+      title.optionId1 = title.optionId.filter((o) => o !== 299)
+      title.optionId = title.optionId1
+    } else if (
+      !title.optionId1.includes(299) &&
+      title.optionId1.length < title.optionId.length &&
+      title.optionId.includes(299)
+    ) {
+      title.optionId1 = [299]
+      title.optionId = [299]
+      title.otherContent = ''
+    }
+    title.orthOptionsList.forEach((option) => {
+      if (!title.optionId.includes(option.id)) {
+        option.choosen = false
+      } else {
+        option.choosen = true
+      }
+    })
   }
   if (title.type == 1) {
     title.orthOptionsList.forEach((option) => {
