@@ -1489,7 +1489,9 @@ function processData(data) {
 
   data.forEach((item) => {
     const { owningModule, imageUrl, titleName, optionsNames } = item
-
+    if (titleName || optionsNames) {
+      result[owningModule]?.list.push({ title_name: titleName, option_names: optionsNames })
+    }
     if (imageUrl) {
       if (
         result[owningModule] &&
@@ -1498,10 +1500,6 @@ function processData(data) {
         return false
       }
       result[owningModule]?.imageList.push({ imageUrl })
-    }
-
-    if (titleName || optionsNames) {
-      result[owningModule]?.list.push({ title_name: titleName, option_names: optionsNames })
     }
   })
 
