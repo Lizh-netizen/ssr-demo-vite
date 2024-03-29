@@ -673,6 +673,7 @@ const handleEvaluateOrth = (item) => {
       sessionStorage.setItem('patientInfo', JSON.stringify(item))
     })
   } else {
+    sessionStorage.setItem('patientInfo', {})
     store.commit('setPatientInfo', item)
     sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }

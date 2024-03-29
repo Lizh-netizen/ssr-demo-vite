@@ -310,7 +310,7 @@
                     <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
                       <div>{{ stage.stageName }}</div>
                       <div class="flex">
-                        <div v-for="goal in stage.goalList">{{ goal.label + ';' + ' ' }}</div>
+                        <div v-for="goal in stage.goalList">{{ goal + ' ' }}</div>
                       </div>
                       <div class="flex">
                         <div v-for="tool in stage.toolList">{{ tool.label }}</div>
@@ -578,6 +578,7 @@ const getSchemeList = async () => {
     scheme.featureList.unshift({ name: scheme.difficultyLevel })
     scheme.featureList.unshift({ name: scheme.stageList[scheme.stageList.length - 1].stageName })
   })
+  console.log(schemeData.value)
 }
 function transformData(data) {
   return data.map((item) => {
@@ -586,14 +587,18 @@ function transformData(data) {
       if (stage.targetIds || stage.toolIds) {
         // 检查targetNames是否包含拔牙
         let targetName = stage.targetNames || ''
+
         if (targetName.includes('拔牙')) {
+          const targets = targetName.split(',')
+          const index = targetName.indexOf('拔牙')
+          targets.splice(index + 1, 0, stage.fdiToothCode)
           // 如果包含拔牙，则将fdiToothCode添加到targetName后面并加上括号
-          const toothCode = stage.fdiToothCode ? `(${stage.fdiToothCode})` : ''
-          targetName += toothCode
+          targetName = targets
         }
+
         acc.push({
           stageName: stage.stageName,
-          goalList: targetName ? targetName.split(',').map((target) => ({ label: target })) : [],
+          goalList: targetName,
           toolList: stage.toolNames
             ? stage.toolNames.split(',').map((tool) => ({ label: tool }))
             : []
@@ -605,7 +610,7 @@ function transformData(data) {
     // 在 stageList 的第一项前加入指定的数据
     stageList.unshift({
       stageName: '阶段',
-      goalList: [{ label: '目标' }],
+      goalList: ['目标'],
       toolList: [{ label: '配件' }]
     })
 

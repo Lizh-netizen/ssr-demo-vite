@@ -574,11 +574,36 @@ const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const orthStatus = route.params.orthStatus
-const patientInfo = computed(() => {
-  return JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+// const patientInfo = ref()
+onMounted(() => {
+  // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
 })
-console.log('🚀 ~ patientInfo ~ patientInfo:', patientInfo)
+const patientInfo = ref(
+  JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+)
 
+const updatePatientInfo = () => {
+  const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+  Object.assign(patientInfo.value, newData)
+}
+
+// Listen for changes in sessionStorage
+onMounted(() => {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'patientInfo') {
+      updatePatientInfo()
+    }
+  })
+})
+
+// Watch for changes in store.state.patientInfo
+watch(
+  () => store.state.patientInfo,
+  (newValue) => {
+    Object.assign(patientInfo.value, newValue)
+  },
+  { immediate: true } // Trigger the watcher immediately with the current value
+)
 const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
 const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)
@@ -612,7 +637,7 @@ const advice = ref(
         ? '后续面评'
         : patientInfo.value?.facialAdvise == 4
           ? '转三级面评'
-          : '待定'
+          : '未评估'
 )
 const time = ref(patientInfo.value?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
