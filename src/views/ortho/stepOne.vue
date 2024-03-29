@@ -228,7 +228,7 @@
               <el-select
                 v-model="title.selectId"
                 class="specialSelect"
-                @change="handleChange(title, title)"
+                @change="handleChange(title, title, checkData.id)"
               >
                 <el-option
                   v-for="opt in title.listMap"
@@ -248,7 +248,7 @@
             <el-select
               v-model="title.selectId1"
               class="specialSelect"
-              @change="handleChange(title, title)"
+              @change="handleChange(title, title, checkData.id)"
             >
               <el-option
                 v-for="opt in title.orthOptionsList"
@@ -260,7 +260,7 @@
             <el-select
               v-model="title.selectId2"
               class="specialSelect"
-              @change="handleChange(title, title)"
+              @change="handleChange(title, title, checkData.id)"
             >
               <el-option
                 v-for="opt in title.listMap"
@@ -501,28 +501,32 @@ const showPopover = (index) => {
     inputRefs.value[index].value[0].focus()
   }
 }
-async function handleChange(obj, title) {
+async function handleChange(obj, title, classId) {
   if (title.titleName == '关节弹响') {
     let obj1 = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: [obj.optionId, obj.selectId],
       otherContent: '',
       cephalometricsContent: '',
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      classId: classId,
+      owningModule: '临床检查'
     }
     await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
   }
   if (title.titleName == '侧关节') {
     let obj1 = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: obj.selectId2 == '' ? [obj.selectId1] : [obj.selectId1, obj.selectId2],
       otherContent: '',
       cephalometricsContent: '',
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      classId: classId,
+      owningModule: '临床检查'
     }
     await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
   }

@@ -241,7 +241,7 @@
                 </div>
                 <div class="leftLower-column">
                   <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList"
+                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(2, 7)"
                     :key="title.id"
                   >
                     <!-- <template v-if="index >= 2"> -->
@@ -334,7 +334,7 @@
   <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
     <div style="margin-top: 20px" class="advice__state">
       <div class="w-[70px] text-right mr-[16px]">状态选择</div>
-      <el-radio-group v-model="advice">
+      <el-radio-group v-model="advice" @change="handleAdviceChange">
         <el-radio-button :label="i" v-for="i in advices" :key="i" />
       </el-radio-group>
     </div>
@@ -449,7 +449,7 @@
             }}
           </div>
         </div>
-        <div class="pt-[150px]">
+        <div class="pt-[140px]">
           <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
               class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
@@ -466,16 +466,16 @@
             <div class="flex">
               <!-- 面型评估 -->
               <div
-                class="mr-[10px] borderBox facial"
+                class="mr-[8px] borderBox facial"
                 v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
               >
                 <div
-                  class="h-[50px] w-[320px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500"
+                  class="h-[30px] w-[320px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
                 >
                   面型评估
                 </div>
-                <div class="p-[10px] max-w-[320px]">
-                  <div class="grid grid-cols-2 w-full gap-[10px]">
+                <div class="p-[8px] max-w-[320px]">
+                  <div class="grid grid-cols-2 w-full gap-[8px]">
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
                       crossOrigin="anonymous"
@@ -493,17 +493,19 @@
                 class="flex-1 borderBox"
                 v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
               >
-                <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+                <div
+                  class="h-[30px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
+                >
                   全景片
                 </div>
-                <div class="p-[10px]">
+                <div class="p-[8px] pb-[0]!">
                   <div>
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
                       v-for="image in panoData?.imageList"
                       :key="image.imageUrl"
                       crossOrigin="anonymous"
-                      class="w-[290px]"
+                      class="w-[290px] h-[150px]"
                     />
                   </div>
                   <div><List :list="panoData?.list" :pano="true" /></div>
@@ -512,18 +514,20 @@
             </div>
             <!-- 口内照 -->
             <div
-              class="mt-[12px] borderBox"
+              class="mt-[8px] borderBox"
               v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
             >
-              <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+              <div
+                class="h-[30px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
+              >
                 口内照
               </div>
-              <div class="flex items-center p-[10px]">
+              <div class="flex items-center p-[8px]">
                 <!-- 这里是图片, grid布局-->
-                <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
+                <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
                   <img
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[150px]"
+                    class="h-[100px]"
                     crossOrigin="anonymous"
                     v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
@@ -534,19 +538,7 @@
             </div>
           </div>
         </div>
-        <div class="facialAdvise">
-          评估结果：{{
-            patientInfo?.facialAdvise == 1
-              ? '立即矫正'
-              : patientInfo?.facialAdvise == 2
-                ? '无需矫正'
-                : patientInfo?.facialAdvise == 3
-                  ? '后续面评'
-                  : patientInfo?.facialAdvise == 4
-                    ? '转三级面评'
-                    : '未评估'
-          }}
-        </div>
+        <div class="facialAdvise">评估结果：{{ advice }}</div>
       </div>
     </div>
   </template>
@@ -601,9 +593,8 @@ const frankList = ref([
 const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
 
 const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
-console.log('🚀 ~ patientCompliance:', patientCompliance)
+const facialAdvise = ref(patientInfo.value?.facialAdvise || '')
 const handleClickFrank = (item) => {
-  console.log(item, patientCompliance)
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
   } else {
@@ -676,7 +667,6 @@ async function handleAdvice() {
       orthDoctorName = ''
       time.value = ''
     }
-    console.log(patientInfo)
     const obj = {
       id: patientInfo.value.facialId,
       patientId: patientId,
@@ -855,7 +845,8 @@ const selectShortcutFn = (shortcut) => {
 watch(
   patientInfo,
   (newVal) => {
-    patientCompliance.value = +newVal?.patientCompliance || ''
+    patientInfo.value = newVal
+    facialAdvise
   },
   {
     immediate: true
@@ -1178,8 +1169,8 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
-          codeTitleList.value = res.data.slice(7)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 2)
+          codeTitleList.value = res.data.slice(2, 7)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
@@ -1203,6 +1194,7 @@ async function getFreePic() {
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
+      a.popVisible = false
       a.topLeft = []
       a.topRight = []
       a.bottomLeft = []
@@ -1253,6 +1245,7 @@ function handlePanoData(panoramicData) {
       }
     })
   })
+  console.log(panoramicData.value)
 }
 
 getCheckList()
@@ -1608,7 +1601,7 @@ const generatePDF = () => {
           })
           .finally(() => {
             loading.value?.close()
-            // handleBackToList()
+            handleBackToList()
           })
       })
   } catch (err) {

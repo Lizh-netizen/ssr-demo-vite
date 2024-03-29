@@ -28,7 +28,7 @@ defineProps(['list', 'moduleName', 'pano'])
   display: flex;
   flex-wrap: wrap;
   .list__item {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     width: 50%;
     display: flex;
     align-items: center;

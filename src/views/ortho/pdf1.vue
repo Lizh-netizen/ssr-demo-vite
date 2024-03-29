@@ -737,7 +737,7 @@ const issuesList = ref([])
 // 获取问题列表
 async function getIssuesList() {
   const result = await Get(
-    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?apmtId=${appId}&location=2&serious=1`
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
   )
   if (result.data?.length > 0) {
     issuesList.value = result.data.map((item) => ({
@@ -745,6 +745,7 @@ async function getIssuesList() {
       option_names: item.optionsName,
       serious: item.serious
     }))
+    console.log('🚀 ~ issuesList.value=result.data.map ~ issuesList.value:', issuesList.value)
   }
 }
 
