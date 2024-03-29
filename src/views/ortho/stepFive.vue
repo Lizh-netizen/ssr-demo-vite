@@ -1172,9 +1172,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         classId: classId,
         owningModule: owningModule,
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         optionSuffix: '牙位图'
       }
     } else if (option.id === 236 && !option.toothCode.join()) {
@@ -1191,9 +1191,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         cephalometricsContent: '',
         optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule
       }
@@ -1210,9 +1210,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         cephalometricsContent: '',
         optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule
       }
@@ -1227,9 +1227,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode1: option2.toothCode.join(),
-        showPosition1: JSON.stringify(option2.position),
+        showPosition1: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode: option.toothCode.join(),
-        showPosition: JSON.stringify(option.position),
+        showPosition: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule,
         optionSuffix: '牙位图'
@@ -1246,9 +1246,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule,
         optionSuffix: '牙位图'
