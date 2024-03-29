@@ -2,7 +2,9 @@
   <div class="list1">
     <div class="list__item" v-for="a in list" :key="a.id" :data-serious="a.serious">
       <div class="list__item__desc">
-        {{ a.title_name }}:{{ a.option_names }}
+        <div></div>
+        {{ a.title_name }}
+        <span v-if="a.option_names">: {{ a.option_names }}</span>
         <img
           class="seriousIcon"
           src="../../assets/svg/serious.svg"

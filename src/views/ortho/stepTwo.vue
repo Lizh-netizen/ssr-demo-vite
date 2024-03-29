@@ -385,7 +385,6 @@
                     <el-input
                       :disabled="!cephaImage"
                       v-model="title.cephalometricsContent"
-                      @input="handleWatchInput(title)"
                       @focus="title.measured = false"
                       @blur="handleBlurInput(title)"
                       :class="{ measured: title.measured === true }"
@@ -662,6 +661,10 @@ const handleBlurInput = (title) => {
         type: 'error',
         message: res.msg
       })
+    } else if (res.code == 200 && !res.data.optionsId) {
+      if (title.orthOptionsList && title.orthOptionsList.length) {
+        title.orthOptionsList.forEach((option) => (option.choosen = false))
+      }
     }
   })
 }

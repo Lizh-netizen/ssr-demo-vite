@@ -411,7 +411,9 @@ const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑�
 const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
 const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
 async function getDataList() {
-  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&location=2`)
+  const result = await Get(
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2`
+  )
   if (result.data?.length > 0) {
     const acc = result.data.reduce((acc, cur) => {
       if (
@@ -419,18 +421,26 @@ async function getDataList() {
         cur.owningModule !== '口内照' &&
         acc[cur.owningModule]
       ) {
-        acc[cur.owningModule].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
-          serious: cur.serious
-        })
+        if (cur.owningModule == '风险') {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        } else {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsName,
+            serious: cur.serious
+          })
+        }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         acc[cur.owningModule + cur.className]
       ) {
         acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
+          title_name: cur.titleName,
+          option_names: cur.optionsName,
           serious: cur.serious
         })
       } else if (
@@ -440,11 +450,19 @@ async function getDataList() {
       ) {
         acc[cur.owningModule] = cur
         acc[cur.owningModule].list = []
-        acc[cur.owningModule].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
-          serious: cur.serious
-        })
+        if (cur.owningModule == '风险') {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        } else {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsName,
+            serious: cur.serious
+          })
+        }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         !acc[cur.owningModule + cur.className]
@@ -452,8 +470,8 @@ async function getDataList() {
         acc[cur.owningModule + cur.className] = cur
         acc[cur.owningModule + cur.className].list = []
         acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
+          title_name: cur.titleName,
+          option_names: cur.optionsName,
           serious: cur.serious
         })
       }
@@ -745,7 +763,6 @@ async function getIssuesList() {
       option_names: item.optionsName,
       serious: item.serious
     }))
-    console.log('🚀 ~ issuesList.value=result.data.map ~ issuesList.value:', issuesList.value)
   }
 }
 

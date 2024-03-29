@@ -1283,7 +1283,7 @@ const handleMouseLeaveBtn = (e, option) => {
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
   if (title.cephalometricsContent) {
     const obj = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: [],
       otherContent: '',
