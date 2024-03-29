@@ -429,125 +429,127 @@
       </span>
     </template>
   </el-dialog>
-  <!-- <template v-if="!src"> -->
-  <div class="pdfContent">
-    <div class="pdfPage">
-      <div class="patientInfo color-#fff font-500">
-        <div class="mb-[8px] flex items-center">
-          <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-            patientInfo?.patientName
-          }}
-        </div>
-        <div class="mb-[8px] flex items-center">
-          <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-            patientInfo?.privateId
-          }}
-        </div>
-        <div class="mb-[8px] flex items-center">
-          <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-            patientInfo?.StartTime?.split(' ')[0]
-          }}
-        </div>
-      </div>
-      <div class="pt-[150px]">
-        <div class="check" v-if="checkDataPdf?.list.length > 0">
-          <div
-            class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
-          >
-            临床检查
+  <template v-if="!src">
+    <div class="pdfContent" :style="{ display: 'none' }">
+      <div class="pdfPage">
+        <div class="patientInfo color-#fff font-500">
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
+              patientInfo?.patientName
+            }}
           </div>
-          <div class="bg-#F7FBFD mt-[-6px] z--1 py-[16px] px-[20px] pb-0">
-            <div><List :list="checkDataPdf?.list" class="checkList grid! grid-cols-3!" /></div>
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
+              patientInfo?.privateId
+            }}
+          </div>
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
+              patientInfo?.StartTime?.split(' ')[0]
+            }}
           </div>
         </div>
-
-        <!-- 其他内容 -->
-        <div class="px-[20px] py-[10px]">
-          <div class="flex">
-            <!-- 面型评估 -->
+        <div class="pt-[150px]">
+          <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
-              class="mr-[10px] borderBox"
-              v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
+              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
             >
-              <div class="h-[50px] w-[420px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
-                面型评估
+              临床检查
+            </div>
+            <div class="bg-#F7FBFD mt-[-6px] z--1 py-[16px] px-[20px] pb-0">
+              <div><List :list="checkDataPdf?.list" class="checkList grid! grid-cols-3!" /></div>
+            </div>
+          </div>
+
+          <!-- 其他内容 -->
+          <div class="px-[20px] py-[10px]">
+            <div class="flex">
+              <!-- 面型评估 -->
+              <div
+                class="mr-[10px] borderBox facial"
+                v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
+              >
+                <div
+                  class="h-[50px] w-[320px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500"
+                >
+                  面型评估
+                </div>
+                <div class="p-[10px] max-w-[320px]">
+                  <div class="grid grid-cols-2 w-full gap-[10px]">
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      crossOrigin="anonymous"
+                      class="w-[120px]"
+                      v-for="image in facialData?.imageList"
+                      :key="image.imageUrl"
+                    />
+                  </div>
+                  <div><List :list="facialData?.list" /></div>
+                </div>
               </div>
-              <div class="p-[10px] max-w-[400px]">
-                <div class="grid grid-cols-3 w-full gap-[10px]">
+
+              <!-- 全景片 -->
+              <div
+                class="flex-1 borderBox"
+                v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
+              >
+                <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+                  全景片
+                </div>
+                <div class="p-[10px]">
+                  <div>
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      v-for="image in panoData?.imageList"
+                      :key="image.imageUrl"
+                      crossOrigin="anonymous"
+                      class="w-[290px]"
+                    />
+                  </div>
+                  <div><List :list="panoData?.list" :pano="true" /></div>
+                </div>
+              </div>
+            </div>
+            <!-- 口内照 -->
+            <div
+              class="mt-[12px] borderBox"
+              v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
+            >
+              <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
+                口内照
+              </div>
+              <div class="flex items-center p-[10px]">
+                <!-- 这里是图片, grid布局-->
+                <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
                   <img
                     :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="w-[150px]"
                     crossOrigin="anonymous"
-                    class="w-[120px]"
-                    v-for="image in facialData?.imageList"
+                    v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
                   />
                 </div>
-                <div><List :list="facialData?.list" /></div>
+                <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
               </div>
-            </div>
-
-            <!-- 全景片 -->
-            <div
-              class="flex-1 borderBox"
-              v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
-            >
-              <div class="h-[50px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
-                全景片
-              </div>
-              <div class="p-[10px]">
-                <div>
-                  <img
-                    :src="image.imageUrl + `?random=${Math.random()}`"
-                    v-for="image in panoData?.imageList"
-                    :key="image.imageUrl"
-                    crossOrigin="anonymous"
-                    class="w-[290px]"
-                  />
-                </div>
-                <div><List :list="panoData?.list" :pano="true" /></div>
-              </div>
-            </div>
-          </div>
-          <!-- 口内照 -->
-          <div
-            class="mt-[12px] borderBox"
-            v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
-          >
-            <div class="h-[50px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500">
-              口内照
-            </div>
-            <div class="flex items-center p-[10px]">
-              <!-- 这里是图片, grid布局-->
-              <div class="grid grid-cols-2 gap-[10px] mr-[16px]">
-                <img
-                  :src="image.imageUrl + `?random=${Math.random()}`"
-                  class="w-[150px]"
-                  crossOrigin="anonymous"
-                  v-for="image in mouthDataPdf?.imageList"
-                  :key="image.imageUrl"
-                />
-              </div>
-              <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="facialAdvise">
-        评估结果：{{
-          patientInfo?.facialAdvise == 1
-            ? '立即矫正'
-            : patientInfo?.facialAdvise == 2
-              ? '无需矫正'
-              : patientInfo?.facialAdvise == 3
-                ? '后续面评'
-                : patientInfo?.facialAdvise == 4
-                  ? '转三级面评'
-                  : '待定'
-        }}
+        <div class="facialAdvise">
+          评估结果：{{
+            patientInfo?.facialAdvise == 1
+              ? '立即矫正'
+              : patientInfo?.facialAdvise == 2
+                ? '无需矫正'
+                : patientInfo?.facialAdvise == 3
+                  ? '后续面评'
+                  : patientInfo?.facialAdvise == 4
+                    ? '转三级面评'
+                    : '未评估'
+          }}
+        </div>
       </div>
     </div>
-  </div>
-  <!-- </template> -->
+  </template>
 </template>
 
 <script setup>
@@ -716,8 +718,9 @@ async function handleAdvice() {
     // 把颜色改成不透明的，就看不到后面的pdf的内容了
     background: 'rgba(37, 38, 38, 1)'
   })
+  main()
 }
-main()
+
 const loading = ref()
 
 const rangeShortcuts = [
@@ -853,7 +856,6 @@ watch(
   patientInfo,
   (newVal) => {
     patientCompliance.value = +newVal?.patientCompliance || ''
-    console.log('🚀 ~ watch ~ newVal?.facialCompliance:', newVal.patientCompliance)
   },
   {
     immediate: true
@@ -1511,9 +1513,13 @@ function processData(data) {
   }
 
   data.forEach((item) => {
-    const { owningModule, imageUrl, titleName, optionsNames } = item
+    const { owningModule, imageUrl, titleName, optionsNames, serious } = item
     if (titleName || optionsNames) {
-      result[owningModule]?.list.push({ title_name: titleName, option_names: optionsNames })
+      result[owningModule]?.list.push({
+        title_name: titleName,
+        option_names: optionsNames,
+        serious: serious
+      })
     }
     if (imageUrl) {
       if (
@@ -1538,7 +1544,6 @@ async function getDataList(appId) {
     `prod-api/emr/facialAssessment/getFacialIssuesList?aptmId=${appId}&location=1`
   )
   data.value = Object.values(processData(res.data))
-  console.log('🚀 ~ getDataList ~ data.value:', data.value)
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
@@ -1690,6 +1695,12 @@ async function main() {
 }
 </style>
 <style lang="scss" scoped>
+.facial {
+  :deep(.list1) {
+    display: block;
+    margin-top: 10px;
+  }
+}
 .stickyHeader {
   position: sticky;
   top: 0;

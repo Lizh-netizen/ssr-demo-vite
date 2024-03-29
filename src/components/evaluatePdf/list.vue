@@ -31,7 +31,7 @@ defineProps(['list', 'moduleName', 'pano'])
     margin-bottom: 16px;
     width: 50%;
     display: flex;
-    // align-items: center;
+    align-items: center;
     &:before {
       display: inline-block;
       content: '';
@@ -40,12 +40,12 @@ defineProps(['list', 'moduleName', 'pano'])
       margin-right: 8px;
       border-radius: 50%;
       position: relative;
-      top: 4px;
+
       border: 1.5px solid #e57e2b;
     }
     &__desc {
       margin-right: 4px;
-      // display: flex;
+      display: flex;
       align-items: center;
     }
     .seriousIcon {

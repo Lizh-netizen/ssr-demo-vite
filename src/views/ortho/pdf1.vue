@@ -99,7 +99,7 @@
             <div class="content">
               <list :list="item.list" />
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '方案')">方案</div>
+
             <!-- <div class="content">
             <list
               :list="data.find((item) => item.owningModule == '方案').list"
@@ -274,7 +274,7 @@
             </div>
           </div>
         </template>
-        <template v-if="item.owningModule === '风险' || schemeData.length > 0">
+        <template v-if="item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="目标&方法&风险" />
@@ -282,39 +282,35 @@
             <div class="content">
               <div
                 class="scheme"
-                v-for="item in schemeData"
-                :key="item.planName"
-                :class="{ checkedScheme: item.checked }"
+                v-for="a in item.data"
+                :key="a.planName"
+                :class="{ checkedScheme: a.checked }"
               >
                 <div class="color-#404682 mb-[8px]! flex items-center">
-                  <div class="font-size-[13px]">{{ item.planName }}</div>
+                  <div class="font-size-[13px]">{{ a.planName }}</div>
                   <div
-                    v-if="item.checked"
+                    v-if="a.checked"
                     class="bg-#F99020 border-rd-[4px] font-size-[10px] px-[8px]! py-[3px]! color-#FFFFFF ml-[8px]!"
                   >
                     当前方案
                   </div>
                 </div>
                 <div class="flex gap-[4px]">
-                  <div
-                    v-for="feature in item.featureList"
-                    :key="feature"
-                    class="planItem mb-[8px]!"
-                  >
+                  <div v-for="feature in a.featureList" :key="feature" class="planItem mb-[8px]!">
                     {{ feature.name }}
                   </div>
                 </div>
                 <div
-                  v-if="item.stageList.length"
+                  v-if="a.stageList.length && a.checked"
                   class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] px-[12px]! pb-[10px]!"
                   style="border: 1px solid #e5e6eb"
                 >
                   <div></div>
-                  <div v-for="stage in item.stageList" :key="stage.stageName">
+                  <div v-for="stage in a.stageList" :key="stage.stageName">
                     <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
                       <div>{{ stage.stageName }}</div>
                       <div class="flex">
-                        <div v-for="goal in stage.goalList">{{ goal.label }}</div>
+                        <div v-for="goal in stage.goalList">{{ goal.label + ';' + ' ' }}</div>
                       </div>
                       <div class="flex">
                         <div v-for="tool in stage.toolList">{{ tool.label }}</div>
@@ -374,6 +370,15 @@ if (month < 10) {
 }
 const formattedDate = `${year}-${month}-${day}`
 const data = ref([])
+const inquiryList = ref()
+const checkList = ref()
+const diagnoseList = ref()
+const facialList = ref()
+const mouthList = ref()
+const panoList = ref()
+const cephaList = ref()
+const goalList = ref()
+const methodList = ref()
 const order = [
   '问诊',
   '临床检查',
@@ -400,6 +405,7 @@ function sort(a, b) {
   return indexA - indexB // 根据order中的位置进行比较
 }
 // 获取非问题列表页面的数据
+
 const faceImageList1 = ['正面像', '正面微笑像']
 const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
 const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
@@ -531,7 +537,13 @@ async function getDataList() {
       )
     }
   }
-  console.log(data.value)
+  inquiryList.value = data.value.filter((item) => item.owningModule == '问诊')
+  checkList.value = data.value.filter((item) => item.owningModule == '临床检查')
+  diagnoseList.value = data.value.filter((item) => item.owningModule == '诊断')
+  facialList.value = data.value.filter((item) => item.owningModule == '面型评估')
+  mouthList.value = data.value.filter((item) => item.owningModule == '口内照')
+  panoList.value = data.value.filter((item) => item.owningModule == '全景片')
+  data.value.push({ owningModule: '方案', data: schemeData })
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -542,19 +554,28 @@ const getSchemeList = async () => {
     scheme.featureList = featureList.value.filter((feature) => {
       return scheme.featureList.includes(feature.id)
     })
+    scheme.featureList.unshift({
+      name: alignerList.value.filter((item) => item.id == scheme.primaryApplianceId)[0].name
+    })
+    scheme.featureList.unshift({ name: scheme.difficultyLevel })
+    scheme.featureList.unshift({ name: scheme.stageList[scheme.stageList.length - 1].stageName })
   })
-  console.log('🚀 ~ getSchemeList ~ schemeData.value:', schemeData.value)
 }
 function transformData(data) {
   return data.map((item) => {
     const stageList = item.stageList.reduce((acc, stage) => {
       // 如果 targetIds 或 toolIds 为空，则不添加该阶段
       if (stage.targetIds || stage.toolIds) {
+        // 检查targetNames是否包含拔牙
+        let targetName = stage.targetNames || ''
+        if (targetName.includes('拔牙')) {
+          // 如果包含拔牙，则将fdiToothCode添加到targetName后面并加上括号
+          const toothCode = stage.fdiToothCode ? `(${stage.fdiToothCode})` : ''
+          targetName += toothCode
+        }
         acc.push({
           stageName: stage.stageName,
-          goalList: stage.targetNames
-            ? stage.targetNames.split(',').map((target) => ({ label: target }))
-            : [],
+          goalList: targetName ? targetName.split(',').map((target) => ({ label: target })) : [],
           toolList: stage.toolNames
             ? stage.toolNames.split(',').map((tool) => ({ label: tool }))
             : []
@@ -573,6 +594,8 @@ function transformData(data) {
     return {
       planName: item.name,
       checked: item.checked,
+      difficultyLevel: item.difficultyLevel,
+      primaryApplianceId: item.primaryApplianceId,
       featureList: item.featureTagIds ? item.featureTagIds.split(',').map((tag) => tag) : [],
       stageList: stageList
     }
@@ -607,7 +630,6 @@ const getFeatureEffect = async () => {
       dictType: item.dictType
     }))
   ]
-  console.log('fe', featureList.value)
 }
 getFeatureEffect()
 const mockData = [
@@ -728,8 +750,8 @@ async function getIssuesList() {
 
 // let generatedPdfData = null
 const src = ref()
-const pdf = sessionStorage.getItem(`pdfUrl${props.id}`)
-src.value = pdf ? pdf : ''
+// const pdf = sessionStorage.getItem(`pdfUrl${props.id}`)
+// src.value = pdf ? pdf : ''
 
 const emit = defineEmits(['getPdfResult'])
 const generatePDF = () => {
@@ -786,14 +808,26 @@ const generatePDF = () => {
     console.log(err)
   }
 }
-
+const alignerList = ref([])
+const getAlignerList = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHPRIMARYAPPLIANCE'
+  })
+  alignerList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: +item.id,
+    dictType: item.dictType
+  }))
+}
 async function main() {
   // 依次执行这三个请求
+  await getAlignerList()
+  await getSchemeList()
   await getDataList()
   await getClassifiedImgList()
   await getIssuesList()
   await getPatientInfo()
-  await getSchemeList()
+
   // 所有请求完成后执行生成PDF
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
@@ -803,17 +837,16 @@ async function main() {
 const loading = ref()
 
 onMounted(() => {
-  // if (!src.value) {
-  //   loading.value = ElLoading.service({
-  //     lock: true,
-  //     text: '报告生成中',
-  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
-  //     background: 'rgba(37, 38, 38, 1)'
-  //   })
+  if (!src.value) {
+    loading.value = ElLoading.service({
+      lock: true,
+      text: '报告生成中',
+      // 把颜色改成不透明的，就看不到后面的pdf的内容了
+      background: 'rgba(37, 38, 38, 1)'
+    })
 
-  //   main()
-  // }
-  main()
+    main()
+  }
 })
 </script>
 

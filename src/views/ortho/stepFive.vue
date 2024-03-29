@@ -491,7 +491,9 @@
               :style="{ width: '400px', 'border-radius': '8px' }"
               allow-clear
               v-model="title.cephalometricsContent"
-              @blur="handleSubmitAddtionalContent(title)"
+              @blur="
+                handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
+              "
             /> </form-item></template
       ></template>
     </div>
@@ -1024,6 +1026,7 @@ const handleInput = (e, plan) => {
 }
 const handleBlur = (e, plan) => {
   plan.name = e.target.innerHTML
+  handleScheme(plan)
 }
 onMounted(() => {
   // const divs = document.querySelectorAll('.planName')
@@ -1277,7 +1280,7 @@ const handleMouseLeaveBtn = (e, option) => {
     })
   })
 }
-const handleSubmitAddtionalContent = (title) => {
+const handleSubmitAddtionalContent = (title, classId, owningModule) => {
   if (title.cephalometricsContent) {
     const obj = {
       apmtId: appId,
@@ -1286,7 +1289,9 @@ const handleSubmitAddtionalContent = (title) => {
       otherContent: '',
       cephalometricsContent: title.cephalometricsContent,
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      classId: classId,
+      owningModule: owningModule
     }
     Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   }

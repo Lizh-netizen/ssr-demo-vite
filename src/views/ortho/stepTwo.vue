@@ -620,7 +620,9 @@ const handleBlurInput = (title) => {
     otherContent: '',
     cephalometricsContent: title.cephalometricsContent ? title.cephalometricsContent : '',
     fdiToothCode: '',
-    showPosition: ''
+    showPosition: '',
+    classId: cephaClassId.value,
+    owningModule: '侧位片'
   }
   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
     if (res.code == 200 && res.data.optionsId) {
@@ -632,7 +634,9 @@ const handleBlurInput = (title) => {
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode: '',
-        showPosition: ''
+        showPosition: '',
+        classId: cephaClassId.value,
+        owningModule: '侧位片'
       }
       title.inputVal = title.cephalometricsContent
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
