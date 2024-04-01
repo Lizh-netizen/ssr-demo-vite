@@ -126,23 +126,36 @@ const handleSubmitTooth = (title) => {
     if (!title.submitAble) {
       return
     }
-    let obj = {
-      apmtId: props.appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: '',
-      optionSuffix: '牙位图',
-      fdiToothCode: title.toothCode.join(),
-      showPosition: JSON.stringify(title.position),
-      classId: props.classId,
-      owningModule: props.owningModule
-    }
+
     if (props.module == 'evaluate') {
+      let obj = {
+        apmtId: props.appId,
+        titleId: title.id,
+        optionsIdStr: [],
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: title.toothCode.join(),
+        showPosition: JSON.stringify(title.position),
+        classId: props.classId,
+        owningModule: props.owningModule
+      }
       Post('/prod-api/business/facialResult', obj).then(() => {
         title.submitAble = false
       })
     } else {
+      let obj = {
+        aptmId: props.appId,
+        titleId: title.id,
+        optionsIdStr: [],
+        otherContent: '',
+        cephalometricsContent: '',
+        optionSuffix: '牙位图',
+        fdiToothCode: title.toothCode.join(),
+        showPosition: JSON.stringify(title.position),
+        classId: props.classId,
+        owningModule: props.owningModule
+      }
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
         title.submitAble = false
       })

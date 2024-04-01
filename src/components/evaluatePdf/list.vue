@@ -2,7 +2,9 @@
   <div class="list1">
     <div class="list__item" v-for="a in list" :key="a.id" :data-serious="a.serious">
       <div class="list__item__desc">
-        {{ a.title_name }}:{{ a.option_names }}
+        <div style="overflow-wrap: anywhere">
+          {{ a.title_name + (pano ? '' : ':') }} {{ a.option_names }}
+        </div>
         <img
           class="seriousIcon"
           src="../../assets/svg/serious.svg"
@@ -18,7 +20,7 @@
 
 <script setup>
 import { defineProps } from 'vue'
-defineProps(['list', 'moduleName'])
+defineProps(['list', 'moduleName', 'pano'])
 </script>
 
 <style lang="scss" scoped>
@@ -26,10 +28,10 @@ defineProps(['list', 'moduleName'])
   display: flex;
   flex-wrap: wrap;
   .list__item {
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     width: 50%;
     display: flex;
-    // align-items: center;
+    align-items: center;
     &:before {
       display: inline-block;
       content: '';
@@ -38,12 +40,12 @@ defineProps(['list', 'moduleName'])
       margin-right: 8px;
       border-radius: 50%;
       position: relative;
-      top: 4px;
+
       border: 1.5px solid #e57e2b;
     }
     &__desc {
       margin-right: 4px;
-      // display: flex;
+      display: flex;
       align-items: center;
     }
     .seriousIcon {

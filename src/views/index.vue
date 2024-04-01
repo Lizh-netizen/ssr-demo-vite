@@ -149,6 +149,7 @@
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
               >进入面评</el-button
             >
+            <el-button @click="handleViewPdf(row)" v-if="currentTab == '面评'">查看报告</el-button>
             <el-button @click="handleViewOrth(row)" v-if="currentTab == '矫正方案'"
               >进入正畸方案</el-button
             >
@@ -295,8 +296,9 @@ import datePicker from '../packages-js/date-picker/date-picker.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
-import store from '../store'
 
+import { useStore } from 'vuex'
+const store = useStore()
 const route = useRoute()
 const params = route.query
 const requestAble = ref({})
@@ -353,15 +355,15 @@ const strategy = {
     request: getOrthoList,
     stasCountRequest: getOrthCount,
     firstReq: false
-  },
-  面评矫正预约率: {
-    config: columns_config_aptm,
-    storage: 'aptm',
-    page: 'aptmPage',
-    request: getAptmList,
-    stasCountRequest: getAptmCount,
-    firstReq: false
   }
+  // 面评矫正预约率: {
+  //   config: columns_config_aptm,
+  //   storage: 'aptm',
+  //   page: 'aptmPage',
+  //   request: getAptmList,
+  //   stasCountRequest: getAptmCount,
+  //   firstReq: false
+  // }
 }
 
 const total = ref(0)
@@ -642,18 +644,40 @@ async function verifyPermission() {
     }
   }
 }
-
+const handleViewPdf = (item) => {
+  if (!item.pdfUrl) {
+    ElMessage.warning('暂无报告哦')
+    return
+  }
+  sessionStorage.setItem('patientInfo', JSON.stringify(item))
+  window.open(item.pdfUrl)
+}
 const handleEvaluateOrth = (item) => {
   if (!hasPermission.value) {
     ElMessage.warning('无面评操作权限')
     return
   }
-  sessionStorage.setItem('patientInfo', JSON.stringify(item))
+
   let path = ''
   path =
     orthStatus.value !== -1
       ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
       : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+  if (!item.facialId) {
+    Post('/prod-api/emr/public/api/v1/assessment/add', {
+      patientId: item.patientId,
+      aptmId: item.apmtId
+    }).then(({ data }) => {
+      item.facialId = data.facialId
+      store.commit('setPatientInfo', item)
+      sessionStorage.setItem('patientInfo', JSON.stringify(item))
+    })
+  } else {
+    sessionStorage.setItem('patientInfo', {})
+    store.commit('setPatientInfo', item)
+    sessionStorage.setItem('patientInfo', JSON.stringify(item))
+  }
+
   router.push(path)
 }
 const handleCompareOrth = (item) => {
@@ -699,7 +723,7 @@ watch(
 onBeforeMount(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
-  const list = ['aptm', 'ortho', 'evaluate']
+  const list = ['ortho', 'evaluate']
   list.forEach((element) => {
     if (sessionStorage.getItem(element)) {
       return
@@ -709,7 +733,7 @@ onBeforeMount(() => {
       JSON.stringify({
         doctorId: jc_odos_user?.ljProviderId,
         officeId: jc_odos_user?.ljOfficeId,
-        date: element !== 'aptm' ? date.value : [firstDate.value, date.value]
+        date: date.value
       })
     )
   })
@@ -774,8 +798,8 @@ async function getFacialCount(val) {
     location: '2'
   })
   facialCount.value = res.data
-  tabData.value[1].left_num = facialCount.value.numerator
-  tabData.value[1].right_num = facialCount.value.totalCount
+  tabData.value[0].left_num = facialCount.value.numerator
+  tabData.value[0].right_num = facialCount.value.totalCount
 }
 const orthCount = ref({})
 
@@ -787,8 +811,8 @@ async function getOrthCount(val) {
     location: '1'
   })
   orthCount.value = res.data
-  tabData.value[2].left_num = orthCount.value.numerator
-  tabData.value[2].right_num = orthCount.value.totalCount
+  tabData.value[1].left_num = orthCount.value.numerator
+  tabData.value[1].right_num = orthCount.value.totalCount
 }
 const aptmCount = ref()
 async function getAptmCount(val) {
@@ -822,15 +846,15 @@ const tabData = ref([
     right_num: 0,
     left_text: '已面评人数',
     right_text: '预约面型发育评估人数'
+  },
+  {
+    svg_name: 'cardSvg1',
+    name: '矫正方案',
+    left_num: 0,
+    right_num: 0,
+    left_text: '已录入矫正方案人数',
+    right_text: '需要矫正人数'
   }
-  // {
-  //   svg_name: 'cardSvg1',
-  //   name: '矫正方案',
-  //   left_num: 0,
-  //   right_num: 0,
-  //   left_text: '已录入矫正方案人数',
-  //   right_text: '需要矫正人数'
-  // }
 ])
 
 async function changeNote(val) {

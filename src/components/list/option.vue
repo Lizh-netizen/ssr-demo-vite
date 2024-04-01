@@ -183,7 +183,7 @@ async function handleChangeOption(optionId, title) {
   await useUpdateOption(title.optionId, title, props.appId, props.classId, props.owningModule)
 }
 const handleSubmit = (optionId, title) => {
-  useUpdateOption(optionId, title, '', props.appId)
+  useUpdateOption(optionId, title, props.appId, props.classId, props.owningModule)
 }
 
 const handleMouseEnter = (option) => {

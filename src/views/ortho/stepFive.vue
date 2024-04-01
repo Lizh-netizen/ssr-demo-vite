@@ -491,7 +491,9 @@
               :style="{ width: '400px', 'border-radius': '8px' }"
               allow-clear
               v-model="title.cephalometricsContent"
-              @blur="handleSubmitAddtionalContent(title)"
+              @blur="
+                handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
+              "
             /> </form-item></template
       ></template>
     </div>
@@ -1024,6 +1026,7 @@ const handleInput = (e, plan) => {
 }
 const handleBlur = (e, plan) => {
   plan.name = e.target.innerHTML
+  handleScheme(plan)
 }
 onMounted(() => {
   // const divs = document.querySelectorAll('.planName')
@@ -1048,6 +1051,7 @@ const handlePlan = (plan) => {
     } else {
       item.checked = false
     }
+    handleScheme(plan)
   })
 }
 
@@ -1168,9 +1172,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         classId: classId,
         owningModule: owningModule,
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         optionSuffix: '牙位图'
       }
     } else if (option.id === 236 && !option.toothCode.join()) {
@@ -1187,9 +1191,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         cephalometricsContent: '',
         optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule
       }
@@ -1206,9 +1210,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         cephalometricsContent: '',
         optionSuffix: '牙位图',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule
       }
@@ -1223,9 +1227,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode1: option2.toothCode.join(),
-        showPosition1: JSON.stringify(option2.position),
+        showPosition1: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode: option.toothCode.join(),
-        showPosition: JSON.stringify(option.position),
+        showPosition: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule,
         optionSuffix: '牙位图'
@@ -1242,9 +1246,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode: option2.toothCode.join(),
-        showPosition: JSON.stringify(option2.position),
+        showPosition: option2.position.length ? JSON.stringify(option2.position) : '',
         fdiToothCode1: option.toothCode.join(),
-        showPosition1: JSON.stringify(option.position),
+        showPosition1: option.position.length ? JSON.stringify(option.position) : '',
         classId: classId,
         owningModule: owningModule,
         optionSuffix: '牙位图'
@@ -1276,16 +1280,18 @@ const handleMouseLeaveBtn = (e, option) => {
     })
   })
 }
-const handleSubmitAddtionalContent = (title) => {
+const handleSubmitAddtionalContent = (title, classId, owningModule) => {
   if (title.cephalometricsContent) {
     const obj = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: [],
       otherContent: '',
       cephalometricsContent: title.cephalometricsContent,
       fdiToothCode: '',
-      showPosition: ''
+      showPosition: '',
+      classId: classId,
+      owningModule: owningModule
     }
     Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   }
