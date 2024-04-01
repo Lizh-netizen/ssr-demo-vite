@@ -13,11 +13,7 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              {{
-                module == 'ortho'
-                  ? '可直接拖拽照片到右侧指定位置或点击下方一键“自动分类”哦～'
-                  : '可直接拖拽照片到右侧指定位置～'
-              }}
+              {{ '可直接拖拽照片到右侧指定位置～' }}
             </div>
             <div class="title__right file-upload">
               <div class="file-upload__label">
@@ -98,10 +94,10 @@
             </template>
           </div>
 
-          <div class="classifyWrapper" v-if="module == 'ortho'">
+          <!-- <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
-          </div>
+          </div> -->
         </div>
         <div class="imageManagement__classify subSection">
           <div class="title">分类</div>

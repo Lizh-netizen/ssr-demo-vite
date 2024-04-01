@@ -261,12 +261,16 @@
           <div class="pdfPage flexPdfPage">
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
-            <div class="imgBox">
+            <div class="imgBox" :class="{ cepha: item.owningModule === '侧位片' }">
               <div class="imageCaption" v-if="item.fileUrl">{{ item.className }}</div>
               <img
                 :src="item.fileUrl + `?random=${Math.random()}`"
                 crossOrigin="anonymous"
                 class="avator pic"
+                :style="{
+                  width: item.owningModule === '侧位片' ? 'auto' : '100%',
+                  height: item.owningModule === '侧位片' ? '500px' : 'auto'
+                }"
               />
             </div>
             <div class="content blueBackground">
@@ -430,7 +434,7 @@ async function getDataList() {
         } else {
           acc[cur.owningModule].list.push({
             title_name: cur.titleName,
-            option_names: cur.optionsName,
+            option_names: cur.optionsNames,
             serious: cur.serious
           })
         }
@@ -440,7 +444,7 @@ async function getDataList() {
       ) {
         acc[cur.owningModule + cur.className].list.push({
           title_name: cur.titleName,
-          option_names: cur.optionsName,
+          option_names: cur.optionsNames,
           serious: cur.serious
         })
       } else if (
@@ -459,7 +463,7 @@ async function getDataList() {
         } else {
           acc[cur.owningModule].list.push({
             title_name: cur.titleName,
-            option_names: cur.optionsName,
+            option_names: cur.optionsNames,
             serious: cur.serious
           })
         }
@@ -471,7 +475,7 @@ async function getDataList() {
         acc[cur.owningModule + cur.className].list = []
         acc[cur.owningModule + cur.className].list.push({
           title_name: cur.titleName,
-          option_names: cur.optionsName,
+          option_names: cur.optionsNames,
           serious: cur.serious
         })
       }
@@ -765,7 +769,7 @@ async function getIssuesList() {
   if (result.data?.length > 0) {
     issuesList.value = result.data.map((item) => ({
       title_name: item.titleName,
-      option_names: item.optionsName,
+      option_names: item.optionsNames,
       serious: item.serious
     }))
   }
@@ -909,6 +913,12 @@ body {
   width: 100%;
   border-radius: 12px;
 }
+.cepha {
+  background: #060606;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+}
 .imageCaption {
   font-size: 10px;
   font-weight: 500;
@@ -918,6 +928,7 @@ body {
   position: absolute;
   padding: 4px 12px;
   background: #2e6ce4;
+  left: 30px;
   border-radius: 12px 0px 12px 0px;
 }
 .scheme {
@@ -1368,10 +1379,13 @@ body {
           height: 316px;
           overflow: hidden;
           display: flex;
+          background: #060606;
+          border-radius: 12px;
           justify-content: center;
           align-items: center;
           background: black;
         }
+
         .avator {
           width: 100%;
         }

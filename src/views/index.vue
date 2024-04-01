@@ -355,15 +355,15 @@ const strategy = {
     request: getOrthoList,
     stasCountRequest: getOrthCount,
     firstReq: false
-  },
-  面评矫正预约率: {
-    config: columns_config_aptm,
-    storage: 'aptm',
-    page: 'aptmPage',
-    request: getAptmList,
-    stasCountRequest: getAptmCount,
-    firstReq: false
   }
+  // 面评矫正预约率: {
+  //   config: columns_config_aptm,
+  //   storage: 'aptm',
+  //   page: 'aptmPage',
+  //   request: getAptmList,
+  //   stasCountRequest: getAptmCount,
+  //   firstReq: false
+  // }
 }
 
 const total = ref(0)
@@ -723,7 +723,7 @@ watch(
 onBeforeMount(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
-  const list = ['aptm', 'ortho', 'evaluate']
+  const list = ['ortho', 'evaluate']
   list.forEach((element) => {
     if (sessionStorage.getItem(element)) {
       return
@@ -733,7 +733,7 @@ onBeforeMount(() => {
       JSON.stringify({
         doctorId: jc_odos_user?.ljProviderId,
         officeId: jc_odos_user?.ljOfficeId,
-        date: element !== 'aptm' ? date.value : [firstDate.value, date.value]
+        date: date.value
       })
     )
   })
@@ -798,8 +798,8 @@ async function getFacialCount(val) {
     location: '2'
   })
   facialCount.value = res.data
-  tabData.value[1].left_num = facialCount.value.numerator
-  tabData.value[1].right_num = facialCount.value.totalCount
+  tabData.value[0].left_num = facialCount.value.numerator
+  tabData.value[0].right_num = facialCount.value.totalCount
 }
 const orthCount = ref({})
 
@@ -811,8 +811,8 @@ async function getOrthCount(val) {
     location: '1'
   })
   orthCount.value = res.data
-  tabData.value[2].left_num = orthCount.value.numerator
-  tabData.value[2].right_num = orthCount.value.totalCount
+  tabData.value[1].left_num = orthCount.value.numerator
+  tabData.value[1].right_num = orthCount.value.totalCount
 }
 const aptmCount = ref()
 async function getAptmCount(val) {
