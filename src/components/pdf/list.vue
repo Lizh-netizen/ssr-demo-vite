@@ -5,7 +5,7 @@
         <div></div>
         {{ a.title_name }}
         <span v-if="a.option_names">: {{ a.option_names }}</span
-        ><span v-if="a.active == '1'">(暂不干预)</span>
+        ><span v-if="a.active == '0'">(暂不干预)</span>
         <img
           class="seriousIcon"
           src="../../assets/svg/serious.svg"
