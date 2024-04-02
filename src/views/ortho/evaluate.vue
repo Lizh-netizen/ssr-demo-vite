@@ -11,21 +11,21 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo.patientName }}</span>
+          ><span class="font-500">{{ patientInfo?.patientName }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo.privateId || '' }}</span>
+          ><span class="font-500">{{ patientInfo?.privateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
           ><span class="font-500">{{
-            patientInfo.Sex == 1 ? '男' : patientInfo.Sex == 2 ? '女' : '未知'
+            patientInfo?.Sex == 1 ? '男' : patientInfo?.Sex == 2 ? '女' : '未知'
           }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">出生日期：</span
-          ><span class="font-500">{{ patientInfo.age }}</span>
+          ><span class="font-500">{{ patientInfo?.age }}</span>
         </div>
       </div>
       <div class="flex items-center button" @click="handleOpenImageDialogue">
@@ -241,7 +241,7 @@
                 </div>
                 <div class="leftLower-column">
                   <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList"
+                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(2, 7)"
                     :key="title.id"
                   >
                     <!-- <template v-if="index >= 2"> -->
@@ -334,7 +334,7 @@
   <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
     <div style="margin-top: 20px" class="advice__state">
       <div class="w-[70px] text-right mr-[16px]">状态选择</div>
-      <el-radio-group v-model="advice">
+      <el-radio-group v-model="advice" @change="handleAdviceChange">
         <el-radio-button :label="i" v-for="i in advices" :key="i" />
       </el-radio-group>
     </div>
@@ -429,6 +429,119 @@
       </span>
     </template>
   </el-dialog>
+  <template v-if="!src">
+    <div class="pdfContent" :style="{ display: 'none' }">
+      <div class="pdfPage">
+        <div class="patientInfo color-#fff font-500">
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
+              patientInfo?.patientName
+            }}
+          </div>
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
+              patientInfo?.privateId
+            }}
+          </div>
+          <div class="mb-[8px] flex items-center">
+            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
+              patientInfo?.StartTime?.split(' ')[0]
+            }}
+          </div>
+        </div>
+        <div class="pt-[140px]">
+          <div class="check" v-if="checkDataPdf?.list.length > 0">
+            <div
+              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
+            >
+              临床检查
+            </div>
+            <div class="bg-#F7FBFD mt-[-6px] z--1 py-[16px] px-[20px] pb-0">
+              <div><List :list="checkDataPdf?.list" class="checkList grid! grid-cols-3!" /></div>
+            </div>
+          </div>
+
+          <!-- 其他内容 -->
+          <div class="px-[20px] py-[10px]">
+            <div class="flex">
+              <!-- 面型评估 -->
+              <div
+                class="mr-[8px] borderBox facial"
+                v-if="facialData?.imageList.length > 0 || facialData?.list.length > 0"
+              >
+                <div
+                  class="h-[30px] w-[320px] px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
+                >
+                  面型评估
+                </div>
+                <div class="p-[8px] max-w-[320px]">
+                  <div class="grid grid-cols-2 w-full gap-[8px]">
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      crossOrigin="anonymous"
+                      class="w-[120px]"
+                      v-for="image in facialData?.imageList"
+                      :key="image.imageUrl"
+                    />
+                  </div>
+                  <div><List :list="facialData?.list" /></div>
+                </div>
+              </div>
+
+              <!-- 全景片 -->
+              <div
+                class="flex-1 borderBox"
+                v-if="panoData?.imageList.length > 0 || panoData?.list.length > 0"
+              >
+                <div
+                  class="h-[30px] w-auto px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
+                >
+                  全景片
+                </div>
+                <div class="p-[8px] pb-[0]!">
+                  <div>
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      v-for="image in panoData?.imageList"
+                      :key="image.imageUrl"
+                      crossOrigin="anonymous"
+                      class="w-[290px] h-[150px]"
+                    />
+                  </div>
+                  <div><List :list="panoData?.list" :pano="true" /></div>
+                </div>
+              </div>
+            </div>
+            <!-- 口内照 -->
+            <div
+              class="mt-[8px] borderBox"
+              v-if="mouthDataPdf?.imageList.length > 0 || mouthDataPdf?.list.length > 0"
+            >
+              <div
+                class="h-[30px] w-full px-[20px] py-[14px] bg-#216FB0 color-#FFFFFF font-500 pt-[6px]!"
+              >
+                口内照
+              </div>
+              <div class="flex items-center p-[8px]">
+                <!-- 这里是图片, grid布局-->
+                <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
+                  <img
+                    :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="h-[100px]"
+                    crossOrigin="anonymous"
+                    v-for="image in mouthDataPdf?.imageList"
+                    :key="image.imageUrl"
+                  />
+                </div>
+                <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="facialAdvise">评估结果：{{ advice }}</div>
+      </div>
+    </div>
+  </template>
 </template>
 
 <script setup>
@@ -441,7 +554,9 @@ import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
+import List from '@/components/evaluatePdf/list.vue'
 
+import html2pdf from 'html2pdf.js'
 import { GetSymptom } from '../../utils/tooth'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import img from '@/assets/svg/addPic.svg'
@@ -452,15 +567,46 @@ import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
 
+import { useStore } from 'vuex'
+const store = useStore()
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const orthStatus = route.params.orthStatus
-const patientInfo = JSON.parse(sessionStorage.getItem('patientInfo')) || {}
-const facialId = patientInfo?.facialId
+// const patientInfo = ref()
+onMounted(() => {
+  // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+})
+const patientInfo = ref(
+  JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+)
+
+const updatePatientInfo = () => {
+  const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+  Object.assign(patientInfo.value, newData)
+}
+
+// Listen for changes in sessionStorage
+onMounted(() => {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'patientInfo') {
+      updatePatientInfo()
+    }
+  })
+})
+
+// Watch for changes in store.state.patientInfo
+watch(
+  () => store.state.patientInfo,
+  (newValue) => {
+    Object.assign(patientInfo.value, newValue)
+  },
+  { immediate: true } // Trigger the watcher immediately with the current value
+)
+const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
-const doctorName = ref(patientInfo.facialOrthDoctorName || userInfo.value.userName)
+const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)
 
 // 面评弹窗逻辑
 const frankList = ref([
@@ -468,8 +614,11 @@ const frankList = ref([
   { value: 2, label: '中' },
   { value: 3, label: '差' }
 ])
-const facialAdviseRemark = ref(patientInfo?.facialAdviseRemark || '')
-const patientCompliance = ref(patientInfo?.patientCompliance || '')
+
+const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
+
+const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
+const facialAdvise = ref(patientInfo.value?.facialAdvise || '')
 const handleClickFrank = (item) => {
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
@@ -480,17 +629,17 @@ const handleClickFrank = (item) => {
 const adviceVisible = ref(false)
 const advices = ref(['立即矫正', '后续面评', '转三级面评', '无需矫正'])
 const advice = ref(
-  patientInfo?.facialAdvise == 1
+  patientInfo.value?.facialAdvise == 1
     ? '立即矫正'
-    : patientInfo?.facialAdvise == 2
+    : patientInfo.value?.facialAdvise == 2
       ? '无需矫正'
-      : patientInfo?.facialAdvise == 3
+      : patientInfo.value?.facialAdvise == 3
         ? '后续面评'
-        : patientInfo?.facialAdvise == 4
+        : patientInfo.value?.facialAdvise == 4
           ? '转三级面评'
-          : '待定'
+          : '未评估'
 )
-const time = ref(patientInfo?.facialTime?.slice(0, 10) || '')
+const time = ref(patientInfo.value?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
 }
@@ -543,9 +692,8 @@ async function handleAdvice() {
       orthDoctorName = ''
       time.value = ''
     }
-
     const obj = {
-      id: facialId,
+      id: patientInfo.value.facialId,
       patientId: patientId,
       aptmId: appId,
       orthDoctorName: orthDoctorName || '',
@@ -579,9 +727,17 @@ async function handleAdvice() {
   } catch (err) {
     console.log(err)
   }
-  handleBackToList()
-  // router.push(`/evaluatePdf/${appId}/${patientId}`)
+  loading.value = ElLoading.service({
+    lock: true,
+    text: '保存中',
+    // 把颜色改成不透明的，就看不到后面的pdf的内容了
+    background: 'rgba(37, 38, 38, 1)'
+  })
+  main()
 }
+
+const loading = ref()
+
 const rangeShortcuts = [
   {
     text: '1个月后',
@@ -711,10 +867,17 @@ const selectShortcutFn = (shortcut) => {
     form.value.timeRange = [startStr, endStr]
   })
 }
-
-onBeforeMount(() => {
-  // 判断医生等级
-})
+watch(
+  patientInfo,
+  (newVal) => {
+    patientInfo.value = newVal
+    facialAdvise
+  },
+  {
+    immediate: true
+  }
+)
+onBeforeMount(() => {})
 onMounted(() => {
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
@@ -1031,8 +1194,8 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
-          codeTitleList.value = res.data.slice(7)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 2)
+          codeTitleList.value = res.data.slice(2, 7)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
@@ -1056,15 +1219,16 @@ async function getFreePic() {
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
+      a.popVisible = false
       a.topLeft = []
       a.topRight = []
       a.bottomLeft = []
       a.bottomRight = []
-      const arr = JSON.parse(a.showPosition)
+      const arr = JSON.parse(a.showPosition == null || a.showPosition == '' ? '[]' : a.showPosition)
 
       if (a.fdiToothCode) {
-        a.toothCode = a.fdiToothCode.split(',')
-        a.fdiToothCode.split(',').forEach((code, index) => {
+        a.toothCode = a.fdiToothCode?.split(',')
+        a.fdiToothCode?.split(',').forEach((code, index) => {
           if (code.startsWith('1') || code.startsWith('5')) {
             a.topLeft.push(arr[index][0])
           } else if (code.startsWith('2') || code.startsWith('6')) {
@@ -1106,6 +1270,7 @@ function handlePanoData(panoramicData) {
       }
     })
   })
+  console.log(panoramicData.value)
 }
 
 getCheckList()
@@ -1298,7 +1463,7 @@ const chooseImgNum = computed(() => {
   return num
 })
 
-const orthDoctorId = ref(+patientInfo?.facialOrthDoctorId || '')
+const orthDoctorId = ref(+patientInfo.value?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
 async function getOrthDoctorList() {
   const res = await Get('/prod-api/emr/public/api/v1/assessment/orthDoctorList')
@@ -1311,7 +1476,7 @@ async function getOrthDoctorList() {
     })
   }
 }
-const threeLevelDoctorId = ref(+patientInfo?.facialReferralToDoctorId || '')
+const threeLevelDoctorId = ref(+patientInfo.value?.facialReferralToDoctorId || '')
 const threeLevelDoctorList = ref([])
 async function getThreeLevelDoctorList() {
   const res = await Get(`/prod-api/emr/public/api/v1/assessment/orthDoctorListByLevel/三级正畸医生`)
@@ -1356,6 +1521,126 @@ const handleCloseImgDialog = () => {
 }
 const handleBackToList = () => {
   router.push('/index')
+}
+function processData(data) {
+  const result = {
+    临床检查: { owningModule: '临床检查', imageList: [], list: [] },
+    面型评估: { owningModule: '面型评估', imageList: [], list: [] },
+    全景片: { owningModule: '全景片', imageList: [], list: [] },
+    口内照: { owningModule: '口内照', imageList: [], list: [] }
+  }
+
+  data.forEach((item) => {
+    const { owningModule, imageUrl, titleName, optionsNames, serious } = item
+    if (titleName || optionsNames) {
+      result[owningModule]?.list.push({
+        title_name: titleName,
+        option_names: optionsNames,
+        serious: serious
+      })
+    }
+    if (imageUrl) {
+      if (
+        result[owningModule] &&
+        result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)
+      ) {
+        return false
+      }
+      result[owningModule]?.imageList.push({ imageUrl })
+    }
+  })
+
+  return result
+}
+const data = ref()
+const checkDataPdf = ref()
+const facialData = ref()
+const panoData = ref()
+const mouthDataPdf = ref()
+async function getDataList(appId) {
+  const res = await Get(
+    `prod-api/emr/facialAssessment/getFacialIssuesList?aptmId=${appId}&location=1`
+  )
+  data.value = Object.values(processData(res.data))
+  checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
+  facialData.value = data.value.find((item) => item.owningModule == '面型评估')
+  panoData.value = data.value.find((item) => item.owningModule == '全景片')
+
+  mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
+}
+// 得到当天日期
+const today = new Date()
+const year = today.getFullYear()
+let month = today.getMonth() + 1 // 注意月份从0开始
+const day = today.getDate()
+if (month < 10) {
+  month = '0' + month
+}
+const formattedDate = `${year}-${month}-${day}`
+const generatePDF = () => {
+  try {
+    const options = {
+      filename: `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`,
+      margin: 0,
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, dpi: 96 },
+      pagebreak: { mode: 'css' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }
+    const element = document.querySelector('.pdfContent')
+
+    html2pdf()
+      .set(options)
+      .from(element)
+      .toPdf()
+      .get('pdf')
+      .then((pdfObj) => {
+        const formData = new FormData()
+        const perBlob = pdfObj.output('blob')
+        formData.append(
+          'file',
+          perBlob,
+          `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`
+        )
+        Post('/prod-api/emr/upload', formData, true)
+          .then((res) => {
+            if (res.code == 200) {
+              src.value = res.msg
+              Post('/prod-api/emr/public/api/v1/assessment/updatePdfUrl', {
+                id: patientInfo.value.facialId,
+                pdfUrl: src.value
+              })
+              ElMessage({
+                type: 'success',
+                message: '保存成功'
+              })
+            } else {
+              ElMessage({
+                type: 'error',
+                message: '生成失败'
+              })
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            loading.value?.close()
+            handleBackToList()
+          })
+      })
+  } catch (err) {
+    console.log(err)
+  }
+}
+async function main() {
+  // 依次执行这三个请求
+  await getDataList(appId)
+  // 所有请求完成后执行生成PDF
+  // 刚开始不可见，要生成之前可见就可以，
+  const pdfContent = document.querySelector('.pdfContent')
+  pdfContent.style.display = 'block'
+  generatePDF()
 }
 </script>
 <style>
@@ -1428,6 +1713,12 @@ const handleBackToList = () => {
 }
 </style>
 <style lang="scss" scoped>
+.facial {
+  :deep(.list1) {
+    display: block;
+    margin-top: 10px;
+  }
+}
 .stickyHeader {
   position: sticky;
   top: 0;
@@ -1990,6 +2281,56 @@ const handleBackToList = () => {
     background: #ffffff;
     top: 72px;
     text-align: center;
+  }
+}
+:deep(.checkList.list1) {
+  .list__item {
+    width: auto !important;
+  }
+}
+.pdfContent {
+  position: relative;
+  width: 210mm;
+
+  .pdfPage {
+    color: #404682;
+    position: relative;
+    width: 210mm; /* 页面宽度 */
+    height: 296.8mm; /* 页面高度 */
+    background-image: url('../../assets/eveluatePdf/cover.png');
+    background-size: contain;
+    background-size: 100%;
+    page-break-inside: avoid;
+    .patientInfo {
+      position: absolute;
+      left: 550px;
+      top: 20px;
+    }
+    .check {
+      .checkTitle {
+        background-image: url('../../assets/eveluatePdf/临床检查背景.svg');
+        background-repeat: no-repeat;
+        background-size: auto 32px;
+      }
+    }
+    .borderBox {
+      box-sizing: border-box;
+      border: 2px solid #216fb0;
+      .mouthImage {
+      }
+    }
+    .facialAdvise {
+      position: absolute;
+      font-style: italic;
+      font-family: YouSheBiaoTiHei;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: normal;
+      letter-spacing: 0.04em;
+      bottom: 30px;
+      right: 80px;
+      color: #1d458d;
+    }
   }
 }
 </style>

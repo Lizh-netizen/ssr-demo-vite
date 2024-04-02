@@ -87,19 +87,21 @@
           </div>
         </template>
 
-        <template v-if="item.owningModule === '诊断'">
+        <template v-if="item.owningModule === '问题列表'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="评估结果" />
-            <div class="subTitle issuesList" v-if="issuesList.length > 0">问题列表</div>
+            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
             <div class="content">
-              <list :list="issuesList" moduleName="问题列表" />
+              <list :list="item.data" moduleName="问题列表" />
             </div>
-            <div class="subTitle">诊断</div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
+              诊断
+            </div>
             <div class="content">
-              <list :list="item.list" />
+              <list :list="data.find((item) => item.owningModule === '诊断').list" />
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '方案')">方案</div>
+
             <!-- <div class="content">
             <list
               :list="data.find((item) => item.owningModule == '方案').list"
@@ -261,12 +263,15 @@
           <div class="pdfPage flexPdfPage">
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
-            <div class="imgBox">
-              <div class="imageCaption" v-if="item.fileUrl">{{ item.className }}</div>
+            <div class="imgBox" :class="{ cepha: item.owningModule === '侧位片' }">
+              <div class="imageCaption" v-if="item.imageUrl">
+                {{ item.className }}
+              </div>
               <img
-                :src="item.fileUrl + `?random=${Math.random()}`"
+                :src="item.imageUrl + `?random=${Math.random()}`"
                 crossOrigin="anonymous"
                 class="avator pic"
+                :class="{ cephaImg: item.owningModule === '侧位片' }"
               />
             </div>
             <div class="content blueBackground">
@@ -274,42 +279,43 @@
             </div>
           </div>
         </template>
-        <template v-if="item.owningModule === '风险' || item.owningModule === '方案'">
+        <template v-if="item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="目标&方法&风险" />
             <div class="subTitle">方案</div>
             <div class="content">
-              <div v-for="item in mockData" :key="item.planName">
+              <div
+                class="scheme"
+                v-for="a in item.data"
+                :key="a.planName"
+                :class="{ checkedScheme: a.checked }"
+              >
                 <div class="color-#404682 mb-[8px]! flex items-center">
-                  <div class="font-size-[13px]">{{ item.planName }}</div>
+                  <div class="font-size-[13px]">{{ a.planName }}</div>
                   <div
-                    v-if="item.checked"
+                    v-if="a.checked"
                     class="bg-#F99020 border-rd-[4px] font-size-[10px] px-[8px]! py-[3px]! color-#FFFFFF ml-[8px]!"
                   >
                     当前方案
                   </div>
                 </div>
                 <div class="flex gap-[4px]">
-                  <div
-                    v-for="feature in item.featureList"
-                    :key="feature"
-                    class="planItem mb-[8px]!"
-                  >
-                    {{ feature.label }}
+                  <div v-for="feature in a.featureList" :key="feature" class="planItem mb-[8px]!">
+                    {{ feature.name }}
                   </div>
                 </div>
                 <div
-                  v-if="item.stageList.length"
-                  class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] py-[8px]! px-[12px]!"
+                  v-if="a.stageList.length && a.checked"
+                  class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] px-[12px]! pb-[10px]!"
                   style="border: 1px solid #e5e6eb"
                 >
                   <div></div>
-                  <div v-for="stage in item.stageList" :key="stage.stageName">
+                  <div v-for="stage in a.stageList" :key="stage.stageName">
                     <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
                       <div>{{ stage.stageName }}</div>
                       <div class="flex">
-                        <div v-for="goal in stage.goalList">{{ goal.label }}</div>
+                        {{ stage.goalList.join() }}
                       </div>
                       <div class="flex">
                         <div v-for="tool in stage.toolList">{{ tool.label }}</div>
@@ -369,6 +375,15 @@ if (month < 10) {
 }
 const formattedDate = `${year}-${month}-${day}`
 const data = ref([])
+const inquiryList = ref()
+const checkList = ref()
+const diagnoseList = ref()
+const facialList = ref()
+const mouthList = ref()
+const panoList = ref()
+const cephaList = ref()
+const goalList = ref()
+const methodList = ref()
 const order = [
   '问诊',
   '临床检查',
@@ -395,12 +410,15 @@ function sort(a, b) {
   return indexA - indexB // 根据order中的位置进行比较
 }
 // 获取非问题列表页面的数据
+
 const faceImageList1 = ['正面像', '正面微笑像']
 const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
 const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
 const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
 async function getDataList() {
-  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&location=2`)
+  const result = await Get(
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2`
+  )
   if (result.data?.length > 0) {
     const acc = result.data.reduce((acc, cur) => {
       if (
@@ -408,18 +426,26 @@ async function getDataList() {
         cur.owningModule !== '口内照' &&
         acc[cur.owningModule]
       ) {
-        acc[cur.owningModule].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
-          serious: cur.serious
-        })
+        if (cur.owningModule == '风险') {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        } else {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         acc[cur.owningModule + cur.className]
       ) {
         acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
+          title_name: cur.titleName,
+          option_names: cur.optionsNames,
           serious: cur.serious
         })
       } else if (
@@ -429,11 +455,19 @@ async function getDataList() {
       ) {
         acc[cur.owningModule] = cur
         acc[cur.owningModule].list = []
-        acc[cur.owningModule].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
-          serious: cur.serious
-        })
+        if (cur.owningModule == '风险') {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        } else {
+          acc[cur.owningModule].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         !acc[cur.owningModule + cur.className]
@@ -441,15 +475,17 @@ async function getDataList() {
         acc[cur.owningModule + cur.className] = cur
         acc[cur.owningModule + cur.className].list = []
         acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.title_name,
-          option_names: cur.option_names,
+          title_name: cur.titleName,
+          option_names: cur.optionsNames,
           serious: cur.serious
         })
       }
       return acc
     }, {})
     // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
+
     data.value = Object.values(acc)
+    console.log(data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
@@ -457,14 +493,14 @@ async function getDataList() {
           if (faceImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           } else {
             acc[cur.owningModule].list2.push(...cur.list)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
           }
         } else {
@@ -476,7 +512,7 @@ async function getDataList() {
           if (faceImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
           }
@@ -486,14 +522,14 @@ async function getDataList() {
           if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           } else {
             acc[cur.owningModule].list2.push(...cur.list)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
           }
         } else {
@@ -505,7 +541,7 @@ async function getDataList() {
           if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
-              imageUrl: cur.image_url
+              imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
           }
@@ -516,6 +552,7 @@ async function getDataList() {
       return acc
     }, {})
     data.value = Object.values(reduced)
+
     const objective = data.value.find((item) => item.owningModule == '目标')
     const method = data.value.find((item) => item.owningModule == '方法')
     if (objective && method) {
@@ -526,13 +563,109 @@ async function getDataList() {
       )
     }
   }
+  data.value.push({ owningModule: '方案', data: schemeData })
+  data.value.push({ owningModule: '问题列表', data: issuesList })
   console.log(data.value)
 }
+const schemeData = ref([])
+const getSchemeList = async () => {
+  const res = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
+  schemeData.value = transformData(res.data)
+
+  schemeData.value.forEach((scheme) => {
+    scheme.featureList = featureList.value.filter((feature) => {
+      return scheme.featureList.includes(feature.id)
+    })
+    scheme.featureList.unshift({
+      name: alignerList.value.filter((item) => item.id == scheme.primaryApplianceId)[0].name
+    })
+    scheme.featureList.unshift({ name: scheme.difficultyLevel })
+    scheme.featureList.unshift({ name: scheme.stageList[scheme.stageList.length - 1].stageName })
+  })
+}
+function transformData(data) {
+  return data.map((item) => {
+    const stageList = item.stageList.reduce((acc, stage) => {
+      // 如果 targetIds 或 toolIds 为空，则不添加该阶段
+      if (stage.targetIds || stage.toolIds) {
+        // 检查targetNames是否包含拔牙
+        let targetName = stage.targetNames || ''
+
+        if (targetName.includes('拔牙')) {
+          const targets = targetName.split(',')
+          const index = targetName.indexOf('拔牙')
+          targets.splice(index + 1, 0, stage.fdiToothCode)
+          // 如果包含拔牙，则将fdiToothCode添加到targetName后面并加上括号
+          targetName = targets
+        } else {
+          const targets = targetName.split(',')
+          targetName = targets
+        }
+
+        acc.push({
+          stageName: stage.stageName,
+          goalList: targetName,
+          toolList: stage.toolNames
+            ? stage.toolNames.split(',').map((tool) => ({ label: tool }))
+            : []
+        })
+      }
+      return acc
+    }, [])
+
+    // 在 stageList 的第一项前加入指定的数据
+    stageList.unshift({
+      stageName: '阶段',
+      goalList: ['目标'],
+      toolList: [{ label: '配件' }]
+    })
+
+    return {
+      planName: item.name,
+      checked: item.checked,
+      difficultyLevel: item.difficultyLevel,
+      primaryApplianceId: item.primaryApplianceId,
+      featureList: item.featureTagIds ? item.featureTagIds.split(',').map((tag) => tag) : [],
+      stageList: stageList
+    }
+  })
+}
+const featureList = ref([])
+const featureMeritList = ref([])
+const getFeatureMerit = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHFEATURETAGMERIT'
+  })
+  featureList.value = [
+    ...featureList.value,
+    ...result.data.map((item) => ({
+      name: item.dictCodeName,
+      id: item.id,
+      dictType: item.dictType
+    }))
+  ]
+}
+getFeatureMerit()
+const featureEffectList = ref([])
+const getFeatureEffect = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHFEATURETAGDEFECT'
+  })
+  featureList.value = [
+    ...featureList.value,
+    ...result.data.map((item) => ({
+      name: item.dictCodeName,
+      id: item.id,
+      dictType: item.dictType
+    }))
+  ]
+}
+getFeatureEffect()
 const mockData = [
   {
     planName: '方案一',
     checked: true,
-    featureList: [{ label: '中等难度' }, { label: '中等难度' }],
+    featureList: [246, 247, 250, 249],
     stageList: [
       { stageName: '阶段', goalList: [{ label: '目标' }], toolList: [{ label: '工具' }] },
       {
@@ -561,91 +694,95 @@ const mockData = [
 ]
 const imgCount = ref(0)
 // 获取完数据在其中添加图片
-async function getClassifiedImgList() {
-  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
-  if (res.code == 200) {
-    // const molar = res.data.find((item) => item.imageType === '磨牙关系（左侧）')
-    const face = data.value.find((d) => d.owningModule === '面型评估')
-    const mouth = data.value.find((d) => d.owningModule === '口内照')
+// async function getClassifiedImgList() {
+//   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
+//   if (res.code == 200) {
+//     // const molar = res.data.find((item) => item.imageType === '磨牙关系（左侧）')
+//     const face = data.value.find((d) => d.owningModule === '面型评估')
+//     const mouth = data.value.find((d) => d.owningModule === '口内照')
 
-    faceImageList1.forEach((item) => {
-      if (face && !face.imageList1.some((image) => image.className === item)) {
-        face.imageList1.push({ className: item })
-      }
-    })
-    faceImageList2.forEach((item) => {
-      if (face && !face.imageList2.some((image) => image.className === item)) {
-        face.imageList2.push({ className: item })
-      }
-    })
-    mouthImageList1.forEach((item) => {
-      if (mouth && !mouth.imageList1.some((image) => image.className === item)) {
-        mouth.imageList1.push({ className: item })
-      }
-    })
-    mouthImageList2.forEach((item) => {
-      if (mouth && !mouth.imageList2.some((image) => image.className === item)) {
-        mouth.imageList2.push({ className: item })
-      }
-    })
-    res.data.forEach((item) => {
-      face?.imageList1?.forEach((a) => {
-        if (item.imageType == a.className) {
-          a.imageUrl = item.imageUrl
-          imgCount.value++
-        }
-      })
-      face?.imageList2?.forEach((a) => {
-        if (item.imageType == a.className) {
-          a.imageUrl = item.imageUrl
-          imgCount.value++
-        }
-      })
-      mouth?.imageList1?.forEach((a) => {
-        if (item.imageType == a.className) {
-          a.imageUrl = item.imageUrl
-          imgCount.value++
-        }
-      })
-      mouth?.imageList2?.forEach((a) => {
-        if (item.imageType == a.className) {
-          a.imageUrl = item.imageUrl
-          imgCount.value++
-        }
-      })
-      // if (molar && item.imageType === '磨牙关系（右侧）') {
-      //   mouth?.imageList2?.push({
-      //     className: '磨牙关系（右侧）',
-      //     imageUrl: item.imageUrl
-      //   })
-      // }
-      data.value.forEach((b) => {
-        if (b.className === item.imageType && item.imageUrl) {
-          b.fileUrl = item.imageUrl
-          imgCount.value++
-        }
-      })
-    })
-  }
-}
+//     faceImageList1.forEach((item) => {
+//       if (face && !face.imageList1.some((image) => image.className === item)) {
+//         face.imageList1.push({ className: item })
+//       }
+//     })
+//     faceImageList2.forEach((item) => {
+//       if (face && !face.imageList2.some((image) => image.className === item)) {
+//         face.imageList2.push({ className: item })
+//       }
+//     })
+//     mouthImageList1.forEach((item) => {
+//       if (mouth && !mouth.imageList1.some((image) => image.className === item)) {
+//         mouth.imageList1.push({ className: item })
+//       }
+//     })
+//     mouthImageList2.forEach((item) => {
+//       if (mouth && !mouth.imageList2.some((image) => image.className === item)) {
+//         mouth.imageList2.push({ className: item })
+//       }
+//     })
+//     res.data.forEach((item) => {
+//       face?.imageList1?.forEach((a) => {
+//         if (item.imageType == a.className) {
+//           a.imageUrl = item.imageUrl
+//           imgCount.value++
+//         }
+//       })
+//       face?.imageList2?.forEach((a) => {
+//         if (item.imageType == a.className) {
+//           a.imageUrl = item.imageUrl
+//           imgCount.value++
+//         }
+//       })
+//       mouth?.imageList1?.forEach((a) => {
+//         if (item.imageType == a.className) {
+//           a.imageUrl = item.imageUrl
+//           imgCount.value++
+//         }
+//       })
+//       mouth?.imageList2?.forEach((a) => {
+//         if (item.imageType == a.className) {
+//           a.imageUrl = item.imageUrl
+//           imgCount.value++
+//         }
+//       })
+//       // if (molar && item.imageType === '磨牙关系（右侧）') {
+//       //   mouth?.imageList2?.push({
+//       //     className: '磨牙关系（右侧）',
+//       //     imageUrl: item.imageUrl
+//       //   })
+//       // }
+//       data.value.forEach((b) => {
+//         if (b.className === item.imageType && item.imageUrl) {
+//           b.fileUrl = item.imageUrl
+//           imgCount.value++
+//         }
+//       })
+//     })
+//   }
+// }
 
 const issuesList = ref([])
 // 获取问题列表
 async function getIssuesList() {
-  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+  const result = await Get(
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
+  )
   if (result.data?.length > 0) {
     issuesList.value = result.data.map((item) => ({
-      title_name: item.title_name,
-      option_names: item.option_names,
-      serious: item.serious
+      title_name: item.titleName,
+      option_names: item.optionsNames,
+      serious: item.serious,
+      active: item.active
     }))
   }
+  console.log(issuesList.value)
 }
 
 // let generatedPdfData = null
 const src = ref()
-const pdf = sessionStorage.getItem(`pdfUrl${props.id}`)
-src.value = pdf ? pdf : ''
+// const pdf = sessionStorage.getItem(`pdfUrl${props.id}`)
+// src.value = pdf ? pdf : ''
 
 const emit = defineEmits(['getPdfResult'])
 const generatePDF = () => {
@@ -702,13 +839,26 @@ const generatePDF = () => {
     console.log(err)
   }
 }
-
+const alignerList = ref([])
+const getAlignerList = async () => {
+  const result = await Post('/prod-api/business/globalDict/getDictListByType', {
+    dictType: 'ORTHPRIMARYAPPLIANCE'
+  })
+  alignerList.value = result.data.map((item) => ({
+    name: item.dictCodeName,
+    id: +item.id,
+    dictType: item.dictType
+  }))
+}
 async function main() {
   // 依次执行这三个请求
+  await getAlignerList()
+  await getSchemeList()
   await getDataList()
-  await getClassifiedImgList()
+  // await getClassifiedImgList()
   await getIssuesList()
   await getPatientInfo()
+
   // 所有请求完成后执行生成PDF
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
@@ -725,13 +875,16 @@ onMounted(() => {
       // 把颜色改成不透明的，就看不到后面的pdf的内容了
       background: 'rgba(37, 38, 38, 1)'
     })
-
     main()
   }
+  // main()
 })
 </script>
 
 <style lang="scss" scoped>
+.cephaImg {
+  width: 60% !important;
+}
 .planItem {
   background: rgba(64, 70, 130, 0.1);
   border-radius: 4px;
@@ -767,6 +920,12 @@ body {
   width: 100%;
   border-radius: 12px;
 }
+.cepha {
+  background: #060606;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+}
 .imageCaption {
   font-size: 10px;
   font-weight: 500;
@@ -776,7 +935,17 @@ body {
   position: absolute;
   padding: 4px 12px;
   background: #2e6ce4;
+  left: 0px;
+  top: 0px;
   border-radius: 12px 0px 12px 0px;
+}
+.scheme {
+  padding: 12px;
+}
+.checkedScheme {
+  border-radius: 10px;
+  border: 2px solid #2e6ce4;
+  background: #f4f7fd;
 }
 .contentImg {
   position: absolute;
@@ -794,6 +963,7 @@ body {
     left: 204px;
   }
 }
+
 .pdfContent {
   position: relative;
   width: 210mm;
@@ -818,7 +988,18 @@ body {
     position: relative;
     width: 210mm; /* 页面宽度 */
     height: 297mm; /* 页面高度 */
-
+    .imgBox {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      overflow: hidden;
+      display: flex;
+      background: #060606;
+      border-radius: 12px;
+      justify-content: center;
+      align-items: center;
+      background: black;
+    }
     page-break-inside: avoid;
     padding: 50px 30px;
     .listType {
@@ -1212,16 +1393,7 @@ body {
       height: 380px;
       .avatorContainer {
         position: relative;
-        .imgBox {
-          position: relative;
-          width: 400px;
-          height: 316px;
-          overflow: hidden;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background: black;
-        }
+
         .avator {
           width: 100%;
         }

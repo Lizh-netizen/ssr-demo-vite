@@ -291,7 +291,14 @@
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
                   <template v-if="index >= 13">
                     <form-item :label="title.titleName" width="120px">
-                      <Tooth :step="2" :title="title" :appId="appId" :data="panoramicData[0]" />
+                      <Tooth
+                        :step="2"
+                        :title="title"
+                        :appId="appId"
+                        :data="panoramicData[0]"
+                        :classId="panoramicData[0].id"
+                        :owningModule="panoramicData[0].owningModule"
+                      />
                     </form-item>
                   </template>
                 </template>
@@ -378,7 +385,6 @@
                     <el-input
                       :disabled="!cephaImage"
                       v-model="title.cephalometricsContent"
-                      @input="handleWatchInput(title)"
                       @focus="title.measured = false"
                       @blur="handleBlurInput(title)"
                       :class="{ measured: title.measured === true }"
@@ -614,25 +620,29 @@ const handleBlurInput = (title) => {
     title.aiFlag = '0'
   }
   let obj = {
-    apmtId: appId,
+    aptmId: appId,
     titleId: title.id,
     optionsIdStr: [],
     otherContent: '',
     cephalometricsContent: title.cephalometricsContent ? title.cephalometricsContent : '',
     fdiToothCode: '',
-    showPosition: ''
+    showPosition: '',
+    classId: cephaClassId.value,
+    owningModule: '侧位片'
   }
   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
     if (res.code == 200 && res.data.optionsId) {
       title.optionId = res.data.optionsId
       let obj1 = {
-        apmtId: appId,
+        aptmId: appId,
         titleId: title.id,
         optionsIdStr: [res.data.optionsId],
         otherContent: '',
         cephalometricsContent: '',
         fdiToothCode: '',
-        showPosition: ''
+        showPosition: '',
+        classId: cephaClassId.value,
+        owningModule: '侧位片'
       }
       title.inputVal = title.cephalometricsContent
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
@@ -651,6 +661,10 @@ const handleBlurInput = (title) => {
         type: 'error',
         message: res.msg
       })
+    } else if (res.code == 200 && !res.data.optionsId) {
+      if (title.orthOptionsList && title.orthOptionsList.length) {
+        title.orthOptionsList.forEach((option) => (option.choosen = false))
+      }
     }
   })
 }
@@ -1641,25 +1655,29 @@ const handleZoomOutPic = (fromBtn) => {
           if (item.titleName.includes(draggingPointLabel.value)) {
             item.aiFlag = '0'
             let obj = {
-              apmtId: appId,
+              aptmId: appId,
               titleId: item.id,
               optionsIdStr: [],
               otherContent: '',
               cephalometricsContent: item.cephalometricsContent,
               fdiToothCode: '',
-              showPosition: ''
+              showPosition: '',
+              classId: cephaClassId.value,
+              owningModule: '侧位片'
             }
             Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
               if (res.code == 200 && res.data.optionsId) {
                 item.optionId = res.data.optionsId
                 let obj1 = {
-                  apmtId: appId,
+                  aptmId: appId,
                   titleId: item.id,
                   optionsIdStr: [res.data.optionsId],
                   otherContent: '',
                   cephalometricsContent: '',
                   fdiToothCode: '',
-                  showPosition: ''
+                  showPosition: '',
+                  classId: cephaClassId.value,
+                  owningModule: '侧位片'
                 }
                 Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
               }
@@ -1671,25 +1689,29 @@ const handleZoomOutPic = (fromBtn) => {
         ) {
           item.aiFlag = '0'
           let obj = {
-            apmtId: appId,
+            aptmId: appId,
             titleId: item.id,
             optionsIdStr: [],
             otherContent: '',
             cephalometricsContent: item.cephalometricsContent,
             fdiToothCode: '',
-            showPosition: ''
+            showPosition: '',
+            classId: cephaClassId.value,
+            owningModule: '侧位片'
           }
           Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
             if (res.code == 200) {
               item.optionId = res.data.optionsId
               let obj1 = {
-                apmtId: appId,
+                aptmId: appId,
                 titleId: item.id,
                 optionsIdStr: [res.data.optionsId],
                 otherContent: '',
                 cephalometricsContent: '',
                 fdiToothCode: '',
-                showPosition: ''
+                showPosition: '',
+                classId: cephaClassId.value,
+                owningModule: '侧位片'
               }
               Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
             }
@@ -1700,25 +1722,29 @@ const handleZoomOutPic = (fromBtn) => {
         ) {
           item.aiFlag = '0'
           let obj = {
-            apmtId: appId,
+            aptmId: appId,
             titleId: item.id,
             optionsIdStr: [],
             otherContent: '',
             cephalometricsContent: item.cephalometricsContent,
             fdiToothCode: '',
-            showPosition: ''
+            showPosition: '',
+            classId: cephaClassId.value,
+            owningModule: '侧位片'
           }
           Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
             if (res.code == 200 && res.data.optionsId) {
               item.optionId = res.data.optionsId
               let obj1 = {
-                apmtId: appId,
+                aptmId: appId,
                 titleId: item.id,
                 optionsIdStr: [res.data.optionsId],
                 otherContent: '',
                 cephalometricsContent: '',
                 fdiToothCode: '',
-                showPosition: ''
+                showPosition: '',
+                classId: cephaClassId.value,
+                owningModule: '侧位片'
               }
               Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
             }
@@ -2200,7 +2226,9 @@ async function updateResult() {
         cephalometricsContent: item.cephalometricsContent,
         fdiToothCode: '',
         showPosition: '',
-        aiFlag: '1'
+        aiFlag: '1',
+        classId: cephaClassId.value,
+        owningModule: '侧位片'
       }
       Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then((res) => {
         // 返回的有optionsId的时候再调用选项的接口
@@ -2213,7 +2241,9 @@ async function updateResult() {
             otherContent: '',
             cephalometricsContent: '',
             fdiToothCode: '',
-            showPosition: ''
+            showPosition: '',
+            classId: cephaClassId.value,
+            owningModule: '侧位片'
           }
           Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
         }
@@ -2296,6 +2326,7 @@ async function getAIResult() {
 }
 // 画出曲线轮廓
 function drawFaceContour(ctx, points) {
+  console.log('🚀 ~ drawFaceContour ~ points:', points)
   ctx.beginPath()
   ctx.moveTo(points[0].x, points[0].y)
   ctx.fillStyle = 'orange'

@@ -3,7 +3,7 @@ export default function useFdiToothCodeEffect(a: any) {
   a.topRight = []
   a.bottomLeft = []
   a.bottomRight = []
-  const arr = JSON.parse(a.showPosition)
+  const arr = JSON.parse(a.showPosition == null || a.showPosition == '' ? '[]' : a.showPosition)
 
   if (a.fdiToothCode) {
     a.toothCode = a.fdiToothCode.split(',')

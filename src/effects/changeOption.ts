@@ -66,6 +66,7 @@ const useChangeOption = (
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
     // type 2 多选
+
     if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
       title.optionId1 = title.optionId.filter((o: any) => o !== 10)
       title.optionId = title.optionId1
@@ -76,6 +77,25 @@ const useChangeOption = (
     ) {
       title.optionId1 = [10]
       title.optionId = [10]
+      title.otherContent = ''
+    }
+    title.orthOptionsList.forEach((option: any) => {
+      if (!title.optionId.includes(option.id)) {
+        option.choosen = false
+      } else {
+        option.choosen = true
+      }
+    })
+    if (title.optionId1.includes(299) && title.optionId1.length < title.optionId.length) {
+      title.optionId1 = title.optionId.filter((o: any) => o !== 299)
+      title.optionId = title.optionId1
+    } else if (
+      !title.optionId1.includes(299) &&
+      title.optionId1.length < title.optionId.length &&
+      title.optionId.includes(299)
+    ) {
+      title.optionId1 = [299]
+      title.optionId = [299]
       title.otherContent = ''
     }
     title.orthOptionsList.forEach((option: any) => {
