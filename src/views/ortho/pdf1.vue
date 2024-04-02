@@ -87,17 +87,19 @@
           </div>
         </template>
 
-        <template v-if="item.owningModule === '诊断'">
+        <template v-if="item.owningModule === '问题列表'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="评估结果" />
-            <div class="subTitle issuesList" v-if="issuesList.length > 0">问题列表</div>
+            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
             <div class="content">
-              <list :list="issuesList" moduleName="问题列表" />
+              <list :list="item.data" moduleName="问题列表" />
             </div>
-            <div class="subTitle">诊断</div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
+              诊断
+            </div>
             <div class="content">
-              <list :list="item.list" />
+              <list :list="data.find((item) => item.owningModule === '诊断').list" />
             </div>
 
             <!-- <div class="content">
@@ -562,7 +564,8 @@ async function getDataList() {
     }
   }
   data.value.push({ owningModule: '方案', data: schemeData })
-  console.log('🚀 ~ getDataList ~ data.value:', data.value)
+  data.value.push({ owningModule: '问题列表', data: issuesList })
+  console.log(data.value)
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -769,9 +772,11 @@ async function getIssuesList() {
     issuesList.value = result.data.map((item) => ({
       title_name: item.titleName,
       option_names: item.optionsNames,
-      serious: item.serious
+      serious: item.serious,
+      active: item.active
     }))
   }
+  console.log(issuesList.value)
 }
 
 // let generatedPdfData = null
