@@ -661,9 +661,9 @@ const handleBlurInput = (title) => {
         type: 'error',
         message: res.msg
       })
-    } else if (res.code == 200 && !res.data.optionsId) {
+    } else if (res.code == 200) {
       if (title.orthOptionsList && title.orthOptionsList.length) {
-        title.orthOptionsList.forEach((option) => (option.choosen = false))
+        title.optionId = ''
       }
     }
   })
@@ -788,6 +788,18 @@ async function getToken() {
   }
   return token
 }
+// async function getToken() {
+//   let token
+//   const res = await axios({
+//     url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
+//     method: 'post',
+//     data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
+//   })
+//   if (res.status == 200) {
+//     token = res.data.data.token
+//   }
+//   return token
+// }
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
@@ -943,7 +955,7 @@ function drawPointsOnCanvas(ctx, image, canvas, pointList) {
     // 绘制圆形点
     ctx.beginPath()
     ctx.arc(x, y, 2, 0, 2 * Math.PI)
-    ctx.fillStyle = 'red'
+    // ctx.fillStyle = 'red'
     ctx.fill()
   })
   drawLineOnCanvas(ctx, canvas)
@@ -1482,9 +1494,9 @@ const stopDraw = ref(true)
 function handleMouseMove(event, image, canvas, ctx, w, h) {
   const point = findPoint(event, canvas)
   if (point) {
-    ctx.fillStyle = 'white'
-    ctx.font = `20px Arial`
-    ctx.fillText(point.label, point.x + 5, point.y - 5)
+    // ctx.fillStyle = 'white'
+    // ctx.font = `20px Arial`
+    // ctx.fillText(point.label, point.x + 5, point.y - 5)
     stopDraw.value = false
   } else {
     if (stopDraw.value) {
@@ -1514,9 +1526,9 @@ function handleMouseMove(event, image, canvas, ctx, w, h) {
       drawPoints(ctx, image, canvas, true)
       // 边移动边画点
       if (draggingPointLabel.value) {
-        ctx.fillStyle = 'white'
-        ctx.font = '20px Arial'
-        ctx.fillText(point.label, point1.x + 5, point1.y - 5)
+        // ctx.fillStyle = 'white'
+        // ctx.font = '20px Arial'
+        // ctx.fillText(point.label, point1.x + 5, point1.y - 5)
       }
       pointRatio.forEach((label) => {
         if (point.label !== 'A' && point.label !== 'Me' && label.includes(point.label)) {
@@ -1901,7 +1913,36 @@ async function getPoints(file) {
     }
   }
 }
+// async function getPoints(file) {
+//   const formData = new FormData()
+//   formData.append('file', file)
+//   formData.append('mobile', '13014532111')
+//   const token = await getToken()
 
+//   if (token) {
+//     const res = await axios({
+//       url: 'http://47.101.150.34:8177/bonceph/platform/marker/predict',
+//       method: 'post',
+//       data: formData,
+//       headers: {
+//         Authorization: `${token}`,
+//         'content-type': 'multipart/form-data'
+//       }
+//     })
+//     if (res.status == 200) {
+//       allPoints.value = res.data.data
+//       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
+//       coordinatesBase.value = filteredPoints.value.map((point) => ({
+//         label: point[0],
+//         x: point[1],
+//         y: point[2]
+//       }))
+//       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
+//       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
+//       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+//     }
+//   }
+// }
 // AI测量逻辑
 
 const pointMoved = ref(false)
@@ -2326,7 +2367,6 @@ async function getAIResult() {
 }
 // 画出曲线轮廓
 function drawFaceContour(ctx, points) {
-  console.log('🚀 ~ drawFaceContour ~ points:', points)
   ctx.beginPath()
   ctx.moveTo(points[0].x, points[0].y)
   ctx.fillStyle = 'orange'
@@ -2373,11 +2413,12 @@ function drawPoints(ctx, image, canvas, zoom) {
 
       // 绘制圆形点
       ctx.beginPath()
-      ctx.arc(x, y, 2, 0, 2 * Math.PI)
+      ctx.arc(x, y, 3, 0, 2 * Math.PI)
       ctx.fillStyle = 'red'
       // ctx.fillStyle = 'white'
       ctx.fill()
       ctx.fillText(coordinate.label, x - 5, y - 5)
+      ctx.font = '12px Arial'
       // 绘制字体
       // if (draggingPointLabel.value) {
       //   ctx.fillStyle = 'white'
@@ -2464,7 +2505,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
       }, {})
       const faceTourList1 = faceList1.map((label) => labelToDataMap[label])
 
-      drawFaceContour(ctx, faceTourList1)
+      // drawFaceContour(ctx, faceTourList1)
     }
   }
   const timestamp = new Date().getTime()

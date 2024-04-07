@@ -259,7 +259,13 @@ function validate(planList) {
 
 const handleGeneratePdf = () => {
   if (active.value == 5) {
-    if (validate(step5.value.planList)) return false
+    if (validate(step5.value.planList)) {
+      ElMessage({
+        message: '请选择矫治器和难度',
+        type: 'warning'
+      })
+      return false
+    }
   }
   nextTick(() => {
     editStep.value = active.value
@@ -318,10 +324,16 @@ getOrthBase()
 const store = useStore()
 
 const handleNextStep = () => {
+  if (active.value == 4 && !step[active.value - 1].value.clicked) {
+    ElMessage({
+      message: '还未填写诊断哦',
+      type: 'warning'
+    })
+    return
+  }
   nextTick(() => {
     editStep.value = active.value
     active.value++
-
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: '',
