@@ -452,7 +452,7 @@
         <div class="pt-[140px]">
           <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
-              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
+              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[30px]"
             >
               临床检查
             </div>
@@ -2304,7 +2304,7 @@ async function main() {
     .patientInfo {
       position: absolute;
       left: 550px;
-      top: 20px;
+      top: 36px;
     }
     .check {
       .checkTitle {
