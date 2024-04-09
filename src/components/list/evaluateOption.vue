@@ -383,7 +383,7 @@ const handleSubmitTooth = (option, title, classId) => {
     if (option.toothCode.length == 0) {
       let item1 = props.mouthData.find((item) => item.className == '正面咬合')
       obj = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: title.id,
         optionsIdStr: [],
         otherContent: '',
@@ -391,10 +391,11 @@ const handleSubmitTooth = (option, title, classId) => {
         optionSuffix: '牙位图',
         fdiToothCode: '',
         showPosition: '',
-        classId: classId
+        classId: classId,
+        owningModule: props.owningModule
       }
       const obj1 = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: '',
         optionsIdStr: [],
         otherContent: '',
@@ -402,10 +403,11 @@ const handleSubmitTooth = (option, title, classId) => {
         optionSuffix: '牙位图',
         fdiToothCode: '',
         showPosition: '',
-        classId: classId
+        classId: classId,
+        owningModule: props.owningModule
       }
       const obj2 = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: '',
         optionsIdStr: [],
         otherContent: '',
@@ -413,10 +415,11 @@ const handleSubmitTooth = (option, title, classId) => {
         optionSuffix: '牙位图',
         fdiToothCode: '',
         showPosition: '',
-        classId: classId
+        classId: classId,
+        owningModule: props.owningModule
       }
       const obj3 = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: '',
         optionsIdStr: [],
         otherContent: '',
@@ -424,10 +427,11 @@ const handleSubmitTooth = (option, title, classId) => {
         optionSuffix: '牙位图',
         fdiToothCode: '',
         showPosition: '',
-        classId: classId
+        classId: classId,
+        owningModule: props.owningModule
       }
       const obj4 = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: '',
         optionsIdStr: [],
         otherContent: '',
@@ -435,7 +439,8 @@ const handleSubmitTooth = (option, title, classId) => {
         optionSuffix: '牙位图',
         fdiToothCode: '',
         showPosition: '',
-        classId: classId
+        classId: classId,
+        owningModule: props.owningModule
       }
       let title1 = {}
       let title2 = {}
@@ -460,11 +465,11 @@ const handleSubmitTooth = (option, title, classId) => {
       obj2.titleId = title2.id
       obj3.titleId = title3.id
       obj4.titleId = title4.id
-      Post('/prod-api/business/facialResult', obj1)
-      Post('/prod-api/business/facialResult', obj2)
-      Post('/prod-api/business/facialResult', obj3)
-      Post('/prod-api/business/facialResult', obj4)
-      Post('/prod-api/business/facialResult', obj).then(() => {
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj1)
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj2)
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj3)
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj4)
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
         emit('refreshList', props.owningModule)

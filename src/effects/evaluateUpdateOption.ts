@@ -5,6 +5,7 @@ async function updateOption(
   title: any,
   appId: number,
   classId: number,
+  owningModule: string,
   option?: any
 ) {
   // 区分了一下 选项和标题
@@ -19,12 +20,13 @@ async function updateOption(
     showPosition: option
       ? JSON.stringify(option.position)
       : title.showPosition
-      ? title.showPosition
-      : '',
+        ? title.showPosition
+        : '',
     optionSuffix: option?.optionSuffix,
-    classId: classId
+    classId: classId,
+    owningModule: owningModule
   }
 
-  await Post('/prod-api/business/facialResult', obj)
+  await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
 }
 export default updateOption
