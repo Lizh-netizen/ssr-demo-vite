@@ -85,7 +85,7 @@ const doctor = ref()
 const patientList = ref([])
 async function getList() {
   if (date.value) {
-    const res = await Post('/prod-api/business/orthClass/appointmentList', {
+    const res = await Post('/prod-api/emr/orthCommon/appointmentList', {
       startTime: date.value, //预约日期
       pageSize: pageSize.value,
       pageNum: currentPage.value,
