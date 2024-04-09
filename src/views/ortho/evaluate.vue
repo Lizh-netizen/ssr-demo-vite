@@ -163,7 +163,7 @@
                         :appId="appId"
                         @refreshList="refreshList"
                         @syncOption="syncOption"
-                        :owningModule="item.owningModule"
+                        owningModule="口内照"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
@@ -1155,7 +1155,7 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
+  updateOption(optionId, title, appId, mouthData.value[0].id, '口内照', val.option)
 }
 
 const panoImageUrl = ref()

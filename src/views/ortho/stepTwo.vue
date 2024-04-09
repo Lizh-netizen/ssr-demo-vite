@@ -108,7 +108,7 @@
               <template v-for="title in item.orthTitleList" :key="title.id">
                 <template v-if="item.className == '前牙覆盖'">
                   <form-item :label="title.titleName" width="100px">
-                    <EvaluationOption
+                    <MouthOption
                       :title="title"
                       :appId="appId"
                       @refreshList="refreshList"
@@ -117,7 +117,7 @@
                       :mouthData="mouthData"
                       :savedTitleList="savedTitleList"
                       :classId="item.id"
-                    ></EvaluationOption
+                    ></MouthOption
                   ></form-item>
                 </template>
                 <template v-else>
@@ -592,7 +592,9 @@ import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
+import MouthOption from '@/components/list/mouthoption.vue'
 import EvaluationOption from '@/components/list/evaluateOption.vue'
+import updateOption from '@/effects/mouthOption.ts'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -1305,7 +1307,7 @@ const syncOption = (val) => {
   let title = {}
   let asyncOption = val.option
   let optionId = ''
-  let item1 = mouthData.value.find((item) => item.className == '正面咬合')
+  let item1 = mouthData.value.find((item) => item.className == '前牙覆盖')
   // 选了一个同步另一个
   if (val.option.optionName == '前牙反覆合') {
     title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
@@ -1324,7 +1326,14 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
+  updateOption(
+    optionId,
+    title,
+    appId,
+    mouthData.value[0].id,
+    mouthData.value[0].owningModule,
+    val.option
+  )
 }
 function yieldNewTask() {
   return new Promise((resolve) => {

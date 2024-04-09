@@ -168,8 +168,8 @@
 <script setup>
 import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
-import { Post } from '../../utils/request.ts'
-import updateOption from '@/effects/evaluateUpdateOption.ts'
+import { Post } from '../../utils/request'
+import updateOption from '@/effects/mouthOption.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 const props = defineProps({
   title: {
@@ -237,14 +237,6 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 const requestAgain = ref(false)
 const handleChangeOption = (optionId, title, classId, owningModule) => {
-  console.log(
-    '🚀 ~ handleChangeOption ~ optionId, title, classId, owningModule:',
-    optionId,
-    title,
-    classId,
-    owningModule
-  )
-
   // 这几个选项选过之后重新请求
   if (
     title.titleName == '前牙覆合' ||
@@ -386,7 +378,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   if (!option && !title.submitAble) {
     return
   }
-  console.log(33333)
+
   // 选项中的牙位
   if (option) {
     if (option.toothCode.length == 0) {
@@ -474,11 +466,11 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
       obj2.titleId = title2.id
       obj3.titleId = title3.id
       obj4.titleId = title4.id
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj1)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj2)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj3)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj4)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
         emit('refreshList', owningModule)
@@ -493,15 +485,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   ) {
     emit('syncOption', { option: option, titleName: title.titleName })
   }
-  console.log(
-    '🚀 ~ updateOption ~ title.optionId, title, props.appId, classId, owningModule, option:',
-    title.optionId,
-    title,
-    props.appId,
-    classId,
-    owningModule,
-    option
-  )
+
   updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {
     if (option) {
       option.submitAble = false
