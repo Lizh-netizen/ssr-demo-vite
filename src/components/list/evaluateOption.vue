@@ -2,7 +2,7 @@
   <el-radio-group
     v-if="title.type == 1"
     v-model="title.optionId"
-    @change="handleChangeOption(title.optionId, title, classId)"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
     @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
   >
     <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
@@ -30,7 +30,7 @@
             :width="490"
             trigger="click"
             @show="handleBeforeEnterPopover(option)"
-            @after-leave="handleSubmitTooth(option, title, classId)"
+            @after-leave="handleSubmitTooth(option, title, classId, owningModule)"
           >
             <template #reference>
               <!-- 这里是浮上去的时候改变图标的颜色 -->
@@ -126,7 +126,7 @@
               :step="5"
               :title="option"
               :appId="appId"
-              @submitTooth="(val) => handleSubmitTooth(val, title, classId)"
+              @submitTooth="(val) => handleSubmitTooth(val, title, classId, owningModule)"
             />
           </el-popover>
         </template>
@@ -136,7 +136,7 @@
   <el-checkbox-group
     v-model="title.optionId"
     v-if="title.type == 2"
-    @change="handleChangeOption(title.optionId, title, classId)"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
   >
     <el-checkbox-button
       :class="{
@@ -161,7 +161,7 @@
     "
     placeholder="请输入"
     v-model="title.otherContent"
-    @blur="handleSubmit(title.optionId, title)"
+    @blur="handleSubmit(title.optionId, title, classId, owningModule)"
   />
 </template>
 
@@ -223,20 +223,20 @@ const handleBeforeEnterPopover = (title) => {
   })
 }
 const emit = defineEmits(['refreshList', 'syncOption'])
-async function handleEmptyRadio(optionId, title, owningModule, classId) {
+async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
     title.type == 1 &&
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    updateOption(null, title, props.appId, classId)
+    updateOption(null, title, props.appId, classId, owningModule)
     // 重新请求数据
     emit('refreshList', props.owningModule)
   }
 }
 const requestAgain = ref(false)
-const handleChangeOption = (optionId, title, classId) => {
+const handleChangeOption = (optionId, title, classId, owningModule) => {
   // 这几个选项选过之后重新请求
   if (
     title.titleName == '前牙覆合' ||
@@ -261,7 +261,7 @@ const handleChangeOption = (optionId, title, classId) => {
 
         // 反覆合如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId)
+          updateOption(null, title1, props.appId, classId, owningModule)
         }
 
         // 判断凹面型表现是否需要清空
@@ -270,15 +270,15 @@ const handleChangeOption = (optionId, title, classId) => {
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
         if (option.choosen) {
-          updateOption(null, title2, props.appId, classId)
+          updateOption(null, title2, props.appId, classId, owningModule)
         }
         if (option1.choosen) {
-          updateOption(null, title2, props.appId, classId)
+          updateOption(null, title2, props.appId, classId, owningModule)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
         if (!option.choosen && title3Choose) {
-          updateOption(null, title3, props.appId, classId)
+          updateOption(null, title3, props.appId, classId, owningModule)
         }
       }
     }
@@ -292,7 +292,7 @@ const handleChangeOption = (optionId, title, classId) => {
         const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
         // 反覆盖如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId)
+          updateOption(null, title1, props.appId, classId, owningModule)
         }
 
         // 判断凹面型表现是否需要清空
@@ -300,15 +300,15 @@ const handleChangeOption = (optionId, title, classId) => {
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆合')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
         if (option.choosen) {
-          updateOption(null, title2, props.appId, classId)
+          updateOption(null, title2, props.appId, classId, owningModule)
         }
         if (option1.choosen) {
-          updateOption(null, title2, props.appId, classId)
+          updateOption(null, title2, props.appId, classId, owningModule)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
         if (!option.choosen && title3Choose) {
-          updateOption(null, title3, props.appId, classId)
+          updateOption(null, title3, props.appId, classId, owningModule)
         }
       }
     }
@@ -361,13 +361,13 @@ const handleChangeOption = (optionId, title, classId) => {
       }
     })
   }
-  updateOption(title.optionId, title, props.appId, classId)
+  updateOption(title.optionId, title, props.appId, classId, owningModule)
   if (requestAgain.value) {
     emit('refreshList', props.owningModule)
   }
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
-const handleSubmitTooth = (option, title, classId) => {
+const handleSubmitTooth = (option, title, classId, owningModule) => {
   let obj
   if (option) {
     option.visible = false
@@ -392,7 +392,7 @@ const handleSubmitTooth = (option, title, classId) => {
         fdiToothCode: '',
         showPosition: '',
         classId: classId,
-        owningModule: props.owningModule
+        owningModule: owningModule
       }
       const obj1 = {
         aptmId: props.appId,
@@ -404,7 +404,7 @@ const handleSubmitTooth = (option, title, classId) => {
         fdiToothCode: '',
         showPosition: '',
         classId: classId,
-        owningModule: props.owningModule
+        owningModule: owningModule
       }
       const obj2 = {
         aptmId: props.appId,
@@ -416,7 +416,7 @@ const handleSubmitTooth = (option, title, classId) => {
         fdiToothCode: '',
         showPosition: '',
         classId: classId,
-        owningModule: props.owningModule
+        owningModule: owningModule
       }
       const obj3 = {
         aptmId: props.appId,
@@ -428,7 +428,7 @@ const handleSubmitTooth = (option, title, classId) => {
         fdiToothCode: '',
         showPosition: '',
         classId: classId,
-        owningModule: props.owningModule
+        owningModule: owningModule
       }
       const obj4 = {
         aptmId: props.appId,
@@ -440,7 +440,7 @@ const handleSubmitTooth = (option, title, classId) => {
         fdiToothCode: '',
         showPosition: '',
         classId: classId,
-        owningModule: props.owningModule
+        owningModule: owningModule
       }
       let title1 = {}
       let title2 = {}
@@ -472,7 +472,7 @@ const handleSubmitTooth = (option, title, classId) => {
       Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
-        emit('refreshList', props.owningModule)
+        emit('refreshList', owningModule)
       })
       return
     }
@@ -485,7 +485,7 @@ const handleSubmitTooth = (option, title, classId) => {
     emit('syncOption', { option: option, titleName: title.titleName })
   }
 
-  updateOption(title.optionId, title, props.appId, classId, option).then(() => {
+  updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {
     if (option) {
       option.submitAble = false
     }
@@ -496,8 +496,8 @@ const handleSubmitTooth = (option, title, classId) => {
   })
 }
 
-const handleSubmit = (optionId, title) => {
-  updateOption(optionId, title, props.appId)
+const handleSubmit = (optionId, title, classId, owningModule) => {
+  updateOption(optionId, title, props.appId, classId, owningModule)
 }
 const handleClickOption = (option) => {
   option.visible = true

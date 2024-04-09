@@ -7,7 +7,7 @@
   >
     <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <el-radio-button
-        v-if="!option.optionSuffix && !notShowSvg"
+        v-if="!option.optionSuffix"
         :class="{
           serious: option.serious == '1'
         }"
@@ -43,7 +43,7 @@
           >
             {{ option.optionName
             }}<svg
-              v-if="option.optionSuffix && notShowSvg"
+              v-if="option.optionSuffix"
               xmlns="http://www.w3.org/2000/svg"
               xmlns:xlink="http://www.w3.org/1999/xlink"
               fill="
@@ -165,6 +165,10 @@ const props = defineProps({
   savedTitleList: {
     type: Array,
     default: () => []
+  },
+  mouthData: {
+    type: Object,
+    default: () => {}
   }
 })
 
@@ -181,11 +185,87 @@ async function handleEmptyRadio(optionId, title, owningModule) {
     // 重新请求数据
   }
 }
-
+const requestAgain = ref(false)
 async function handleChangeOption(optionId, title) {
   // clicked.value = true
+  // 这几个选项选过之后重新请求
+  if (
+    title.titleName == '前牙覆合' ||
+    title.titleName == '前牙覆盖' ||
+    title.titleName == '后牙' ||
+    title.titleName == '锁HE' ||
+    title.titleName == '反覆合程度' ||
+    title.titleName == '反覆盖程度' ||
+    title.titleName == '左侧后牙' ||
+    title.titleName == '右侧后牙'
+  ) {
+    requestAgain.value = true
+  }
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
+  }
+  const found = props.mouthData.find((item) => item.className == '前牙覆盖')
+  if (title.titleName == '前牙覆合') {
+    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
+      found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆盖程度')
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
+      if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙对刃') {
+        const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
+        const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
+
+        // 反覆合如果有选中的，需要取消
+        if (title1Choose) {
+          updateOption(null, title1, props.appId, classId)
+        }
+
+        // 判断凹面型表现是否需要清空
+        const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆盖')
+        // 如果前牙覆盖中的反覆盖选项被选中，需要清空
+        const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
+        const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
+        if (option.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        if (option1.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+        const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+        if (!option.choosen && title3Choose) {
+          updateOption(null, title3, props.appId, classId)
+        }
+      }
+    }
+  }
+  if (title.titleName == '前牙覆盖') {
+    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆盖') {
+      found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆合程度')
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆盖') {
+      if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙对刃') {
+        const title1 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
+        const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
+        // 反覆盖如果有选中的，需要取消
+        if (title1Choose) {
+          updateOption(null, title1, props.appId, classId)
+        }
+
+        // 判断凹面型表现是否需要清空
+        const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆合')
+        const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆合')
+        const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
+        if (option.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        if (option1.choosen) {
+          updateOption(null, title2, props.appId, classId)
+        }
+        const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+        const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+        if (!option.choosen && title3Choose) {
+          updateOption(null, title3, props.appId, classId)
+        }
+      }
+    }
   }
   if (title.titleName == '侧貌') {
     const found = props.faceAccessData.find((item) => item.className == '90度侧面像')

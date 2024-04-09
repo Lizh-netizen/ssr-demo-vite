@@ -332,6 +332,13 @@
                 v-if="data.find((item) => item.owningModule == '风险')"
               />
             </div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule == '备注')">备注</div>
+            <div class="content">
+              <list
+                :list="data.find((item) => item.owningModule == '备注').list"
+                v-if="data.find((item) => item.owningModule == '备注')"
+              />
+            </div>
           </div>
         </template>
       </template>
@@ -467,6 +474,11 @@ async function getDataList() {
             option_names: cur.optionsNames,
             serious: cur.serious
           })
+        } else if (cur.owningModule == '备注') {
+          acc[cur.owningModule].list.push({
+            title_name: '备注',
+            option_names: cur.cephalometricsContent
+          })
         } else {
           acc[cur.owningModule].list.push({
             title_name: cur.titleName,
@@ -568,9 +580,8 @@ async function getDataList() {
       )
     }
   }
-  data.value.push({ owningModule: '方案', data: schemeData })
   data.value.push({ owningModule: '问题列表', data: issuesList })
-  console.log('data', data.value)
+  data.value.push({ owningModule: '方案', data: schemeData })
 }
 const schemeData = ref([])
 const getSchemeList = async () => {

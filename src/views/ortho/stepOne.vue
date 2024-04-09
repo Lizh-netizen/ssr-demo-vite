@@ -25,16 +25,25 @@
     <Header text="问诊" backgroundColor="#f4f7fd" />
     <div class="content inquiry" :style="{ 'min-height': '600px' }">
       <form-item label="主诉" width="58px"
-        ><el-input
+        ><a-textarea
+          show-word-limit
+          :max-length="20"
+          class="w-[700px]! border-rd-[8px]!"
+          auto-size
           v-model="complainTitle.cephalometricsContent"
           @blur="handleSubmitAddtionalContent(complainTitle, inquiryId, '问诊')"
-        ></el-input
+        ></a-textarea
       ></form-item>
       <form-item label="现病史" width="58px"
-        ><el-input
+        ><a-textarea
+          class="w-[700px]! border-rd-[8px]!"
+          :auto-size="{
+            minRows: 1,
+            maxRows: 5
+          }"
           v-model="currentTitle.cephalometricsContent"
           @blur="handleSubmitAddtionalContent(currentTitle, inquiryId, '问诊')"
-        ></el-input
+        ></a-textarea
       ></form-item>
       <template v-for="item in inquiryData" :key="item.id">
         <template v-if="item.className">

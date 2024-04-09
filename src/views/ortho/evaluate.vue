@@ -42,7 +42,7 @@
                 :title="title"
                 :appId="appId"
                 @refreshList="refreshList"
-                owningModule="check"
+                :owningModule="checkData.owningModule"
                 :classId="checkData.id"
               ></Option>
             </form-item>
@@ -163,7 +163,7 @@
                         :appId="appId"
                         @refreshList="refreshList"
                         @syncOption="syncOption"
-                        owningModule="mouth"
+                        :owningModule="item.owningModule"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
@@ -919,9 +919,9 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 单选反选取消
 const strategy = {
-  faceEvaluate: getFaceAccessList,
-  mouth: getMouthList,
-  panoramic: getPanoramicList
+  面型评估: getFaceAccessList,
+  口内照: getMouthList,
+  全景片: getPanoramicList
 }
 const refreshList = (val) => {
   strategy[val]()
