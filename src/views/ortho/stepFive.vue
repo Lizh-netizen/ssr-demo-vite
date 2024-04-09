@@ -1313,7 +1313,7 @@ const handleSubmitAddtionalContent = (title, classId, owningModule) => {
 }
 const riskData = ref([])
 async function getOrthRiskList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/风险/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/风险/${appId}`)
   riskData.value = result.data
   riskData.value.forEach((item) => {
     item.orthTitleList.forEach((i) => {
@@ -1357,7 +1357,7 @@ async function getOrthRiskList() {
 getOrthRiskList()
 const remarkData = ref([])
 async function getRemark() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/备注/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/备注/${appId}`)
   remarkData.value = result.data
 }
 

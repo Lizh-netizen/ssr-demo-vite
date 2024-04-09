@@ -370,7 +370,7 @@ const complainTitle = ref()
 const currentTitle = ref()
 
 async function getOrthInquiryList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/问诊/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/问诊/${appId}`)
   inquiryData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   complainTitle.value = result.data.map((item) =>
@@ -433,7 +433,7 @@ getOrthInquiryList()
 const checkData = ref({})
 const inputRefs = ref([])
 async function getOrthCheckList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/临床检查/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/临床检查/${appId}`)
 
   checkData.value = result.data[0]
   result.data.forEach((item) => {

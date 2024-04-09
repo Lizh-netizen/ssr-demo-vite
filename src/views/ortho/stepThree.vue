@@ -74,7 +74,7 @@ const route = useRoute()
 const appId = route.params.appId
 const modelData = ref({})
 async function getOrthModelList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/模型分析/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/模型分析/${appId}`)
   const a = result.data[0].orthTitleList[2]
   result.data[0].orthTitleList.splice(2, 1)
   result.data[0].orthTitleList.splice(3, 0, a)

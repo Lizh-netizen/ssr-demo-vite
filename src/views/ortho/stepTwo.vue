@@ -1078,7 +1078,7 @@ const faceSet = ref([])
 const FrontalReposeImageUrl = ref()
 const FrontalSmileImageUrl = ref()
 async function getOrthFaceAccessList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -1216,7 +1216,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
 }
 const mouthData = ref([])
 async function getOrthMouthList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1332,7 +1332,7 @@ function handlePanoData(panoramicData) {
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1383,7 +1383,7 @@ function isChineseOrEnglish(char) {
 }
 const cephaClassId = ref()
 async function getOrthCephaList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`)
   cephaClassId.value = result.data[0].id
   cephaData.value = result.data[0].orthTitleList
   cephaImage.value = result.data[0].imageUrl
@@ -2333,7 +2333,7 @@ function afterGetPoint() {
   calculateAllPoints()
   updateResult()
   // if (pointMoved.value) {
-  //   Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`).then((res) => {
+  //   Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`).then((res) => {
   //     res.data[0].orthTitleList.forEach((a) => {
   //       cephaData.value.forEach((title) => {
   //         if (a.titleName == title.titleName) {

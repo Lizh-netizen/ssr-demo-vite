@@ -822,26 +822,26 @@ const generatePDF = () => {
           perBlob,
           `${patientInfo.value.Name}__正畸报告__${formattedDate}.pdf`
         )
-        Post('/prod-api/emr/upload', formData, true)
-          .then((res) => {
-            if (res.code == 200) {
-              src.value = res.msg
-              sessionStorage.setItem(`pdfUrl${props.id}`, src.value)
-              emit('getPdfResult', src.value)
-              ElMessage({
-                type: 'success',
-                message: '报告生成成功'
-              })
-            } else {
-              ElMessage({
-                type: 'error',
-                message: '生成失败'
-              })
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
+        // Post('/prod-api/emr/upload', formData, true)
+        //   .then((res) => {
+        //     if (res.code == 200) {
+        //       src.value = res.msg
+        //       sessionStorage.setItem(`pdfUrl${props.id}`, src.value)
+        //       emit('getPdfResult', src.value)
+        //       ElMessage({
+        //         type: 'success',
+        //         message: '报告生成成功'
+        //       })
+        //     } else {
+        //       ElMessage({
+        //         type: 'error',
+        //         message: '生成失败'
+        //       })
+        //     }
+        //   })
+        //   .catch((err) => {
+        //     console.log(err)
+        //   })
       })
   } catch (err) {
     console.log(err)
@@ -876,18 +876,18 @@ async function main() {
 const loading = ref()
 
 onMounted(() => {
-  if (!src.value) {
-    loading.value = ElLoading.service({
-      lock: true,
-      text: '报告生成中',
-      // 把颜色改成不透明的，就看不到后面的pdf的内容了
-      background: 'rgba(37, 38, 38, 1)'
-    })
-    main().finally(() => {
-      loading.value?.close()
-    })
-  }
-  // main()
+  // if (!src.value) {
+  //   loading.value = ElLoading.service({
+  //     lock: true,
+  //     text: '报告生成中',
+  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
+  //     background: 'rgba(37, 38, 38, 1)'
+  //   })
+  //   main().finally(() => {
+  //     loading.value?.close()
+  //   })
+  // }
+  main()
 })
 </script>
 
