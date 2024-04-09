@@ -207,7 +207,7 @@
             </div>
             <div class="bottom section">
               <div class="content2 content">
-                <customList :list="item.list1" />
+                <customList :list="item.list2" />
               </div>
               <div class="imageList2">
                 <div :style="{ position: 'relative' }" class="image1">
@@ -577,7 +577,7 @@ const getSchemeList = async () => {
       return scheme.featureList.includes(feature.id)
     })
     scheme.featureList.unshift({
-      name: alignerList.value.filter((item) => item.id == scheme.primaryApplianceId)[0].name
+      name: alignerList.value.filter((item) => item.id == scheme.primaryApplianceId)[0]?.name
     })
     scheme.featureList.unshift({ name: scheme.difficultyLevel })
     scheme.featureList.unshift({ name: scheme.stageList[scheme.stageList.length - 1].stageName })
@@ -776,7 +776,6 @@ async function getIssuesList() {
       active: item.active
     }))
   }
-  console.log(issuesList.value)
 }
 
 // let generatedPdfData = null
@@ -831,9 +830,6 @@ const generatePDF = () => {
           .catch((err) => {
             console.log(err)
           })
-          .finally(() => {
-            loading.value?.close()
-          })
       })
   } catch (err) {
     console.log(err)
@@ -875,7 +871,9 @@ onMounted(() => {
       // 把颜色改成不透明的，就看不到后面的pdf的内容了
       background: 'rgba(37, 38, 38, 1)'
     })
-    main()
+    main().finally(() => {
+      loading.value?.close()
+    })
   }
   // main()
 })
