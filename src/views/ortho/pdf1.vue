@@ -830,6 +830,9 @@ const generatePDF = () => {
           .catch((err) => {
             console.log(err)
           })
+          .finally(() => {
+            loading.value?.close()
+          })
       })
   } catch (err) {
     console.log(err)
@@ -871,9 +874,7 @@ onMounted(() => {
       // 把颜色改成不透明的，就看不到后面的pdf的内容了
       background: 'rgba(37, 38, 38, 1)'
     })
-    main().finally(() => {
-      loading.value?.close()
-    })
+    main()
   }
   // main()
 })
