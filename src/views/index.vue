@@ -622,8 +622,8 @@ const remoteMethod1 = (query) => {
 
 const router = useRouter()
 const handleViewOrth = (item) => {
-  router.push(`/ortho/${item.apmtId}/${item.patientId}`)
-  window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
+  router.push(`/ortho/${item.aptmId}/${item.patientId}`)
+  window.parent.postMessage(`ortho/${item.aptmId}/${item.patientId}`, '*')
 }
 const orthStatus = ref(-1)
 const hasPermission = ref(false)
@@ -661,12 +661,12 @@ const handleEvaluateOrth = (item) => {
   let path = ''
   path =
     orthStatus.value !== -1
-      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
-      : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+      ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${orthStatus.value}`
+      : `/evaluateOrtho/${item.aptmId}/${item.patientId}`
   if (!item.facialId) {
     Post('/prod-api/emr/public/api/v1/assessment/add', {
       patientId: item.patientId,
-      aptmId: item.apmtId
+      aptmId: item.aptmId
     }).then(({ data }) => {
       item.facialId = data.facialId
       store.commit('setPatientInfo', item)

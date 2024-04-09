@@ -366,26 +366,27 @@ getPatientInfo()
 const inquiryData = ref([])
 const inquiryId = ref()
 
-const complainTitle = ref()
-const currentTitle = ref()
-
+const complainTitle = ref({
+  cephalometricsContent: ''
+})
+const currentTitle = ref({
+  cephalometricsContent: ''
+})
+const complainContent = ref()
+const currentContent = ref()
 async function getOrthInquiryList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/问诊/${appId}`)
   inquiryData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
-  complainTitle.value = result.data.map((item) =>
-    item.orthTitleList.find((title) => title.titleName == '主诉')
-  )
+  complainTitle.value = result.data[1].orthTitleList.find((title) => title.titleName == '主诉')
+  currentTitle.value = result.data[1].orthTitleList.find((title) => title.titleName == '现病史')
+
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.titleName == '主诉') {
-        console.log('🚀 ~ item.orthTitleList.forEach ~ complainTitle.value:', complainTitle.value)
-
         inquiryId.value = item.id
       }
-      if (title.titleName == '现病史') {
-        currentTitle.value = title
-      }
+
       if (title.orthOptionsList[title.orthOptionsList.length - 1]?.otherContent) {
         title.otherContent = title.orthOptionsList[title.orthOptionsList.length - 1]?.otherContent
       }
@@ -412,6 +413,7 @@ async function getOrthInquiryList() {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
+  console.log(11, title)
   if (title.cephalometricsContent) {
     const obj = {
       aptmId: appId,

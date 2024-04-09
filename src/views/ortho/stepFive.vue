@@ -50,6 +50,7 @@
                   placeholder="请搜索"
                   v-model="searchValue"
                   @search="handleSearch(searchValue)"
+                  @press-enter="handleSearch(searchValue)"
                 />
               </a-space>
 

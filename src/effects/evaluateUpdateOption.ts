@@ -10,7 +10,7 @@ async function updateOption(
 ) {
   // 区分了一下 选项和标题
   let obj = {
-    apmtId: appId,
+    aptmId: appId,
     titleId: title.id,
     optionsIdStr:
       title.type == 1 && optionId ? [optionId] : title.type == 1 && !optionId ? [] : optionId,

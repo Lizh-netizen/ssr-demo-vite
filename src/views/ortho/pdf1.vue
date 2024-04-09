@@ -87,32 +87,6 @@
           </div>
         </template>
 
-        <template v-if="item.owningModule === '问题列表'">
-          <div class="pdfPage">
-            <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="评估结果" />
-            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
-            <div class="content">
-              <list :list="item.data" moduleName="问题列表" />
-            </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
-              诊断
-            </div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule === '诊断')?.list"
-                v-if="data.find((item) => item.owningModule == '诊断')"
-              />
-            </div>
-
-            <!-- <div class="content">
-            <list
-              :list="data.find((item) => item.owningModule == '方案').list"
-              v-if="data.find((item) => item.owningModule == '方案')"
-            />
-          </div> -->
-          </div>
-        </template>
         <template v-if="item.owningModule === '面型评估'">
           <div class="pdfPage face">
             <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
@@ -283,6 +257,25 @@
             </div>
             <div class="content blueBackground">
               <list :list="item.list" />
+            </div>
+          </div>
+        </template>
+        <template v-if="item.owningModule === '问题列表'">
+          <div class="pdfPage">
+            <img class="background" src="../../assets/pdfTemplate/template1.png" />
+            <Header text="评估结果" />
+            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
+            <div class="content">
+              <list :list="item.data" moduleName="问题列表" />
+            </div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
+              诊断
+            </div>
+            <div class="content">
+              <list
+                :list="data.find((item) => item.owningModule === '诊断')?.list"
+                v-if="data.find((item) => item.owningModule == '诊断')"
+              />
             </div>
           </div>
         </template>
