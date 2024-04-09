@@ -138,7 +138,7 @@
         </template>
         <template v-else-if="index == 10">
           <form-item :label="labelObj.label" width="128px">
-            {{ orthContent['correctionPeriod'] ? orthContent['correctionPeriod'] + '个月' : '' }}
+            {{ orthContent['correctionPeriod'] }}
           </form-item>
         </template>
         <template v-else-if="index == 11">
@@ -173,6 +173,7 @@ import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
 import formatTime from '../../utils/formatTime'
 import { useStore } from 'vuex'
+import { useTransitionFallthroughEmits } from 'element-plus'
 const doctorId = ref()
 window.addEventListener('message', function (event) {
   if (event.origin === 'https://odostest.orangedental.cn:4403') {
@@ -225,22 +226,7 @@ const loading = ref()
 const id = ref(0)
 const pdf = ref()
 const pdfId = ref()
-// const handleGeneratePdf = () => {
-//   // router.push(`/pdf1/${appId}/${patientId}`)
-//   // if (!pdf.value) {
-//   //   loading.value = ElLoading.service({
-//   //     lock: true,
-//   //     text: '报告生成中',
-//   //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
-//   //     background: 'rgba(37, 38, 38, 1)'
-//   //   })
-//   // }
-//   // // 但是需要有延迟，否则还是会看到pdfTemp的内容闪一下
-//   setTimeout(() => {
-//     active.value = 6
-//   }, 200)
-// }
-
+// 校验是否选了矫治器和难度
 function validate(planList) {
   const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
 
@@ -257,8 +243,21 @@ function validate(planList) {
   return planList.some((plan) => !plan.difficultyLevel || !plan.primaryApplianceId)
 }
 
+// 校验是否选中了方案
+function validateCheck(planList) {
+  const found = planList.find((plan, index) => plan.checked)
+
+  return found ? false : true
+}
 const handleGeneratePdf = () => {
   if (active.value == 5) {
+    if (validateCheck(step5.value.planList)) {
+      ElMessage({
+        message: '请选择一个方案',
+        type: 'warning'
+      })
+      return false
+    }
     if (validate(step5.value.planList)) {
       ElMessage({
         message: '请选择矫治器和难度',
@@ -379,7 +378,49 @@ const downloadPdf = () => {
 // 发起审批
 const dialogVisible = ref(false)
 const orthContent = ref({})
+const planList = ref()
+async function getPlanList() {
+  const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
+  if (result.code == 200 && result.data?.length > 0) {
+    let data = result.data.find((item) => item.checked)
+    const newData = processData(data.stageList)
+    return newData
+  }
+}
+// 定义一个函数，用于将数据转换成目标格式
+function processData(data) {
+  let targetStr = ''
+  let schemeStr = ''
+  let correctionPeriod = ''
+  data.forEach((entry) => {
+    const stageName = entry.stageName
+    const targetNames = entry.targetNames ? entry.targetNames.split(',') : []
+    const toolNames = entry.toolNames ? entry.toolNames.split(',') : []
+
+    let goal =
+      stageName +
+      '（' +
+      targetNames.join(',') +
+      (entry.fdiToothCode ? ' ' + entry.fdiToothCode : '') +
+      '）'
+    let tool = stageName + '（' + toolNames.join(',') + '）'
+
+    if (entry.targetIds) {
+      if (targetStr !== '') targetStr += '；'
+      targetStr += goal
+    }
+    if (entry.toolIds) {
+      if (schemeStr !== '') schemeStr += '；'
+      schemeStr += tool
+    }
+  })
+  correctionPeriod = data[data.length - 1].stageName
+  return { targetStr, schemeStr, correctionPeriod }
+}
+
 async function initiateApproval() {
+  console.log(await getPlanList())
+  const { targetStr, schemeStr, correctionPeriod } = await getPlanList()
   dialogVisible.value = true
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,
@@ -388,6 +429,9 @@ async function initiateApproval() {
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
   orthContent.value['riskValueSystem'] = ''
+  orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
+  orthContent.value['schemeStr'] = res.data['schemeStr'] || schemeStr
+  orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
   orthContent.value['riskValue'] = res.data['riskValue'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
@@ -395,6 +439,10 @@ const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
 const hasConfirmApproval = ref(false)
 
 async function confirmApproval() {
+  if (!orthContent.value['riskValueSystem']) {
+    ElMessage.error('请选择自评风险值')
+    return
+  }
   try {
     const loading = ElLoading.service({
       lock: true,
@@ -437,7 +485,7 @@ const labelList = [
   { label: '牙列期', value: 'dentitionType' },
   { label: '术前诊断', value: 'diagnoseStr' },
   { label: '治疗目标', value: 'targetStr' },
-  { label: '治疗计划', value: 'planStr' },
+  { label: '治疗计划', value: 'schemeStr' },
   { label: '矫正方案', value: 'schemeStr' },
   { label: '病例风险（系统）', value: 'riskValueSystem' },
   { label: '病历风险（自评）', value: 'riskValue' },

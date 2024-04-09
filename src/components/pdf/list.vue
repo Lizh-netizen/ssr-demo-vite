@@ -42,7 +42,7 @@ defineProps(['list', 'moduleName'])
       margin-right: 8px;
       border-radius: 50%;
       position: relative;
-      top: 6px;
+      top: 4px;
     }
     &__desc {
       margin-right: 4px;

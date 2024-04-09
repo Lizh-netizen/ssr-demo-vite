@@ -32,17 +32,49 @@
               </div> </template></template
           ><template #content>
             <template v-for="title in item.orthTitleList" :key="title.id">
-              <form-item :label="title.titleName" width="120px">
-                <Option
-                  :disabled="!item.hasImage"
-                  :title="title"
-                  :appId="appId"
-                  @refreshList="refreshList"
-                  :classId="item.id"
-                  :owningModule="item.owningModule"
-                  :notShowSvg="false"
-                ></Option>
-              </form-item>
+              <template
+                v-if="
+                  title.titleName == '侧貌' ||
+                  title.titleName == '凸面型表现' ||
+                  title.titleName == '凹面型表现'
+                "
+              >
+                <form-item :label="title.titleName" width="120px">
+                  <el-radio-group
+                    v-if="title.type == 1"
+                    v-model="title.optionId"
+                    @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
+                    @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+                  >
+                    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+                      <el-radio-button
+                        :class="{
+                          serious: option.serious == '1'
+                        }"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                        <img
+                          class="aiFlagImg"
+                          src="@/assets/svg/AIFlagForFront.svg"
+                          v-show="title.aiFlag == '1' && option.choosen"
+                        />
+                      </el-radio-button>
+                    </template> </el-radio-group
+                ></form-item>
+              </template>
+              <template v-else>
+                <form-item :label="title.titleName" width="120px">
+                  <Option
+                    :disabled="!item.hasImage"
+                    :title="title"
+                    :appId="appId"
+                    @refreshList="refreshList"
+                    :classId="item.id"
+                    :owningModule="item.owningModule"
+                    :notShowSvg="false"
+                  ></Option> </form-item
+              ></template>
             </template>
           </template>
         </ImageItem>
@@ -565,10 +597,9 @@ const props = defineProps({
 })
 // 单选反选取消
 const strategy = {
-  faceEvaluate: getOrthFaceAccessList,
-  mouth: getOrthMouthList,
-  cepha: getOrthCephaList,
-  panoramic: getOrthPanoramicList
+  面型评估: getOrthFaceAccessList,
+  口内照: getOrthMouthList,
+  侧位片: getOrthCephaList
 }
 
 const refreshList = (val) => {
@@ -2528,10 +2559,9 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
   }
   if (title.titleName == '侧貌') {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
-    // 如果选中的是凸面型
+    console.log('clickd')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      // 点击凸面型，凹面型的选项设置为空
       useUpdateOption(null, title2, appId, classId, owningModule)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2543,7 +2573,6 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
-      // 点击直面型，另外两个置空
       found.orthTitleList = savedTitleList.value.filter(
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
       )

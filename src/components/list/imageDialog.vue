@@ -94,10 +94,10 @@
             </template>
           </div>
 
-          <!-- <div class="classifyWrapper" v-if="module == 'ortho'">
+          <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
-          </div> -->
+          </div>
         </div>
         <div class="imageManagement__classify subSection">
           <div class="title">分类</div>

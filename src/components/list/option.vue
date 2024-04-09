@@ -157,6 +157,14 @@ const props = defineProps({
   classId: {
     type: Number,
     default: 0
+  },
+  faceAccessData: {
+    type: Object,
+    default: () => {}
+  },
+  savedTitleList: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -178,6 +186,36 @@ async function handleChangeOption(optionId, title) {
   // clicked.value = true
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
+  }
+  if (title.titleName == '侧貌') {
+    const found = props.faceAccessData.find((item) => item.className == '90度侧面像')
+    if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
+      const title2 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+      useUpdateOption(null, title2, props.appId, props.classId, props.owningModule)
+      found.orthTitleList = props.savedTitleList.filter((t) => !t.titleName.includes('凹'))
+      title2.orthOptionsList.forEach((option) => (option.choosen = false))
+      title2.optionId = []
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
+      const title1 = props.savedTitleList.find((title) => title.titleName == '凸面型表现')
+      useUpdateOption(null, title1, props.appId, props.classId, props.owningModule)
+      found.orthTitleList = props.savedTitleList.filter((t) => !t.titleName.includes('凸'))
+      title1.optionId = []
+      title1.orthOptionsList.forEach((option) => (option.choosen = false))
+    } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
+      found.orthTitleList = props.savedTitleList.filter(
+        (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
+      )
+      const title1 = props.savedTitleList.find((title) => title.titleName == '凸面型表现')
+
+      const title2 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+      title1.optionId = []
+      title2.optionId = []
+      useUpdateOption(null, title1, props.appId, props.classId, props.owningModule)
+      useUpdateOption(null, title2, props.appId, props.classId, props.owningModule)
+      //  点击完直面型需要重新请求接口
+      emit('refreshList', props.owningModule)
+    }
+    // getOrthFaceAccessList()
   }
   useChangeOption(optionId, title, props.appId, props.isShow, props.checkData)
   await useUpdateOption(title.optionId, title, props.appId, props.classId, props.owningModule)
