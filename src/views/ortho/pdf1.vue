@@ -6,7 +6,7 @@
         <div class="title">
           <div>
             <div class="title-date">{{ formattedDate }}</div>
-            <div class="Chinese">正畸检查报告</div>
+            <div class="Chinese">正畸检查报告及治疗计划</div>
             <div class="item">
               <div class="label">姓名</div>
               <div class="value">{{ patientInfo.Name }}</div>
@@ -325,7 +325,7 @@
                         {{ stage.goalList.join() }}
                       </div>
                       <div class="flex">
-                        <div v-for="tool in stage.toolList">{{ tool.label }}</div>
+                        <div>{{ stage.toolList }}</div>
                       </div>
                     </div>
                   </div>
@@ -646,8 +646,6 @@ function transformData(data) {
           stageName: stage.stageName,
           goalList: targetName,
           toolList: stage.toolNames
-            ? stage.toolNames.split(',').map((tool) => ({ label: tool }))
-            : []
         })
       }
       return acc
@@ -657,7 +655,7 @@ function transformData(data) {
     stageList.unshift({
       stageName: '阶段',
       goalList: ['目标'],
-      toolList: [{ label: '配件' }]
+      toolList: '配件'
     })
 
     return {
@@ -1267,7 +1265,7 @@ body {
       justify-content: center;
       position: absolute;
       font-weight: 900;
-      font-size: 76px;
+      font-size: 66px;
       line-height: normal;
       letter-spacing: 0px;
       color: #3b4485;

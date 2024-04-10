@@ -98,8 +98,14 @@
     >
       <template v-for="(labelObj, index) in labelList" :key="labelObj.label">
         <template v-if="index <= 6"
-          ><form-item :label="labelObj.label" width="132px"
-            ><span class="desc">{{ orthContent[labelObj.value] }}</span></form-item
+          ><form-item
+            :label="labelObj.label"
+            width="132px"
+            :class="{
+              target: labelObj.label == '治疗目标',
+              scheme: labelObj.label == '治疗计划'
+            }"
+            ><span class="desc overflow-scroll">{{ orthContent[labelObj.value] }}</span></form-item
           ></template
         >
         <template v-if="index == 7"
@@ -173,7 +179,7 @@ import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
 import formatTime from '../../utils/formatTime'
 import { useStore } from 'vuex'
-import { useTransitionFallthroughEmits } from 'element-plus'
+
 const doctorId = ref()
 window.addEventListener('message', function (event) {
   if (event.origin === 'https://odostest.orangedental.cn:4403') {
@@ -479,7 +485,10 @@ const hasConfirmApproval = ref(false)
 
 async function confirmApproval() {
   if (!orthContent.value['riskValueSystem']) {
-    ElMessage.error('请选择自评风险值')
+    ElMessage({
+      type: 'warning',
+      message: '请选择自评风险值'
+    })
     return
   }
   try {
@@ -554,6 +563,30 @@ const labelList = [
   height: 26px;
   &__label {
     text-align: left;
+  }
+}
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 1em;
+  background-color: rgba(50, 50, 50, 0.3);
+}
+
+// ::-webkit-scrollbar-track {
+//   border-radius: 1em;
+//   background-color: rgba(50, 50, 50, 0.1);
+// }
+.formItem.target,
+.formItem.scheme {
+  height: 48px;
+  &__label {
+    text-align: left;
+  }
+  .desc {
+    height: 52px;
   }
 }
 .gap {
