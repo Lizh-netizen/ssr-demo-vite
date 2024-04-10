@@ -229,7 +229,10 @@ const pdfId = ref()
 function validateGoalAndTarget(planList) {
   const found = planList.find((plan, index) => plan.checked)
   for (let item of found.stageList) {
-    if (item.targetIds !== '' && item.toolIds !== '') {
+    if (item.targetIds.length > 0 && item.toolIds.length > 0) {
+      console.log('🚀 ~ validateGoalAndTarget ~ item.targetIds && item.toolIds:', item)
+
+      console.log(111)
       return true
     }
   }
@@ -255,11 +258,11 @@ function validate(planList) {
 // 校验是否选中了方案
 function validateCheck(planList) {
   const found = planList.find((plan, index) => plan.checked)
+  console.log('🚀 ~ validateCheck ~ found:', found)
 
   return found ? false : true
 }
 const handleGeneratePdf = async () => {
-  await getPlanList()
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({
@@ -268,7 +271,12 @@ const handleGeneratePdf = async () => {
       })
       return false
     }
-    if (validateGoalAndTarget(step5.value.planList)) {
+    await getPlanList()
+    console.log(
+      '🚀 ~ handleGeneratePdf ~ validateGoalAndTarget(step5.value.planList):',
+      validateGoalAndTarget(step5.value.planList)
+    )
+    if (!validateGoalAndTarget(step5.value.planList)) {
       ElMessage({
         message: '请选择目标和工具',
         type: 'warning'
@@ -400,6 +408,13 @@ async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {
     let data = result.data.find((item) => item.checked)
+    if (!data) {
+      ElMessage({
+        message: '请选择一个方案',
+        type: 'warning'
+      })
+      return false
+    }
     const newData = processData(data.stageList)
     return newData
   }

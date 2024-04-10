@@ -910,14 +910,6 @@ const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
   }
 }
 const handleDeleteStage1 = async (plan, stage, planIndex, stageIndex) => {
-  console.log(
-    '🚀 ~ handleDeleteStage1 ~ plan, stage, planIndex, stageIndex:',
-    plan,
-    stage,
-    planIndex,
-    stageIndex
-  )
-
   if (!stage.id) {
     return
   } else {
