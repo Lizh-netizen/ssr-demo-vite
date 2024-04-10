@@ -553,7 +553,7 @@ import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
-import List from '@/components/evaluatePdf/list.vue'
+import List from '@/components/evaluatePdf/evaluateList.vue'
 
 import html2pdf from 'html2pdf.js'
 import { GetSymptom } from '../../utils/tooth'

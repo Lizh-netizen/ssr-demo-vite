@@ -53,7 +53,6 @@ declare module 'vue' {
     ImageItem: typeof import('./src/components/list/imageItem.vue')['default']
     LayoutChooseTooth: typeof import('./src/components/layout/layoutChooseTooth.vue')['default']
     List: typeof import('./src/components/pdf/list.vue')['default']
-    List1: typeof import('./src/components/evaluatePdf/list1.vue')['default']
     ModelAnalysis: typeof import('./src/components/list/modelAnalysis.vue')['default']
     MouthOption: typeof import('./src/components/list/mouthOption.vue')['default']
     Option: typeof import('./src/components/list/option.vue')['default']
