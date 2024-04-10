@@ -105,7 +105,7 @@
               target: labelObj.label == '治疗目标',
               scheme: labelObj.label == '治疗计划'
             }"
-            ><span class="desc overflow-scroll">{{ orthContent[labelObj.value] }}</span></form-item
+            ><span class="desc">{{ orthContent[labelObj.value] }}</span></form-item
           ></template
         >
         <template v-if="index == 7"
@@ -587,6 +587,7 @@ const labelList = [
   }
   .desc {
     height: 52px;
+    overflow: scroll;
   }
 }
 .gap {
