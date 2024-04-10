@@ -85,25 +85,50 @@
     <Header text="口内照" />
     <div class="content mouth">
       <template v-for="item in mouthData" :key="item.id">
-        <ImageItem :imageCaption="item.className"
+        <ImageItem
+          v-if="item.className !== '前牙覆盖'"
+          :imageCaption="item.className"
+          :class="{
+            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
+            frontBite: item.className === '正面咬合'
+          }"
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
-                v-lazy="item.imageUrl"
+                :src="item.imageUrl"
                 :style="{
-                  width: '320px',
                   height: '240px',
-                  'object-fit': 'cover',
-                  'border-radius': '10px'
+                  width: '320px',
+                  'object-fit': 'cover'
                 }" /></template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
                 <img :src="imgUrl" class="addPic" />
-              </div> </template></template
+              </div>
+            </template>
+            <template v-if="item.className == '正面咬合'">
+              <div :style="{ 'margin-top': '40px' }">
+                <template v-if="frontCover"
+                  ><img
+                    :src="frontCover"
+                    :style="{
+                      height: '240px',
+                      width: '320px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div class="imageItem__placeholder" @click="handleOpenImageDialogue('前牙覆盖')">
+                    <img :src="imgUrl" class="addPic" />
+                  </div>
+                </template>
+                <div :style="{ 'margin-bottom': '10px' }" class="color-[#4E5969]">前牙覆盖</div>
+              </div>
+            </template> </template
           ><template #content>
+            <template v-if="item.className == '正面咬合'"> </template>
             <div>
               <template v-for="title in item.orthTitleList" :key="title.id">
-                <form-item :label="title.titleName" width="100px">
+                <form-item :label="title.titleName" width="120px">
                   <MouthOption
                     :title="title"
                     :appId="appId"
@@ -111,10 +136,11 @@
                     @syncOption="syncOption"
                     owningModule="口内照"
                     :mouthData="mouthData"
-                    :savedTitleList="savedTitleList"
+                    :disabled="!item.hasImage"
+                    :savedTitleList="savedTitleList1"
                     :classId="item.id"
-                  ></MouthOption
-                ></form-item>
+                  ></MouthOption>
+                </form-item>
               </template>
             </div>
           </template>
@@ -930,7 +956,10 @@ const handleCloseImgDialog = () => {
 // 获取照片和相关信息
 
 const faceAccessData = ref([])
+// 侧貌的
 const savedTitleList = ref([])
+// 前牙覆盖的
+const savedTitleList1 = ref([])
 const FrontalRose = [
   'forehead_center',
   'eyebrow_right_corner_left',
@@ -1224,6 +1253,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
   return { width, height, ratio }
 }
 const mouthData = ref([])
+const frontCover = ref()
 async function getOrthMouthList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/口内照/${appId}`)
   mouthData.value = result.data
@@ -1266,7 +1296,10 @@ async function getOrthMouthList() {
       }
     })
     if (item.className == '前牙覆盖') {
-      savedTitleList.value = [...item.orthTitleList]
+      frontCover.value = item.imageUrl
+    }
+    if (item.className == '正面咬合') {
+      savedTitleList1.value = [...item.orthTitleList]
       const title1 = item.orthTitleList.find((title) => title.titleName == '反覆合程度')
       const title2 = item.orthTitleList.find((title) => title.titleName == '反覆盖程度')
       const title4 = item.orthTitleList.find((title) => title.titleName == '前牙覆合')
@@ -1293,12 +1326,10 @@ async function getOrthMouthList() {
 }
 // 同步牙位信息
 const syncOption = (val) => {
-  console.log('🚀 ~ syncOption ~ val:', val)
-
   let title = {}
   let asyncOption = val.option
   let optionId = ''
-  let item1 = mouthData.value.find((item) => item.className == '前牙覆盖')
+  let item1 = mouthData.value.find((item) => item.className == '正面咬合')
   // 选了一个同步另一个
   if (val.option.optionName == '前牙反覆合') {
     title = item1.orthTitleList.find((title) => {
@@ -2627,7 +2658,6 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
   }
   if (title.titleName == '侧貌') {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
-    console.log('clickd')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
       useUpdateOption(null, title2, appId, classId, owningModule)
@@ -2758,6 +2788,60 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep .imageItem.frontCoverImage {
+  border-bottom: none !important;
+  padding: 0;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 0px !important;
+  }
+}
+
+:deep .imageItem.frontBite {
+  padding-bottom: 0 !important;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 10px !important;
+  }
+  .imageItem__caption {
+    top: 240px;
+  }
+  .imageItem__content {
+    display: flex;
+  }
+}
+.imageItem__placeholder {
+  width: 320px;
+  height: 240px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  /* 线条/悬浮 */
+  border: 1px dashed #c9cdd4;
+  background: #f2f3f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  .addPic {
+    position: absolute;
+  }
+  :deep .upload-demo {
+    opacity: 0;
+    height: 200px;
+    z-index: 10;
+    height: 100%;
+    .el-upload {
+      height: 100%;
+    }
+  }
+}
+.imageItem {
+  width: auto;
+  box-sizing: border-box;
+  border-bottom: 1.4px dashed #e5e6eb;
+  height: auto !important;
+  padding-bottom: 36px !important;
+}
 .formItem__content {
   flex: 1;
   display: inline-flex;
@@ -2814,10 +2898,9 @@ div.el-input__wrapper {
 }
 .imageItem.removeBorder {
   border: none;
+  padding-bottom: 0 !important;
 }
-:deep .imageItem.side90 {
-  min-height: 336px;
-}
+
 .placeholderContainer {
   display: flex;
   padding-top: 20px;

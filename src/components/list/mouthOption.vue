@@ -14,6 +14,7 @@
             checked: option.choosen === true
           }"
           :label="option.id"
+          :disabled="disabled"
         >
           {{ option.optionName }}
           <img
@@ -196,10 +197,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  // disabled: {
-  //   type: Boolean,
-  //   default: false
-  // },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   savedTitleList: {
     type: Array,
     default: () => []
