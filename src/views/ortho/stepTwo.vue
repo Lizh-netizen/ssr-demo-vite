@@ -974,8 +974,11 @@ function loadImageToCanvas(maxWidth, maxHeight, imageUrl, canvasId) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     // 在画布上绘制缩小后的图片
     ctx.drawImage(image, 0, 0, width, height)
-    drawPointsOnCanvas(ctx, image, canvas, faceSet.value)
+    if (faceSet.value.length) {
+      drawPointsOnCanvas(ctx, image, canvas, faceSet.value)
+    }
   }
+
   image.src = imageUrl // 设置图片源地址
 }
 function drawPointsOnCanvas(ctx, image, canvas, pointList) {
@@ -1128,29 +1131,33 @@ async function getOrthFaceAccessList() {
           } else {
             Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
               (res) => {
-                const data = res.data.face_list[0].landmark201
-                const image = new Image()
-                image.onload = () => {
-                  const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
-                  // 比例缩放的因子
-                  const scaleFactorWidth = width / image.width
-                  const scaleFactorHeight = height / image.height
-                  faceSet.value = FrontalRose.map((a) => ({
-                    label: a,
-                    x: data[a].x * scaleFactorWidth,
-                    y: data[a].y * scaleFactorHeight
-                  }))
-                  calculateFront(faceSet.value, item.id, item.owningModule)
-                  const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                  addFaceset(set)
+                if (res.data.face_list) {
+                  const data = res.data.face_list[0].landmark201
+                  const image = new Image()
+                  image.onload = () => {
+                    const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
+                    // 比例缩放的因子
+                    const scaleFactorWidth = width / image.width
+                    const scaleFactorHeight = height / image.height
+                    faceSet.value = FrontalRose.map((a) => ({
+                      label: a,
+                      x: data[a].x * scaleFactorWidth,
+                      y: data[a].y * scaleFactorHeight
+                    }))
+                    calculateFront(faceSet.value, item.id, item.owningModule)
+                    const set = faceSet.value.map((item) => [item.label, item.x, item.y])
+                    addFaceset(set)
+                  }
+                  image.src = FrontalReposeImageUrl.value
+
+                  // nextTick(() => {
+                  if (interruptSignal) {
+                    return
+                  }
+                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+                } else {
+                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
                 }
-                image.src = FrontalReposeImageUrl.value
-                // nextTick(() => {
-                if (interruptSignal) {
-                  return
-                }
-                loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                // })
               }
             )
           }
@@ -1295,7 +1302,6 @@ const syncOption = (val) => {
   // 选了一个同步另一个
   if (val.option.optionName == '前牙反覆合') {
     title = item1.orthTitleList.find((title) => {
-      console.log('🚀 ~ syncOption ~ title:', title)
       return title.titleName == '前牙覆盖'
     })
     optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆盖').id
