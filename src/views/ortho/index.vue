@@ -226,6 +226,15 @@ const loading = ref()
 const id = ref(0)
 const pdf = ref()
 const pdfId = ref()
+function validateGoalAndTarget(planList) {
+  const found = planList.find((plan, index) => plan.checked)
+  for (let item of found.stageList) {
+    if (item.targetIds !== '' && item.toolIds !== '') {
+      return true
+    }
+  }
+  return false
+}
 // 校验是否选了矫治器和难度
 function validate(planList) {
   const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
@@ -258,6 +267,13 @@ const handleGeneratePdf = () => {
       })
       return false
     }
+    // if (validateGoalAndTarget(step5.value.planList)) {
+    //   ElMessage({
+    //     message: '请选择目标和工具',
+    //     type: 'warning'
+    //   })
+    //   return false
+    // }
     if (validate(step5.value.planList)) {
       ElMessage({
         message: '请选择矫治器和难度',
@@ -419,8 +435,15 @@ function processData(data) {
 }
 
 async function initiateApproval() {
-  console.log(await getPlanList())
   const { targetStr, schemeStr, correctionPeriod } = await getPlanList()
+  if (!targetStr) {
+    ElMessage.error('还没填写方案中的治疗目标哦')
+    return
+  }
+  if (!schemeStr) {
+    ElMessage.error('还没填写方案中的治疗工具哦')
+    return
+  }
   dialogVisible.value = true
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,

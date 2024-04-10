@@ -49,27 +49,34 @@
             <template v-if="item.owningModule === '问诊'">
               <div class="content">
                 <div class="list">
-                  <div class="list__item">主诉</div>
+                  <template v-for="i in item.list">
+                    <div
+                      class="list__item"
+                      v-if="i.title_name == '主诉' || i.title_name == '现病史'"
+                    >
+                      {{ i.title_name }} : {{ i.option_names }}
+                    </div>
+                  </template>
+
                   <div class="list__item">
                     {{ item.className }}
                     <div class="list innerList">
-                      <div
-                        class="list__item"
-                        v-for="i in item.list"
-                        :key="i.id"
-                        :data-serious="i.serious"
-                      >
-                        <div>
-                          {{ i.title_name }}：{{ i.option_names }}
+                      <template v-for="i in item.list" :key="i.id">
+                        <div
+                          v-if="i.title_name != '主诉' && i.title_name !== '现病史'"
+                          class="list__item"
+                        >
+                          <span>{{ i.title_name }}：{{ i.option_names }}</span>
                           <img
                             src="../../assets/svg/serious.svg"
                             v-show="i.serious == '1'"
                             :style="{
-                              'margin-left': '8px'
+                              'margin-left': '8px',
+                              height: '13px'
                             }"
                           />
                         </div>
-                      </div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -446,11 +453,19 @@ async function getDataList() {
             serious: cur.serious
           })
         } else {
-          acc[cur.owningModule].list.push({
-            title_name: cur.titleName,
-            option_names: cur.optionsNames,
-            serious: cur.serious
-          })
+          if (cur.titleName == '主诉' || cur.titleName == '现病史') {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.cephalometricsContent,
+              serious: cur.serious
+            })
+          } else {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.optionsNames,
+              serious: cur.serious
+            })
+          }
         }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
@@ -480,11 +495,19 @@ async function getDataList() {
             option_names: cur.cephalometricsContent
           })
         } else {
-          acc[cur.owningModule].list.push({
-            title_name: cur.titleName,
-            option_names: cur.optionsNames,
-            serious: cur.serious
-          })
+          if (cur.titleName == '主诉' || cur.titleName == '现病史') {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.cephalometricsContent,
+              serious: cur.serious
+            })
+          } else {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.optionsNames,
+              serious: cur.serious
+            })
+          }
         }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
@@ -582,6 +605,7 @@ async function getDataList() {
   }
   data.value.push({ owningModule: '问题列表', data: issuesList })
   data.value.push({ owningModule: '方案', data: schemeData })
+  console.log('🚀 ~ getDataList ~ data.value:', data.value)
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -846,6 +870,9 @@ const generatePDF = () => {
           .catch((err) => {
             console.log(err)
           })
+          .finally(() => {
+            loading.value?.close()
+          })
       })
   } catch (err) {
     console.log(err)
@@ -887,9 +914,7 @@ onMounted(() => {
       // 把颜色改成不透明的，就看不到后面的pdf的内容了
       background: 'rgba(37, 38, 38, 1)'
     })
-    main().finally(() => {
-      loading.value?.close()
-    })
+    main()
   }
   // main()
 })

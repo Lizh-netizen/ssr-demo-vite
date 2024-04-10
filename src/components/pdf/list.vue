@@ -2,7 +2,6 @@
   <div class="list1">
     <div class="list__item" v-for="a in list" :key="a.id" :data-serious="a.serious">
       <div class="list__item__desc">
-        <div></div>
         {{ a.title_name }}
         <span v-if="a.option_names">: {{ a.option_names }}</span
         ><span v-if="a.active == '0'">(暂不干预)</span>
