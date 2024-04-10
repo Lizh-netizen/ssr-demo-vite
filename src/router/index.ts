@@ -8,12 +8,6 @@ const routes = [
     // @ts-expect-error TS(2307): Cannot find module '../views/index.vue' or its cor... Remove this comment to see the full error message
     component: () => import('../views/index.vue')
   },
-  {
-    path: '/test',
-    name: 'test',
-    // @ts-expect-error TS(2307): Cannot find module '../views/test.vue' or its corr... Remove this comment to see the full error message
-    component: () => import('../views/test.vue')
-  },
   // {
   //   path: '/layout',
   //   name: 'layout',
@@ -43,12 +37,6 @@ const routes = [
     name: 'evaluatePdf',
     // @ts-expect-error TS(2307): Cannot find module '../views/ortho/evaluate.vue' o... Remove this comment to see the full error message
     component: () => import('../views/ortho/evaluatePdf.vue')
-  },
-  {
-    path: '/list',
-    name: 'list',
-    // @ts-expect-error TS(2307): Cannot find module '../views/list.vue' or its corr... Remove this comment to see the full error message
-    component: () => import('../views/list.vue')
   },
   {
     path: '/pdf1/:appId/:patientId',

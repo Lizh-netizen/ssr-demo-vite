@@ -113,7 +113,7 @@
 <script setup>
 import { Container, Draggable } from 'vue-smooth-dnd'
 import draggable from 'vuedraggable'
-import ChooseTooth from './chooseTooth.vue'
+import ChooseTooth from './layoutChooseTooth.vue'
 import { watch, defineProps, ref, defineEmits, nextTick, computed, onMounted } from 'vue'
 import { averageThreeCourts } from '../../utils/calculate'
 import { GetSymptom } from '../../utils/tooth'
