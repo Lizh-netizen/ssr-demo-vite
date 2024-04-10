@@ -574,7 +574,7 @@ import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
-import MouthOption from '@/components/list/mouthoption.vue'
+import MouthOption from '@/components/list/mouthOption.vue'
 import EvaluationOption from '@/components/list/evaluateOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
 const route = useRoute()
