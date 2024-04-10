@@ -314,6 +314,13 @@ getOrthBase()
 const store = useStore()
 
 const handleNextStep = () => {
+  if (active.value == 4 && !step[active.value - 1].value.clicked) {
+    ElMessage({
+      message: '还未填写诊断哦',
+      type: 'warning'
+    })
+    return
+  }
   nextTick(() => {
     editStep.value = active.value
     active.value++
