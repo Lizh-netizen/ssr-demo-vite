@@ -545,7 +545,6 @@
 </template>
 
 <script setup>
-import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
 import { ref, computed, onMounted, nextTick, onBeforeMount } from 'vue'
 import Header from '../../components/list/header.vue'

@@ -241,16 +241,14 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
   if (
     title.titleName == '前牙覆合' ||
     title.titleName == '前牙覆盖' ||
-    title.titleName == '后牙' ||
-    title.titleName == '锁HE' ||
     title.titleName == '反覆合程度' ||
-    title.titleName == '反覆盖程度' ||
-    title.titleName == '左侧后牙' ||
-    title.titleName == '右侧后牙'
+    title.titleName == '反覆盖程度'
   ) {
     requestAgain.value = true
   }
-  const found = props.mouthData.find((item) => item.className == '正面咬合')
+  console.log(props.mouthData)
+  const found = props.mouthData.find((item) => item.className == '前牙覆盖')
+  console.log('🚀 ~ handleChangeOption ~ found:', found)
   if (title.titleName == '前牙覆合') {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
       found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆盖程度')
@@ -483,7 +481,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    emit('syncOption', { option: option, titleName: title.titleName })
+    emit('syncOption', { option: option, titleName: title.titleName, classId: classId })
   }
 
   updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {

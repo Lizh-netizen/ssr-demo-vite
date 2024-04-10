@@ -101,38 +101,20 @@
                 <img :src="imgUrl" class="addPic" />
               </div> </template></template
           ><template #content>
-            <template v-if="item.className == '正面咬合'">
-              <img :src="FrontalSmileImageUrl" alt="" />
-            </template>
             <div>
               <template v-for="title in item.orthTitleList" :key="title.id">
-                <template v-if="item.className == '前牙覆盖'">
-                  <form-item :label="title.titleName" width="100px">
-                    <MouthOption
-                      :title="title"
-                      :appId="appId"
-                      @refreshList="refreshList"
-                      @syncOption="syncOption"
-                      owningModule="口内照"
-                      :mouthData="mouthData"
-                      :savedTitleList="savedTitleList"
-                      :classId="item.id"
-                    ></MouthOption
-                  ></form-item>
-                </template>
-                <template v-else>
-                  <form-item :label="title.titleName" width="100px">
-                    <Option
-                      :disabled="!item.hasImage"
-                      :title="title"
-                      :appId="appId"
-                      :classId="item.id"
-                      @refreshList="refreshList"
-                      :owningModule="item.owningModule"
-                      :notShowSvg="false"
-                    ></Option>
-                  </form-item>
-                </template>
+                <form-item :label="title.titleName" width="100px">
+                  <MouthOption
+                    :title="title"
+                    :appId="appId"
+                    @refreshList="refreshList"
+                    @syncOption="syncOption"
+                    owningModule="口内照"
+                    :mouthData="mouthData"
+                    :savedTitleList="savedTitleList"
+                    :classId="item.id"
+                  ></MouthOption
+                ></form-item>
               </template>
             </div>
           </template>
@@ -1246,30 +1228,6 @@ async function getOrthMouthList() {
     } else {
       item.hasImage = true
     }
-    if (item.className == '前牙覆盖') {
-      savedTitleList.value = [...item.orthTitleList]
-      const title1 = item.orthTitleList.find((title) => title.titleName == '反覆合程度')
-      const title2 = item.orthTitleList.find((title) => title.titleName == '反覆盖程度')
-      const title4 = item.orthTitleList.find((title) => title.titleName == '前牙覆合')
-      const title5 = item.orthTitleList.find((title) => title.titleName == '前牙覆盖')
-      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
-      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
-      const option1 = title4.orthOptionsList.find((option) => option.optionName == '前牙反覆合')
-      const option2 = title5.orthOptionsList.find((option) => option.optionName == '前牙反覆盖')
-      // 如果前牙覆合中的前牙反覆合没有被选中
-      if (!option1.choosen && !choosen1) {
-        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆合程度')
-        item.orthTitleList.splice(index, 1)
-      }
-      if (!option2.choosen && !choosen2) {
-        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆盖程度')
-        item.orthTitleList.splice(index, 1)
-      }
-      if (!option1.choosen && !option2.choosen) {
-        const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
-        item.orthTitleList.splice(index, 1)
-      }
-    }
     item.orthTitleList.forEach((title) => {
       title.orthOptionsList.forEach((option) => {
         if (option.optionSuffix) {
@@ -1300,17 +1258,46 @@ async function getOrthMouthList() {
         }
       }
     })
+    if (item.className == '前牙覆盖') {
+      savedTitleList.value = [...item.orthTitleList]
+      const title1 = item.orthTitleList.find((title) => title.titleName == '反覆合程度')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+      const title4 = item.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      const title5 = item.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      const option1 = title4.orthOptionsList.find((option) => option.optionName == '前牙反覆合')
+      const option2 = title5.orthOptionsList.find((option) => option.optionName == '前牙反覆盖')
+      // 如果前牙覆合中的前牙反覆合没有被选中
+      if (!option1.choosen && !choosen1) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆合程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option2.choosen && !choosen2) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆盖程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option1.choosen && !option2.choosen) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
+        item.orthTitleList.splice(index, 1)
+      }
+    }
   })
 }
 // 同步牙位信息
 const syncOption = (val) => {
+  console.log('🚀 ~ syncOption ~ val:', val)
+
   let title = {}
   let asyncOption = val.option
   let optionId = ''
   let item1 = mouthData.value.find((item) => item.className == '前牙覆盖')
   // 选了一个同步另一个
   if (val.option.optionName == '前牙反覆合') {
-    title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+    title = item1.orthTitleList.find((title) => {
+      console.log('🚀 ~ syncOption ~ title:', title)
+      return title.titleName == '前牙覆盖'
+    })
     optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆盖').id
   } else if (val.option.optionName == '前牙反覆盖') {
     title = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
@@ -1326,14 +1313,7 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(
-    optionId,
-    title,
-    appId,
-    mouthData.value[0].id,
-    mouthData.value[0].owningModule,
-    val.option
-  )
+  updateOption(optionId, title, appId, val.classId, mouthData.value[0].owningModule, val.option)
 }
 function yieldNewTask() {
   return new Promise((resolve) => {

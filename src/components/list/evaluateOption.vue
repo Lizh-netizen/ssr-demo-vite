@@ -237,14 +237,6 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 const requestAgain = ref(false)
 const handleChangeOption = (optionId, title, classId, owningModule) => {
-  console.log(
-    '🚀 ~ handleChangeOption ~ optionId, title, classId, owningModule:',
-    optionId,
-    title,
-    classId,
-    owningModule
-  )
-
   // 这几个选项选过之后重新请求
   if (
     title.titleName == '前牙覆合' ||
