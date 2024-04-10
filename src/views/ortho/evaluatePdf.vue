@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import List from '@/components/evaluatePdf/list.vue'
+import List from '@/components/evaluatePdf/evaluateList.vue'
 import { Get, Post } from '@/utils/request'
 import html2pdf from 'html2pdf.js'
 

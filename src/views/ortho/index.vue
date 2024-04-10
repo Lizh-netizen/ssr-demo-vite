@@ -232,6 +232,18 @@ const loading = ref()
 const id = ref(0)
 const pdf = ref()
 const pdfId = ref()
+function validateGoalAndTarget(planList) {
+  const found = planList.find((plan, index) => plan.checked)
+  for (let item of found.stageList) {
+    if (item.targetIds.length > 0 && item.toolIds.length > 0) {
+      console.log('🚀 ~ validateGoalAndTarget ~ item.targetIds && item.toolIds:', item)
+
+      console.log(111)
+      return true
+    }
+  }
+  return false
+}
 // 校验是否选了矫治器和难度
 function validate(planList) {
   const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
@@ -248,12 +260,15 @@ function validate(planList) {
   })
   return planList.some((plan) => !plan.difficultyLevel || !plan.primaryApplianceId)
 }
+
 // 校验是否选中了方案
 function validateCheck(planList) {
   const found = planList.find((plan, index) => plan.checked)
+  console.log('🚀 ~ validateCheck ~ found:', found)
+
   return found ? false : true
 }
-const handleGeneratePdf = () => {
+const handleGeneratePdf = async () => {
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({
@@ -262,7 +277,25 @@ const handleGeneratePdf = () => {
       })
       return false
     }
-    if (validate(step5.value.planList)) return false
+    await getPlanList()
+    console.log(
+      '🚀 ~ handleGeneratePdf ~ validateGoalAndTarget(step5.value.planList):',
+      validateGoalAndTarget(step5.value.planList)
+    )
+    if (!validateGoalAndTarget(step5.value.planList)) {
+      ElMessage({
+        message: '请选择目标和工具',
+        type: 'warning'
+      })
+      return false
+    }
+    if (validate(step5.value.planList)) {
+      ElMessage({
+        message: '请选择矫治器和难度',
+        type: 'warning'
+      })
+      return false
+    }
   }
   nextTick(() => {
     editStep.value = active.value
@@ -331,7 +364,6 @@ const handleNextStep = () => {
   nextTick(() => {
     editStep.value = active.value
     active.value++
-
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: '',
@@ -382,6 +414,13 @@ async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {
     let data = result.data.find((item) => item.checked)
+    if (!data) {
+      ElMessage({
+        message: '请选择一个方案',
+        type: 'warning'
+      })
+      return false
+    }
     const newData = processData(data.stageList)
     return newData
   }
@@ -414,9 +453,17 @@ function processData(data) {
   correctionPeriod = data[data.length - 1].stageName
   return { targetStr, schemeStr, correctionPeriod }
 }
+
 async function initiateApproval() {
-  console.log(await getPlanList())
   const { targetStr, schemeStr, correctionPeriod } = await getPlanList()
+  if (!targetStr) {
+    ElMessage.error('还没填写方案中的治疗目标哦')
+    return
+  }
+  if (!schemeStr) {
+    ElMessage.error('还没填写方案中的治疗工具哦')
+    return
+  }
   dialogVisible.value = true
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,

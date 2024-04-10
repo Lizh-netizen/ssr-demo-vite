@@ -50,6 +50,7 @@
                   placeholder="请搜索"
                   v-model="searchValue"
                   @search="handleSearch(searchValue)"
+                  @press-enter="handleSearch(searchValue)"
                 />
               </a-space>
 
@@ -691,7 +692,6 @@ async function getPlanList() {
         }
       })
     })
-    console.log(planList.value)
   } else {
     let obj = {
       name: '方案一', //方案名
@@ -902,14 +902,6 @@ const handleDeleteStage = (plan, stage, planIndex, stageIndex) => {
   }
 }
 const handleDeleteStage1 = async (plan, stage, planIndex, stageIndex) => {
-  console.log(
-    '🚀 ~ handleDeleteStage1 ~ plan, stage, planIndex, stageIndex:',
-    plan,
-    stage,
-    planIndex,
-    stageIndex
-  )
-
   if (!stage.id) {
     return
   } else {
@@ -958,6 +950,10 @@ const updateList = (val, plan, stageName, cardName) => {
       goalList.value.find((item) => (item.visible = false))
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const target = stage.targetIds.find((item) => item.name.includes('拔牙'))
+      const id = featureEffectList.value.find((item) => item.name == '拔牙').id
+      if (!found.featureTagIds.some((i) => i == id)) {
+        found.featureTagIds.push(id)
+      }
 
       target.visible = true
       // 设置牙位
@@ -968,10 +964,22 @@ const updateList = (val, plan, stageName, cardName) => {
         })
       })
     }
+    // 删除目标或工具
     if (val.delete) {
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const index = stage.targetIds.findIndex((item) => item.name == val.element.name)
+      // 如果删除了拔牙，特点中也要移除
+
       stage.targetIds.splice(index, 1)
+      const hasTooth = found.stageList.find((stage) =>
+        stage.targetIds.some((target) => target.name.includes('拔牙'))
+      )
+      if (!hasTooth) {
+        const id = featureEffectList.value.find((item) => item.name == '拔牙').id
+        if (found.featureTagIds.some((i) => i == id)) {
+          found.featureTagIds.splice(found.featureTagIds.indexOf(id), 1)
+        }
+      }
     }
     if (val.removeFlag) {
     }
@@ -1290,7 +1298,7 @@ const handleSubmitAddtionalContent = (title, classId, owningModule) => {
 }
 const riskData = ref([])
 async function getOrthRiskList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/风险/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/风险/${appId}`)
   riskData.value = result.data
   riskData.value.forEach((item) => {
     item.orthTitleList.forEach((i) => {
@@ -1334,7 +1342,7 @@ async function getOrthRiskList() {
 getOrthRiskList()
 const remarkData = ref([])
 async function getRemark() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/备注/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/备注/${appId}`)
   remarkData.value = result.data
 }
 

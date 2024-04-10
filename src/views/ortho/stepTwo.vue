@@ -32,17 +32,50 @@
               </div> </template></template
           ><template #content>
             <template v-for="title in item.orthTitleList" :key="title.id">
-              <form-item :label="title.titleName" width="120px">
-                <Option
-                  :disabled="!item.hasImage"
-                  :title="title"
-                  :appId="appId"
-                  @refreshList="refreshList"
-                  :classId="item.id"
-                  :owningModule="item.owningModule"
-                  :notShowSvg="false"
-                ></Option>
-              </form-item>
+              <template
+                v-if="
+                  title.titleName == '侧貌' ||
+                  title.titleName == '凸面型表现' ||
+                  title.titleName == '凹面型表现'
+                "
+              >
+                <form-item :label="title.titleName" width="120px">
+                  <el-radio-group
+                    v-if="title.type == 1"
+                    v-model="title.optionId"
+                    @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
+                    @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+                  >
+                    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+                      <el-radio-button
+                        :disabled="!item.hasImage"
+                        :class="{
+                          serious: option.serious == '1'
+                        }"
+                        :label="option.id"
+                      >
+                        {{ option.optionName }}
+                        <img
+                          class="aiFlagImg"
+                          src="@/assets/svg/AIFlagForFront.svg"
+                          v-show="title.aiFlag == '1' && option.choosen"
+                        />
+                      </el-radio-button>
+                    </template> </el-radio-group
+                ></form-item>
+              </template>
+              <template v-else>
+                <form-item :label="title.titleName" width="120px">
+                  <Option
+                    :disabled="!item.hasImage"
+                    :title="title"
+                    :appId="appId"
+                    @refreshList="refreshList"
+                    :classId="item.id"
+                    :owningModule="item.owningModule"
+                    :notShowSvg="false"
+                  ></Option> </form-item
+              ></template>
             </template>
           </template>
         </ImageItem>
@@ -52,37 +85,61 @@
     <Header text="口内照" />
     <div class="content mouth">
       <template v-for="item in mouthData" :key="item.id">
-        <ImageItem :imageCaption="item.className"
+        <ImageItem
+          v-if="item.className !== '前牙覆盖'"
+          :imageCaption="item.className"
+          :class="{
+            removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
+            frontBite: item.className === '正面咬合'
+          }"
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
-                v-lazy="item.imageUrl"
+                :src="item.imageUrl"
                 :style="{
-                  width: '320px',
                   height: '240px',
-                  'object-fit': 'cover',
-                  'border-radius': '10px'
+                  width: '320px',
+                  'object-fit': 'cover'
                 }" /></template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
                 <img :src="imgUrl" class="addPic" />
-              </div> </template></template
-          ><template #content>
-            <template v-if="item.className == '正面咬合'">
-              <img :src="FrontalSmileImageUrl" alt="" />
+              </div>
             </template>
+            <template v-if="item.className == '正面咬合'">
+              <div :style="{ 'margin-top': '40px' }">
+                <template v-if="frontCover"
+                  ><img
+                    :src="frontCover"
+                    :style="{
+                      height: '240px',
+                      width: '320px',
+                      'object-fit': 'cover'
+                    }" /></template
+                ><template v-else>
+                  <div class="imageItem__placeholder" @click="handleOpenImageDialogue('前牙覆盖')">
+                    <img :src="imgUrl" class="addPic" />
+                  </div>
+                </template>
+                <div :style="{ 'margin-bottom': '10px' }" class="color-[#4E5969]">前牙覆盖</div>
+              </div>
+            </template> </template
+          ><template #content>
+            <template v-if="item.className == '正面咬合'"> </template>
             <div>
               <template v-for="title in item.orthTitleList" :key="title.id">
-                <form-item :label="title.titleName" width="100px">
-                  <Option
-                    :disabled="!item.hasImage"
+                <form-item :label="title.titleName" width="120px">
+                  <MouthOption
                     :title="title"
                     :appId="appId"
-                    :classId="item.id"
                     @refreshList="refreshList"
-                    :owningModule="item.owningModule"
-                    :notShowSvg="false"
-                  ></Option>
+                    @syncOption="syncOption"
+                    owningModule="口内照"
+                    :mouthData="mouthData"
+                    :disabled="!item.hasImage"
+                    :savedTitleList="savedTitleList1"
+                    :classId="item.id"
+                  ></MouthOption>
                 </form-item>
               </template>
             </div>
@@ -393,7 +450,7 @@
                       src="@/assets/svg/downwards.svg"
                       v-show="
                         title.orthOptionsList.findIndex((option) => option.id == title.optionId) ==
-                        0
+                        1
                       "
                     />
                     <img
@@ -543,6 +600,9 @@ import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
+import MouthOption from '@/components/list/mouthOption.vue'
+import EvaluationOption from '@/components/list/evaluateOption.vue'
+import updateOption from '@/effects/mouthOption.ts'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -565,10 +625,9 @@ const props = defineProps({
 })
 // 单选反选取消
 const strategy = {
-  faceEvaluate: getOrthFaceAccessList,
-  mouth: getOrthMouthList,
-  cepha: getOrthCephaList,
-  panoramic: getOrthPanoramicList
+  面型评估: getOrthFaceAccessList,
+  口内照: getOrthMouthList,
+  侧位片: getOrthCephaList
 }
 
 const refreshList = (val) => {
@@ -661,9 +720,9 @@ const handleBlurInput = (title) => {
         type: 'error',
         message: res.msg
       })
-    } else if (res.code == 200 && !res.data.optionsId) {
+    } else if (res.code == 200) {
       if (title.orthOptionsList && title.orthOptionsList.length) {
-        title.orthOptionsList.forEach((option) => (option.choosen = false))
+        title.optionId = ''
       }
     }
   })
@@ -788,6 +847,18 @@ async function getToken() {
   }
   return token
 }
+// async function getToken() {
+//   let token
+//   const res = await axios({
+//     url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
+//     method: 'post',
+//     data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
+//   })
+//   if (res.status == 200) {
+//     token = res.data.data.token
+//   }
+//   return token
+// }
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
@@ -885,7 +956,10 @@ const handleCloseImgDialog = () => {
 // 获取照片和相关信息
 
 const faceAccessData = ref([])
+// 侧貌的
 const savedTitleList = ref([])
+// 前牙覆盖的
+const savedTitleList1 = ref([])
 const FrontalRose = [
   'forehead_center',
   'eyebrow_right_corner_left',
@@ -946,7 +1020,7 @@ function drawPointsOnCanvas(ctx, image, canvas, pointList) {
     // 绘制圆形点
     ctx.beginPath()
     ctx.arc(x, y, 2, 0, 2 * Math.PI)
-    ctx.fillStyle = 'red'
+    // ctx.fillStyle = 'red'
     ctx.fill()
   })
   drawLineOnCanvas(ctx, canvas)
@@ -1038,7 +1112,7 @@ const faceSet = ref([])
 const FrontalReposeImageUrl = ref()
 const FrontalSmileImageUrl = ref()
 async function getOrthFaceAccessList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -1179,8 +1253,9 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
   return { width, height, ratio }
 }
 const mouthData = ref([])
+const frontCover = ref()
 async function getOrthMouthList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1191,9 +1266,14 @@ async function getOrthMouthList() {
       item.hasImage = true
     }
     item.orthTitleList.forEach((title) => {
-      // optionSuffix覆盖掉
       title.orthOptionsList.forEach((option) => {
-        option.optionSuffix = null
+        if (option.optionSuffix) {
+          option.fillColor = '#C9CDD4'
+          option.seriousColor = '#f44c4c'
+          option.hoverColor = '#2e6ce4'
+          option.clicked = option.choosen ? true : false
+          useFdiToothCodeEffect(option)
+        }
       })
       if (title.type == 1) {
         title.optionId = ''
@@ -1215,7 +1295,62 @@ async function getOrthMouthList() {
         }
       }
     })
+    if (item.className == '前牙覆盖') {
+      frontCover.value = item.imageUrl
+    }
+    if (item.className == '正面咬合') {
+      savedTitleList1.value = [...item.orthTitleList]
+      const title1 = item.orthTitleList.find((title) => title.titleName == '反覆合程度')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+      const title4 = item.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      const title5 = item.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      const option1 = title4.orthOptionsList.find((option) => option.optionName == '前牙反覆合')
+      const option2 = title5.orthOptionsList.find((option) => option.optionName == '前牙反覆盖')
+      // 如果前牙覆合中的前牙反覆合没有被选中
+      if (!option1.choosen && !choosen1) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆合程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option2.choosen && !choosen2) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '反覆盖程度')
+        item.orthTitleList.splice(index, 1)
+      }
+      if (!option1.choosen && !option2.choosen) {
+        const index = item.orthTitleList.findIndex((title) => title.titleName == '凹面型表现')
+        item.orthTitleList.splice(index, 1)
+      }
+    }
   })
+}
+// 同步牙位信息
+const syncOption = (val) => {
+  let title = {}
+  let asyncOption = val.option
+  let optionId = ''
+  let item1 = mouthData.value.find((item) => item.className == '正面咬合')
+  // 选了一个同步另一个
+  if (val.option.optionName == '前牙反覆合') {
+    title = item1.orthTitleList.find((title) => {
+      return title.titleName == '前牙覆盖'
+    })
+    optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆盖').id
+  } else if (val.option.optionName == '前牙反覆盖') {
+    title = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+    optionId = title.orthOptionsList.find((option) => option.optionName == '前牙反覆合').id
+  } else if (val.option.optionName == '前牙对刃') {
+    if (val.titleName == '前牙覆合') {
+      title = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+      optionId = title.orthOptionsList.find((option) => option.optionName == '前牙对刃').id
+    } else if (val.titleName == '前牙覆盖') {
+      title = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+      optionId = title.orthOptionsList.find((option) => option.optionName == '前牙对刃').id
+    }
+  }
+
+  asyncOption.id = optionId
+  updateOption(optionId, title, appId, val.classId, mouthData.value[0].owningModule, val.option)
 }
 function yieldNewTask() {
   return new Promise((resolve) => {
@@ -1296,7 +1431,7 @@ function handlePanoData(panoramicData) {
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1347,7 +1482,7 @@ function isChineseOrEnglish(char) {
 }
 const cephaClassId = ref()
 async function getOrthCephaList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`)
   cephaClassId.value = result.data[0].id
   cephaData.value = result.data[0].orthTitleList
   cephaImage.value = result.data[0].imageUrl
@@ -1489,9 +1624,9 @@ const stopDraw = ref(true)
 function handleMouseMove(event, image, canvas, ctx, w, h) {
   const point = findPoint(event, canvas)
   if (point) {
-    ctx.fillStyle = 'white'
-    ctx.font = `20px Arial`
-    ctx.fillText(point.label, point.x + 5, point.y - 5)
+    // ctx.fillStyle = 'white'
+    // ctx.font = `20px Arial`
+    // ctx.fillText(point.label, point.x + 5, point.y - 5)
     stopDraw.value = false
   } else {
     if (stopDraw.value) {
@@ -1521,9 +1656,9 @@ function handleMouseMove(event, image, canvas, ctx, w, h) {
       drawPoints(ctx, image, canvas, true)
       // 边移动边画点
       if (draggingPointLabel.value) {
-        ctx.fillStyle = 'white'
-        ctx.font = '20px Arial'
-        ctx.fillText(point.label, point1.x + 5, point1.y - 5)
+        // ctx.fillStyle = 'white'
+        // ctx.font = '20px Arial'
+        // ctx.fillText(point.label, point1.x + 5, point1.y - 5)
       }
       pointRatio.forEach((label) => {
         if (point.label !== 'A' && point.label !== 'Me' && label.includes(point.label)) {
@@ -1785,105 +1920,105 @@ const coordinatesSmall = ref([])
 const coordinatesLarge = ref([])
 const coordinatesBase = ref([])
 const filteredPoints = ref([])
-// const pointsToFind = [
-//   'A',
-//   'N',
-//   'B',
-//   'Or',
-//   'Po',
-//   'Go',
-//   'Go_1',
-//   'UI',
-//   'UI_1',
-//   'S',
-//   'P',
-//   'Go`',
-//   'Me',
-//   'Ar',
-//   'LI',
-//   'LI_1',
-//   'Ratio1',
-//   'Ratio2',
-//   'U6',
-//   'L6',
-//   'Gn',
-//   'ANS',
-//   'PNS'
-// ]
 const pointsToFind = [
-  'C',
-  'Stoms',
-  'UL',
-  'UL`',
-  'Ls',
-  'LL',
-  'LL`',
-  'Stomi',
-  'Li',
-  'Ba',
-  'BL1',
-  'D`',
-  'BL2',
-  'LPW',
-  'MPW',
-  'Go',
-  'Go`',
-  'TPPW',
-  'PNS',
-  'UPW',
-  'TB',
-  'B',
-  'AD',
-  'AD2',
   'A',
-  'ANS',
-  'S',
-  'A`',
-  'Ar',
-  'B`',
-  'Cm',
-  'Co',
-  'G',
-  'GST',
-  'Gn',
-  'Go_1',
-  'MP_2',
-  'Gs',
-  'Id',
-  'Id_1',
-  'L6',
-  'LI',
-  'LI_1',
-  'MBN',
   'N',
-  'Me',
-  'MP_1',
-  'R1',
-  'Mes',
-  'Ns',
+  'B',
   'Or',
-  'P',
-  'PBM',
-  'Pcd',
   'Po',
-  'Pos',
-  'Pr',
-  'Pr_1',
-  'Prn',
-  'Pt',
-  'Ptm',
-  'R',
-  'R3',
-  'Ratio1',
-  'Ratio2',
-  'Sn',
-  'U',
-  'U6',
+  'Go',
+  'Go_1',
   'UI',
   'UI_1',
-  'V',
-  'PBT'
+  'S',
+  'P',
+  'Go`',
+  'Me',
+  'Ar',
+  'LI',
+  'LI_1',
+  'Ratio1',
+  'Ratio2',
+  'U6',
+  'L6',
+  'Gn',
+  'ANS',
+  'PNS'
 ]
+// const pointsToFind = [
+//   'C',
+//   'Stoms',
+//   'UL',
+//   'UL`',
+//   'Ls',
+//   'LL',
+//   'LL`',
+//   'Stomi',
+//   'Li',
+//   'Ba',
+//   'BL1',
+//   'D`',
+//   'BL2',
+//   'LPW',
+//   'MPW',
+//   'Go',
+//   'Go`',
+//   'TPPW',
+//   'PNS',
+//   'UPW',
+//   'TB',
+//   'B',
+//   'AD',
+//   'AD2',
+//   'A',
+//   'ANS',
+//   'S',
+//   'A`',
+//   'Ar',
+//   'B`',
+//   'Cm',
+//   'Co',
+//   'G',
+//   'GST',
+//   'Gn',
+//   'Go_1',
+//   'MP_2',
+//   'Gs',
+//   'Id',
+//   'Id_1',
+//   'L6',
+//   'LI',
+//   'LI_1',
+//   'MBN',
+//   'N',
+//   'Me',
+//   'MP_1',
+//   'R1',
+//   'Mes',
+//   'Ns',
+//   'Or',
+//   'P',
+//   'PBM',
+//   'Pcd',
+//   'Po',
+//   'Pos',
+//   'Pr',
+//   'Pr_1',
+//   'Prn',
+//   'Pt',
+//   'Ptm',
+//   'R',
+//   'R3',
+//   'Ratio1',
+//   'Ratio2',
+//   'Sn',
+//   'U',
+//   'U6',
+//   'UI',
+//   'UI_1',
+//   'V',
+//   'PBT'
+// ]
 let ratio1
 let ratio2
 let standardDistance
@@ -1908,7 +2043,36 @@ async function getPoints(file) {
     }
   }
 }
+// async function getPoints(file) {
+//   const formData = new FormData()
+//   formData.append('file', file)
+//   formData.append('mobile', '13014532111')
+//   const token = await getToken()
 
+//   if (token) {
+//     const res = await axios({
+//       url: 'http://47.101.150.34:8177/bonceph/platform/marker/predict',
+//       method: 'post',
+//       data: formData,
+//       headers: {
+//         Authorization: `${token}`,
+//         'content-type': 'multipart/form-data'
+//       }
+//     })
+//     if (res.status == 200) {
+//       allPoints.value = res.data.data
+//       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
+//       coordinatesBase.value = filteredPoints.value.map((point) => ({
+//         label: point[0],
+//         x: point[1],
+//         y: point[2]
+//       }))
+//       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
+//       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
+//       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+//     }
+//   }
+// }
 // AI测量逻辑
 
 const pointMoved = ref(false)
@@ -2268,7 +2432,7 @@ function afterGetPoint() {
   calculateAllPoints()
   updateResult()
   // if (pointMoved.value) {
-  //   Get(`/prod-api/emr/orthPlan/list/2/侧位片/${appId}`).then((res) => {
+  //   Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`).then((res) => {
   //     res.data[0].orthTitleList.forEach((a) => {
   //       cephaData.value.forEach((title) => {
   //         if (a.titleName == title.titleName) {
@@ -2333,7 +2497,6 @@ async function getAIResult() {
 }
 // 画出曲线轮廓
 function drawFaceContour(ctx, points) {
-  console.log('🚀 ~ drawFaceContour ~ points:', points)
   ctx.beginPath()
   ctx.moveTo(points[0].x, points[0].y)
   ctx.fillStyle = 'orange'
@@ -2380,11 +2543,12 @@ function drawPoints(ctx, image, canvas, zoom) {
 
       // 绘制圆形点
       ctx.beginPath()
-      ctx.arc(x, y, 2, 0, 2 * Math.PI)
+      ctx.arc(x, y, 3, 0, 2 * Math.PI)
       ctx.fillStyle = 'red'
       // ctx.fillStyle = 'white'
       ctx.fill()
       ctx.fillText(coordinate.label, x - 5, y - 5)
+      ctx.font = '12px Arial'
       // 绘制字体
       // if (draggingPointLabel.value) {
       //   ctx.fillStyle = 'white'
@@ -2471,7 +2635,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
       }, {})
       const faceTourList1 = faceList1.map((label) => labelToDataMap[label])
 
-      drawFaceContour(ctx, faceTourList1)
+      // drawFaceContour(ctx, faceTourList1)
     }
   }
   const timestamp = new Date().getTime()
@@ -2494,10 +2658,8 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
   }
   if (title.titleName == '侧貌') {
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
-    // 如果选中的是凸面型
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      // 点击凸面型，凹面型的选项设置为空
       useUpdateOption(null, title2, appId, classId, owningModule)
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2509,7 +2671,6 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
-      // 点击直面型，另外两个置空
       found.orthTitleList = savedTitleList.value.filter(
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
       )
@@ -2627,6 +2788,60 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep .imageItem.frontCoverImage {
+  border-bottom: none !important;
+  padding: 0;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 0px !important;
+  }
+}
+
+:deep .imageItem.frontBite {
+  padding-bottom: 0 !important;
+  .imageItem__placeholder {
+    // border: none;
+    margin-bottom: 10px !important;
+  }
+  .imageItem__caption {
+    top: 240px;
+  }
+  .imageItem__content {
+    display: flex;
+  }
+}
+.imageItem__placeholder {
+  width: 320px;
+  height: 240px;
+  border-radius: 10px;
+  box-sizing: border-box;
+  /* 线条/悬浮 */
+  border: 1px dashed #c9cdd4;
+  background: #f2f3f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  .addPic {
+    position: absolute;
+  }
+  :deep .upload-demo {
+    opacity: 0;
+    height: 200px;
+    z-index: 10;
+    height: 100%;
+    .el-upload {
+      height: 100%;
+    }
+  }
+}
+.imageItem {
+  width: auto;
+  box-sizing: border-box;
+  border-bottom: 1.4px dashed #e5e6eb;
+  height: auto !important;
+  padding-bottom: 36px !important;
+}
 .formItem__content {
   flex: 1;
   display: inline-flex;
@@ -2683,10 +2898,9 @@ div.el-input__wrapper {
 }
 .imageItem.removeBorder {
   border: none;
+  padding-bottom: 0 !important;
 }
-:deep .imageItem.side90 {
-  min-height: 336px;
-}
+
 .placeholderContainer {
   display: flex;
   padding-top: 20px;

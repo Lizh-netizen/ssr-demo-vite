@@ -42,7 +42,7 @@
                 :title="title"
                 :appId="appId"
                 @refreshList="refreshList"
-                owningModule="check"
+                :owningModule="checkData.owningModule"
                 :classId="checkData.id"
               ></Option>
             </form-item>
@@ -163,7 +163,7 @@
                         :appId="appId"
                         @refreshList="refreshList"
                         @syncOption="syncOption"
-                        owningModule="mouth"
+                        owningModule="口内照"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
@@ -299,7 +299,7 @@
                       v-model="title.cephalometricsContent"
                       :rows="4"
                       :style="{ width: '100%' }"
-                      @blur="handleSubmitRemark(title, item.id)"
+                      @blur="handleSubmitRemark(title, item.id, item.owningModule)"
                     ></el-input>
                   </form-item>
                 </template>
@@ -452,7 +452,7 @@
         <div class="pt-[140px]">
           <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
-              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
+              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[30px]"
             >
               临床检查
             </div>
@@ -545,7 +545,6 @@
 </template>
 
 <script setup>
-import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
 import { ref, computed, onMounted, nextTick, onBeforeMount } from 'vue'
 import Header from '../../components/list/header.vue'
@@ -554,7 +553,7 @@ import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
-import List from '@/components/evaluatePdf/list.vue'
+import List from '@/components/evaluatePdf/evaluateList.vue'
 
 import html2pdf from 'html2pdf.js'
 import { GetSymptom } from '../../utils/tooth'
@@ -919,9 +918,9 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 单选反选取消
 const strategy = {
-  faceEvaluate: getFaceAccessList,
-  mouth: getMouthList,
-  panoramic: getPanoramicList
+  面型评估: getFaceAccessList,
+  口内照: getMouthList,
+  全景片: getPanoramicList
 }
 const refreshList = (val) => {
   strategy[val]()
@@ -930,7 +929,7 @@ const refreshList = (val) => {
 
 const checkData = ref([])
 async function getCheckList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/临床检查/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/临床检查/${appId}`)
   checkData.value = result.data[0]
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => (title.showInput = false))
@@ -1016,7 +1015,7 @@ async function getCheckList() {
 
 const faceAccessData = ref([])
 async function getFaceAccessList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -1054,7 +1053,7 @@ const frontCover = ref()
 // 作为标题的备份
 const savedTitleList = ref([])
 async function getMouthList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1155,7 +1154,7 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
+  updateOption(optionId, title, appId, mouthData.value[0].id, '口内照', val.option)
 }
 
 const panoImageUrl = ref()
@@ -1167,7 +1166,7 @@ const sourceApmtId = ref()
 const classId = ref()
 const panoTime = ref()
 async function getPanoramicList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1211,7 +1210,7 @@ async function getPanoramicList() {
 const freePicData = ref([])
 const freeImageUrl = ref()
 async function getFreePic() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/自由照片/${appId}`)
   freePicData.value = result.data
   freeImageUrl.value = result.data[0].imageUrl
 }
@@ -1287,17 +1286,18 @@ async function handleEmptyRadio(optionId, title, owningModule, classId) {
   ) {
     emptyRadio(optionId, title)
     const obj = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: [],
       otherContent: title.otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
       showPosition: '',
-      classId: classId
+      classId: classId,
+      owningModule: owningModule
     }
 
-    Post('/prod-api/business/facialResult', obj)
+    Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
     if (owningModule == 'check') {
       getCheckList()
     } else if (owningModule == 'face') {
@@ -1312,7 +1312,7 @@ async function handleEmptyRadio(optionId, title, owningModule, classId) {
 }
 const requestAgain = ref(false)
 
-async function handleSubmitRemark(title, classId) {
+async function handleSubmitRemark(title, classId, owningModule) {
   if (!freeImageUrl.value) {
     ElMessage({
       message: '请先上传图片',
@@ -1321,16 +1321,17 @@ async function handleSubmitRemark(title, classId) {
     return
   }
   const obj = {
-    apmtId: appId,
+    aptmId: appId,
     titleId: title.id,
     optionsIdStr: [],
     otherContent: '',
     cephalometricsContent: title.cephalometricsContent,
     fdiToothCode: '',
     showPosition: '',
-    classId: classId
+    classId: classId,
+    owningModule: owningModule
   }
-  const res = await Post('/prod-api/business/facialResult', obj)
+  const res = await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
 }
 
 const imgDialogVisible = ref(false)
@@ -2304,7 +2305,7 @@ async function main() {
     .patientInfo {
       position: absolute;
       left: 550px;
-      top: 20px;
+      top: 36px;
     }
     .check {
       .checkTitle {

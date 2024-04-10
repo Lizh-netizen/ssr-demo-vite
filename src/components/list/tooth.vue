@@ -129,7 +129,7 @@ const handleSubmitTooth = (title) => {
 
     if (props.module == 'evaluate') {
       let obj = {
-        apmtId: props.appId,
+        aptmId: props.appId,
         titleId: title.id,
         optionsIdStr: [],
         otherContent: '',
@@ -140,7 +140,7 @@ const handleSubmitTooth = (title) => {
         classId: props.classId,
         owningModule: props.owningModule
       }
-      Post('/prod-api/business/facialResult', obj).then(() => {
+      Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
         title.submitAble = false
       })
     } else {

@@ -388,13 +388,13 @@ const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.offi
 const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
-    const res = await Post('/prod-api/business/orthClass/appointmentList', {
+    const res = await Post('/prod-api/emr/orthCommon/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
       officeId: val?.officeId,
       doctorId: val?.doctorId,
-      location: '2'
+      location: '1'
     })
     if (res.code == 200) {
       total.value = res.total
@@ -420,13 +420,13 @@ const orthoList = ref([])
 const patientList = ref([])
 async function getOrthoList(val) {
   if (date.value) {
-    const res = await Post('/prod-api/business/orthClass/appointmentList', {
+    const res = await Post('/prod-api/emr/orthCommon/appointmentList', {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
       officeId: val?.officeId,
       doctorId: val?.doctorId,
-      location: '1'
+      location: '2'
     })
     if (res.code == 200) {
       total.value = res.total
@@ -622,8 +622,8 @@ const remoteMethod1 = (query) => {
 
 const router = useRouter()
 const handleViewOrth = (item) => {
-  router.push(`/ortho/${item.apmtId}/${item.patientId}`)
-  window.parent.postMessage(`ortho/${item.apmtId}/${item.patientId}`, '*')
+  router.push(`/ortho/${item.aptmId}/${item.patientId}`)
+  window.parent.postMessage(`ortho/${item.aptmId}/${item.patientId}`, '*')
 }
 const orthStatus = ref(-1)
 const hasPermission = ref(false)
@@ -661,12 +661,12 @@ const handleEvaluateOrth = (item) => {
   let path = ''
   path =
     orthStatus.value !== -1
-      ? `/evaluateOrtho/${item.apmtId}/${item.patientId}/${orthStatus.value}`
-      : `/evaluateOrtho/${item.apmtId}/${item.patientId}`
+      ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${orthStatus.value}`
+      : `/evaluateOrtho/${item.aptmId}/${item.patientId}`
   if (!item.facialId) {
     Post('/prod-api/emr/public/api/v1/assessment/add', {
       patientId: item.patientId,
-      aptmId: item.apmtId
+      aptmId: item.aptmId
     }).then(({ data }) => {
       item.facialId = data.facialId
       store.commit('setPatientInfo', item)
@@ -791,11 +791,11 @@ onBeforeMount(() => {
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {
-  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
+  const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId,
     doctorId: val?.doctorId,
-    location: '2'
+    location: '1'
   })
   facialCount.value = res.data
   tabData.value[0].left_num = facialCount.value.numerator
@@ -804,11 +804,11 @@ async function getFacialCount(val) {
 const orthCount = ref({})
 
 async function getOrthCount(val) {
-  const res = await Post('/prod-api/business/orthBase/orthBoardCount', {
+  const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
     officeId: val?.officeId,
     doctorId: val?.doctorId,
-    location: '1'
+    location: '2'
   })
   orthCount.value = res.data
   tabData.value[1].left_num = orthCount.value.numerator
