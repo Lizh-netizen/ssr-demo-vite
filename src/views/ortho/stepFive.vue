@@ -469,16 +469,6 @@
               </el-checkbox-group>
             </form-item>
           </template>
-
-          <template v-else-if="title.titleName == '备注'">
-            <form-item :label="title.titleName" width="72px">
-              <el-input
-                :style="{ width: '100px' }"
-                v-model="title.cephalometricsContent"
-                @blur="handleSubmitAddtionalContent(title)"
-              ></el-input>
-            </form-item>
-          </template>
         </template>
       </template>
     </div>
@@ -490,6 +480,8 @@
             <a-textarea
               :style="{ width: '400px', 'border-radius': '8px' }"
               allow-clear
+              :max-length="125"
+              show-word-limit
               v-model="title.cephalometricsContent"
               @blur="
                 handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
