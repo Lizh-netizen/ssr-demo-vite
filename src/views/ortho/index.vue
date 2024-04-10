@@ -258,7 +258,8 @@ function validateCheck(planList) {
 
   return found ? false : true
 }
-const handleGeneratePdf = () => {
+const handleGeneratePdf = async () => {
+  await getPlanList()
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({
@@ -267,13 +268,13 @@ const handleGeneratePdf = () => {
       })
       return false
     }
-    // if (validateGoalAndTarget(step5.value.planList)) {
-    //   ElMessage({
-    //     message: '请选择目标和工具',
-    //     type: 'warning'
-    //   })
-    //   return false
-    // }
+    if (validateGoalAndTarget(step5.value.planList)) {
+      ElMessage({
+        message: '请选择目标和工具',
+        type: 'warning'
+      })
+      return false
+    }
     if (validate(step5.value.planList)) {
       ElMessage({
         message: '请选择矫治器和难度',
