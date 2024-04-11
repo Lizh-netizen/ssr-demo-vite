@@ -428,7 +428,7 @@ async function getPlanList() {
 // 定义一个函数，用于将数据转换成目标格式
 function processData(data) {
   let targetStr = ''
-  let schemeStr = ''
+  let planStr = ''
   let correctionPeriod = ''
   data.forEach((entry) => {
     const stageName = entry.stageName
@@ -448,21 +448,21 @@ function processData(data) {
       targetStr += goal
     }
     if (entry.toolIds) {
-      if (schemeStr !== '') schemeStr += '；'
-      schemeStr += tool
+      if (planStr !== '') planStr += '；'
+      planStr += tool
     }
   })
   correctionPeriod = data[data.length - 1].stageName
-  return { targetStr, schemeStr, correctionPeriod }
+  return { targetStr, planStr, correctionPeriod }
 }
 
 async function initiateApproval() {
-  const { targetStr, schemeStr, correctionPeriod } = await getPlanList()
+  const { targetStr, planStr, correctionPeriod } = await getPlanList()
   if (!targetStr) {
     ElMessage.error('还没填写方案中的治疗目标哦')
     return
   }
-  if (!schemeStr) {
+  if (!planStr) {
     ElMessage.error('还没填写方案中的治疗工具哦')
     return
   }
@@ -475,7 +475,7 @@ async function initiateApproval() {
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
   orthContent.value['riskValueSystem'] = ''
   orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
-  orthContent.value['schemeStr'] = res.data['schemeStr'] || schemeStr
+  orthContent.value['planStr'] = res.data['planStr'] || planStr
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
   orthContent.value['riskValue'] = res.data['riskValue'].split('')[0]
 }
@@ -533,8 +533,8 @@ const labelList = [
   { label: '牙列期', value: 'dentitionType' },
   { label: '术前诊断', value: 'diagnoseStr' },
   { label: '治疗目标', value: 'targetStr' },
-  { label: '治疗计划', value: 'schemeStr' },
-  { label: '矫正方案', value: 'schemeStr' },
+  { label: '治疗计划', value: 'planStr' },
+  { label: '矫正方案', value: 'planStr' },
   { label: '病例风险（系统）', value: 'riskValueSystem' },
   { label: '病历风险（自评）', value: 'riskValue' },
   { label: '预计矫正周期', value: 'correctionPeriod' },
