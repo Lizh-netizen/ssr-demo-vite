@@ -11,11 +11,11 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo?.patientName }}</span>
+          ><span class="font-500">{{ patientInfo?.Name }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo?.privateId || '' }}</span>
+          ><span class="font-500">{{ patientInfo?.PrivateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
@@ -577,32 +577,19 @@ const orthStatus = route.params.orthStatus
 onMounted(() => {
   // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
 })
-const patientInfo = ref(
-  JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
-)
 
-const updatePatientInfo = () => {
-  const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
-  Object.assign(patientInfo.value, newData)
+const patientInfo = ref({})
+async function getPatientInfo() {
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  patientInfo.value = result[0]
 }
-
-// Listen for changes in sessionStorage
-onMounted(() => {
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'patientInfo') {
-      updatePatientInfo()
-    }
-  })
-})
-
-// Watch for changes in store.state.patientInfo
-watch(
-  () => store.state.patientInfo,
-  (newValue) => {
-    Object.assign(patientInfo.value, newValue)
-  },
-  { immediate: true } // Trigger the watcher immediately with the current value
-)
+getPatientInfo()
 const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
 const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)

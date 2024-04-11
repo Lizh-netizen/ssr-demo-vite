@@ -14,7 +14,12 @@
             ><template v-if="item.imageUrl">
               <!-- 正面像放在canvas中展示 -->
               <template v-if="item.className == '正面像'">
-                <canvas id="FrontalRose" width="320" height="240"></canvas>
+                <canvas
+                  id="FrontalRose"
+                  width="320"
+                  height="240"
+                  @click="handlePreviewImage(item.imageUrl)"
+                ></canvas>
               </template>
               <template v-else>
                 <img
@@ -556,6 +561,11 @@
       opacity: 0
     }"
   />
+  <PreviewImage
+    :showViewer="showViewer"
+    :imageUrl="previewImageUrl"
+    @closeViewer="handleCloseViewer"
+  />
 </template>
 
 <script setup>
@@ -601,12 +611,24 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
 import MouthOption from '@/components/list/mouthOption.vue'
-import EvaluationOption from '@/components/list/evaluateOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
+import previewImage from '../../components/list/previewImage.vue'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const showViewer = ref(false)
+const previewImageUrl = ref('')
+const header = document.querySelector('.header')
+const handlePreviewImage = (url) => {
+  header.style.position = 'static'
 
+  previewImageUrl.value = url
+  showViewer.value = true
+}
+const handleCloseViewer = () => {
+  header.style.position = 'sticky'
+  showViewer.value = false
+}
 onBeforeMount(() => {
   const link = document.createElement('link')
   link.id = 'preloadLink'
@@ -2691,7 +2713,6 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       if (choosen2) {
         await useUpdateOption(null, title2, appId, classId, owningModule)
       }
-      console.log(optionId)
       await useUpdateOption(optionId, title3, appId, classId, owningModule)
       title1.optionId = []
       title2.optionId = []
@@ -3580,11 +3601,6 @@ div.el-input__wrapper {
         border-radius: 12px;
       }
     }
-  }
-}
-img {
-  &:hover {
-    transform: scale(1.1);
   }
 }
 </style>

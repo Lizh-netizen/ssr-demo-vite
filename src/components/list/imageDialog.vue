@@ -578,10 +578,17 @@ const upload = ref(false)
 const date = ref()
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
+
   if (selectedFiles.length > 16) {
     event.preventDefault()
     ElMessage('最多上传16张图片')
+    return
   } else {
+    imageArr.value.forEach((item) => {
+      item.imageList.forEach((img) => {
+        img.choose = false
+      })
+    })
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
       params.append('files', file)
@@ -627,6 +634,10 @@ const chooseImgNum = computed(() => {
 })
 // 反选
 const handleToggleChoose = (img) => {
+  if (chooseImgNum.value >= 16) {
+    ElMessage.warning('最多只能选择16张图片')
+    return
+  }
   img.choose = !img.choose
 }
 
