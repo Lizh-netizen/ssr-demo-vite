@@ -517,7 +517,7 @@ async function confirmApproval() {
   } catch (err) {
     loading.close()
     ElMessage({
-      type: 'error',
+      type: 'warning',
       message: err
     })
   }

@@ -2652,7 +2652,7 @@ onMounted(() => {
 })
 
 // 上传数据调用接口
-const handleChangeOption = (optionId, title, classId, owningModule, className) => {
+const handleChangeOption = async (optionId, title, classId, owningModule, className) => {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -2660,13 +2660,19 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      useUpdateOption(null, title2, appId, classId, owningModule)
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      if (choosen2) {
+        await useUpdateOption(null, title2, appId, classId, owningModule)
+      }
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-      useUpdateOption(null, title1, appId, classId, owningModule)
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
+      if (choosen1) {
+        await useUpdateOption(null, title1, appId, classId, owningModule)
+      }
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2675,14 +2681,23 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
       )
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      const title3 = savedTitleList.value.find((title) => title.titleName == '侧貌')
+      if (choosen1) {
+        await useUpdateOption(null, title1, appId, classId, owningModule)
+      }
+      if (choosen2) {
+        await useUpdateOption(null, title2, appId, classId, owningModule)
+      }
+      console.log(optionId)
+      await useUpdateOption(optionId, title3, appId, classId, owningModule)
       title1.optionId = []
       title2.optionId = []
-      useUpdateOption(null, title1, appId, classId, owningModule)
-      useUpdateOption(null, title2, appId, classId, owningModule)
       //  点击完直面型需要重新请求接口
       getOrthFaceAccessList()
+      return
     }
     // getOrthFaceAccessList()
   }
