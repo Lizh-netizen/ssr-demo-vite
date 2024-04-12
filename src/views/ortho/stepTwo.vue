@@ -18,7 +18,7 @@
                   id="FrontalRose"
                   width="320"
                   height="240"
-                
+                @click="handlePreviewImage(item.imageUrl)"
                 ></canvas>
               </template>
               <template v-else>
@@ -367,7 +367,8 @@
                 </template>
               </div>
             </div>
-             <!-- <a-textarea></a-textarea> -->
+            <form-item label="其他" width="120px">
+             <a-textarea ></a-textarea></form-item>
           </div>
         </div>
       </template>
@@ -631,6 +632,16 @@ const handlePreviewImage = (url) => {
 const handleCloseViewer = () => {
   header.style.position = 'sticky'
   showViewer.value = false
+}
+async function getPatientInfo() {
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  patientInfo.value = result[0]
 }
 onBeforeMount(() => {
   const link = document.createElement('link')
@@ -3477,7 +3488,7 @@ div.el-input__wrapper {
         position: absolute;
         right: -6px;
         top: -4px;
-        z-index: 10;
+      
       }
     }
 
