@@ -435,17 +435,17 @@
         <div class="patientInfo color-#fff font-500">
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-              patientInfo?.patientName
+              patientInfo?.Name
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-              patientInfo?.privateId
+              patientInfo?.PrivateId
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-              patientInfo?.StartTime?.split(' ')[0]
+              patientInfo?.age
             }}
           </div>
         </div>

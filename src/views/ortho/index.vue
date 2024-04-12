@@ -352,14 +352,41 @@ function getOrthBase() {
 }
 getOrthBase()
 const store = useStore()
-
-const handleNextStep = () => {
-  if (active.value == 4 && !step[active.value - 1].value.clicked) {
-    ElMessage({
+const diagnoseData = ref([])
+async function getOrthDiagnoseList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/诊断/${appId}`)
+  diagnoseData.value = result.data
+  
+}
+function checkChoosenOptions(data) {
+    // 遍历数据
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        for (let j = 0; j < item.orthTitleList.length; j++) {
+            const title = item.orthTitleList[j];
+            for (let k = 0; k < title.orthOptionsList.length; k++) {
+                const option = title.orthOptionsList[k];
+                if (option.choosen === true) {
+                    return true;
+                }
+            }
+        }
+    }
+    // 如果没有选中的选项，则返回false
+    return false;
+}
+const handleNextStep = async () => {
+  if (active.value == 4) {
+await getOrthDiagnoseList()
+if (!checkChoosenOptions(diagnoseData.value)) {
+  ElMessage({
       message: '还未填写诊断哦',
       type: 'warning'
     })
     return
+}
+
+    
   }
   nextTick(() => {
     editStep.value = active.value
