@@ -344,6 +344,7 @@ const handleMouseLeave = (option) => {
   })
 }
 async function handleSubmitContent(optionId, title, option, classId, owningModule) {
+  console.log(option, option.otherContent)
   option.visible = false
   if (option.otherContent) {
     const res = await useUpdateOption(

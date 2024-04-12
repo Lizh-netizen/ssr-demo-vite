@@ -377,6 +377,7 @@ function checkChoosenOptions(data) {
 }
 const handleNextStep = async () => {
   if (active.value == 4) {
+  
 await getOrthDiagnoseList()
 if (!checkChoosenOptions(diagnoseData.value)) {
   ElMessage({

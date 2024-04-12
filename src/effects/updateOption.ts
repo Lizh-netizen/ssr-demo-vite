@@ -14,7 +14,7 @@ async function useUpdateOption(
       aptmId: appId,
       titleId: title.id,
       optionsIdStr: optionId ? [optionId] : [],
-      otherContent: title.otherContent || '',
+      otherContent: title.otherContent || otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
       showPosition: '',

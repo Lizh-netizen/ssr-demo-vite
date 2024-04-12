@@ -367,9 +367,11 @@
                 </template>
               </div>
             </div>
+             <!-- <a-textarea></a-textarea> -->
           </div>
         </div>
       </template>
+     
     </div>
     <Header text="侧位片" />
     <div
