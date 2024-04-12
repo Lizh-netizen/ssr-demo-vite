@@ -104,7 +104,9 @@ const route = useRoute()
 const appId = route.params.appId
 const questionData = ref([])
 async function getOrthQuestionList() {
-  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+  const result = await Get(
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
+  )
   if (result.data) {
     const acc = result.data.reduce((acc, cur) => {
       if (acc[cur.question_level_one]) {

@@ -41,6 +41,8 @@
             minRows: 1,
             maxRows: 5
           }"
+          show-word-limit
+          :max-length="125"
           v-model="currentTitle.cephalometricsContent"
           @blur="handleSubmitAddtionalContent(currentTitle, inquiryId, '问诊')"
         ></a-textarea

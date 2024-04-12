@@ -14,7 +14,12 @@
             ><template v-if="item.imageUrl">
               <!-- 正面像放在canvas中展示 -->
               <template v-if="item.className == '正面像'">
-                <canvas id="FrontalRose" width="320" height="240"></canvas>
+                <canvas
+                  id="FrontalRose"
+                  width="320"
+                  height="240"
+                
+                ></canvas>
               </template>
               <template v-else>
                 <img
@@ -213,7 +218,8 @@
                             title.optionId,
                             title,
                             panoramicData[0].id,
-                            panoramicData[0].owningModule
+                            panoramicData[0].owningModule,
+                         
                           )
                         "
                       />
@@ -556,6 +562,11 @@
       opacity: 0
     }"
   />
+  <PreviewImage
+    :showViewer="showViewer"
+    :imageUrl="previewImageUrl"
+    @closeViewer="handleCloseViewer"
+  />
 </template>
 
 <script setup>
@@ -601,12 +612,24 @@ import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
 import MouthOption from '@/components/list/mouthOption.vue'
-import EvaluationOption from '@/components/list/evaluateOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
+import previewImage from '../../components/list/previewImage.vue'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const showViewer = ref(false)
+const previewImageUrl = ref('')
+const header = document.querySelector('.header')
+const handlePreviewImage = (url) => {
+  header.style.position = 'static'
 
+  previewImageUrl.value = url
+  showViewer.value = true
+}
+const handleCloseViewer = () => {
+  header.style.position = 'sticky'
+  showViewer.value = false
+}
 onBeforeMount(() => {
   const link = document.createElement('link')
   link.id = 'preloadLink'
@@ -1404,6 +1427,7 @@ function handlePanoData(panoramicData) {
       a.popVisible = false
     })
   })
+  
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1426,8 +1450,12 @@ function handlePanoData(panoramicData) {
           title.optionId1 = title.optionId
         }
       }
+       if (title.orthOptionsList && title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent) {
+        title.otherContent = title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent
+      }
     })
   })
+  console.log(panoramicData.value)
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
@@ -1466,7 +1494,7 @@ async function getOrthPanoramicList() {
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
-  console.log(panoramicData.value)
+
 }
 
 // 上传侧面微笑像并自动分类
@@ -2652,7 +2680,7 @@ onMounted(() => {
 })
 
 // 上传数据调用接口
-const handleChangeOption = (optionId, title, classId, owningModule, className) => {
+const handleChangeOption = async (optionId, title, classId, owningModule, className) => {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -2660,13 +2688,19 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
     const found = faceAccessData.value.find((item) => item.className == '90度侧面像')
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凸面型') {
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
-      useUpdateOption(null, title2, appId, classId, owningModule)
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      if (choosen2) {
+        await useUpdateOption(null, title2, appId, classId, owningModule)
+      }
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-      useUpdateOption(null, title1, appId, classId, owningModule)
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
+      if (choosen1) {
+        await useUpdateOption(null, title1, appId, classId, owningModule)
+      }
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
@@ -2675,14 +2709,22 @@ const handleChangeOption = (optionId, title, classId, owningModule, className) =
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
       )
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
-
+      const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
       const title2 = savedTitleList.value.find((title) => title.titleName == '凹面型表现')
+      const choosen2 = title2.orthOptionsList.some((option) => option.choosen === true)
+      const title3 = savedTitleList.value.find((title) => title.titleName == '侧貌')
+      if (choosen1) {
+        await useUpdateOption(null, title1, appId, classId, owningModule)
+      }
+      if (choosen2) {
+        await useUpdateOption(null, title2, appId, classId, owningModule)
+      }
+      await useUpdateOption(optionId, title3, appId, classId, owningModule)
       title1.optionId = []
       title2.optionId = []
-      useUpdateOption(null, title1, appId, classId, owningModule)
-      useUpdateOption(null, title2, appId, classId, owningModule)
       //  点击完直面型需要重新请求接口
       getOrthFaceAccessList()
+      return
     }
     // getOrthFaceAccessList()
   }
@@ -3565,11 +3607,6 @@ div.el-input__wrapper {
         border-radius: 12px;
       }
     }
-  }
-}
-img {
-  &:hover {
-    transform: scale(1.1);
   }
 }
 </style>

@@ -52,6 +52,7 @@
                   @search="handleSearch(searchValue)"
                   @press-enter="handleSearch(searchValue)"
                 />
+                <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
 
               <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
@@ -482,6 +483,10 @@
               :style="{ width: '400px', 'border-radius': '8px' }"
               allow-clear
               :max-length="125"
+              :auto-size="{
+                minRows: 1,
+                maxRows: 5
+              }"
               show-word-limit
               v-model="title.cephalometricsContent"
               @blur="

@@ -118,7 +118,7 @@
         <template v-else-if="index == 8">
           <form-item :label="labelObj.label" width="132px">
             <el-radio-group
-              v-model="orthContent['riskValue']"
+              v-model="orthContent['riskValueSystem']"
               disabled
               :style="{ 'min-width': '172px' }"
             >
@@ -134,7 +134,7 @@
         </template>
         <template v-else-if="index == 9">
           <form-item :label="labelObj.label" width="128px">
-            <el-radio-group v-model="orthContent['riskValueSystem']">
+            <el-radio-group v-model="orthContent['riskValue']">
               <el-radio
                 v-for="(riskVal, index) in ['低', '中', '高']"
                 :key="index"
@@ -471,18 +471,18 @@ async function initiateApproval() {
   })
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
-  orthContent.value['riskValueSystem'] = ''
+  orthContent.value['riskValue'] = ''
   orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
   orthContent.value['planStr'] = res.data['planStr'] || planStr
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
-  orthContent.value['riskValue'] = res.data['riskValue'].split('')[0]
+  orthContent.value['riskValueSystem'] = res.data['riskValueSystem'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
 
 const hasConfirmApproval = ref(false)
 
 async function confirmApproval() {
-  if (!orthContent.value['riskValueSystem']) {
+  if (!orthContent.value['riskValue']) {
     ElMessage({
       type: 'warning',
       message: '请选择自评风险值'
@@ -496,8 +496,8 @@ async function confirmApproval() {
       background: 'rgba(0, 0, 0, 0.7)'
     })
     orthContent.value['pdfUrl'] = pdf.value
-    orthContent.value['riskValueSystem'] = orthContent.value['riskValueSystem']
-      ? orthContent.value['riskValueSystem']
+    orthContent.value['riskValue'] = orthContent.value['riskValue']
+      ? orthContent.value['riskValue']
       : '无'
     const res = await Post('/prod-api/business/orthBase/sendApproval', {
       patientId: patientId,
@@ -515,7 +515,7 @@ async function confirmApproval() {
   } catch (err) {
     loading.close()
     ElMessage({
-      type: 'error',
+      type: 'warning',
       message: err
     })
   }
@@ -533,8 +533,8 @@ const labelList = [
   { label: '治疗目标', value: 'targetStr' },
   { label: '治疗计划', value: 'planStr' },
   { label: '矫正方案', value: 'planStr' },
-  { label: '病例风险（系统）', value: 'riskValueSystem' },
-  { label: '病历风险（自评）', value: 'riskValue' },
+  { label: '病例风险（系统）', value: 'riskValue' },
+  { label: '病历风险（自评）', value: 'riskValueSystem' },
   { label: '预计矫正周期', value: 'correctionPeriod' },
   { label: '说明', value: 'explain' }
 ]
@@ -563,28 +563,15 @@ const labelList = [
     text-align: left;
   }
 }
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
 
-::-webkit-scrollbar-thumb {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3);
-}
-
-// ::-webkit-scrollbar-track {
-//   border-radius: 1em;
-//   background-color: rgba(50, 50, 50, 0.1);
-// }
 .formItem.target,
 .formItem.scheme {
-  height: 48px;
+  max-height: 48px;
   &__label {
     text-align: left;
   }
   .desc {
-    height: 52px;
+    max-height: 52px;
     overflow: scroll;
   }
 }

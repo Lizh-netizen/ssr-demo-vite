@@ -11,11 +11,11 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo?.patientName }}</span>
+          ><span class="font-500">{{ patientInfo?.Name }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo?.privateId || '' }}</span>
+          ><span class="font-500">{{ patientInfo?.PrivateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
@@ -572,38 +572,26 @@ const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const facialId = route.params.facialId
 const orthStatus = route.params.orthStatus
 // const patientInfo = ref()
 onMounted(() => {
   // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
 })
-const patientInfo = ref(
-  JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
-)
 
-const updatePatientInfo = () => {
-  const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
-  Object.assign(patientInfo.value, newData)
+const patientInfo = ref({})
+async function getPatientInfo() {
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  patientInfo.value = result[0]
 }
+getPatientInfo()
 
-// Listen for changes in sessionStorage
-onMounted(() => {
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'patientInfo') {
-      updatePatientInfo()
-    }
-  })
-})
-
-// Watch for changes in store.state.patientInfo
-watch(
-  () => store.state.patientInfo,
-  (newValue) => {
-    Object.assign(patientInfo.value, newValue)
-  },
-  { immediate: true } // Trigger the watcher immediately with the current value
-)
-const facialId = ref(patientInfo.value?.facialId)
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
 const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)
 
@@ -692,7 +680,7 @@ async function handleAdvice() {
       time.value = ''
     }
     const obj = {
-      id: patientInfo.value.facialId,
+      id: facialId,
       patientId: patientId,
       aptmId: appId,
       orthDoctorName: orthDoctorName || '',
@@ -1528,30 +1516,36 @@ function processData(data) {
     临床检查: { owningModule: '临床检查', imageList: [], list: [] },
     面型评估: { owningModule: '面型评估', imageList: [], list: [] },
     全景片: { owningModule: '全景片', imageList: [], list: [] },
-    口内照: { owningModule: '口内照', imageList: [], list: [] }
-  }
+    口内照: { owningModule: '口内照', imageList: [], list: [] },
+  };
 
   data.forEach((item) => {
-    const { owningModule, imageUrl, titleName, optionsNames, serious } = item
+    const { owningModule, imageUrl, titleName, optionsNames, serious, otherContent } = item;
+
     if (titleName || optionsNames) {
+      let options = optionsNames;
+      if (otherContent) {
+        const arr = options.split('，');
+        const index = arr.findIndex((item) => item == '其他');
+        arr.splice(index + 1, 0, '('+ otherContent + ')');
+        options = arr.join('')
+      }
+
       result[owningModule]?.list.push({
         title_name: titleName,
-        option_names: optionsNames,
-        serious: serious
-      })
+        option_names: options,
+        serious: serious,
+      });
     }
     if (imageUrl) {
-      if (
-        result[owningModule] &&
-        result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)
-      ) {
-        return false
+      if (result[owningModule] && result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)) {
+        return false;
       }
-      result[owningModule]?.imageList.push({ imageUrl })
+      result[owningModule]?.imageList.push({ imageUrl });
     }
-  })
+  });
 
-  return result
+  return result;
 }
 const data = ref()
 const checkDataPdf = ref()
@@ -1564,9 +1558,9 @@ async function getDataList(appId) {
   )
   data.value = Object.values(processData(res.data))
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
+
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
-
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
 }
 // 得到当天日期
@@ -1581,7 +1575,7 @@ const formattedDate = `${year}-${month}-${day}`
 const generatePDF = () => {
   try {
     const options = {
-      filename: `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`,
+      filename: `${patientInfo.value?.Name}__面评报告__${formattedDate}.pdf`,
       margin: 0,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, dpi: 96 },
@@ -1601,14 +1595,14 @@ const generatePDF = () => {
         formData.append(
           'file',
           perBlob,
-          `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`
+          `${patientInfo.value?.Name}__面评报告__${formattedDate}.pdf`
         )
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {
             if (res.code == 200) {
               src.value = res.msg
               Post('/prod-api/emr/public/api/v1/assessment/updatePdfUrl', {
-                id: patientInfo.value.facialId,
+                id: facialId,
                 pdfUrl: src.value
               })
               ElMessage({
@@ -1641,7 +1635,7 @@ async function main() {
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
   pdfContent.style.display = 'block'
-  generatePDF()
+generatePDF()
 }
 </script>
 <style>
