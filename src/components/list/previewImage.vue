@@ -44,7 +44,11 @@ const rotateRight = () => {
 
 <style lang="scss" scoped>
 .image-viewer {
-  // position: relative;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .overlay {
@@ -69,7 +73,7 @@ const rotateRight = () => {
   position: absolute;
   left: 50%;
   transform: translate(-50%, -50%);
-  bottom: 10px;
+  bottom: -10px;
 }
 
 .rotate-buttons button {

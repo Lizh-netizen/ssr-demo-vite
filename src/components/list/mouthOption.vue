@@ -43,6 +43,7 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
+                :disabled="disabled"
                 :label="option.id"
               >
                 {{ option.optionName

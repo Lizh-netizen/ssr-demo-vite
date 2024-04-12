@@ -27,7 +27,7 @@ const routes = [
     component: () => import('../views/ortho/compare.vue')
   },
   {
-    path: '/evaluateOrtho/:appId/:patientId/:orthStatus?',
+    path: '/evaluateOrtho/:appId/:patientId/:facialId/:orthStatus?',
     name: 'evaluateOrtho',
     // @ts-expect-error TS(2307): Cannot find module '../views/ortho/evaluate.vue' o... Remove this comment to see the full error message
     component: () => import('../views/ortho/evaluate.vue')

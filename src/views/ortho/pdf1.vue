@@ -555,6 +555,12 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
+          } else {
+            acc[cur.owningModule].imageList2.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list2 = cur.list
           }
         }
       } else if (cur.owningModule == '口内照') {

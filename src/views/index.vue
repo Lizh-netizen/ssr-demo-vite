@@ -652,19 +652,16 @@ const handleViewPdf = (item) => {
   sessionStorage.setItem('patientInfo', JSON.stringify(item))
   window.open(item.pdfUrl)
 }
-const handleEvaluateOrth = (item) => {
+const handleEvaluateOrth = async (item) => {
   if (!hasPermission.value) {
     ElMessage.warning('无面评操作权限')
     return
   }
 
   let path = ''
-  path =
-    orthStatus.value !== -1
-      ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${orthStatus.value}`
-      : `/evaluateOrtho/${item.aptmId}/${item.patientId}`
+ 
   if (!item.facialId) {
-    Post('/prod-api/emr/public/api/v1/assessment/add', {
+    await Post('/prod-api/emr/public/api/v1/assessment/add', {
       patientId: item.patientId,
       aptmId: item.aptmId
     }).then(({ data }) => {
@@ -677,7 +674,11 @@ const handleEvaluateOrth = (item) => {
     store.commit('setPatientInfo', item)
     sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }
-
+  console.log(item.facialId)
+ path =
+    orthStatus.value !== -1
+      ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}/${orthStatus.value}`
+      : `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}`
   router.push(path)
 }
 const handleCompareOrth = (item) => {

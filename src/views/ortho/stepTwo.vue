@@ -18,7 +18,7 @@
                   id="FrontalRose"
                   width="320"
                   height="240"
-                  @click="handlePreviewImage(item.imageUrl)"
+                
                 ></canvas>
               </template>
               <template v-else>
@@ -218,7 +218,8 @@
                             title.optionId,
                             title,
                             panoramicData[0].id,
-                            panoramicData[0].owningModule
+                            panoramicData[0].owningModule,
+                         
                           )
                         "
                       />
@@ -1426,6 +1427,7 @@ function handlePanoData(panoramicData) {
       a.popVisible = false
     })
   })
+  
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1448,8 +1450,12 @@ function handlePanoData(panoramicData) {
           title.optionId1 = title.optionId
         }
       }
+       if (title.orthOptionsList && title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent) {
+        title.otherContent = title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent
+      }
     })
   })
+  console.log(panoramicData.value)
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
@@ -1488,7 +1494,7 @@ async function getOrthPanoramicList() {
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
-  console.log(panoramicData.value)
+
 }
 
 // 上传侧面微笑像并自动分类
