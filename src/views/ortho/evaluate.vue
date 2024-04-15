@@ -735,7 +735,7 @@ async function handleAdvice() {
   })
   main()
 }
-
+// main()
 const loading = ref()
 
 const rangeShortcuts = [
@@ -1593,7 +1593,7 @@ const formattedDate = `${year}-${month}-${day}`
 const generatePDF = () => {
   try {
     const options = {
-      filename: `${patientInfo.value?.Name}__面评报告__${formattedDate}.pdf`,
+      filename: `${ljPatientInfo.value?.Name}__面评报告__${formattedDate}.pdf`,
       margin: 0,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, dpi: 96 },
@@ -1613,7 +1613,7 @@ const generatePDF = () => {
         formData.append(
           'file',
           perBlob,
-          `${patientInfo.value?.Name}__面评报告__${formattedDate}.pdf`
+          `${ljPatientInfo.value?.Name}__面评报告__${formattedDate}.pdf`
         )
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {

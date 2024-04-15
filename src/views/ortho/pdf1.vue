@@ -819,12 +819,14 @@ async function getIssuesList() {
     `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
   )
   if (result.data?.length > 0) {
-    issuesList.value = result.data.map((item) => ({
-      title_name: item.titleName,
-      option_names: item.optionsNames,
-      serious: item.serious,
-      active: item.active
-    }))
+    issuesList.value = result.data
+      .filter((item) => item.titleName || item.optionsNames)
+      .map((item) => ({
+        title_name: item.titleName,
+        option_names: item.optionsNames,
+        serious: item.serious,
+        active: item.active
+      }))
   }
 }
 
