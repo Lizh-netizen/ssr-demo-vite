@@ -556,7 +556,7 @@ const handleMouseLeave = (option) => {
     position: absolute;
     right: -6px;
     top: -4px;
-    z-index: 10;
+
   }
 }
 </style>

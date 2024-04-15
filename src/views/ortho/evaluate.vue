@@ -11,21 +11,21 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo?.Name }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.Name }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo?.PrivateId || '' }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.PrivateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
           ><span class="font-500">{{
-            patientInfo?.Sex == 1 ? '男' : patientInfo?.Sex == 2 ? '女' : '未知'
+            ljPatientInfo?.Sex == 1 ? '男' : ljPatientInfo?.Sex == 2 ? '女' : '未知'
           }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">出生日期：</span
-          ><span class="font-500">{{ patientInfo?.age }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.age }}</span>
         </div>
       </div>
       <div class="flex items-center button" @click="handleOpenImageDialogue">
@@ -435,18 +435,16 @@
         <div class="patientInfo color-#fff font-500">
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-              patientInfo?.Name
+              ljPatientInfo?.Name
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-              patientInfo?.PrivateId
+              ljPatientInfo?.PrivateId
             }}
           </div>
           <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-              patientInfo?.age
-            }}
+            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{ ljPatientInfo?.age }}
           </div>
         </div>
         <div class="pt-[140px]">
@@ -574,12 +572,26 @@ const appId = route.params.appId
 const patientId = route.params.patientId
 const facialId = route.params.facialId
 const orthStatus = route.params.orthStatus
-// const patientInfo = ref()
+const patientInfo = ref(
+  JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+)
+const updatePatientInfo = () => {
+  const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+  Object.assign(patientInfo.value, newData)
+}
+// Listen for changes in sessionStorage
 onMounted(() => {
-  // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'patientInfo') {
+      updatePatientInfo()
+    }
+  })
+})
+const ljPatientInfo = ref()
+onMounted(() => {
+  patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
 })
 
-const patientInfo = ref({})
 async function getPatientInfo() {
   const formData = new FormData()
   formData.append('aptmId', appId)
@@ -588,7 +600,7 @@ async function getPatientInfo() {
     formData,
     true
   )
-  patientInfo.value = result[0]
+  ljPatientInfo.value = result[0]
 }
 getPatientInfo()
 
@@ -606,6 +618,7 @@ const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
 
 const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
 const facialAdvise = ref(patientInfo.value?.facialAdvise || '')
+
 const handleClickFrank = (item) => {
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
@@ -924,8 +937,10 @@ async function getCheckList() {
   })
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
-      if (title.orthOptionsList[title.orthOptionsList.length - 1].otherContent) {
-        title.otherContent = title.orthOptionsList[title.orthOptionsList.length - 1].otherContent
+      if (title.orthOptionsList.some((option) => option.otherContent)) {
+        title.otherContent = title.orthOptionsList.find(
+          (option) => option.otherContent
+        ).otherContent
       }
       if (title.titleName == '关节弹响') {
         title.optionId = ''
@@ -1516,36 +1531,39 @@ function processData(data) {
     临床检查: { owningModule: '临床检查', imageList: [], list: [] },
     面型评估: { owningModule: '面型评估', imageList: [], list: [] },
     全景片: { owningModule: '全景片', imageList: [], list: [] },
-    口内照: { owningModule: '口内照', imageList: [], list: [] },
-  };
+    口内照: { owningModule: '口内照', imageList: [], list: [] }
+  }
 
   data.forEach((item) => {
-    const { owningModule, imageUrl, titleName, optionsNames, serious, otherContent } = item;
+    const { owningModule, imageUrl, titleName, optionsNames, serious, otherContent } = item
 
     if (titleName || optionsNames) {
-      let options = optionsNames;
+      let options = optionsNames
       if (otherContent) {
-        const arr = options.split('，');
-        const index = arr.findIndex((item) => item == '其他');
-        arr.splice(index + 1, 0, '('+ otherContent + ')');
+        const arr = options.split('，')
+        const index = arr.findIndex((item) => item == '其他')
+        arr.splice(index + 1, 0, '(' + otherContent + ')')
         options = arr.join('')
       }
 
       result[owningModule]?.list.push({
         title_name: titleName,
         option_names: options,
-        serious: serious,
-      });
+        serious: serious
+      })
     }
     if (imageUrl) {
-      if (result[owningModule] && result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)) {
-        return false;
+      if (
+        result[owningModule] &&
+        result[owningModule]?.imageList.find((i) => i.imageUrl == imageUrl)
+      ) {
+        return false
       }
-      result[owningModule]?.imageList.push({ imageUrl });
+      result[owningModule]?.imageList.push({ imageUrl })
     }
-  });
+  })
 
-  return result;
+  return result
 }
 const data = ref()
 const checkDataPdf = ref()
@@ -1635,7 +1653,7 @@ async function main() {
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
   pdfContent.style.display = 'block'
-generatePDF()
+  generatePDF()
 }
 </script>
 <style>

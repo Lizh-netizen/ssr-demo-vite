@@ -399,8 +399,10 @@ async function getOrthInquiryList() {
         inquiryId.value = item.id
       }
 
-      if (title.orthOptionsList[title.orthOptionsList.length - 1]?.otherContent) {
-        title.otherContent = title.orthOptionsList[title.orthOptionsList.length - 1]?.otherContent
+      if (title.orthOptionsList.some((option) => option.otherContent)) {
+        title.otherContent = title.orthOptionsList.find(
+          (option) => option.otherContent
+        ).otherContent
       }
       if (title.type == 1) {
         title.optionId = ''

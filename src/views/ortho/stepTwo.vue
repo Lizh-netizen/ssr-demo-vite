@@ -8,7 +8,8 @@
           :imageCaption="item.className"
           :class="{
             removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
-            side90: item.className === '90度侧面像'
+            side90: item.className === '90度侧面像',
+            needMarginTop: item.className === '45度侧面微笑像'
           }"
           ><template #img
             ><template v-if="item.imageUrl">
@@ -18,7 +19,7 @@
                   id="FrontalRose"
                   width="320"
                   height="240"
-                
+                  @click="handlePreviewImage(item.imageUrl)"
                 ></canvas>
               </template>
               <template v-else>
@@ -218,8 +219,7 @@
                             title.optionId,
                             title,
                             panoramicData[0].id,
-                            panoramicData[0].owningModule,
-                         
+                            panoramicData[0].owningModule
                           )
                         "
                       />
@@ -367,11 +367,10 @@
                 </template>
               </div>
             </div>
-             <!-- <a-textarea></a-textarea> -->
+            <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item>
           </div>
         </div>
       </template>
-     
     </div>
     <Header text="侧位片" />
     <div
@@ -631,6 +630,16 @@ const handlePreviewImage = (url) => {
 const handleCloseViewer = () => {
   header.style.position = 'sticky'
   showViewer.value = false
+}
+async function getPatientInfo() {
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  patientInfo.value = result[0]
 }
 onBeforeMount(() => {
   const link = document.createElement('link')
@@ -1429,7 +1438,7 @@ function handlePanoData(panoramicData) {
       a.popVisible = false
     })
   })
-  
+
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1452,8 +1461,10 @@ function handlePanoData(panoramicData) {
           title.optionId1 = title.optionId
         }
       }
-       if (title.orthOptionsList && title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent) {
-        title.otherContent = title.orthOptionsList[title.orthOptionsList?.length - 1]?.otherContent
+      if (title.orthOptionsList.some((option) => option.otherContent)) {
+        title.otherContent = title.orthOptionsList.find(
+          (option) => option.otherContent
+        ).otherContent
       }
     })
   })
@@ -1496,7 +1507,6 @@ async function getOrthPanoramicList() {
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
-
 }
 
 // 上传侧面微笑像并自动分类
@@ -3282,6 +3292,9 @@ div.el-input__wrapper {
   &:last-child {
     border-bottom: none;
   }
+  &.needMarginTop {
+    margin-top: 10px;
+  }
   .image {
     width: 320px;
     height: 240px;
@@ -3477,7 +3490,6 @@ div.el-input__wrapper {
         position: absolute;
         right: -6px;
         top: -4px;
-        z-index: 10;
       }
     }
 

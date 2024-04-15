@@ -9,7 +9,7 @@
     >
       <div class="imageManagement" ref="loadingTarget2">
         <div class="imageManagement__images subSection">
-          <div class="title">
+          <div class="title left">
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
@@ -22,11 +22,14 @@
               <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
             </div>
           </div>
+          <div class="flex mt-[50px] px-[12px] py-[12px] gap-[16px] w-[542px] z-[2]">
+            <!-- <div v-for="(item, index) in filterList" :key="index" class="filterBtn cursor-pointer">{{ item.label }}</div> -->
+          </div>
           <div
             :style="{
               'padding-left': '14px',
               'padding-bottom': '50px',
-              'padding-top': '50px'
+              'padding-top': '0px'
             }"
           >
             <img
@@ -227,6 +230,11 @@ onMounted(() => {
 onBeforeMount(() => {
   getClassifiedImgList()
 })
+const filterList = [
+  { label: '全部', value: 'all' },
+  { label: '全景片', value: 'panorama' },
+  { label: '侧位片', value: 'cepha' }
+]
 const emit = defineEmits(['savePics', 'cancel'])
 const imgDialogVisible = ref(props.dialogVisible)
 const caption = ref(props.caption)
@@ -818,6 +826,24 @@ const handleCloseImgDialog = () => {
 .imageManagement {
   position: relative;
   display: flex;
+  .filterBtn {
+    width: 60px;
+    height: 30px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid #c9cdd4;
+    box-sizing: border-box;
+    justify-content: center;
+    &.active {
+      background: #f4f7fd;
+      color: #2e6ce4;
+
+      /* 主色/100% */
+      border: 1px solid #2e6ce4;
+    }
+  }
   .title {
     width: 547px;
     height: 50px;
@@ -829,6 +855,10 @@ const handleCloseImgDialog = () => {
     padding: 0 16px;
     box-sizing: border-box;
     border-radius: 12px 12px 0px 0;
+    &.left {
+      border-bottom: 1px solid #e5e6eb;
+    }
+
     &__left {
       width: 35px;
       font-size: 16px;
