@@ -186,6 +186,7 @@ window.addEventListener('message', function (event) {
     doctorId.value = event.data
   }
 })
+const ljOfficeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -528,6 +529,7 @@ async function confirmApproval() {
       ? orthContent.value['riskValue']
       : '无'
     const res = await Post('/prod-api/business/orthBase/sendApproval', {
+      deductionOfficeId: ljOfficeId,
       patientId: patientId,
       apmtId: appId,
       ...orthContent.value
