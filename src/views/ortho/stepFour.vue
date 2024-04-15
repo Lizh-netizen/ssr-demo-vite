@@ -114,11 +114,29 @@ async function getOrthQuestionList() {
           (item) => item.questionLevelTwo === cur.questionLevelTwo
         )
         if (found) {
-          found.list2.push({
-            title_name: cur.titleName,
-            option_names: cur.optionsNames
-          })
+          if (cur.titleName || cur.optionsNames) {
+            found.list2.push({
+              title_name: cur.titleName,
+              option_names: cur.optionsNames
+            })
+          }
         } else {
+          if (cur.titleName || cur.optionsNames) {
+            acc[cur.questionLevelOne].list1.push({
+              questionLevelTwo: cur.questionLevelTwo,
+              list2: [
+                {
+                  title_name: cur.titleName,
+                  option_names: cur.optionsNames
+                }
+              ]
+            })
+          }
+        }
+      } else {
+        acc[cur.questionLevelOne] = cur
+        acc[cur.questionLevelOne].list1 = []
+        if (cur.titleName || cur.optionsNames) {
           acc[cur.questionLevelOne].list1.push({
             questionLevelTwo: cur.questionLevelTwo,
             list2: [
@@ -129,18 +147,6 @@ async function getOrthQuestionList() {
             ]
           })
         }
-      } else {
-        acc[cur.questionLevelOne] = cur
-        acc[cur.questionLevelOne].list1 = []
-        acc[cur.questionLevelOne].list1.push({
-          questionLevelTwo: cur.questionLevelTwo,
-          list2: [
-            {
-              title_name: cur.titleName,
-              option_names: cur.optionsNames
-            }
-          ]
-        })
       }
       return acc
     }, {})
