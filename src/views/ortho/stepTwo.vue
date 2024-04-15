@@ -8,7 +8,8 @@
           :imageCaption="item.className"
           :class="{
             removeBorder: item.className === '90度侧面像' || item.className === '45度侧面像',
-            side90: item.className === '90度侧面像'
+            side90: item.className === '90度侧面像',
+            needMarginTop: item.className === '45度侧面微笑像'
           }"
           ><template #img
             ><template v-if="item.imageUrl">
@@ -3290,6 +3291,9 @@ div.el-input__wrapper {
   border-bottom: 1.4px dashed #e5e6eb;
   &:last-child {
     border-bottom: none;
+  }
+  &.needMarginTop {
+    margin-top: 10px;
   }
   .image {
     width: 320px;
