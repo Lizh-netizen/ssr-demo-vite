@@ -460,22 +460,26 @@ async function getDataList() {
               serious: cur.serious
             })
           } else {
-            acc[cur.owningModule].list.push({
-              title_name: cur.titleName,
-              option_names: cur.optionsNames,
-              serious: cur.serious
-            })
+            if (cur.titleName || cur.optionsNames) {
+              acc[cur.owningModule].list.push({
+                title_name: cur.titleName,
+                option_names: cur.optionsNames,
+                serious: cur.serious
+              })
+            }
           }
         }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         acc[cur.owningModule + cur.className]
       ) {
-        acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.titleName,
-          option_names: cur.optionsNames,
-          serious: cur.serious
-        })
+        if (cur.titleName || cur.optionsNames) {
+          acc[cur.owningModule + cur.className].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       } else if (
         cur.owningModule !== '面型评估' &&
         cur.owningModule !== '口内照' &&
@@ -515,11 +519,13 @@ async function getDataList() {
       ) {
         acc[cur.owningModule + cur.className] = cur
         acc[cur.owningModule + cur.className].list = []
-        acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.titleName,
-          option_names: cur.optionsNames,
-          serious: cur.serious
-        })
+        if (cur.titleName || cur.optionsNames) {
+          acc[cur.owningModule + cur.className].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       }
       return acc
     }, {})
