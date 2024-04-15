@@ -22,6 +22,7 @@ const {
   rightTagOption,
   stateOption,
   stateIcon,
+  list,
   editStateType
 } = defineProps([
   'prop',
@@ -34,6 +35,7 @@ const {
   'leftTagOption',
   'rightTagOption',
   'stateOption',
+  'list',
   'stateIcon',
   'editStateType'
 ])
@@ -59,7 +61,8 @@ const TdType = {
   /**操作 */
   operation: 'operation',
   /**备注 */
-  notes: 'notes'
+  notes: 'notes',
+  popState: 'popState'
 }
 
 // 颜色类型
@@ -191,6 +194,43 @@ const renderTableColumn = () => (
                             </div>
                             <div class="name">{item.name}</div>
                             <ElTooltip
+                              effect="light"
+                              trigger="click"
+                              v-slots={{
+                                default: () => stateIcon && <SvgIcon name={stateIcon} />,
+                                content: () => slot['icon-click'] && slot['icon-click'](row)
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                    )
+                )}
+              </>
+            )
+          } else if (type === TdType.popState) {
+            {
+              /* popState 状态 */
+            }
+            return (
+              <>
+                {list?.map(
+                  (item, index) =>
+                    row[item.prop] == item.value && (
+                      <div class={style.state} key={index}>
+                        {row[item.prop] == item.value && (
+                          <>
+                            <div
+                              class="circle"
+                              style={{ background: ColorTypeEnum[item.color].replace('1)', '.1') }}
+                            >
+                              <span
+                                class="circle"
+                                style={{ background: ColorTypeEnum[item.color] }}
+                              />
+                            </div>
+                            <div class="name">{item.name}</div>
+                            <el-popover
                               effect="light"
                               trigger="click"
                               v-slots={{
