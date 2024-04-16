@@ -538,7 +538,8 @@ const emit = defineEmits(['requestPlanList'])
 const toolList = ref([])
 async function getOrthToolList() {
   const result = await Post('/prod-api/business/globalDict/getDictListByType', {
-    dictType: 'ORTHTOOL'
+    dictType: 'ORTHTOOL',
+    className: 'ORTHTOOL'
   })
   toolList.value = result.data.map((item) => ({
     name: item.dictCodeName,

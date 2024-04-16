@@ -19,7 +19,7 @@
                   id="FrontalRose"
                   width="320"
                   height="240"
-                  @click="handlePreviewImage(item.imageUrl)"
+                  @click="handlePreviewImage(item)"
                 ></canvas>
               </template>
               <template v-else>
@@ -574,6 +574,8 @@
     }"
   />
   <PreviewImage
+    :degree="imageRotationDegree"
+    :id="previewImageId"
     :showViewer="showViewer"
     :imageUrl="previewImageUrl"
     @closeViewer="handleCloseViewer"
@@ -630,12 +632,16 @@ const appId = route.params.appId
 const patientId = route.params.patientId
 const showViewer = ref(false)
 const previewImageUrl = ref('')
+const previewImageId = ref()
+const imageRotationDegree = ref()
 const header = document.querySelector('.header')
-const handlePreviewImage = (url) => {
-  header.style.position = 'static'
 
-  previewImageUrl.value = url
+const handlePreviewImage = (item) => {
+  header.style.position = 'static'
+  previewImageId.value = item.imageId
+  previewImageUrl.value = item.imageUrl
   showViewer.value = true
+  imageRotationDegree.value = item.imageRotationDegree
 }
 const handleCloseViewer = () => {
   header.style.position = 'sticky'
@@ -1471,7 +1477,7 @@ function handlePanoData(panoramicData) {
           title.optionId1 = title.optionId
         }
       }
-      if (title.orthOptionsList.some((option) => option.otherContent)) {
+      if (title.orthOptionsList && title.orthOptionsList.some((option) => option.otherContent)) {
         title.otherContent = title.orthOptionsList.find(
           (option) => option.otherContent
         ).otherContent

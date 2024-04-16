@@ -17,9 +17,15 @@ import { computed } from 'vue';
 </template>
 
 <script setup>
-const props = defineProps(['imageUrl', 'showViewer'])
+import { Get } from '../../utils/request'
+const props = defineProps(['imageUrl', 'showViewer', 'id', 'degree'])
 const emit = defineEmits(['closeViewer'])
-const rotation = ref(0)
+const rotation = ref(props.degree || 0)
+watch(props, (newVal) => {
+  if (newVal.degree) {
+    rotation.value = newVal.degree
+  }
+})
 
 const openViewer = () => {
   showOverlay.value = true
@@ -29,16 +35,22 @@ const closeViewer = () => {
   emit('closeViewer')
 }
 
-const rotateLeft = () => {
-  rotation.value -= 90
+const rotateLeft = async () => {
+  rotation.value += 90
+  await Get(
+    `/prod-api/emr/orthCommon/updateOrthImageById?id=${props.id}&imageRotationDegree=${rotation.value}`
+  )
 }
 const viewerStyle = computed(() => {
   return {
     transform: `translate(-50%, -50%) rotate(${rotation.value}deg)`
   }
 })
-const rotateRight = () => {
-  rotation.value += 90
+const rotateRight = async () => {
+  rotation.value -= 90
+  await Get(
+    `/prod-api/emr/orthCommon/updateOrthImageById?id=${props.id}&imageRotationDegree=${rotation.value}`
+  )
 }
 </script>
 

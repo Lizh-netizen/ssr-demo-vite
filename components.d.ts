@@ -24,10 +24,12 @@ declare module 'vue' {
     Button: typeof import('./src/components/template/button.vue')['default']
     Checkbox: typeof import('./src/components/list/checkbox.vue')['default']
     ChooseTooth: typeof import('./src/components/list/chooseTooth.vue')['default']
+    copy: typeof import('./src/components/layout/draggable copy.vue')['default']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']
     Draggable: typeof import('./src/components/layout/draggable.vue')['default']
+    'Draggable Tool': typeof import('./src/components/layout/draggable Tool.vue')['default']
     Drawer: typeof import('./src/components/list/drawer.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckboxButton: typeof import('element-plus/es')['ElCheckboxButton']
@@ -60,6 +62,7 @@ declare module 'vue' {
     PreviewImage: typeof import('./src/components/list/previewImage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Tool: typeof import('./src/components/layout/draggable Tool.vue')['default']
     Tooth: typeof import('./src/components/list/tooth.vue')['default']
   }
 }
