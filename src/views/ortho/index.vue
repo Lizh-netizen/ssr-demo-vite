@@ -529,7 +529,7 @@ async function confirmApproval() {
       ? orthContent.value['riskValue']
       : '无'
     const res = await Post('/prod-api/business/orthBase/sendApproval', {
-      deductionOfficeId: ljOfficeId,
+      deductionOfficeId: String(ljOfficeId),
       patientId: patientId,
       apmtId: appId,
       ...orthContent.value
