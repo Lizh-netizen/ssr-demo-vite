@@ -61,8 +61,7 @@ const TdType = {
   /**操作 */
   operation: 'operation',
   /**备注 */
-  notes: 'notes',
-  popState: 'popState'
+  notes: 'notes'
 }
 
 // 颜色类型
@@ -208,9 +207,8 @@ const renderTableColumn = () => (
                 )}
               </>
             )
-          } else if (type === TdType.popState) {
+          } else if (type === TdType.state) {
             {
-              /* popState 状态 */
             }
             return (
               <>
@@ -229,7 +227,7 @@ const renderTableColumn = () => (
                                 style={{ background: ColorTypeEnum[item.color] }}
                               />
                             </div>
-                            <el-popover effect="light" trigger="click">
+                            <el-popover effect="light">
                               <PopoverContent data={row} />
                               {/* 渲染 PopoverContent，并传递 row 数据 */}
                             </el-popover>

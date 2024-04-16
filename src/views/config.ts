@@ -76,7 +76,11 @@ export const columns_config_ortho = [
       prop: 'tag'
     }
   },
-
+  {
+    type: 'popState',
+    title: '完成情况',
+    list: []
+  },
   {
     type: 'state',
     title: '快筛',
