@@ -919,16 +919,16 @@ async function main() {
 const loading = ref()
 
 onMounted(() => {
-  if (!src.value) {
-    loading.value = ElLoading.service({
-      lock: true,
-      text: '报告生成中',
-      // 把颜色改成不透明的，就看不到后面的pdf的内容了
-      background: 'rgba(37, 38, 38, 1)'
-    })
-    main()
-  }
-  // main()
+  // if (!src.value) {
+  //   loading.value = ElLoading.service({
+  //     lock: true,
+  //     text: '报告生成中',
+  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
+  //     background: 'rgba(37, 38, 38, 1)'
+  //   })
+  //   main()
+  // }
+  main()
 })
 </script>
 

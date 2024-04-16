@@ -33,7 +33,10 @@
                 />
               </template> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.prevent.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div> </template></template
           ><template #content>
@@ -153,7 +156,11 @@
         </ImageItem>
       </template>
     </div>
-    <Header text="全景片" />
+    <Header
+      text="全景片"
+      @dblclick.prevent.stop="handleDblClick"
+      @click.prevent.stop="console.log(11)"
+    />
     <div class="content panoramic">
       <template v-for="item in panoramicData" :key="item.id">
         <div class="placeholderContainer">
@@ -171,7 +178,10 @@
                 @click="handleZoomPanoImage"
               /> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div>
             </template>
@@ -2330,7 +2340,9 @@ const handleOpenImageDialogue = (caption) => {
   // reminder是提醒从这个跳进去的
   title.value = caption
 }
-
+const handleDblClick = () => {
+  console.log(33)
+}
 async function getImageList() {
   if (imageArr.value.length !== 0) {
     return

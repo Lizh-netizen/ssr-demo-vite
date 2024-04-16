@@ -93,6 +93,7 @@ const renderTableColumn = () => (
     {type !== 'selection' && (
       <ElTableColumn prop={prop} label={title} width={width} fixed={fixed} sortable={sortable}>
         {({ row, $index }) => {
+          console.log(row)
           isEditList.value.push({ isEdit: false })
           {
             /* 纯文本 */
@@ -214,29 +215,14 @@ const renderTableColumn = () => (
             }
             return (
               <>
-                {stateOption?.map(
-                  (item, index) =>
-                    row[item.prop] == item.value && (
-                      <div class={style.state} key={index}>
-                        {row[item.prop] == item.value && (
-                          <>
-                            <div
-                              class="circle"
-                              style={{ background: ColorTypeEnum[item.color].replace('1)', '.1') }}
-                            >
-                              <span
-                                class="circle"
-                                style={{ background: ColorTypeEnum[item.color] }}
-                              />
-                            </div>
-                            <el-popover effect="light" trigger="hover">
-                              <PopContent data={row.list} />
-                            </el-popover>
-                          </>
-                        )}
-                      </div>
-                    )
-                )}
+                <el-popover
+                  trigger="hover"
+                  v-slots={{
+                    reference: () => <SvgIcon name="success" />
+                  }}
+                >
+                  <PopContent data={row.list} />
+                </el-popover>
               </>
             )
           } else if (type === TdType.editState) {
