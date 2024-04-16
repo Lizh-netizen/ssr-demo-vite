@@ -187,6 +187,7 @@ window.addEventListener('message', function (event) {
   }
 })
 const ljOfficeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
+
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId

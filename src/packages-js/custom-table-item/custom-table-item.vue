@@ -229,15 +229,10 @@ const renderTableColumn = () => (
                                 style={{ background: ColorTypeEnum[item.color] }}
                               />
                             </div>
-                            <div class="name">{item.name}</div>
-                            <el-popover
-                              effect="light"
-                              trigger="click"
-                              v-slots={{
-                                default: () => stateIcon && <SvgIcon name={stateIcon} />,
-                                content: () => slot['icon-click'] && slot['icon-click'](row)
-                              }}
-                            />
+                            <el-popover effect="light" trigger="click">
+                              <PopoverContent data={row} />
+                              {/* 渲染 PopoverContent，并传递 row 数据 */}
+                            </el-popover>
                           </>
                         )}
                       </div>
