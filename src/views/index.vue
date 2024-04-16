@@ -435,7 +435,8 @@ async function getOrthoList(val) {
         StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
-        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
+        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
+        list: [{ label: '主诉', finished: true }]
       }))
       patientList.value = orthoList.value
       total.value = res.total
@@ -659,7 +660,7 @@ const handleEvaluateOrth = async (item) => {
   }
 
   let path = ''
- 
+
   if (!item.facialId) {
     await Post('/prod-api/emr/public/api/v1/assessment/add', {
       patientId: item.patientId,
@@ -675,7 +676,7 @@ const handleEvaluateOrth = async (item) => {
     sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }
   console.log(item.facialId)
- path =
+  path =
     orthStatus.value !== -1
       ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}/${orthStatus.value}`
       : `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}`

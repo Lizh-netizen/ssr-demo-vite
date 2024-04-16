@@ -6,6 +6,7 @@
 import { ref, useSlots, defineAsyncComponent } from 'vue'
 import style from './index.module.scss'
 import unNote from '@/assets/imgs/unNote.png'
+import PopContent from '../popContent.vue'
 import { ElTableColumn, ElTooltip, ElInput } from 'element-plus'
 import { Doption, Dropdown, Button } from '@arco-design/web-vue'
 const SvgIcon = defineAsyncComponent(() => import('../svg-icon/svg-icon.vue'))
@@ -39,7 +40,6 @@ const {
   'stateIcon',
   'editStateType'
 ])
-
 // 表格当前数据类型
 const TdType = {
   /**纯文本展示 */
@@ -61,7 +61,8 @@ const TdType = {
   /**操作 */
   operation: 'operation',
   /**备注 */
-  notes: 'notes'
+  notes: 'notes',
+  popState: 'popState'
 }
 
 // 颜色类型
@@ -207,12 +208,13 @@ const renderTableColumn = () => (
                 )}
               </>
             )
-          } else if (type === TdType.state) {
+          } else if (type === TdType.popState) {
             {
+              /* popState 状态 */
             }
             return (
               <>
-                {list?.map(
+                {stateOption?.map(
                   (item, index) =>
                     row[item.prop] == item.value && (
                       <div class={style.state} key={index}>
@@ -227,9 +229,8 @@ const renderTableColumn = () => (
                                 style={{ background: ColorTypeEnum[item.color] }}
                               />
                             </div>
-                            <el-popover effect="light">
-                              <PopoverContent data={row} />
-                              {/* 渲染 PopoverContent，并传递 row 数据 */}
+                            <el-popover effect="light" trigger="hover">
+                              <PopContent data={row.list} />
                             </el-popover>
                           </>
                         )}

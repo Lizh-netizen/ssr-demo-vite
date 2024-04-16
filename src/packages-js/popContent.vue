@@ -7,12 +7,13 @@
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    data: Array
-  }
-}
+<script setup>
+import { defineProps } from 'vue'
+const props = defineProps({
+  data: Array
+})
+
+console.log(props)
 </script>
 
 <style scoped>
