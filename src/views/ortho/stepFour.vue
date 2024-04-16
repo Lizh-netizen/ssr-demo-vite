@@ -6,12 +6,12 @@
         <div class="questionItem" v-for="item in questionData" :key="item.id">
           <div class="questionItem__header">
             <img src="../../assets/svg/flag.svg" /><span class="questionItem__header__title">{{
-              item.question_level_one
+              item.questionLevelOne
             }}</span>
           </div>
           <div class="questionItem__content content">
             <div class="singleQuestionItem" v-for="a in item.list1" :key="a.id">
-              <div class="question_level_two">{{ a.question_level_two }}</div>
+              <div class="questionLevelTwo">{{ a.questionLevelTwo }}</div>
               <div class="itemContainer">
                 <div class="item" v-for="item in a.list2" :key="item.title_name">
                   <span class="singleQuestionItem__label">{{ item.title_name }}</span>
@@ -104,41 +104,49 @@ const route = useRoute()
 const appId = route.params.appId
 const questionData = ref([])
 async function getOrthQuestionList() {
-  const result = await Get(`/prod-api/business/orthClass/issuesList?apmtId=${appId}&serious=1`)
+  const result = await Get(
+    `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
+  )
   if (result.data) {
     const acc = result.data.reduce((acc, cur) => {
-      if (acc[cur.question_level_one]) {
-        const found = acc[cur.question_level_one].list1.find(
-          (item) => item.question_level_two === cur.question_level_two
+      if (acc[cur.questionLevelOne]) {
+        const found = acc[cur.questionLevelOne].list1.find(
+          (item) => item.questionLevelTwo === cur.questionLevelTwo
         )
         if (found) {
-          found.list2.push({
-            title_name: cur.title_name,
-            option_names: cur.option_names
-          })
+          if (cur.titleName || cur.optionsNames) {
+            found.list2.push({
+              title_name: cur.titleName,
+              option_names: cur.optionsNames
+            })
+          }
         } else {
-          acc[cur.question_level_one].list1.push({
-            question_level_two: cur.question_level_two,
+          if (cur.titleName || cur.optionsNames) {
+            acc[cur.questionLevelOne].list1.push({
+              questionLevelTwo: cur.questionLevelTwo,
+              list2: [
+                {
+                  title_name: cur.titleName,
+                  option_names: cur.optionsNames
+                }
+              ]
+            })
+          }
+        }
+      } else {
+        acc[cur.questionLevelOne] = cur
+        acc[cur.questionLevelOne].list1 = []
+        if (cur.titleName || cur.optionsNames) {
+          acc[cur.questionLevelOne].list1.push({
+            questionLevelTwo: cur.questionLevelTwo,
             list2: [
               {
-                title_name: cur.title_name,
-                option_names: cur.option_names
+                title_name: cur.titleName,
+                option_names: cur.optionsNames
               }
             ]
           })
         }
-      } else {
-        acc[cur.question_level_one] = cur
-        acc[cur.question_level_one].list1 = []
-        acc[cur.question_level_one].list1.push({
-          question_level_two: cur.question_level_two,
-          list2: [
-            {
-              title_name: cur.title_name,
-              option_names: cur.option_names
-            }
-          ]
-        })
       }
       return acc
     }, {})
@@ -151,7 +159,7 @@ getOrthQuestionList()
 
 const diagnoseData = ref([])
 async function getOrthDiagnoseList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/诊断/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/诊断/${appId}`)
   diagnoseData.value = result.data
   if (result.data[0].classFlag) {
     clicked.value = true
@@ -251,7 +259,7 @@ async function handleEmptyRadio(optionId, title) {
             color: #1d2129;
             font-weight: 500;
           }
-          .question_level_two {
+          .questionLevelTwo {
             @include caption;
             top: 0;
             left: 0;

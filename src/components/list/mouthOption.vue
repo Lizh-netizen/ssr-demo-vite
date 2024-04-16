@@ -14,6 +14,7 @@
             checked: option.choosen === true
           }"
           :label="option.id"
+          :disabled="disabled"
         >
           {{ option.optionName }}
           <img
@@ -42,6 +43,7 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
+                :disabled="disabled"
                 :label="option.id"
               >
                 {{ option.optionName
@@ -168,8 +170,8 @@
 <script setup>
 import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
-import { Post } from '../../utils/request.ts'
-import updateOption from '@/effects/evaluateUpdateOption.ts'
+import { Post } from '../../utils/request'
+import updateOption from '@/effects/mouthOption.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 const props = defineProps({
   title: {
@@ -196,10 +198,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  // disabled: {
-  //   type: Boolean,
-  //   default: false
-  // },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
   savedTitleList: {
     type: Array,
     default: () => []
@@ -241,16 +243,14 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
   if (
     title.titleName == '前牙覆合' ||
     title.titleName == '前牙覆盖' ||
-    title.titleName == '后牙' ||
-    title.titleName == '锁HE' ||
     title.titleName == '反覆合程度' ||
-    title.titleName == '反覆盖程度' ||
-    title.titleName == '左侧后牙' ||
-    title.titleName == '右侧后牙'
+    title.titleName == '反覆盖程度'
   ) {
     requestAgain.value = true
   }
-  const found = props.mouthData.find((item) => item.className == '正面咬合')
+  console.log(props.mouthData)
+  const found = props.mouthData.find((item) => item.className == '前牙覆盖')
+  console.log('🚀 ~ handleChangeOption ~ found:', found)
   if (title.titleName == '前牙覆合') {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
       found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆盖程度')
@@ -378,7 +378,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   if (!option && !title.submitAble) {
     return
   }
-  console.log(33333)
+
   // 选项中的牙位
   if (option) {
     if (option.toothCode.length == 0) {
@@ -466,11 +466,11 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
       obj2.titleId = title2.id
       obj3.titleId = title3.id
       obj4.titleId = title4.id
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj1)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj2)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj3)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj4)
-      Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
         option.submitAble = false
         title.submitAble = false
         emit('refreshList', owningModule)
@@ -483,17 +483,9 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    emit('syncOption', { option: option, titleName: title.titleName })
+    emit('syncOption', { option: option, titleName: title.titleName, classId: classId })
   }
-  console.log(
-    '🚀 ~ updateOption ~ title.optionId, title, props.appId, classId, owningModule, option:',
-    title.optionId,
-    title,
-    props.appId,
-    classId,
-    owningModule,
-    option
-  )
+
   updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {
     if (option) {
       option.submitAble = false

@@ -63,7 +63,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/prod-api': {
-          target: 'https://orangetest.aiorange.com',
+          target: 'https://orangedev.aiorange.com',
           changeOrigin: true
         },
         '/bonceph': {

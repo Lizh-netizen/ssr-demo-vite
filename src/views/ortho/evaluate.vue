@@ -11,21 +11,21 @@
       <div class="flex gap-[48px] font-size-[16px]">
         <div>
           <span class="color-[#4E5969]">姓名：</span
-          ><span class="font-500">{{ patientInfo?.patientName }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.Name }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">病历号：</span
-          ><span class="font-500">{{ patientInfo?.privateId || '' }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.PrivateId || '' }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">性别：</span
           ><span class="font-500">{{
-            patientInfo?.Sex == 1 ? '男' : patientInfo?.Sex == 2 ? '女' : '未知'
+            ljPatientInfo?.Sex == 1 ? '男' : ljPatientInfo?.Sex == 2 ? '女' : '未知'
           }}</span>
         </div>
         <div>
           <span class="color-[#4E5969]">出生日期：</span
-          ><span class="font-500">{{ patientInfo?.age }}</span>
+          ><span class="font-500">{{ ljPatientInfo?.age }}</span>
         </div>
       </div>
       <div class="flex items-center button" @click="handleOpenImageDialogue">
@@ -42,7 +42,7 @@
                 :title="title"
                 :appId="appId"
                 @refreshList="refreshList"
-                owningModule="check"
+                :owningModule="checkData.owningModule"
                 :classId="checkData.id"
               ></Option>
             </form-item>
@@ -163,7 +163,7 @@
                         :appId="appId"
                         @refreshList="refreshList"
                         @syncOption="syncOption"
-                        owningModule="mouth"
+                        owningModule="口内照"
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
@@ -299,7 +299,7 @@
                       v-model="title.cephalometricsContent"
                       :rows="4"
                       :style="{ width: '100%' }"
-                      @blur="handleSubmitRemark(title, item.id)"
+                      @blur="handleSubmitRemark(title, item.id, item.owningModule)"
                     ></el-input>
                   </form-item>
                 </template>
@@ -435,24 +435,22 @@
         <div class="patientInfo color-#fff font-500">
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/avatar.svg" class="mr-[8px]" />{{
-              patientInfo?.patientName
+              ljPatientInfo?.Name
             }}
           </div>
           <div class="mb-[8px] flex items-center">
             <img src="../../assets/eveluatePdf/privateId.svg" class="mr-[8px]" />{{
-              patientInfo?.privateId
+              ljPatientInfo?.PrivateId
             }}
           </div>
           <div class="mb-[8px] flex items-center">
-            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{
-              patientInfo?.StartTime?.split(' ')[0]
-            }}
+            <img src="../../assets/eveluatePdf/date.svg" class="mr-[8px]" />{{ ljPatientInfo?.age }}
           </div>
         </div>
         <div class="pt-[140px]">
           <div class="check" v-if="checkDataPdf?.list.length > 0">
             <div
-              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[12px]"
+              class="checkTitle color-#fff ml-[12px] position-relative z-3 h-[32px] flex items-center pl-[30px]"
             >
               临床检查
             </div>
@@ -545,7 +543,6 @@
 </template>
 
 <script setup>
-import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
 import { ref, computed, onMounted, nextTick, onBeforeMount } from 'vue'
 import Header from '../../components/list/header.vue'
@@ -554,7 +551,7 @@ import formItem from '../../components/list/formItem.vue'
 import ImageItem from '../../components/list/imageItem.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElLoading, ElMessage } from 'element-plus'
-import List from '@/components/evaluatePdf/list.vue'
+import List from '@/components/evaluatePdf/evaluateList.vue'
 
 import html2pdf from 'html2pdf.js'
 import { GetSymptom } from '../../utils/tooth'
@@ -573,20 +570,15 @@ const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
+const facialId = route.params.facialId
 const orthStatus = route.params.orthStatus
-// const patientInfo = ref()
-onMounted(() => {
-  // patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
-})
 const patientInfo = ref(
   JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
 )
-
 const updatePatientInfo = () => {
   const newData = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
   Object.assign(patientInfo.value, newData)
 }
-
 // Listen for changes in sessionStorage
 onMounted(() => {
   window.addEventListener('storage', (event) => {
@@ -595,16 +587,23 @@ onMounted(() => {
     }
   })
 })
+const ljPatientInfo = ref()
+onMounted(() => {
+  patientInfo.value = JSON.parse(sessionStorage.getItem('patientInfo')) || store.state.patientInfo
+})
 
-// Watch for changes in store.state.patientInfo
-watch(
-  () => store.state.patientInfo,
-  (newValue) => {
-    Object.assign(patientInfo.value, newValue)
-  },
-  { immediate: true } // Trigger the watcher immediately with the current value
-)
-const facialId = ref(patientInfo.value?.facialId)
+async function getPatientInfo() {
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  ljPatientInfo.value = result[0]
+}
+getPatientInfo()
+
 const userInfo = ref(JSON.parse(sessionStorage.getItem('jc_odos_user')) || {})
 const doctorName = ref(patientInfo.value?.facialOrthDoctorName || userInfo.value.userName)
 
@@ -619,6 +618,7 @@ const facialAdviseRemark = ref(patientInfo.value?.facialAdviseRemark || '')
 
 const patientCompliance = ref(patientInfo.value?.patientCompliance || '')
 const facialAdvise = ref(patientInfo.value?.facialAdvise || '')
+
 const handleClickFrank = (item) => {
   if (item == patientCompliance.value) {
     patientCompliance.value = ''
@@ -693,7 +693,7 @@ async function handleAdvice() {
       time.value = ''
     }
     const obj = {
-      id: patientInfo.value.facialId,
+      id: facialId,
       patientId: patientId,
       aptmId: appId,
       orthDoctorName: orthDoctorName || '',
@@ -735,7 +735,7 @@ async function handleAdvice() {
   })
   main()
 }
-
+// main()
 const loading = ref()
 
 const rangeShortcuts = [
@@ -919,9 +919,9 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 单选反选取消
 const strategy = {
-  faceEvaluate: getFaceAccessList,
-  mouth: getMouthList,
-  panoramic: getPanoramicList
+  面型评估: getFaceAccessList,
+  口内照: getMouthList,
+  全景片: getPanoramicList
 }
 const refreshList = (val) => {
   strategy[val]()
@@ -930,15 +930,17 @@ const refreshList = (val) => {
 
 const checkData = ref([])
 async function getCheckList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/临床检查/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/临床检查/${appId}`)
   checkData.value = result.data[0]
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => (title.showInput = false))
   })
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
-      if (title.orthOptionsList[title.orthOptionsList.length - 1].otherContent) {
-        title.otherContent = title.orthOptionsList[title.orthOptionsList.length - 1].otherContent
+      if (title.orthOptionsList.some((option) => option.otherContent)) {
+        title.otherContent = title.orthOptionsList.find(
+          (option) => option.otherContent
+        ).otherContent
       }
       if (title.titleName == '关节弹响') {
         title.optionId = ''
@@ -1016,7 +1018,7 @@ async function getCheckList() {
 
 const faceAccessData = ref([])
 async function getFaceAccessList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/面型评估/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
   result.data.forEach((item) => {
@@ -1054,7 +1056,7 @@ const frontCover = ref()
 // 作为标题的备份
 const savedTitleList = ref([])
 async function getMouthList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/口内照/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/口内照/${appId}`)
   mouthData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
@@ -1155,7 +1157,7 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, mouthData.value[0].id, val.option)
+  updateOption(optionId, title, appId, mouthData.value[0].id, '口内照', val.option)
 }
 
 const panoImageUrl = ref()
@@ -1167,7 +1169,7 @@ const sourceApmtId = ref()
 const classId = ref()
 const panoTime = ref()
 async function getPanoramicList() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/全景片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/全景片/${appId}`)
   panoramicData.value = result.data
   result.data.forEach((item) => {
     sourceApmtId.value = item.sourceApmtId ? item.sourceApmtId : appId
@@ -1211,7 +1213,7 @@ async function getPanoramicList() {
 const freePicData = ref([])
 const freeImageUrl = ref()
 async function getFreePic() {
-  const result = await Get(`/prod-api/business/orthClass/list/1/自由照片/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/1/自由照片/${appId}`)
   freePicData.value = result.data
   freeImageUrl.value = result.data[0].imageUrl
 }
@@ -1287,17 +1289,18 @@ async function handleEmptyRadio(optionId, title, owningModule, classId) {
   ) {
     emptyRadio(optionId, title)
     const obj = {
-      apmtId: appId,
+      aptmId: appId,
       titleId: title.id,
       optionsIdStr: [],
       otherContent: title.otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
       showPosition: '',
-      classId: classId
+      classId: classId,
+      owningModule: owningModule
     }
 
-    Post('/prod-api/business/facialResult', obj)
+    Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
     if (owningModule == 'check') {
       getCheckList()
     } else if (owningModule == 'face') {
@@ -1312,7 +1315,7 @@ async function handleEmptyRadio(optionId, title, owningModule, classId) {
 }
 const requestAgain = ref(false)
 
-async function handleSubmitRemark(title, classId) {
+async function handleSubmitRemark(title, classId, owningModule) {
   if (!freeImageUrl.value) {
     ElMessage({
       message: '请先上传图片',
@@ -1321,16 +1324,17 @@ async function handleSubmitRemark(title, classId) {
     return
   }
   const obj = {
-    apmtId: appId,
+    aptmId: appId,
     titleId: title.id,
     optionsIdStr: [],
     otherContent: '',
     cephalometricsContent: title.cephalometricsContent,
     fdiToothCode: '',
     showPosition: '',
-    classId: classId
+    classId: classId,
+    owningModule: owningModule
   }
-  const res = await Post('/prod-api/business/facialResult', obj)
+  const res = await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
 }
 
 const imgDialogVisible = ref(false)
@@ -1531,11 +1535,20 @@ function processData(data) {
   }
 
   data.forEach((item) => {
-    const { owningModule, imageUrl, titleName, optionsNames, serious } = item
+    const { owningModule, imageUrl, titleName, optionsNames, serious, otherContent } = item
+
     if (titleName || optionsNames) {
+      let options = optionsNames
+      if (otherContent) {
+        const arr = options.split('，')
+        const index = arr.findIndex((item) => item == '其他')
+        arr.splice(index + 1, 0, '(' + otherContent + ')')
+        options = arr.join('')
+      }
+
       result[owningModule]?.list.push({
         title_name: titleName,
-        option_names: optionsNames,
+        option_names: options,
         serious: serious
       })
     }
@@ -1563,9 +1576,9 @@ async function getDataList(appId) {
   )
   data.value = Object.values(processData(res.data))
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
+
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
-
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
 }
 // 得到当天日期
@@ -1580,7 +1593,7 @@ const formattedDate = `${year}-${month}-${day}`
 const generatePDF = () => {
   try {
     const options = {
-      filename: `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`,
+      filename: `${ljPatientInfo.value?.Name}__面评报告__${formattedDate}.pdf`,
       margin: 0,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, dpi: 96 },
@@ -1600,14 +1613,14 @@ const generatePDF = () => {
         formData.append(
           'file',
           perBlob,
-          `${patientInfo.value?.patientName}__面评报告__${formattedDate}.pdf`
+          `${ljPatientInfo.value?.Name}__面评报告__${formattedDate}.pdf`
         )
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {
             if (res.code == 200) {
               src.value = res.msg
               Post('/prod-api/emr/public/api/v1/assessment/updatePdfUrl', {
-                id: patientInfo.value.facialId,
+                id: facialId,
                 pdfUrl: src.value
               })
               ElMessage({
@@ -2304,7 +2317,7 @@ async function main() {
     .patientInfo {
       position: absolute;
       left: 550px;
-      top: 20px;
+      top: 36px;
     }
     .check {
       .checkTitle {
