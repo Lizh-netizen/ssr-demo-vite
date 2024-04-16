@@ -357,38 +357,54 @@ const diagnoseData = ref([])
 async function getOrthDiagnoseList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/诊断/${appId}`)
   diagnoseData.value = result.data
-  
 }
+
 function checkChoosenOptions(data) {
-    // 遍历数据
-    for (let i = 0; i < data.length; i++) {
-        const item = data[i];
-        for (let j = 0; j < item.orthTitleList.length; j++) {
-            const title = item.orthTitleList[j];
-            for (let k = 0; k < title.orthOptionsList.length; k++) {
-                const option = title.orthOptionsList[k];
-                if (option.choosen === true) {
-                    return true;
-                }
-            }
+  const dentition = ref(false)
+  const other = ref(false)
+  // 遍历数据
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i]
+    for (let j = 0; j < item.orthTitleList.length; j++) {
+      const title = item.orthTitleList[j]
+      if (title.titleName == '牙列期') {
+        for (let k = 0; k < title.orthOptionsList.length; k++) {
+          const option = title.orthOptionsList[k]
+          if (option.choosen === true) {
+            dentition.value = true
+          }
         }
+      } else {
+        for (let k = 0; k < title.orthOptionsList.length; k++) {
+          const option = title.orthOptionsList[k]
+          if (option.choosen === true) {
+            other.value = true
+          }
+        }
+      }
     }
     // 如果没有选中的选项，则返回false
-    return false;
+  }
+  return { dentition, other }
 }
 const handleNextStep = async () => {
   if (active.value == 4) {
-  
-await getOrthDiagnoseList()
-if (!checkChoosenOptions(diagnoseData.value)) {
-  ElMessage({
-      message: '还未填写诊断哦',
-      type: 'warning'
-    })
-    return
-}
-
-    
+    await getOrthDiagnoseList()
+    const { dentition, other } = checkChoosenOptions(diagnoseData.value)
+    if (!dentition.value) {
+      ElMessage({
+        message: '请选择牙列期',
+        type: 'warning'
+      })
+      return
+    }
+    if (!other.value) {
+      ElMessage({
+        message: '请选择诊断',
+        type: 'warning'
+      })
+      return
+    }
   }
   nextTick(() => {
     editStep.value = active.value
