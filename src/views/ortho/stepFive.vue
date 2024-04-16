@@ -54,8 +54,7 @@
                 />
                 <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
-
-              <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
+              <draggableTool class="ORTHTOOL" :list="toolList"></draggableTool>
             </template>
           </div>
         </div>
@@ -519,6 +518,7 @@ import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
+import draggableTool from '../../components/layout/draggableTool.vue'
 import { useStore } from 'vuex'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
@@ -536,16 +536,37 @@ const props = defineProps({
 const emit = defineEmits(['requestPlanList'])
 // 获取工具数据
 const toolList = ref([])
+function processOrthtoolData(data) {
+  let processedData = []
+
+  for (const category in data) {
+    if (data.hasOwnProperty(category)) {
+      const tools = data[category]
+      let categoryObj = {
+        label: category,
+        list: []
+      }
+
+      tools.forEach((tool) => {
+        categoryObj.list.push({
+          name: tool.dictCodeName,
+          id: tool.id,
+          dictType: tool.dictType
+        })
+      })
+
+      processedData.push(categoryObj)
+    }
+  }
+
+  return processedData
+}
 async function getOrthToolList() {
   const result = await Post('/prod-api/business/globalDict/getDictListByType', {
     dictType: 'ORTHTOOL',
     className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 // 搜索工具
 const searchValue = ref('')
