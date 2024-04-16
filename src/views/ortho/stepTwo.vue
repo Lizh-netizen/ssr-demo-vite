@@ -367,7 +367,7 @@
                 </template>
               </div>
             </div>
-            <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item>
+            <!-- <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item> -->
           </div>
         </div>
       </template>
@@ -1461,7 +1461,7 @@ function handlePanoData(panoramicData) {
           title.optionId1 = title.optionId
         }
       }
-      if (title.orthOptionsList.some((option) => option.otherContent)) {
+      if (title.orthOptionsList && title.orthOptionsList.some((option) => option.otherContent)) {
         title.otherContent = title.orthOptionsList.find(
           (option) => option.otherContent
         ).otherContent
