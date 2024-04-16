@@ -24,8 +24,29 @@
     </div>
     <Header text="问诊" backgroundColor="#f4f7fd" />
     <div class="content inquiry" :style="{ 'min-height': '600px' }">
-      <form-item label="主诉" width="58px"><el-input v-model="input1"></el-input></form-item>
-      <form-item label="现病史" width="58px"><el-input v-model="input2"></el-input></form-item>
+      <form-item label="主诉" width="58px"
+        ><a-textarea
+          show-word-limit
+          :max-length="20"
+          class="w-[700px]! border-rd-[8px]!"
+          auto-size
+          v-model="complainTitle.cephalometricsContent"
+          @blur="handleSubmitAddtionalContent(complainTitle, inquiryId, '问诊')"
+        ></a-textarea
+      ></form-item>
+      <form-item label="现病史" width="58px"
+        ><a-textarea
+          class="w-[700px]! border-rd-[8px]!"
+          :auto-size="{
+            minRows: 1,
+            maxRows: 5
+          }"
+          show-word-limit
+          :max-length="125"
+          v-model="currentTitle.cephalometricsContent"
+          @blur="handleSubmitAddtionalContent(currentTitle, inquiryId, '问诊')"
+        ></a-textarea
+      ></form-item>
       <template v-for="item in inquiryData" :key="item.id">
         <template v-if="item.className">
           <form-item :label="item.className" class="specialFormItem">
@@ -47,22 +68,21 @@
             </div>
           </form-item>
         </template>
-        <template v-else>
+        <template v-if="!item.className">
           <div :style="{ display: 'flex', gap: '16px' }">
-            <form-item
-              :label="title.titleName"
-              width="100px"
-              v-for="title in item.orthTitleList"
-              :key="title.id"
-            >
-              <Option
-                :title="title"
-                :appId="appId"
-                @refreshList="refreshList"
-                owningModule="问诊"
-                :classId="item.id"
-              ></Option>
-            </form-item>
+            <template v-for="title in item.orthTitleList" :key="title.id">
+              <template v-if="title.titleName !== '主诉' && title.titleName !== '现病史'">
+                <form-item :label="title.titleName" width="100px">
+                  <Option
+                    :title="title"
+                    :appId="appId"
+                    @refreshList="refreshList"
+                    owningModule="问诊"
+                    :classId="item.id"
+                  ></Option>
+                </form-item>
+              </template>
+            </template>
           </div>
         </template>
       </template>
@@ -324,6 +344,7 @@ const handleMouseLeave = (option) => {
   })
 }
 async function handleSubmitContent(optionId, title, option, classId, owningModule) {
+  console.log(option, option.otherContent)
   option.visible = false
   if (option.otherContent) {
     const res = await useUpdateOption(
@@ -355,14 +376,33 @@ getPatientInfo()
 // 获取/处理问诊数据
 
 const inquiryData = ref([])
+const inquiryId = ref()
+
+const complainTitle = ref({
+  cephalometricsContent: ''
+})
+const currentTitle = ref({
+  cephalometricsContent: ''
+})
+const complainContent = ref()
+const currentContent = ref()
 async function getOrthInquiryList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/问诊/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/问诊/${appId}`)
   inquiryData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+  complainTitle.value = result.data[1].orthTitleList.find((title) => title.titleName == '主诉')
+  currentTitle.value = result.data[1].orthTitleList.find((title) => title.titleName == '现病史')
+
   result.data.forEach((item) => {
     item.orthTitleList.forEach((title) => {
-      if (title.orthOptionsList[title.orthOptionsList.length - 1].otherContent) {
-        title.otherContent = title.orthOptionsList[title.orthOptionsList.length - 1].otherContent
+      if (title.titleName == '主诉') {
+        inquiryId.value = item.id
+      }
+
+      if (title.orthOptionsList.some((option) => option.otherContent)) {
+        title.otherContent = title.orthOptionsList.find(
+          (option) => option.otherContent
+        ).otherContent
       }
       if (title.type == 1) {
         title.optionId = ''
@@ -386,14 +426,30 @@ async function getOrthInquiryList() {
     })
   })
 }
-
+const handleSubmitAddtionalContent = (title, classId, owningModule) => {
+  console.log(11, title)
+  if (title.cephalometricsContent) {
+    const obj = {
+      aptmId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: '',
+      cephalometricsContent: title.cephalometricsContent,
+      fdiToothCode: '',
+      showPosition: '',
+      classId: classId,
+      owningModule: owningModule
+    }
+    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  }
+}
 getOrthInquiryList()
 
 // 获取/处理临床检查数据
 const checkData = ref({})
 const inputRefs = ref([])
 async function getOrthCheckList() {
-  const result = await Get(`/prod-api/emr/orthPlan/list/2/临床检查/${appId}`)
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/临床检查/${appId}`)
 
   checkData.value = result.data[0]
   result.data.forEach((item) => {

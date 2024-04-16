@@ -17,7 +17,7 @@
             </div>
             <div class="item">
               <div class="label">诊所</div>
-              <div class="value">{{ patientInfo.Abbreviation }}</div>
+              <div class="value">{{ patientInfo.aptmOfficeName }}</div>
             </div>
           </div>
         </div>
@@ -49,27 +49,34 @@
             <template v-if="item.owningModule === '问诊'">
               <div class="content">
                 <div class="list">
-                  <div class="list__item">主诉</div>
+                  <template v-for="i in item.list">
+                    <div
+                      class="list__item"
+                      v-if="i.title_name == '主诉' || i.title_name == '现病史'"
+                    >
+                      {{ i.title_name }} : {{ i.option_names }}
+                    </div>
+                  </template>
+
                   <div class="list__item">
                     {{ item.className }}
                     <div class="list innerList">
-                      <div
-                        class="list__item"
-                        v-for="i in item.list"
-                        :key="i.id"
-                        :data-serious="i.serious"
-                      >
-                        <div>
-                          {{ i.title_name }}：{{ i.option_names }}
+                      <template v-for="i in item.list" :key="i.id">
+                        <div
+                          v-if="i.title_name != '主诉' && i.title_name !== '现病史'"
+                          class="list__item"
+                        >
+                          <span>{{ i.title_name }}：{{ i.option_names }}</span>
                           <img
                             src="../../assets/svg/serious.svg"
                             v-show="i.serious == '1'"
                             :style="{
-                              'margin-left': '8px'
+                              'margin-left': '8px',
+                              height: '13px'
                             }"
                           />
                         </div>
-                      </div>
+                      </template>
                     </div>
                   </div>
                 </div>
@@ -87,29 +94,6 @@
           </div>
         </template>
 
-        <template v-if="item.owningModule === '问题列表'">
-          <div class="pdfPage">
-            <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="评估结果" />
-            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
-            <div class="content">
-              <list :list="item.data" moduleName="问题列表" />
-            </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
-              诊断
-            </div>
-            <div class="content">
-              <list :list="data.find((item) => item.owningModule === '诊断').list" />
-            </div>
-
-            <!-- <div class="content">
-            <list
-              :list="data.find((item) => item.owningModule == '方案').list"
-              v-if="data.find((item) => item.owningModule == '方案')"
-            />
-          </div> -->
-          </div>
-        </template>
         <template v-if="item.owningModule === '面型评估'">
           <div class="pdfPage face">
             <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
@@ -247,12 +231,16 @@
                   />
                 </div>
                 <div :style="{ position: 'relative' }" class="image5">
-                  <div class="imageCaption" v-if="item.imageList2[4]?.imageUrl">
+                  <div
+                    class="imageCaption"
+                    v-if="item.imageList2[4] && item.imageList2[4]?.imageUrl"
+                  >
                     {{ item.imageList2[4]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
                     :src="item.imageList2[4]?.imageUrl + `?random=${Math.random()}`"
+                    v-if="item.imageList2[4]"
                   />
                 </div>
               </div>
@@ -276,6 +264,25 @@
             </div>
             <div class="content blueBackground">
               <list :list="item.list" />
+            </div>
+          </div>
+        </template>
+        <template v-if="item.owningModule === '问题列表'">
+          <div class="pdfPage">
+            <img class="background" src="../../assets/pdfTemplate/template1.png" />
+            <Header text="评估结果" />
+            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
+            <div class="content">
+              <list :list="item.data" moduleName="问题列表" />
+            </div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
+              诊断
+            </div>
+            <div class="content">
+              <list
+                :list="data.find((item) => item.owningModule === '诊断')?.list"
+                v-if="data.find((item) => item.owningModule == '诊断')"
+              />
             </div>
           </div>
         </template>
@@ -332,6 +339,13 @@
                 v-if="data.find((item) => item.owningModule == '风险')"
               />
             </div>
+            <div class="subTitle" v-if="data.find((item) => item.owningModule == '备注')">备注</div>
+            <div class="content">
+              <list
+                :list="data.find((item) => item.owningModule == '备注').list"
+                v-if="data.find((item) => item.owningModule == '备注')"
+              />
+            </div>
           </div>
         </template>
       </template>
@@ -362,8 +376,14 @@ const patientId = route.params.patientId
 
 const patientInfo = ref({})
 async function getPatientInfo() {
-  const result = await Get(`prod-api/business/patient/ljPatient/${patientId}`)
-  patientInfo.value = result.data
+  const formData = new FormData()
+  formData.append('aptmId', appId)
+  const result = await Post(
+    `prod-api/business/public/api/v1/patient/getLjPatientInfoByAptmId?aptmId=${appId}`,
+    formData,
+    true
+  )
+  patientInfo.value = result[0]
 }
 // 得到当天日期
 const today = new Date()
@@ -433,21 +453,33 @@ async function getDataList() {
             serious: cur.serious
           })
         } else {
-          acc[cur.owningModule].list.push({
-            title_name: cur.titleName,
-            option_names: cur.optionsNames,
-            serious: cur.serious
-          })
+          if (cur.titleName == '主诉' || cur.titleName == '现病史') {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.cephalometricsContent,
+              serious: cur.serious
+            })
+          } else {
+            if (cur.titleName || cur.optionsNames) {
+              acc[cur.owningModule].list.push({
+                title_name: cur.titleName,
+                option_names: cur.optionsNames,
+                serious: cur.serious
+              })
+            }
+          }
         }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
         acc[cur.owningModule + cur.className]
       ) {
-        acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.titleName,
-          option_names: cur.optionsNames,
-          serious: cur.serious
-        })
+        if (cur.titleName || cur.optionsNames) {
+          acc[cur.owningModule + cur.className].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       } else if (
         cur.owningModule !== '面型评估' &&
         cur.owningModule !== '口内照' &&
@@ -461,12 +493,25 @@ async function getDataList() {
             option_names: cur.optionsNames,
             serious: cur.serious
           })
-        } else {
+        } else if (cur.owningModule == '备注') {
           acc[cur.owningModule].list.push({
-            title_name: cur.titleName,
-            option_names: cur.optionsNames,
-            serious: cur.serious
+            title_name: '备注',
+            option_names: cur.cephalometricsContent
           })
+        } else {
+          if (cur.titleName == '主诉' || cur.titleName == '现病史') {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.cephalometricsContent,
+              serious: cur.serious
+            })
+          } else {
+            acc[cur.owningModule].list.push({
+              title_name: cur.titleName,
+              option_names: cur.optionsNames,
+              serious: cur.serious
+            })
+          }
         }
       } else if (
         (cur.owningModule === '面型评估' || cur.owningModule === '口内照') &&
@@ -474,18 +519,19 @@ async function getDataList() {
       ) {
         acc[cur.owningModule + cur.className] = cur
         acc[cur.owningModule + cur.className].list = []
-        acc[cur.owningModule + cur.className].list.push({
-          title_name: cur.titleName,
-          option_names: cur.optionsNames,
-          serious: cur.serious
-        })
+        if (cur.titleName || cur.optionsNames) {
+          acc[cur.owningModule + cur.className].list.push({
+            title_name: cur.titleName,
+            option_names: cur.optionsNames,
+            serious: cur.serious
+          })
+        }
       }
       return acc
     }, {})
     // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
 
     data.value = Object.values(acc)
-    console.log(data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
@@ -515,6 +561,12 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
+          } else {
+            acc[cur.owningModule].imageList2.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list2 = cur.list
           }
         }
       } else if (cur.owningModule == '口内照') {
@@ -563,9 +615,9 @@ async function getDataList() {
       )
     }
   }
-  data.value.push({ owningModule: '方案', data: schemeData })
   data.value.push({ owningModule: '问题列表', data: issuesList })
-  console.log(data.value)
+  data.value.push({ owningModule: '方案', data: schemeData })
+  console.log('🚀 ~ getDataList ~ data.value:', data.value)
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -767,12 +819,14 @@ async function getIssuesList() {
     `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2&serious=1`
   )
   if (result.data?.length > 0) {
-    issuesList.value = result.data.map((item) => ({
-      title_name: item.titleName,
-      option_names: item.optionsNames,
-      serious: item.serious,
-      active: item.active
-    }))
+    issuesList.value = result.data
+      .filter((item) => item.titleName || item.optionsNames)
+      .map((item) => ({
+        title_name: item.titleName,
+        option_names: item.optionsNames,
+        serious: item.serious,
+        active: item.active
+      }))
   }
 }
 

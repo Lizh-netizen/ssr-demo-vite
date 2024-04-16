@@ -118,7 +118,7 @@
         <template v-else-if="index == 8">
           <form-item :label="labelObj.label" width="132px">
             <el-radio-group
-              v-model="orthContent['riskValue']"
+              v-model="orthContent['riskValueSystem']"
               disabled
               :style="{ 'min-width': '172px' }"
             >
@@ -134,7 +134,7 @@
         </template>
         <template v-else-if="index == 9">
           <form-item :label="labelObj.label" width="128px">
-            <el-radio-group v-model="orthContent['riskValueSystem']">
+            <el-radio-group v-model="orthContent['riskValue']">
               <el-radio
                 v-for="(riskVal, index) in ['低', '中', '高']"
                 :key="index"
@@ -186,6 +186,7 @@ window.addEventListener('message', function (event) {
     doctorId.value = event.data
   }
 })
+const ljOfficeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -232,6 +233,18 @@ const loading = ref()
 const id = ref(0)
 const pdf = ref()
 const pdfId = ref()
+function validateGoalAndTarget(planList) {
+  const found = planList.find((plan, index) => plan.checked)
+  for (let item of found.stageList) {
+    if (item.targetIds.length > 0 && item.toolIds.length > 0) {
+      console.log('🚀 ~ validateGoalAndTarget ~ item.targetIds && item.toolIds:', item)
+
+      console.log(111)
+      return true
+    }
+  }
+  return false
+}
 // 校验是否选了矫治器和难度
 function validate(planList) {
   const difficultySelect = document.querySelectorAll('.arco-select.difficulty')
@@ -248,12 +261,15 @@ function validate(planList) {
   })
   return planList.some((plan) => !plan.difficultyLevel || !plan.primaryApplianceId)
 }
+
 // 校验是否选中了方案
 function validateCheck(planList) {
   const found = planList.find((plan, index) => plan.checked)
+  console.log('🚀 ~ validateCheck ~ found:', found)
+
   return found ? false : true
 }
-const handleGeneratePdf = () => {
+const handleGeneratePdf = async () => {
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({
@@ -262,7 +278,25 @@ const handleGeneratePdf = () => {
       })
       return false
     }
-    if (validate(step5.value.planList)) return false
+    await getPlanList()
+    console.log(
+      '🚀 ~ handleGeneratePdf ~ validateGoalAndTarget(step5.value.planList):',
+      validateGoalAndTarget(step5.value.planList)
+    )
+    if (!validateGoalAndTarget(step5.value.planList)) {
+      ElMessage({
+        message: '请选择目标和工具',
+        type: 'warning'
+      })
+      return false
+    }
+    if (validate(step5.value.planList)) {
+      ElMessage({
+        message: '请选择矫治器和难度',
+        type: 'warning'
+      })
+      return false
+    }
   }
   nextTick(() => {
     editStep.value = active.value
@@ -319,19 +353,46 @@ function getOrthBase() {
 }
 getOrthBase()
 const store = useStore()
-
-const handleNextStep = () => {
-  if (active.value == 4 && !step[active.value - 1].value.clicked) {
-    ElMessage({
+const diagnoseData = ref([])
+async function getOrthDiagnoseList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/诊断/${appId}`)
+  diagnoseData.value = result.data
+  
+}
+function checkChoosenOptions(data) {
+    // 遍历数据
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        for (let j = 0; j < item.orthTitleList.length; j++) {
+            const title = item.orthTitleList[j];
+            for (let k = 0; k < title.orthOptionsList.length; k++) {
+                const option = title.orthOptionsList[k];
+                if (option.choosen === true) {
+                    return true;
+                }
+            }
+        }
+    }
+    // 如果没有选中的选项，则返回false
+    return false;
+}
+const handleNextStep = async () => {
+  if (active.value == 4) {
+  
+await getOrthDiagnoseList()
+if (!checkChoosenOptions(diagnoseData.value)) {
+  ElMessage({
       message: '还未填写诊断哦',
       type: 'warning'
     })
     return
+}
+
+    
   }
   nextTick(() => {
     editStep.value = active.value
     active.value++
-
     Put('/prod-api/business/orthBase', {
       id: progressRes.value.id,
       pdfUrl: '',
@@ -382,6 +443,13 @@ async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {
     let data = result.data.find((item) => item.checked)
+    if (!data) {
+      ElMessage({
+        message: '请选择一个方案',
+        type: 'warning'
+      })
+      return false
+    }
     const newData = processData(data.stageList)
     return newData
   }
@@ -389,7 +457,7 @@ async function getPlanList() {
 // 定义一个函数，用于将数据转换成目标格式
 function processData(data) {
   let targetStr = ''
-  let schemeStr = ''
+  let planStr = ''
   let correctionPeriod = ''
   data.forEach((entry) => {
     const stageName = entry.stageName
@@ -407,16 +475,24 @@ function processData(data) {
       targetStr += goal
     }
     if (entry.toolIds) {
-      if (schemeStr !== '') schemeStr += '；'
-      schemeStr += tool
+      if (planStr !== '') planStr += '；'
+      planStr += tool
     }
   })
   correctionPeriod = data[data.length - 1].stageName
-  return { targetStr, schemeStr, correctionPeriod }
+  return { targetStr, planStr, correctionPeriod }
 }
+
 async function initiateApproval() {
-  console.log(await getPlanList())
-  const { targetStr, schemeStr, correctionPeriod } = await getPlanList()
+  const { targetStr, planStr, correctionPeriod } = await getPlanList()
+  if (!targetStr) {
+    ElMessage.error('还没填写方案中的治疗目标哦')
+    return
+  }
+  if (!planStr) {
+    ElMessage.error('还没填写方案中的治疗工具哦')
+    return
+  }
   dialogVisible.value = true
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,
@@ -424,18 +500,18 @@ async function initiateApproval() {
   })
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
-  orthContent.value['riskValueSystem'] = ''
+  orthContent.value['riskValue'] = ''
   orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
-  orthContent.value['schemeStr'] = res.data['schemeStr'] || schemeStr
+  orthContent.value['planStr'] = res.data['planStr'] || planStr
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
-  orthContent.value['riskValue'] = res.data['riskValue'].split('')[0]
+  orthContent.value['riskValueSystem'] = res.data['riskValueSystem'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
 
 const hasConfirmApproval = ref(false)
 
 async function confirmApproval() {
-  if (!orthContent.value['riskValueSystem']) {
+  if (!orthContent.value['riskValue']) {
     ElMessage({
       type: 'warning',
       message: '请选择自评风险值'
@@ -449,10 +525,11 @@ async function confirmApproval() {
       background: 'rgba(0, 0, 0, 0.7)'
     })
     orthContent.value['pdfUrl'] = pdf.value
-    orthContent.value['riskValueSystem'] = orthContent.value['riskValueSystem']
-      ? orthContent.value['riskValueSystem']
+    orthContent.value['riskValue'] = orthContent.value['riskValue']
+      ? orthContent.value['riskValue']
       : '无'
     const res = await Post('/prod-api/business/orthBase/sendApproval', {
+      deductionOfficeId: String(ljOfficeId),
       patientId: patientId,
       apmtId: appId,
       ...orthContent.value
@@ -468,7 +545,7 @@ async function confirmApproval() {
   } catch (err) {
     loading.close()
     ElMessage({
-      type: 'error',
+      type: 'warning',
       message: err
     })
   }
@@ -484,10 +561,10 @@ const labelList = [
   { label: '牙列期', value: 'dentitionType' },
   { label: '术前诊断', value: 'diagnoseStr' },
   { label: '治疗目标', value: 'targetStr' },
-  { label: '治疗计划', value: 'schemeStr' },
-  { label: '矫正方案', value: 'schemeStr' },
-  { label: '病例风险（系统）', value: 'riskValueSystem' },
-  { label: '病历风险（自评）', value: 'riskValue' },
+  { label: '治疗计划', value: 'planStr' },
+  { label: '矫正方案', value: 'planStr' },
+  { label: '病例风险（系统）', value: 'riskValue' },
+  { label: '病历风险（自评）', value: 'riskValueSystem' },
   { label: '预计矫正周期', value: 'correctionPeriod' },
   { label: '说明', value: 'explain' }
 ]
@@ -516,28 +593,15 @@ const labelList = [
     text-align: left;
   }
 }
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
 
-::-webkit-scrollbar-thumb {
-  border-radius: 1em;
-  background-color: rgba(50, 50, 50, 0.3);
-}
-
-// ::-webkit-scrollbar-track {
-//   border-radius: 1em;
-//   background-color: rgba(50, 50, 50, 0.1);
-// }
 .formItem.target,
 .formItem.scheme {
-  height: 48px;
+  max-height: 48px;
   &__label {
     text-align: left;
   }
   .desc {
-    height: 52px;
+    max-height: 52px;
     overflow: scroll;
   }
 }

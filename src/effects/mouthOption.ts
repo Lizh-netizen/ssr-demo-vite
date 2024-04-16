@@ -8,7 +8,6 @@ async function updateOption(
   owningModule: string,
   option?: any
 ) {
-  console.log(' update', optionId, title, appId, classId, owningModule, option)
   // 区分了一下 选项和标题
   let obj = {
     aptmId: appId,
@@ -28,6 +27,6 @@ async function updateOption(
     owningModule: owningModule
   }
 
-  await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
+  await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 export default updateOption
