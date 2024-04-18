@@ -8,7 +8,6 @@
         :move="onMove"
         :group="elements"
         item-key="id"
-        @start="start"
       >
         <template #item="{ element }">
           <div class="list-group-item">
@@ -55,17 +54,16 @@ watch(
   (val) => {
     // 深拷贝是因为从左侧拖到右侧时改变右侧区域左侧区域会被同步更改
     data.value = JSON.parse(JSON.stringify(val.list))
+    console.log('🚀 ~ data.value:', data.value)
   },
 
   { deep: true }
 )
 watch(data, (val) => {
   data.value = val
+  console.log('🚀 ~ watch ~ data.value:', data.value)
 })
-let toothItem = ref(null)
-const start = (e) => {
-  console.log('🚀 ~ start ~ e:', e)
-}
+
 // const onChange = (event) => {
 //   if (event.removed && event.removed.element) {
 //     const newItem = JSON.parse(JSON.stringify(event.removed.element))

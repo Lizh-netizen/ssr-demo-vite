@@ -93,7 +93,6 @@ const renderTableColumn = () => (
     {type !== 'selection' && (
       <ElTableColumn prop={prop} label={title} width={width} fixed={fixed} sortable={sortable}>
         {({ row, $index }) => {
-          console.log(row)
           isEditList.value.push({ isEdit: false })
           {
             /* 纯文本 */

@@ -25,6 +25,7 @@
               <template v-else>
                 <img
                   v-lazy="item.imageUrl"
+                  @click="handlePreviewImage(item)"
                   :style="{
                     height: '240px',
                     'object-fit': 'cover',
@@ -104,6 +105,7 @@
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
+                @click="handlePreviewImage(item)"
                 :src="item.imageUrl"
                 :style="{
                   height: '240px',
@@ -119,6 +121,7 @@
               <div :style="{ 'margin-top': '40px' }">
                 <template v-if="frontCover"
                   ><img
+                    @click="handlePreviewImage(item)"
                     :src="frontCover"
                     :style="{
                       height: '240px',
@@ -574,6 +577,8 @@
     }"
   />
   <PreviewImage
+    :owningModule="previewImageOwningModule"
+    :className="previewImageClassName"
     :degree="imageRotationDegree"
     :id="previewImageId"
     :showViewer="showViewer"
@@ -634,9 +639,12 @@ const showViewer = ref(false)
 const previewImageUrl = ref('')
 const previewImageId = ref()
 const imageRotationDegree = ref()
+const previewImageClassName = ref()
 const header = document.querySelector('.header')
-
+const previewImageOwningModule = ref()
 const handlePreviewImage = (item) => {
+  previewImageClassName.value = item.className
+  previewImageOwningModule.value = item.owningModule
   header.style.position = 'static'
   previewImageId.value = item.imageId
   previewImageUrl.value = item.imageUrl
@@ -2860,6 +2868,11 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+img {
+  &:hover {
+    cursor: zoom-in;
+  }
+}
 :deep .imageItem.frontCoverImage {
   border-bottom: none !important;
   padding: 0;

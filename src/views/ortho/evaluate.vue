@@ -333,7 +333,7 @@
   />
   <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
     <div style="margin-top: 20px" class="advice__state">
-      <div class="w-[70px] text-right mr-[16px]">状态选择</div>
+      <div class="w-[70px] text-right mr-[16px]">结论</div>
       <el-radio-group v-model="advice" @change="handleAdviceChange">
         <el-radio-button :label="i" v-for="i in advices" :key="i" />
       </el-radio-group>
@@ -642,8 +642,42 @@ const advice = ref(
 const time = ref(patientInfo.value?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
+  checkCompletion()
 }
 
+function checkImage() {}
+const clinicalExamination = ref(0)
+const imageUpload = ref(0)
+const imageAnalysis = ref(0)
+const facialCompletionId = ref()
+const facialConclusion = ref(0)
+async function checkImageOptions() {
+  checkFugaiOptions(mouthData.value)
+  checkPanoOptions(panoramicData.value)
+  return (await checkOrthOptions(faceAccessData.value)) && checkFugaiOptions(mouthData.value)
+}
+async function checkCompletion() {
+  await getClassifiedImgList()
+  await checkOrthOptions(faceAccessData.value)
+  await getMouthList()
+  await getPanoramicList()
+  const checkData = await getCheckList()
+  const isCheck = checkOrthOptions(checkData)
+  const isImageUpload = await checkImageUpload()
+  const isImageAnalysis = await checkImageOptions()
+
+  clinicalExamination.value = isCheck ? '0' : '1'
+
+  await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
+    id: '',
+    aptmId: appId,
+    patientId: patientId,
+    clinicalExamination: clinicalExamination.value,
+    imageUpload: '1',
+    imageAnalysis: '1',
+    facialConclusion: ''
+  })
+}
 const id = ref()
 async function getId() {
   const res = await Get(`/prod-api/business/orthBase/${appId}`)
@@ -929,6 +963,7 @@ const refreshList = (val) => {
 // 获取数据
 
 const checkData = ref([])
+
 async function getCheckList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/1/临床检查/${appId}`)
   checkData.value = result.data[0]
@@ -1014,6 +1049,7 @@ async function getCheckList() {
       }
     })
   })
+  return result.data
 }
 
 const faceAccessData = ref([])
@@ -1338,88 +1374,7 @@ async function handleSubmitRemark(title, classId, owningModule) {
 }
 
 const imgDialogVisible = ref(false)
-const imageList = ref([
-  {
-    caption: '正面像',
-    typeName: 'FrontalRepose',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面微笑像',
-    typeName: 'FrontalSmile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面像',
-    typeName: 'LeftProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面微笑像',
-    typeName: 'RightProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面像',
-    typeName: 'LeftSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面微笑像',
-    typeName: 'RightSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（左侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（右侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（左侧）',
-    typeName: 'Left',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（右侧）',
-    typeName: 'Right',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面咬合',
-    typeName: 'Anterior',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '前牙覆盖',
-    typeName: 'Cover',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '上颌',
-    typeName: 'Upper',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '下颌',
-    typeName: 'Lower',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '全景片',
-    typeName: 'Panoramic',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '侧位片',
-    typeName: 'Cephalometric',
-    fileUrl: placeholderUrl
-  }
-])
+
 const openImgDialog = () => {
   imgDialogVisible.value = true
   imageList.value.forEach((a) => {
@@ -1427,22 +1382,11 @@ const openImgDialog = () => {
   })
   getClassifiedImgList()
 }
+const classifiedImageList = ref([])
 async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
   if (res.code == 200 && res.data.length > 0) {
-    res.data.forEach((item) => {
-      imageList.value.forEach((a) => {
-        // a.fileUrl = placeholderUrl
-        if (item.imageType == a.caption) {
-          a.fileUrl = item.imageUrl
-          a.id = item.id
-        }
-      })
-    })
-  } else {
-    imageList.value.forEach((a) => {
-      a.fileUrl = placeholderUrl
-    })
+    classifiedImageList.value = res.data
   }
 }
 // 上传图片
@@ -1525,6 +1469,7 @@ const handleCloseImgDialog = () => {
 }
 const handleBackToList = () => {
   router.push('/index')
+  checkCompletion()
 }
 function processData(data) {
   const result = {

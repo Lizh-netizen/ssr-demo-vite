@@ -194,11 +194,11 @@ const appId = route.params.appId
 const patientId = route.params.patientId
 // 切换步骤条
 const steps = [
-  { num: 1, desc: '基础信息' },
+  { num: 1, desc: '问诊和检查' },
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
-  { num: 4, desc: '问题列表' },
-  { num: 5, desc: '方案目标' },
+  { num: 4, desc: '诊断' },
+  { num: 5, desc: '目标和工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -523,6 +523,7 @@ async function initiateApproval() {
   orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
   orthContent.value['planStr'] = res.data['planStr'] || planStr
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
+  orthContent.value['explain'] = res.data['explain'] || '无'
   orthContent.value['riskValueSystem'] = res.data['riskValueSystem'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
@@ -585,7 +586,7 @@ const labelList = [
   { label: '病例风险（系统）', value: 'riskValue' },
   { label: '病历风险（自评）', value: 'riskValueSystem' },
   { label: '预计矫正周期', value: 'correctionPeriod' },
-  { label: '说明', value: 'explain' }
+  { label: '备注', value: 'explain' }
 ]
 </script>
 <style>

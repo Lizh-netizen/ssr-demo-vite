@@ -573,14 +573,10 @@ const searchValue = ref('')
 const handleSearch = async (val) => {
   const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
     dictType: 'ORTHTOOL',
-    dictCodeName: val
+    dictCodeName: val,
+    className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType,
-    showPosition: null
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 getOrthToolList()
 // 获取目标数据

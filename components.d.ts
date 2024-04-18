@@ -24,7 +24,6 @@ declare module 'vue' {
     Button: typeof import('./src/components/template/button.vue')['default']
     Checkbox: typeof import('./src/components/list/checkbox.vue')['default']
     ChooseTooth: typeof import('./src/components/list/chooseTooth.vue')['default']
-    copy: typeof import('./src/components/layout/draggable copy.vue')['default']
     CustomFormItem: typeof import('./src/components/list/customFormItem.vue')['default']
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']
@@ -46,6 +45,7 @@ declare module 'vue' {
     ElRadio: typeof import('element-plus/es')['ElRadio']
     ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
+    ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     EvaluateList: typeof import('./src/components/evaluatePdf/evaluateList.vue')['default']
@@ -62,7 +62,6 @@ declare module 'vue' {
     PreviewImage: typeof import('./src/components/list/previewImage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Tool: typeof import('./src/components/layout/draggable Tool.vue')['default']
     Tooth: typeof import('./src/components/list/tooth.vue')['default']
   }
 }

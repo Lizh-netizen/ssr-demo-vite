@@ -1,36 +1,42 @@
 <template>
-  <template v-if="!src">
-    <div class="pdfContent" :style="{ display: 'none' }">
-      <div class="pdfPage">
-        <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
-        <div class="title">
-          <div>
-            <div class="title-date">{{ formattedDate }}</div>
-            <div class="Chinese">正畸检查报告及治疗计划</div>
-            <div class="item">
-              <div class="label">姓名</div>
-              <div class="value">{{ patientInfo.Name }}</div>
-            </div>
-            <div class="item">
-              <div class="label">生日</div>
-              <div class="value">{{ patientInfo.age }}</div>
-            </div>
-            <div class="item">
-              <div class="label">诊所</div>
-              <div class="value">{{ patientInfo.aptmOfficeName }}</div>
-            </div>
+  <!-- <template v-if="!src"> -->
+  <div class="pdfContent">
+    <div class="pdfPage">
+      <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
+      <div class="title">
+        <div>
+          <div class="Chinese">正畸检查报告</div>
+          <div class="font-size-[24px] mb-[33px]!">（含治疗计划）</div>
+          <div class="item">
+            <div class="label">姓名</div>
+            <div class="value">{{ patientInfo.Name }}</div>
+          </div>
+          <div class="item">
+            <div class="label">生日</div>
+            <div class="value">{{ patientInfo.age }}</div>
+          </div>
+          <div class="item">
+            <div class="label">诊所</div>
+            <div class="value">{{ patientInfo.aptmOfficeName }}</div>
+          </div>
+          <div class="item">
+            <div class="label">检查日期</div>
+            <div class="value">{{ formattedDate }}</div>
           </div>
         </div>
       </div>
-      <template v-for="item in data" :key="item.id">
-        <template v-if="item.owningModule === '问诊'">
-          <div class="pdfPage">
-            <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="基础信息" />
-            <div class="personalInfo">
+    </div>
+    <template v-for="item in data" :key="item.id">
+      <template v-if="item.owningModule === '问诊'">
+        <div class="pdfPage">
+          <img class="background" src="../../assets/pdfTemplate/template1.png" />
+          <Header text="基础信息" />
+          <el-row class="flex mb-[10px]!">
+            <img :src="imgCover + `?random=${Math.random()}`" class="h-[200px]!" />
+            <div class="personalInfo flex-1">
               <div class="item">
                 <div class="label">姓名</div>
-                {{ patientInfo.Name }}
+                {{ patientInfo.Name + patientInfo.age?.match(/\(([^)]+)\)/)[0] }}
               </div>
               <div class="item">
                 <div class="label">病例号</div>
@@ -45,102 +51,128 @@
                 {{ formattedDate }}
               </div>
             </div>
-            <div class="subTitle">主诉&既往史</div>
-            <template v-if="item.owningModule === '问诊'">
-              <div class="content">
-                <div class="list">
-                  <template v-for="i in item.list">
-                    <div
-                      class="list__item"
-                      v-if="i.title_name == '主诉' || i.title_name == '现病史'"
-                    >
-                      {{ i.title_name }} : {{ i.option_names }}
-                    </div>
-                  </template>
+          </el-row>
 
-                  <div class="list__item">
-                    {{ item.className }}
-                    <div class="list innerList">
-                      <template v-for="i in item.list" :key="i.id">
-                        <div
-                          v-if="i.title_name != '主诉' && i.title_name !== '现病史'"
-                          class="list__item"
-                        >
-                          <span>{{ i.title_name }}：{{ i.option_names }}</span>
-                          <img
-                            src="../../assets/svg/serious.svg"
-                            v-show="i.serious == '1'"
-                            :style="{
-                              'margin-left': '8px',
-                              height: '13px'
-                            }"
-                          />
-                        </div>
-                      </template>
-                    </div>
+          <div class="subTitle">主诉&既往史</div>
+          <template v-if="item.owningModule === '问诊'">
+            <div class="content">
+              <div class="list">
+                <template v-for="i in item.list">
+                  <div class="list__item" v-if="i.title_name == '主诉' || i.title_name == '现病史'">
+                    {{ i.title_name }} : {{ i.option_names }}
+                  </div>
+                </template>
+
+                <div class="list__item">
+                  {{ item.className }}
+                  <div class="list innerList">
+                    <template v-for="i in item.list" :key="i.id">
+                      <div
+                        v-if="i.title_name != '主诉' && i.title_name !== '现病史'"
+                        class="list__item"
+                      >
+                        <span>{{ i.title_name }}：{{ i.option_names }}</span>
+                        <img
+                          src="../../assets/svg/serious.svg"
+                          v-show="i.serious == '1'"
+                          :style="{
+                            'margin-left': '8px',
+                            height: '13px'
+                          }"
+                        />
+                      </div>
+                    </template>
                   </div>
                 </div>
               </div>
-            </template>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '临床检查')">
-              临床检查
             </div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule == '临床检查').list"
-                v-if="data.find((item) => item.owningModule == '临床检查')"
-              />
-            </div>
+          </template>
+          <div class="subTitle" v-if="data.find((item) => item.owningModule == '临床检查')">
+            临床检查
           </div>
-        </template>
+          <div class="content">
+            <list
+              :list="data.find((item) => item.owningModule == '临床检查').list"
+              v-if="data.find((item) => item.owningModule == '临床检查')"
+            />
+          </div>
+        </div>
+      </template>
 
-        <template v-if="item.owningModule === '面型评估'">
-          <div class="pdfPage face">
-            <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
-            <Header text="影像分析" />
-            <div class="className">面型评估</div>
+      <template v-if="item.owningModule === '面型评估'">
+        <div class="pdfPage face">
+          <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
+          <Header text="面型评估" />
+          <div class="flex">
             <div class="imageList1">
-              <div :style="{ display: 'flex', gap: '16px' }">
-                <div
-                  :style="{
-                    width: '170px',
-                    'border-radius': '12px',
-                    height: '230px',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }"
-                  v-for="image in item.imageList1"
-                  :key="image.className"
-                >
-                  <div class="imageCaption" v-if="image.imageUrl">{{ image.className }}</div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="image.imageUrl + `?random=${Math.random()}`"
-                    :style="{ width: '100%' }"
-                  />
-                </div>
-              </div>
-            </div>
-            <div class="content1 content">
-              <customList :list="item.list1" />
-            </div>
-            <div class="imageList2">
               <div
                 :style="{
-                  width: '170px',
+                  width: '210px',
                   'border-radius': '12px',
-                  height: '230px',
                   position: 'relative',
                   overflow: 'hidden'
                 }"
-                v-for="image in item.imageList2"
+                v-for="image in item.imageList1"
                 :key="image.className"
               >
                 <div class="imageCaption" v-if="image.imageUrl">{{ image.className }}</div>
                 <img
                   crossOrigin="anonymous"
-                  :style="{ width: '100%' }"
                   :src="image.imageUrl + `?random=${Math.random()}`"
+                  :style="{ width: '100%' }"
+                />
+              </div>
+            </div>
+            <div class="content1 content">
+              <customList :list="item.list1" />
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-if="item.owningModule === '口内照'">
+        <div class="pdfPage mouth">
+          <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
+          <Header text="咬合分析" />
+          <div class="middle section">
+            <div class="imageList1">
+              <div class="image1" :style="{ position: 'relative' }">
+                <div class="imageCaption" v-if="item.imageList1[0]?.imageUrl">
+                  {{ item.imageList1[0]?.className }}
+                </div>
+                <img
+                  crossOrigin="anonymous"
+                  :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
+                />
+              </div>
+              <div :style="{ position: 'relative' }" class="image2">
+                <div class="imageCaption" v-if="item.imageList1[1]?.imageUrl">
+                  {{ item.imageList1[1]?.className }}
+                </div>
+                <img
+                  crossOrigin="anonymous"
+                  :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
+                />
+              </div>
+            </div>
+            <div class="content1 content">
+              <customList :list="item.list1" />
+            </div>
+          </div>
+          <div class="bottom section">
+            <div class="imageList2">
+              <div
+                :style="{ position: 'relative' }"
+                v-for="image in item.imageList2"
+                class="w-[50%]!"
+              >
+                <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
+                  {{ image.className }}
+                </div>
+                <img
+                  crossOrigin="anonymous"
+                  :src="image.imageUrl + `?random=${Math.random()}`"
+                  class="w-[100%]!"
                 />
               </div>
             </div>
@@ -148,212 +180,161 @@
               <customList :list="item.list2" />
             </div>
           </div>
-        </template>
-
-        <template v-if="item.owningModule === '口内照'">
-          <div class="pdfPage mouth">
-            <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
-            <Header text="影像分析" />
-            <div class="className">口内照</div>
-            <div class="middle section">
-              <div class="imageList1">
-                <div class="image1" :style="{ position: 'relative' }">
-                  <div class="imageCaption" v-if="item.imageList1[0]?.imageUrl">
-                    {{ item.imageList1[0]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image2">
-                  <div class="imageCaption" v-if="item.imageList1[1]?.imageUrl">
-                    {{ item.imageList1[1]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image3">
-                  <div class="imageCaption" v-if="item.imageList1[2]?.imageUrl">
-                    {{ item.imageList1[2]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList1[2]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-              </div>
-              <div class="content1 content">
-                <customList :list="item.list1" />
-              </div>
-            </div>
-            <div class="bottom section">
-              <div class="content2 content">
-                <customList :list="item.list2" />
-              </div>
-              <div class="imageList2">
-                <div :style="{ position: 'relative' }" class="image1">
-                  <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
-                    {{ item.imageList2[0]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[0]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image2">
-                  <div class="imageCaption" v-if="item.imageList2[1]?.imageUrl">
-                    {{ item.imageList2[1]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[1]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image3">
-                  <div class="imageCaption" v-if="item.imageList2[2]?.imageUrl">
-                    {{ item.imageList2[2]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[2]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image4">
-                  <div class="imageCaption" v-if="item.imageList2[3]?.imageUrl">
-                    {{ item.imageList2[3]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[3]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image5">
-                  <div
-                    class="imageCaption"
-                    v-if="item.imageList2[4] && item.imageList2[4]?.imageUrl"
-                  >
-                    {{ item.imageList2[4]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[4]?.imageUrl + `?random=${Math.random()}`"
-                    v-if="item.imageList2[4]"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-if="item.owningModule === '全景片' || item.owningModule === '侧位片'">
-          <div class="pdfPage flexPdfPage">
-            <img class="background" src="../../assets/pdfTemplate/pano.png" />
-            <Header text="影像分析" />
-            <div class="imgBox" :class="{ cepha: item.owningModule === '侧位片' }">
-              <div class="imageCaption" v-if="item.imageUrl">
-                {{ item.className }}
-              </div>
-              <img
-                :src="item.imageUrl + `?random=${Math.random()}`"
-                crossOrigin="anonymous"
-                class="avator pic"
-                :class="{ cephaImg: item.owningModule === '侧位片' }"
-              />
-            </div>
-            <div class="content blueBackground">
-              <list :list="item.list" />
-            </div>
-          </div>
-        </template>
-        <template v-if="item.owningModule === '问题列表'">
-          <div class="pdfPage">
-            <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="评估结果" />
-            <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
-            <div class="content">
-              <list :list="item.data" moduleName="问题列表" />
-            </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">
-              诊断
-            </div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule === '诊断')?.list"
-                v-if="data.find((item) => item.owningModule == '诊断')"
-              />
-            </div>
-          </div>
-        </template>
-        <template v-if="item.owningModule === '方案'">
-          <div class="pdfPage">
-            <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="目标&方法&风险" />
-            <div class="subTitle">方案</div>
-            <div class="content">
+        </div>
+      </template>
+      <template v-if="item.owningModule === '口内照'">
+        <div class="pdfPage mouth">
+          <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
+          <Header text="咬合分析" />
+          <div class="bottom section">
+            <div class="imageList2">
               <div
-                class="scheme"
-                v-for="a in item.data"
-                :key="a.planName"
-                :class="{ checkedScheme: a.checked }"
+                :style="{ position: 'relative' }"
+                v-for="image in item.imageList3"
+                class="w-[50%]!"
               >
-                <div class="color-#404682 mb-[8px]! flex items-center">
-                  <div class="font-size-[13px]">{{ a.planName }}</div>
-                  <div
-                    v-if="a.checked"
-                    class="bg-#F99020 border-rd-[4px] font-size-[10px] px-[8px]! py-[3px]! color-#FFFFFF ml-[8px]!"
-                  >
-                    当前方案
-                  </div>
+                <div class="imageCaption">
+                  {{ image.className }}
                 </div>
-                <div class="flex gap-[4px]">
-                  <div v-for="feature in a.featureList" :key="feature" class="planItem mb-[8px]!">
-                    {{ feature.name }}
-                  </div>
+                <img
+                  crossOrigin="anonymous"
+                  :src="image.imageUrl + `?random=${Math.random()}`"
+                  class="w-[100%]!"
+                />
+              </div>
+            </div>
+            <div class="content2 content">
+              <customList :list="item.list2" />
+            </div>
+          </div>
+          <div class="bottom section">
+            <div class="imageList2">
+              <div
+                :style="{ position: 'relative' }"
+                v-for="image in item.imageList4"
+                class="w-[50%]!"
+              >
+                <div class="imageCaption">
+                  {{ image.className }}
                 </div>
+                <img
+                  crossOrigin="anonymous"
+                  :src="image.imageUrl + `?random=${Math.random()}`"
+                  class="w-[100%]!"
+                />
+              </div>
+            </div>
+            <div class="content2 content">
+              <customList :list="item.list2" />
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-if="item.owningModule === '全景片' || item.owningModule === '侧位片'">
+        <div class="pdfPage flexPdfPage">
+          <img class="background" src="../../assets/pdfTemplate/pano.png" />
+          <Header text="影像分析" />
+          <div class="imgBox" :class="{ cepha: item.owningModule === '侧位片' }">
+            <div class="imageCaption" v-if="item.imageUrl">
+              {{ item.className }}
+            </div>
+            <img
+              :src="item.imageUrl + `?random=${Math.random()}`"
+              crossOrigin="anonymous"
+              class="avator pic"
+              :class="{ cephaImg: item.owningModule === '侧位片' }"
+            />
+          </div>
+          <div class="content blueBackground">
+            <list :list="item.list" />
+          </div>
+        </div>
+      </template>
+      <template v-if="item.owningModule === '问题列表'">
+        <div class="pdfPage">
+          <img class="background" src="../../assets/pdfTemplate/template1.png" />
+          <Header text="评估结果" />
+          <div class="subTitle issuesList" v-if="item.data.length > 0">问题列表</div>
+          <div class="content">
+            <list :list="item.data" moduleName="问题列表" />
+          </div>
+          <div class="subTitle" v-if="data.find((item) => item.owningModule === '诊断')">诊断</div>
+          <div class="content">
+            <list
+              :list="data.find((item) => item.owningModule === '诊断')?.list"
+              v-if="data.find((item) => item.owningModule == '诊断')"
+            />
+          </div>
+        </div>
+      </template>
+      <template v-if="item.owningModule === '方案'">
+        <div class="pdfPage">
+          <img class="background" src="../../assets/pdfTemplate/template1.png" />
+          <Header text="目标&方法&风险" />
+          <div class="subTitle">方案</div>
+          <div class="content">
+            <div
+              class="scheme"
+              v-for="a in item.data"
+              :key="a.planName"
+              :class="{ checkedScheme: a.checked }"
+            >
+              <div class="color-#404682 mb-[8px]! flex items-center">
+                <div class="font-size-[13px]">{{ a.planName }}</div>
                 <div
-                  v-if="a.stageList.length && a.checked"
-                  class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] px-[12px]! pb-[10px]!"
-                  style="border: 1px solid #e5e6eb"
+                  v-if="a.checked"
+                  class="bg-#F99020 border-rd-[4px] font-size-[10px] px-[8px]! py-[3px]! color-#FFFFFF ml-[8px]!"
                 >
-                  <div></div>
-                  <div v-for="stage in a.stageList" :key="stage.stageName">
-                    <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
-                      <div>{{ stage.stageName }}</div>
-                      <div class="flex">
-                        {{ stage.goalList.join() }}
-                      </div>
-                      <div class="flex">
-                        <div>{{ stage.toolList }}</div>
-                      </div>
+                  当前方案
+                </div>
+              </div>
+              <div class="flex gap-[4px]">
+                <div v-for="feature in a.featureList" :key="feature" class="planItem mb-[8px]!">
+                  {{ feature.name }}
+                </div>
+              </div>
+              <div
+                v-if="a.stageList.length && a.checked"
+                class="color-#404682 font-size-[12px] bg-#fff border-rd-[8px] px-[12px]! pb-[10px]!"
+                style="border: 1px solid #e5e6eb"
+              >
+                <div></div>
+                <div v-for="stage in a.stageList" :key="stage.stageName">
+                  <div class="grid grid-cols-[0.4fr_1fr_1fr] gap-[50px] mt-[16px]!">
+                    <div>{{ stage.stageName }}</div>
+                    <div class="flex">
+                      {{ stage.goalList.join() }}
+                    </div>
+                    <div class="flex">
+                      <div>{{ stage.toolList }}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule == '风险').list"
-                v-if="data.find((item) => item.owningModule == '风险')"
-              />
-            </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '备注')">备注</div>
-            <div class="content">
-              <list
-                :list="data.find((item) => item.owningModule == '备注').list"
-                v-if="data.find((item) => item.owningModule == '备注')"
-              />
-            </div>
           </div>
-        </template>
+          <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
+          <div class="content">
+            <list
+              :list="data.find((item) => item.owningModule == '风险').list"
+              v-if="data.find((item) => item.owningModule == '风险')"
+            />
+          </div>
+          <div class="subTitle" v-if="data.find((item) => item.owningModule == '备注')">备注</div>
+          <div class="content">
+            <list
+              :list="data.find((item) => item.owningModule == '备注').list"
+              v-if="data.find((item) => item.owningModule == '备注')"
+            />
+          </div>
+        </div>
       </template>
-      <div class="last-page">
-        <img class="background" src="../../assets/pdfTemplate/endCover.png" />
-      </div>
+    </template>
+    <div class="last-page">
+      <img class="background" src="../../assets/pdfTemplate/endCover.png" />
     </div>
-  </template>
+  </div>
+  <!-- </template> -->
   <iframe :src="src" v-if="src" width="100%" height="600px"></iframe>
 </template>
 
@@ -403,6 +384,7 @@ const mouthList = ref()
 const panoList = ref()
 const cephaList = ref()
 const goalList = ref()
+
 const methodList = ref()
 const order = [
   '问诊',
@@ -431,10 +413,18 @@ function sort(a, b) {
 }
 // 获取非问题列表页面的数据
 
-const faceImageList1 = ['正面像', '正面微笑像']
-const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
-const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
-const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
+const faceImageList1 = [
+  '正面像',
+  '正面微笑像',
+  '90度侧面像',
+  '45度侧面像',
+  '45度侧面微笑像',
+  '90度侧面微笑像'
+]
+const mouthImageList1 = ['正面咬合', '前牙覆盖']
+const mouthImageList2 = ['口内照（左侧）', '口内照（右侧）']
+const mouthImageList3 = ['磨牙关系（左侧）', '磨牙关系（右侧）']
+const mouthImageList4 = ['上颌', '下颌']
 async function getDataList() {
   const result = await Get(
     `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2`
@@ -542,12 +532,6 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
-          } else {
-            acc[cur.owningModule].list2.push(...cur.list)
-            acc[cur.owningModule].imageList2.push({
-              className: cur.className,
-              imageUrl: cur.imageUrl
-            })
           }
         } else {
           acc[cur.owningModule] = cur
@@ -577,9 +561,21 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
-          } else {
-            acc[cur.owningModule].list2.push(...cur.list)
+          } else if (mouthImageList2.includes(cur.className)) {
             acc[cur.owningModule].imageList2.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list2 = acc[cur.owningModule].list2.concat(cur.list)
+          } else if (mouthImageList3.includes(cur.className)) {
+            acc[cur.owningModule].imageList3.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list3 = acc[cur.owningModule].list3.concat(cur.list)
+          } else {
+            acc[cur.owningModule].list4 = acc[cur.owningModule].list4.concat(cur.list)
+            acc[cur.owningModule].imageList4.push({
               className: cur.className,
               imageUrl: cur.imageUrl
             })
@@ -589,7 +585,11 @@ async function getDataList() {
           acc[cur.owningModule].list1 = []
           acc[cur.owningModule].imageList1 = []
           acc[cur.owningModule].imageList2 = []
+          acc[cur.owningModule].imageList3 = []
+          acc[cur.owningModule].imageList4 = []
           acc[cur.owningModule].list2 = []
+          acc[cur.owningModule].list3 = []
+          acc[cur.owningModule].list4 = []
           if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
@@ -711,106 +711,16 @@ const getFeatureEffect = async () => {
   ]
 }
 getFeatureEffect()
-const mockData = [
-  {
-    planName: '方案一',
-    checked: true,
-    featureList: [246, 247, 250, 249],
-    stageList: [
-      { stageName: '阶段', goalList: [{ label: '目标' }], toolList: [{ label: '工具' }] },
-      {
-        stageName: '3个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }],
-        toolList: [{ label: '工具1' }, { label: '工具2' }]
-      },
-      {
-        stageName: '6个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }],
-        toolList: [{ label: '工具1' }, { label: '工具2' }]
-      }
-    ]
-  },
-  {
-    planName: '方案er',
-    checked: false,
-    featureList: [{ label: '中等难度' }, { label: '中等难度' }],
-    stageList: [
-      {
-        stageName: '3个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }]
-      }
-    ]
-  }
-]
-const imgCount = ref(0)
-// 获取完数据在其中添加图片
-// async function getClassifiedImgList() {
-//   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
-//   if (res.code == 200) {
-//     // const molar = res.data.find((item) => item.imageType === '磨牙关系（左侧）')
-//     const face = data.value.find((d) => d.owningModule === '面型评估')
-//     const mouth = data.value.find((d) => d.owningModule === '口内照')
 
-//     faceImageList1.forEach((item) => {
-//       if (face && !face.imageList1.some((image) => image.className === item)) {
-//         face.imageList1.push({ className: item })
-//       }
-//     })
-//     faceImageList2.forEach((item) => {
-//       if (face && !face.imageList2.some((image) => image.className === item)) {
-//         face.imageList2.push({ className: item })
-//       }
-//     })
-//     mouthImageList1.forEach((item) => {
-//       if (mouth && !mouth.imageList1.some((image) => image.className === item)) {
-//         mouth.imageList1.push({ className: item })
-//       }
-//     })
-//     mouthImageList2.forEach((item) => {
-//       if (mouth && !mouth.imageList2.some((image) => image.className === item)) {
-//         mouth.imageList2.push({ className: item })
-//       }
-//     })
-//     res.data.forEach((item) => {
-//       face?.imageList1?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       face?.imageList2?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       mouth?.imageList1?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       mouth?.imageList2?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       // if (molar && item.imageType === '磨牙关系（右侧）') {
-//       //   mouth?.imageList2?.push({
-//       //     className: '磨牙关系（右侧）',
-//       //     imageUrl: item.imageUrl
-//       //   })
-//       // }
-//       data.value.forEach((b) => {
-//         if (b.className === item.imageType && item.imageUrl) {
-//           b.fileUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//     })
-//   }
-// }
+const imgCover = ref()
+// 获取完数据在其中添加图片
+async function getClassifiedImgList() {
+  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
+  if (res.code == 200) {
+    const front = res.data.find((item) => item.imageType == '正面像')
+    imgCover.value = front.imageUrl
+  }
+}
 
 const issuesList = ref([])
 // 获取问题列表
@@ -906,7 +816,7 @@ async function main() {
   await getAlignerList()
   await getSchemeList()
   await getDataList()
-  // await getClassifiedImgList()
+  await getClassifiedImgList()
   await getIssuesList()
   await getPatientInfo()
 
@@ -914,21 +824,21 @@ async function main() {
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
   pdfContent.style.display = 'block'
-  generatePDF()
+  // generatePDF()
 }
 const loading = ref()
 
 onMounted(() => {
-  if (!src.value) {
-    loading.value = ElLoading.service({
-      lock: true,
-      text: '报告生成中',
-      // 把颜色改成不透明的，就看不到后面的pdf的内容了
-      background: 'rgba(37, 38, 38, 1)'
-    })
-    main()
-  }
-  // main()
+  // if (!src.value) {
+  //   loading.value = ElLoading.service({
+  //     lock: true,
+  //     text: '报告生成中',
+  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
+  //     background: 'rgba(37, 38, 38, 1)'
+  //   })
+  //   main()
+  // }
+  main()
 })
 </script>
 
@@ -1001,10 +911,7 @@ body {
 .contentImg {
   position: absolute;
   z-index: 10;
-  &.content1 {
-    top: 232px;
-    left: 204px;
-  }
+
   &.content2 {
     top: 438px;
     left: 483px;
@@ -1079,11 +986,10 @@ body {
         color: #2e6ce4;
       }
       .imageList1 {
-        width: 360px;
-        height: 226px;
-        top: 410px;
-        left: 26px;
-        position: absolute;
+        display: grid;
+        grid-template-columns: auto auto;
+
+        gap: 10px;
       }
       .imageList2 {
         width: 360px;
@@ -1096,30 +1002,15 @@ body {
         grid-row-gap: 18px;
         grid-template-columns: auto auto;
       }
-      .content2 {
-        position: absolute;
-        right: 28px;
-        width: 360px;
-        top: 160px;
-        height: 400px;
-        display: flex;
-        align-items: center;
 
-        &.content {
-          .list1 {
-            width: 100%;
-            display: block;
-          }
-        }
-      }
       .content1 {
-        position: absolute;
-        left: 30px;
         width: 340px;
-        top: 660px;
-        height: 390px;
+        background: #eaf0fc;
         display: flex;
         align-items: center;
+        margin-left: 12px;
+        border-radius: 12px;
+
         &.content {
           .list1 {
             width: 100%;
@@ -1160,19 +1051,20 @@ body {
         color: #2e6ce4;
       }
       .section {
-        display: flex;
         img {
           border-radius: 12px;
         }
       }
       .middle {
+        padding: 10px;
         margin-top: 16px;
-
+        background: #eaf0fc;
+        border-radius: 16px;
         .imageList1 {
-          display: grid;
-          grid-gap: 10px;
+          display: flex;
+          gap: 10px;
           .image1 {
-            max-width: 267px;
+            width: 50%;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
             max-height: 400px;
@@ -1181,10 +1073,9 @@ body {
               width: 100%;
             }
           }
-          .image2,
-          .image3 {
-            width: 126px;
-            height: 200px;
+          .image2 {
+            width: 200px;
+
             overflow: hidden;
             img {
               width: 100%;
@@ -1207,7 +1098,6 @@ body {
         .content1 {
           flex: 1;
           margin-left: 10px;
-          background: #f4f7fd;
           border-radius: 12px;
           display: flex;
           align-items: center;
@@ -1215,11 +1105,11 @@ body {
       }
       .bottom {
         margin-top: 18px;
-        background: #f4f7fd;
-        padding: 16px;
-        padding-left: 0;
+        padding: 10px;
+        background: #eaf0fc;
+        border-radius: 16px;
         justify-content: space-between;
-        border-radius: 12px;
+
         .content2.content {
           display: flex;
           align-items: center;
@@ -1234,11 +1124,8 @@ body {
           }
         }
         .imageList2 {
-          width: 316px;
-          height: 100%;
-          display: grid;
-          grid-gap: 10px;
-          grid-template-columns: auto auto;
+          display: flex;
+          gap: 10px;
           .image1 {
             width: 316px;
             grid-column: 1 / span 2;
@@ -1289,9 +1176,6 @@ body {
         margin-bottom: 12px;
         letter-spacing: 0.16em;
       }
-      .Chinese {
-        margin-bottom: 33px;
-      }
       .item {
         display: flex;
         margin-bottom: 20px;
@@ -1302,11 +1186,12 @@ body {
           font-weight: 500;
           line-height: normal;
           letter-spacing: 0px;
-          padding: 2px 14px;
+          display: flex;
+          justify-content: center;
           box-sizing: border-box;
           color: #ffffff;
           background: #3b4485;
-          width: 52px;
+          width: 62px;
         }
         .value {
           font-size: 14px;
@@ -1340,12 +1225,11 @@ body {
       }
     }
     .personalInfo {
-      margin-left: 14px;
-      margin-top: -11px;
+      margin-left: 44px;
       width: 100%;
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
+      flex-direction: column;
+      justify-content: space-around;
       font-size: 13px;
       font-weight: normal;
       line-height: normal;
@@ -1359,6 +1243,7 @@ body {
         .label {
           width: 60px;
           margin-right: 16px;
+          text-align: right;
         }
       }
     }

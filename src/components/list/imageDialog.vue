@@ -228,6 +228,7 @@ onMounted(() => {
   getImageList()
 })
 onBeforeMount(() => {
+  console.log('enter')
   getClassifiedImgList()
 })
 const filterList = [
