@@ -217,7 +217,7 @@ const renderTableColumn = () => (
               <>
                 <el-popover
                   trigger="hover"
-                  class="w-[308px]!"
+                  popper-class="popoverState"
                   v-slots={{
                     reference: () => (
                       <SvgIcon

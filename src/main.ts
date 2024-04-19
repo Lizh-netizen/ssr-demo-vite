@@ -54,20 +54,12 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 // 防止漏掉的try--catch
 window.addEventListener('error', (event) => {
-  ElMessage({
-    message: event.message,
-    type: 'error'
-  })
   // console.log(event.message, event.filename,event.lineno, event.colno, event.error)
 })
 
 // 防止漏掉的PromiseReject
 window.addEventListener('unhandledrejection', function (e) {
   // e.reason.stack + e.reason.message上报
-  ElMessage({
-    message: '操作失败',
-    type: 'error'
-  })
 })
 app.use(store)
 app.use(router)
