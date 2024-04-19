@@ -502,6 +502,13 @@ const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
 async function handleClassifyPics() {
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在分类中',
+    background: 'rgba(0, 0, 0, 0.7)',
+    target: loadingTarget2.value
+  })
+  loading.value = true
   try {
     if (chooseImgNum.value == 0) {
       ElMessage({
@@ -509,13 +516,6 @@ async function handleClassifyPics() {
         type: 'error'
       })
     } else {
-      const loading = ElLoading.service({
-        lock: true,
-        text: '正在分类中',
-        background: 'rgba(0, 0, 0, 0.7)',
-        target: loadingTarget2.value
-      })
-      loading.value = true
       const formData = new FormData()
       let orthImageString, orthImageList
       imageArr.value
