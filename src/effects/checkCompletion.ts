@@ -1,7 +1,7 @@
-function checkChoosen(optionsList: any) {
+export function checkChoosen(optionsList: any) {
   return optionsList.some((item: any) => item.choosen)
 }
-function checkFugaiOptions(jsonData: any) {
+export function checkFugaiOptions(jsonData: any) {
   let isChosen = true
 
   // 遍历数据
@@ -66,7 +66,7 @@ function checkFugaiOptions(jsonData: any) {
   })
   return isChosen
 }
-function checkOrthOptions(data: any) {
+export function checkOrthOptions(data: any) {
   return data.every((item: any) =>
     item.orthTitleList.every((title: any) => checkChoosen(title.orthOptionsList))
   )
@@ -89,7 +89,7 @@ const imageList = [
   '下颌',
   '全景片'
 ]
-async function checkImageUpload(classifiedImageList: any) {
+export async function checkImageUpload(classifiedImageList: any) {
   imageList.forEach((image) =>
     classifiedImageList.value.forEach((item: any) => {
       if (item.imageType == image && !item.imageUrl) {
@@ -99,15 +99,12 @@ async function checkImageUpload(classifiedImageList: any) {
   )
   return true
 }
-function checkPanoOptions(data: any) {
+export function checkPanoOptions(data: any) {
   data[0].orthTitleList.forEach((item: any) => {
     if (
       item.orthOptionsList.length > 0 &&
       !item.orthOptionsList.some((option: any) => option.choosen)
     ) {
-      return false
-    }
-    if (!item.orthOptionsList.length && !item.fdiToothCode) {
       return false
     }
   })

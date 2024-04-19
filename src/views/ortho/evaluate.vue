@@ -213,7 +213,7 @@
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index <= 1">
+                    <template v-if="index <= 2">
                       <form-item :label="title.titleName" width="120px">
                         <el-radio-group
                           v-if="title.type == 1"
@@ -241,7 +241,7 @@
                 </div>
                 <div class="leftLower-column">
                   <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(2, 7)"
+                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(3, 8)"
                     :key="title.id"
                   >
                     <!-- <template v-if="index >= 2"> -->
@@ -563,7 +563,7 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
-
+import { checkOrthOptions, checkImageUpload } from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
 const store = useStore()
 const router = useRouter()
@@ -663,7 +663,7 @@ async function checkCompletion() {
   await getPanoramicList()
   const checkData = await getCheckList()
   const isCheck = checkOrthOptions(checkData)
-  const isImageUpload = await checkImageUpload()
+  const isImageUpload = await checkImageUpload(classifiedImageList.value)
   const isImageAnalysis = await checkImageOptions()
 
   clinicalExamination.value = isCheck ? '0' : '1'
@@ -1232,8 +1232,8 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 2)
-          codeTitleList.value = res.data.slice(2, 7)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 3)
+          codeTitleList.value = res.data.slice(3)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
