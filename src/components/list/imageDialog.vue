@@ -571,7 +571,7 @@ async function handleClassifyPics() {
   } catch (err) {
     loading.close()
     ElMessage({
-      message: '图片分类失败',
+      message: '分类失败，请手工向右侧拖入图片',
       type: 'error'
     })
   }
