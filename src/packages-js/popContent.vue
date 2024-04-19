@@ -18,6 +18,7 @@ console.log(props)
 
 <style scoped>
 .popover-content {
+  position: absolute;
   /* 样式 */
   padding: 16px;
   min-width: 308px;
