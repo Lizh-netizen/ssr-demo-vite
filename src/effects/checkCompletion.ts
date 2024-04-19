@@ -90,23 +90,25 @@ const imageList = [
   '全景片'
 ]
 export async function checkImageUpload(classifiedImageList: any) {
-  imageList.forEach((image) =>
-    classifiedImageList.value.forEach((item: any) => {
-      if (item.imageType == image && !item.imageUrl) {
-        return false
-      }
-    })
-  )
-  return true
+  let allImageChoosen = true
+  imageList.forEach((image) => {
+    if (!classifiedImageList.value.find((item: any) => item.imageType == image)) {
+      allImageChoosen = false
+      return allImageChoosen
+    }
+  })
+  return allImageChoosen
 }
 export function checkPanoOptions(data: any) {
+  let allChoosen = true
   data[0].orthTitleList.forEach((item: any) => {
     if (
+      item.orthOptionsList &&
       item.orthOptionsList.length > 0 &&
       !item.orthOptionsList.some((option: any) => option.choosen)
     ) {
-      return false
+      allChoosen = false
     }
   })
-  return true
+  return allChoosen
 }

@@ -563,7 +563,12 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
-import { checkOrthOptions, checkImageUpload } from '../../effects/checkCompletion'
+import {
+  checkOrthOptions,
+  checkImageUpload,
+  checkFugaiOptions,
+  checkPanoOptions
+} from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
 const store = useStore()
 const router = useRouter()
@@ -652,31 +657,42 @@ const imageAnalysis = ref(0)
 const facialCompletionId = ref()
 const facialConclusion = ref(0)
 async function checkImageOptions() {
+  // 包含前牙覆盖选项的
   checkFugaiOptions(mouthData.value)
   checkPanoOptions(panoramicData.value)
-  return (await checkOrthOptions(faceAccessData.value)) && checkFugaiOptions(mouthData.value)
+  return (
+    (await checkOrthOptions(faceAccessData.value)) &&
+    checkFugaiOptions(mouthData.value) &&
+    checkPanoOptions(panoramicData.value)
+  )
 }
+
 async function checkCompletion() {
   await getClassifiedImgList()
   await checkOrthOptions(faceAccessData.value)
   await getMouthList()
   await getPanoramicList()
   const checkData = await getCheckList()
+  // 临床检查
   const isCheck = checkOrthOptions(checkData)
-  const isImageUpload = await checkImageUpload(classifiedImageList.value)
+  clinicalExamination.value = isCheck ? '1' : '0'
+  // 图片上传
+  const isImageUpload = await checkImageUpload(classifiedImageList)
+  imageUpload.value = isImageUpload ? '1' : '0'
+  // 图像分析的选项
   const isImageAnalysis = await checkImageOptions()
+  imageAnalysis.value = isImageAnalysis ? '1' : '0'
 
-  clinicalExamination.value = isCheck ? '0' : '1'
-
-  await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
+  const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
     id: '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: clinicalExamination.value,
-    imageUpload: '1',
-    imageAnalysis: '1',
-    facialConclusion: ''
+    imageUpload: imageUpload.value,
+    imageAnalysis: imageAnalysis.value,
+    facialConclusion: '0'
   })
+  facialCompletionId.value = res.data.facialCompletionId
 }
 const id = ref()
 async function getId() {
@@ -758,6 +774,15 @@ async function handleAdvice() {
     if (res.code === 200) {
       ElMessage.success(res.msg)
     }
+    await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
+      id: facialCompletionId.value || '',
+      aptmId: appId,
+      patientId: patientId,
+      clinicalExamination: clinicalExamination.value,
+      imageUpload: imageUpload.value,
+      imageAnalysis: imageAnalysis.value,
+      facialConclusion: '1'
+    })
   } catch (err) {
     console.log(err)
   }

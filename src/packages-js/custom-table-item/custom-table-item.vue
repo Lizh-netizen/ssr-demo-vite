@@ -212,12 +212,18 @@ const renderTableColumn = () => (
             {
               /* popState 状态 */
             }
+            const svg_name = ''
             return (
               <>
                 <el-popover
                   trigger="hover"
+                  class="w-[308px]!"
                   v-slots={{
-                    reference: () => <SvgIcon name="success" />
+                    reference: () => (
+                      <SvgIcon
+                        name={stateOption.filter((i) => i.value == row.completStatus)[0]?.name}
+                      />
+                    )
                   }}
                 >
                   <PopContent data={row.list} />

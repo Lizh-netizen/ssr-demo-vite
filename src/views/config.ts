@@ -38,6 +38,16 @@ export const columns_config_evaluate = [
       { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
     ]
   },
+  {
+    type: 'popState',
+    title: '完成情况',
+    list: [],
+    stateOption: [
+      { name: 'success', prop: 'completStatus', color: 'Warning', value: 0 },
+      { name: 'failed', prop: 'completStatus', color: 'Alarm', value: 1 },
+      { name: 'halfComplete', prop: 'completStatus', color: 'Warning', value: 99 }
+    ]
+  },
   { title: '面评建议', prop: 'facialAdvise', slotName: 'facialAdvise' },
   {
     type: 'operation',

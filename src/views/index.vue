@@ -403,7 +403,13 @@ async function getEvaluateList(val) {
         StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
-        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
+        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
+        list: [
+          { label: '临床检查', finished: item.clinicalExamination },
+          { label: '图像上传', imageUpload: item.imageUpload },
+          { label: '检查结果', imageAnalysis: item.imageAnalysis },
+          { label: '面评结论', facialConclusion: item.facialConclusion }
+        ]
       }))
       patientList.value = evaluateList.value
       total.value = res.total
@@ -436,7 +442,12 @@ async function getOrthoList(val) {
         patientName: item.patientName,
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
-        list: [{ label: '主诉', finished: true }]
+        list: [
+          { label: '临床检查', finished: item.clinicalExamination },
+          { label: '图像上传', imageUpload: item.imageUpload },
+          { label: '检查结果', imageAnalysis: item.imageAnalysis },
+          { label: '面评结论', facialConclusion: item.facialConclusion }
+        ]
       }))
       patientList.value = orthoList.value
       total.value = res.total
