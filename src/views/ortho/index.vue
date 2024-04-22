@@ -179,7 +179,16 @@ import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
 import formatTime from '../../utils/formatTime'
 import { useStore } from 'vuex'
-
+import {
+  checkOrthOptions,
+  checkInquiry,
+  checkFugaiOptions,
+  checkOrthoCheck,
+  checkOptions,
+  checkOrthFace,
+  checkOrthImageUpload,
+  checkModelOptions
+} from '../../effects/checkCompletion'
 const doctorId = ref()
 window.addEventListener('message', function (event) {
   if (event.origin === 'https://odostest.orangedental.cn:4403') {
@@ -266,7 +275,6 @@ function validate(planList) {
 // 校验是否选中了方案
 function validateCheck(planList) {
   const found = planList.find((plan, index) => plan.checked)
-  console.log('🚀 ~ validateCheck ~ found:', found)
 
   return found ? false : true
 }
@@ -280,10 +288,6 @@ const handleGeneratePdf = async () => {
       return false
     }
     await getPlanList()
-    console.log(
-      '🚀 ~ handleGeneratePdf ~ validateGoalAndTarget(step5.value.planList):',
-      validateGoalAndTarget(step5.value.planList)
-    )
     if (!validateGoalAndTarget(step5.value.planList)) {
       ElMessage({
         message: '请选择目标和工具',
@@ -299,6 +303,7 @@ const handleGeneratePdf = async () => {
       return false
     }
   }
+  checkCompletion()
   nextTick(() => {
     editStep.value = active.value
     active.value++
@@ -388,6 +393,101 @@ function checkChoosenOptions(data) {
   // 如果没有选中的选项，则返回false
   return { dentition, other }
 }
+const facialCompletionId = ref()
+const clinicalExamination = ref()
+const imageUpload = ref()
+const imageAnalysis = ref()
+const modelAnalysis = ref()
+const diagnosis = ref()
+const plansTools = ref()
+const approvalSubmitted = ref()
+// 获取问诊数据
+const inquiryData = ref()
+async function getOrthInquiryList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/问诊/${appId}`)
+  inquiryData.value = result.data
+}
+const checkData = ref()
+async function getOrthCheckList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/临床检查/${appId}`)
+  checkData.value = result.data
+}
+const classifiedImageList = ref([])
+async function getClassifiedImgList() {
+  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
+  if (res.code == 200 && res.data.length > 0) {
+    classifiedImageList.value = res.data
+  }
+}
+const faceAccessData = ref()
+async function getOrthFaceAccessList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
+  faceAccessData.value = result.data
+}
+const modelData = ref({})
+async function getOrthModelList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/模型分析/${appId}`)
+  modelData.value = result.data
+}
+const mouthData = ref()
+async function getOrthMouthList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/口内照/${appId}`)
+  mouthData.value = result.data
+}
+const panoramicData = ref()
+const cepha = ref()
+async function getOrthPanoList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
+  panoramicData.value = result.data
+}
+async function getOrthCephaList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`)
+  cepha.value = result.data
+}
+async function checkOrthImageAnalysis() {
+  await getOrthFaceAccessList()
+  await getOrthMouthList()
+  await getOrthPanoList()
+  await getOrthCephaList()
+  return (
+    checkOrthFace(faceAccessData.value) &&
+    checkFugaiOptions(mouthData.value) &&
+    checkOptions(panoramicData.value) &&
+    checkOptions(cepha.value)
+  )
+}
+
+const checkCompletion = async () => {
+  if (active.value == 1) {
+    await getOrthInquiryList()
+    await getOrthCheckList()
+    clinicalExamination.value =
+      checkInquiry(inquiryData.value) && checkOrthoCheck(checkData.value) ? '1' : '0'
+  }
+  if (active.value == 2) {
+    await getClassifiedImgList()
+    imageUpload.value = checkOrthImageUpload(classifiedImageList)
+    imageAnalysis.value = checkOrthImageAnalysis()
+  }
+  if (active.value == 3) {
+    await getOrthModelList()
+    modelAnalysis.value = checkModelOptions(modelData.value)
+  }
+
+  const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
+    id: '',
+    aptmId: appId,
+    patientId: patientId,
+    clinicalExamination: active.value == 1 ? +clinicalExamination.value : '',
+    imageUpload: active.value == 2 ? +imageUpload.value : '',
+    imageAnalysis: active.value == 2 ? +imageAnalysis.value : '',
+    modelAnalysis: active.value == 3 ? +modelAnalysis.value : '',
+    diagnosis: active.value == 4 ? +diagnosis.value : '',
+    plansTools: active.value == 5 ? +plansTools.value : '',
+    approvalSubmitted: active.value == 6 ? +approvalSubmitted.value : ''
+  })
+  facialCompletionId.value = res.data.facialCompletionId
+}
 const handleNextStep = async () => {
   if (active.value == 4) {
     await getOrthDiagnoseList()
@@ -406,7 +506,9 @@ const handleNextStep = async () => {
       })
       return
     }
+    diagnosis.value = 1
   }
+  checkCompletion()
   nextTick(() => {
     editStep.value = active.value
     active.value++

@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 const instance = axios.create({
   // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   baseURL: import.meta.env.VITE_APP_API_URL,
-  timeout: 100000,
+  timeout: 1000000,
   headers: {
     'Content-Type': 'application/json'
   }

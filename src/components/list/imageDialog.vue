@@ -60,7 +60,7 @@
                       <img
                         :style="{ display: 'block' }"
                         class="img"
-                        :src="img.imgUrl + '&?x-oss-process=style/x0.5'"
+                        :src="img.imgUrl"
                         :class="{
                           choose: img.choose === true
                         }"

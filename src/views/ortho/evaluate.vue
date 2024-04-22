@@ -567,7 +567,7 @@ import {
   checkOrthOptions,
   checkImageUpload,
   checkFugaiOptions,
-  checkPanoOptions
+  checkOptions
 } from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
 const store = useStore()
@@ -659,11 +659,11 @@ const facialConclusion = ref(0)
 async function checkImageOptions() {
   // 包含前牙覆盖选项的
   checkFugaiOptions(mouthData.value)
-  checkPanoOptions(panoramicData.value)
+  checkOptions(panoramicData.value)
   return (
     (await checkOrthOptions(faceAccessData.value)) &&
     checkFugaiOptions(mouthData.value) &&
-    checkPanoOptions(panoramicData.value)
+    checkOptions(panoramicData.value)
   )
 }
 
