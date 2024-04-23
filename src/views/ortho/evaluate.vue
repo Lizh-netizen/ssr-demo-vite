@@ -684,7 +684,7 @@ async function checkCompletion() {
   imageAnalysis.value = isImageAnalysis ? '1' : '0'
 
   const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
-    id: '',
+    id: sessionStorage.facialCompletionId || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: clinicalExamination.value,

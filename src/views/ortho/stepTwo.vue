@@ -66,7 +66,8 @@
                       >
                         {{ option.optionName }}
                         <img
-                          class="aiFlagImg"
+                          class="aiFlagImg highZIndex"
+                          :class="{ highZIndex: !showViewer }"
                           src="@/assets/svg/AIFlagForFront.svg"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
@@ -478,7 +479,17 @@
                       v-model="title.cephalometricsContent"
                       @focus="title.measured = false"
                       @blur="handleBlurInput(title)"
-                      :class="{ measured: title.measured === true }"
+                      :class="{
+                        measured: title.measured === true,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2
+                      }"
                     ></el-input>
                     <img
                       src="@/assets/svg/downwards.svg"
@@ -506,7 +517,20 @@
                       :label="option.id"
                       :class="{
                         serious: option.serious == '1',
-                        checked: option.choosen === true
+                        checked: option.choosen === true,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2,
+
+                        green:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 0,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1
                       }"
                       v-for="option in title?.orthOptionsList"
                       :key="option.id"
@@ -650,6 +674,7 @@ const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const showViewer = ref(false)
+
 const previewImageUrl = ref('')
 const previewImageId = ref()
 const imageRotationDegree = ref()
@@ -2894,6 +2919,16 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep(.el-input.blue) {
+  .el-input__inner {
+    color: #2e6ce4;
+  }
+}
+:deep(.el-input.red) {
+  .el-input__inner {
+    color: #f65b56;
+  }
+}
 img {
   &:hover {
     cursor: zoom-in;
@@ -3662,6 +3697,22 @@ img {
     box-shadow: none;
     border: none;
     background: #fdebeb;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.green {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #ddf9e3;
+    color: #23c343;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.blue {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #eaf0fc;
+    color: #2e6ce4;
   }
 }
 .content.mouth {

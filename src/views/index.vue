@@ -690,7 +690,7 @@ const handleEvaluateOrth = async (item) => {
     store.commit('setPatientInfo', item)
     sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }
-  console.log(item.facialId)
+  sessionStorage.setItem('facialCompletionId', item.facialCompletionId)
   path =
     orthStatus.value !== -1
       ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}/${orthStatus.value}`
