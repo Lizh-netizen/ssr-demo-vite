@@ -442,9 +442,7 @@
                   effect="light"
                   placement="top"
                   :content="title.titlePrompt"
-                  ><img
-                    src="@/assets/svg/questionMark.svg"
-                    :class="{ hide: ['SNA', 'SNB'].includes(title.titleName) }"
+                  ><img src="@/assets/svg/questionMark.svg"
                 /></el-tooltip>
 
                 <div class="formItem__content">
@@ -894,29 +892,29 @@ const imageList = ref([
 ])
 
 // 图片分类
-// async function getToken() {
-//   let token
-//   const res = await Post1('/bonceph/platform/user/login', {
-//     username: 'bonceph',
-//     userpwd: '4371f7b311bf4f88cbd27855f3143430'
-//   })
-//   if (res.code == 200) {
-//     token = res.data.token
-//   }
-//   return token
-// }
 async function getToken() {
   let token
-  const res = await axios({
-    url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
-    method: 'post',
-    data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
+  const res = await Post1('/bonceph/platform/user/login', {
+    username: 'bonceph',
+    userpwd: '4371f7b311bf4f88cbd27855f3143430'
   })
-  if (res.status == 200) {
-    token = res.data.data.token
+  if (res.code == 200) {
+    token = res.data.token
   }
   return token
 }
+// async function getToken() {
+//   let token
+//   const res = await axios({
+//     url: 'http://47.101.150.34:8177/bonceph/platform/user/login',
+//     method: 'post',
+//     data: { username: 'bonceph', userpwd: '4371f7b311bf4f88cbd27855f3143430' }
+//   })
+//   if (res.status == 200) {
+//     token = res.data.data.token
+//   }
+//   return token
+// }
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
@@ -1112,6 +1110,7 @@ async function calculateFrontal2(pointList, classId, owningModule) {
 }
 // 计算面下
 async function calculateFrontal3(pointList, classId, owningModule) {
+  console.log(11)
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
@@ -2086,45 +2085,15 @@ const pointsToFind = [
 let ratio1
 let ratio2
 let standardDistance
-// async function getPoints(file) {
-//   const formData = new FormData()
-//   formData.append('file', file)
-//   formData.append('mobile', '13014532111')
-//   const token = await getToken()
-//   if (token) {
-//     const res = await Post1('/bonceph/platform/marker/predict', formData, true, token)
-//     if (res.code == 200) {
-//       allPoints.value = res.data
-//       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
-//       coordinatesBase.value = filteredPoints.value.map((point) => ({
-//         label: point[0],
-//         x: point[1],
-//         y: point[2]
-//       }))
-//       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
-//       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
-//       standardDistance = calculateDistanceEffect(ratio1, ratio2)
-//     }
-//   }
-// }
 async function getPoints(file) {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('mobile', '13014532111')
   const token = await getToken()
-
   if (token) {
-    const res = await axios({
-      url: 'http://47.101.150.34:8177/bonceph/platform/marker/predict',
-      method: 'post',
-      data: formData,
-      headers: {
-        Authorization: `${token}`,
-        'content-type': 'multipart/form-data'
-      }
-    })
-    if (res.status == 200) {
-      allPoints.value = res.data.data
+    const res = await Post1('/bonceph/platform/marker/predict', formData, true, token)
+    if (res.code == 200) {
+      allPoints.value = res.data
       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
       coordinatesBase.value = filteredPoints.value.map((point) => ({
         label: point[0],
@@ -2137,6 +2106,37 @@ async function getPoints(file) {
     }
   }
 }
+// async function getPoints(file) {
+//   const formData = new FormData()
+//   formData.append('file', file)
+//   formData.append('mobile', '13014532111')
+//   const token = await getToken()
+
+//   if (token) {
+//     const res = await axios({
+//       url: 'http://47.101.150.34:8177/bonceph/platform/marker/predict',
+//       method: 'post',
+//       data: formData,
+//       headers: {
+//         Authorization: `${token}`,
+//         'content-type': 'multipart/form-data'
+//       }
+//     })
+//     if (res.status == 200) {
+//       allPoints.value = res.data.data
+//       filteredPoints.value = allPoints.value.filter((a) => pointsToFind.includes(a[0]))
+//       coordinatesBase.value = filteredPoints.value.map((point) => ({
+//         label: point[0],
+//         x: point[1],
+//         y: point[2]
+//       }))
+//       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
+//       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
+//       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+//       console.log('🚀 ~ getPoints ~ standardDistance:', standardDistance)
+//     }
+//   }
+// }
 // AI测量逻辑
 
 const pointMoved = ref(false)
@@ -2419,6 +2419,7 @@ function calculateSinglePoint(ratio, item, changed) {
     foundPoint.aiFlag = '1'
   }
 }
+
 function calculateAllPoints() {
   pointRatio.forEach((item) => {
     let ratio = calculateDistanceRatio(item, coordinatesSmall.value)
@@ -2451,6 +2452,7 @@ function calculateAllPoints() {
   calculateSinglePoint(distance, 'Wits', false)
 }
 async function updateResult() {
+  console.log(cephaData.value)
   // post值和选项
   cephaData.value.forEach((item) => {
     if (!['颈椎分期', '腺样体', '扁桃体'].includes(item.titleName)) {

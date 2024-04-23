@@ -1,24 +1,32 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <!-- <link
-      rel="preload"
-      as="font"
-      fetchpriority="high"
-      crossorigin
-      type="font/otf"
-      href="/src/assets/font/SourceHanSansCN-Regular.otf"
-    /> -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <!-- <link rel="dns-prefetch" href="http://47.101.150.34:8177/bonceph" /> -->
-    <title>Ortho</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-    <script src="/Flip.js"></script>
-   
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <!-- 配合 mate禁用 缓存标签，实现禁用浏览器缓存（实现原理，自动刷新） -->
+  <meta HTTP-EQUIV="pragma" CONTENT="no-cache">
+  <meta HTTP-EQUIV="Cache-Control" CONTENT="no-store, must-revalidate">
+  <meta HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
+  <meta HTTP-EQUIV="expires" CONTENT="0">
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Ortho</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+  <script src="/Flip.js"></script>
+  <script>
+    if (!window.name) {
+      var str = Math.random().toString(36).substr(2);//随机字符串
+      window.location.href += '?S=' + str;//兼容微信浏览器刷新
+      window.name = 'isreload';
+    }
+  </script>
+</body>
+
 </html>
