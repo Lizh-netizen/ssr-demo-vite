@@ -403,7 +403,7 @@ function checkChoosenOptions(data) {
   // 如果没有选中的选项，则返回false
   return { dentition, other }
 }
-const facialCompletionId = ref()
+const planCompletionId = ref()
 const clinicalExamination = ref()
 const imageUpload = ref()
 const imageAnalysis = ref()
@@ -488,7 +488,7 @@ const checkCompletion = async () => {
     modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
-    id: '',
+    id: sessionStorage.getItem(`planCompletionId`) || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: active.value == 1 ? clinicalExamination.value : '',
@@ -499,7 +499,7 @@ const checkCompletion = async () => {
     plansTools: active.value == 5 ? plansTools.value : '',
     approvalSubmitted: active.value == 6 ? approvalSubmitted.value : ''
   })
-  facialCompletionId.value = res.data?.facialCompletionId || ''
+  planCompletionId.value = res.data?.planCompletionId || ''
 }
 const handleNextStep = async () => {
   if (active.value == 4) {
@@ -674,6 +674,8 @@ async function confirmApproval() {
       apmtId: appId,
       ...orthContent.value
     })
+    approvalSubmitted.value = '1'
+    checkCompletion()
     dialogVisible.value = false
     loading.close()
     if (res.code === 200) {

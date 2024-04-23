@@ -405,10 +405,10 @@ async function getEvaluateList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '临床检查', finished: item.clinicalExamination },
-          { label: '图像上传', imageUpload: item.imageUpload },
-          { label: '检查结果', imageAnalysis: item.imageAnalysis },
-          { label: '面评结论', facialConclusion: item.facialConclusion }
+          { label: '临床检查', finished: !!+item.clinicalExamination },
+          { label: '图像上传', finished: !!+item.imageUpload },
+          { label: '检查结果', finished: !!+item.imageAnalysis },
+          { label: '面评结论', finished: !!+item.facialConclusion }
         ]
       }))
       patientList.value = evaluateList.value
@@ -443,13 +443,13 @@ async function getOrthoList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '问诊和检查', finished: item.clinicalExamination },
-          { label: '图像上传', imageUpload: item.imageUpload },
-          { label: '图像分析', imageAnalysis: item.imageAnalysis },
-          { label: '模型分析', facialConclusion: item.facialConclusion },
-          { label: '诊断', facialConclusion: item.facialConclusion },
-          { label: '方案和工具', facialConclusion: item.facialConclusion },
-          { label: '审批提交', facialConclusion: item.facialConclusion }
+          { label: '问诊和检查', finished: !!+item.clinicalExamination },
+          { label: '图像上传', finished: !!+item.imageUpload },
+          { label: '图像分析', finished: !!+item.imageAnalysis },
+          { label: '模型分析', finished: !!+item.facialConclusion },
+          { label: '诊断', finished: !!+item.facialConclusion },
+          { label: '方案和工具', finished: !!+item.facialConclusion },
+          { label: '审批提交', finished: !!+item.facialConclusion }
         ]
       }))
       patientList.value = orthoList.value
@@ -638,6 +638,7 @@ const remoteMethod1 = (query) => {
 const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.aptmId}/${item.patientId}`)
+  sessionStorage.setItem('planCompletionId', item.planCompletionId)
   window.parent.postMessage(`ortho/${item.aptmId}/${item.patientId}`, '*')
 }
 const orthStatus = ref(-1)

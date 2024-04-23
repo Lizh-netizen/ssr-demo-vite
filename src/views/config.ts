@@ -43,8 +43,8 @@ export const columns_config_evaluate = [
     title: '完成情况',
     list: [],
     stateOption: [
-      { name: 'success', prop: 'completStatus', color: 'Warning', value: 0 },
-      { name: 'failed', prop: 'completStatus', color: 'Alarm', value: 1 },
+      { name: 'failed', prop: 'completStatus', color: 'Warning', value: 0 },
+      { name: 'success', prop: 'completStatus', color: 'Alarm', value: 1 },
       { name: 'halfComplete', prop: 'completStatus', color: 'Warning', value: 99 }
     ]
   },
@@ -91,8 +91,8 @@ export const columns_config_ortho = [
     title: '完成情况',
     list: [],
     stateOption: [
-      { name: 'success', prop: 'completStatus', color: 'Warning', value: 0 },
-      { name: 'failed', prop: 'completStatus', color: 'Alarm', value: 1 },
+      { name: 'failed', prop: 'completStatus', color: 'Warning', value: 0 },
+      { name: 'success', prop: 'completStatus', color: 'Alarm', value: 1 },
       { name: 'halfComplete', prop: 'completStatus', color: 'Warning', value: 99 }
     ]
   },

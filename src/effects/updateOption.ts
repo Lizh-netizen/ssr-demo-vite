@@ -72,7 +72,7 @@ async function useUpdateOption(
     obj = {
       aptmId: appId,
       titleId: title.id,
-      optionsIdStr: optionId,
+      optionsIdStr: [],
       otherContent: title.otherContent,
       cephalometricsContent: '',
       fdiToothCode: '',
