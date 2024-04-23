@@ -228,6 +228,7 @@ const handleChangeStep = (num) => {
   } else {
     active.value = num
   }
+  console.log('🚀 ~ handleChangeStep ~ active.value:', active.value)
 }
 
 onMounted(() => {
@@ -247,9 +248,6 @@ function validateGoalAndTarget(planList) {
   const found = planList.find((plan, index) => plan.checked)
   for (let item of found.stageList) {
     if (item.targetIds.length > 0 && item.toolIds.length > 0) {
-      console.log('🚀 ~ validateGoalAndTarget ~ item.targetIds && item.toolIds:', item)
-
-      console.log(111)
       return true
     }
   }
@@ -278,6 +276,9 @@ function validateCheck(planList) {
 
   return found ? false : true
 }
+function validateRisk(riskData) {
+  return riskData[0].orthTitleList[0].orthOptionsList.some((option) => option.choosen)
+}
 const handleGeneratePdf = async () => {
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
@@ -302,7 +303,16 @@ const handleGeneratePdf = async () => {
       })
       return false
     }
+    await getRiskData()
+    if (!validateRisk(riskData.value)) {
+      ElMessage({
+        message: '请选择风险',
+        type: 'warning'
+      })
+      return false
+    }
   }
+  plansTools.value = '1'
   checkCompletion()
   nextTick(() => {
     editStep.value = active.value
@@ -449,44 +459,47 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-  return (
+
+  const result =
     checkOrthFace(faceAccessData.value) &&
     checkFugaiOptions(mouthData.value) &&
     checkOptions(panoramicData.value) &&
     checkOptions(cepha.value)
-  )
+
+  return result
 }
 
 const checkCompletion = async () => {
   if (active.value == 1) {
     await getOrthInquiryList()
     await getOrthCheckList()
+
     clinicalExamination.value =
       checkInquiry(inquiryData.value) && checkOrthoCheck(checkData.value) ? '1' : '0'
   }
+
   if (active.value == 2) {
     await getClassifiedImgList()
-    imageUpload.value = checkOrthImageUpload(classifiedImageList)
-    imageAnalysis.value = checkOrthImageAnalysis()
+    imageUpload.value = checkOrthImageUpload(classifiedImageList) ? '1' : '0'
+    imageAnalysis.value = (await checkOrthImageAnalysis()) ? '1' : '0'
   }
   if (active.value == 3) {
     await getOrthModelList()
-    modelAnalysis.value = checkModelOptions(modelData.value)
+    modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
   }
-
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
     id: '',
     aptmId: appId,
     patientId: patientId,
-    clinicalExamination: active.value == 1 ? +clinicalExamination.value : '',
-    imageUpload: active.value == 2 ? +imageUpload.value : '',
-    imageAnalysis: active.value == 2 ? +imageAnalysis.value : '',
-    modelAnalysis: active.value == 3 ? +modelAnalysis.value : '',
-    diagnosis: active.value == 4 ? +diagnosis.value : '',
-    plansTools: active.value == 5 ? +plansTools.value : '',
-    approvalSubmitted: active.value == 6 ? +approvalSubmitted.value : ''
+    clinicalExamination: active.value == 1 ? clinicalExamination.value : '',
+    imageUpload: active.value == 2 ? imageUpload.value : '',
+    imageAnalysis: active.value == 2 ? imageAnalysis.value : '',
+    modelAnalysis: active.value == 3 ? modelAnalysis.value : '',
+    diagnosis: active.value == 4 ? diagnosis.value : '',
+    plansTools: active.value == 5 ? plansTools.value : '',
+    approvalSubmitted: active.value == 6 ? approvalSubmitted.value : ''
   })
-  facialCompletionId.value = res.data.facialCompletionId
+  facialCompletionId.value = res.data?.facialCompletionId || ''
 }
 const handleNextStep = async () => {
   if (active.value == 4) {
@@ -506,9 +519,9 @@ const handleNextStep = async () => {
       })
       return
     }
-    diagnosis.value = 1
+    diagnosis.value = '1'
   }
-  checkCompletion()
+  await checkCompletion()
   nextTick(() => {
     editStep.value = active.value
     active.value++
@@ -558,6 +571,11 @@ const downloadPdf = () => {
 const dialogVisible = ref(false)
 const orthContent = ref({})
 const planList = ref()
+const riskData = ref()
+async function getRiskData() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/风险/${appId}`)
+  riskData.value = result.data
+}
 async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {

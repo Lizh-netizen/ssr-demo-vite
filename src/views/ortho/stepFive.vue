@@ -1409,7 +1409,8 @@ const handleScheme = async (scheme) => {
 }
 defineExpose({
   clicked,
-  planList
+  planList,
+  riskData
 })
 </script>
 

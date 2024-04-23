@@ -23,7 +23,15 @@
             </div>
           </div>
           <div class="flex mt-[50px] px-[12px] py-[12px] gap-[16px] w-[542px] z-[2]">
-            <!-- <div v-for="(item, index) in filterList" :key="index" class="filterBtn cursor-pointer">{{ item.label }}</div> -->
+            <div
+              v-for="(item, index) in filterList"
+              :key="index"
+              class="filterBtn cursor-pointer"
+              :class="{ active: currentBtn == item.value }"
+              @click="handleChangeFilterBtn(item.value)"
+            >
+              {{ item.label }}
+            </div>
           </div>
           <div
             :style="{
@@ -228,14 +236,29 @@ onMounted(() => {
   getImageList()
 })
 onBeforeMount(() => {
-  console.log('enter')
   getClassifiedImgList()
 })
+const currentBtn = ref('all')
+
 const filterList = [
   { label: '全部', value: 'all' },
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
+const handleChangeFilterBtn = async (value) => {
+  currentBtn.value = value
+  const res = await Get(`/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}`)
+  totalArr.value = res.data
+  if (res.data.find((a) => a.imageList.length !== 0)) {
+    imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
+
+    index.value = res.data.findIndex((a) => a.imageList.length !== 0)
+    imageArr.value[0].imageList.forEach((img) => {
+      img.imgUrl = img.fileUrl
+      img.choose = false
+    })
+  }
+}
 const emit = defineEmits(['savePics', 'cancel'])
 const imgDialogVisible = ref(props.dialogVisible)
 const caption = ref(props.caption)

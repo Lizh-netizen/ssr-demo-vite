@@ -365,7 +365,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 13">
+                  <template v-if="index >= 13 && index <= 19">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -380,7 +380,23 @@
                 </template>
               </div>
             </div>
-            <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item>
+            <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+              <template v-if="index == panoramicData[0].orthTitleList.length - 1">
+                <form-item :label="title.titleName" width="120px">
+                  <a-textarea
+                    placeholder="请输入"
+                    v-model="title.otherContent"
+                    @blur="
+                      handleSubmit(
+                        title.optionId,
+                        title,
+                        panoramicData[0].id,
+                        panoramicData[0].owningModule
+                      )
+                    "
+                  ></a-textarea></form-item
+              ></template>
+            </template>
           </div>
         </div>
       </template>
@@ -2804,6 +2820,14 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
 //   })
 // }
 const handleSubmit = (optionId, title, classId, owningModule) => {
+  console.log(
+    '🚀 ~ handleSubmit ~ optionId, title, classId, owningModule:',
+    optionId,
+    title,
+    classId,
+    owningModule
+  )
+
   useUpdateOption(optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
