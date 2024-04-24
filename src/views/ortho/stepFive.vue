@@ -19,7 +19,7 @@
       <div class="body pb-[16px]">
         <div
           class="body-left content"
-          :style="{ height: planList?.some((plan) => plan.checked) ? '680px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '390px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
@@ -491,8 +491,11 @@
               @blur="
                 handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
               "
-            /> </form-item></template
-      ></template>
+              >无</a-textarea
+            >
+          </form-item></template
+        ></template
+      >
     </div>
   </div>
 </template>
@@ -1304,20 +1307,18 @@ const handleMouseLeaveBtn = (e, option) => {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
-  if (title.cephalometricsContent) {
-    const obj = {
-      aptmId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      classId: classId,
-      owningModule: owningModule
-    }
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  const obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: '',
+    classId: classId,
+    owningModule: owningModule
   }
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 const riskData = ref([])
 async function getOrthRiskList() {

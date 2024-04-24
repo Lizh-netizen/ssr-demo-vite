@@ -116,6 +116,11 @@
               }}
             </div>
           </template>
+          <template #filterStatus="{ row }">
+            <div>
+              {{ row.filterStatus == 1 ? '已筛选' : '未筛选' }}
+            </div>
+          </template>
           <template #responsibleDoctor="{ row }">
             <a-select
               placeholder="请选择"

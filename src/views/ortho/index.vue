@@ -730,9 +730,13 @@ const labelList = [
 }
 
 .formItem {
-  height: 26px;
+  height: 34px;
   &__label {
+    height: 100%;
     text-align: left;
+  }
+  &__content {
+    height: 100%;
   }
 }
 
@@ -743,8 +747,9 @@ const labelList = [
     text-align: left;
   }
   .desc {
+    height: 100%;
     max-height: 52px;
-    overflow: scroll;
+    overflow-y: auto;
   }
 }
 .gap {

@@ -726,7 +726,7 @@ async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
   if (res.code == 200) {
     const front = res.data.find((item) => item.imageType == '正面像')
-    imgCover.value = front.imageUrl
+    imgCover.value = front?.imageUrl
   }
 }
 

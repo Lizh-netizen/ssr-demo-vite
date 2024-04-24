@@ -27,8 +27,8 @@
               v-for="(item, index) in filterList"
               :key="index"
               class="filterBtn cursor-pointer"
-              :class="{ active: currentBtn == item.value }"
-              @click="handleChangeFilterBtn(item.value)"
+              :class="{ active: currentBtn == item.label }"
+              @click="handleChangeFilterBtn(item.label)"
             >
               {{ item.label }}
             </div>
@@ -69,24 +69,19 @@
                         :style="{ display: 'block' }"
                         class="img"
                         :src="img.imgUrl"
-                        :class="{
-                          choose: img.choose === true
-                        }"
                         draggable="true"
                         @dragstart="handleDragStart(img, $event)"
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
                       />
-                      <img
+                      <!-- <img
                         src="@/assets/svg/imageChecked.svg"
                         :style="{
                           position: 'absolute',
                           right: '6px',
                           bottom: '6px'
                         }"
-                        @click="handleToggleChoose(img)"
-                        v-show="img.choose === true"
-                      />
+                      /> -->
                     </div>
                   </div>
                 </div>
@@ -105,10 +100,10 @@
             </template>
           </div>
 
-          <div class="classifyWrapper" v-if="module == 'ortho'">
+          <!-- <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
-          </div>
+          </div> -->
         </div>
         <div class="imageManagement__classify subSection">
           <div class="title">分类</div>
@@ -168,6 +163,10 @@
           </div>
         </div>
       </div>
+      <img src="../../assets/svg/message.svg" v-if="showGif" class="message" />
+      <div class="gif-container" id="gif-container" ref="gif" v-if="showGif">
+        <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
+      </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="handleCancel">取消</el-button>
@@ -189,7 +188,16 @@
 import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import { Upload, WarningFilled } from '@element-plus/icons-vue'
-import { ref, defineProps, computed, defineEmits, onMounted, watch, onBeforeMount } from 'vue'
+import {
+  ref,
+  defineProps,
+  computed,
+  defineEmits,
+  onMounted,
+  watch,
+  onBeforeMount,
+  nextTick
+} from 'vue'
 import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
@@ -229,38 +237,51 @@ const props = defineProps({
     default: ''
   }
 })
+onBeforeMount(() => {
+  showGif.value = true
+})
+const firstEnter = ref(false)
+const showGif = ref(true)
 onMounted(() => {
+  firstEnter.value = true
   imageList.value.forEach((a) => {
     a.fileUrl = placeholderUrl
   })
+  setTimeout(() => {
+    window.addEventListener('click', () => {
+      showGif.value = false
+    })
+  }, 1000)
   getImageList()
 })
+console.log(22)
 onBeforeMount(() => {
   getClassifiedImgList()
 })
-const currentBtn = ref('all')
-
+const currentBtn = ref('全部')
+const gif = ref(null)
 const filterList = [
   { label: '全部', value: 'all' },
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
-const handleChangeFilterBtn = async (value) => {
-  currentBtn.value = value
-  const res = await Get(`/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}`)
+const handleChangeFilterBtn = async (label) => {
+  currentBtn.value = label
+  const res = await Get(
+    `/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}&?typeName=${label}`
+  )
   totalArr.value = res.data
   if (res.data.find((a) => a.imageList.length !== 0)) {
     imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
 
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value[0].imageList.forEach((img) => {
-      img.imgUrl = img.fileUrl
-      img.choose = false
+      img.imgUrl = img.ossImagePath
     })
   }
 }
 const emit = defineEmits(['savePics', 'cancel'])
-const imgDialogVisible = ref(props.dialogVisible)
+const imgDialogVisible = ref(true)
 const caption = ref(props.caption)
 watch(
   props,
@@ -279,6 +300,7 @@ watch(imgDialogVisible, (newVal) => {
     getClassifiedImgList()
   }
 })
+
 const handleCancel = () => {
   emit('cancel')
 }
@@ -665,13 +687,13 @@ const chooseImgNum = computed(() => {
   return num
 })
 // 反选
-const handleToggleChoose = (img) => {
-  if (chooseImgNum.value >= 16) {
-    ElMessage.warning('最多只能选择16张图片')
-    return
-  }
-  img.choose = !img.choose
-}
+// const handleToggleChoose = (img) => {
+//   if (chooseImgNum.value >= 16) {
+//     ElMessage.warning('最多只能选择16张图片')
+//     return
+//   }
+//   img.choose = !img.choose
+// }
 
 // 图片拖拽
 const dragFile = ref(null)
@@ -847,6 +869,20 @@ const handleCloseImgDialog = () => {
 </script>
 
 <style scoped lang="scss">
+.message {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.gif-container {
+  width: 300px;
+  position: absolute;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
 .imageManagement {
   position: relative;
   display: flex;

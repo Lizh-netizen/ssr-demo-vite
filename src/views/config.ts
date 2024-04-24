@@ -29,14 +29,15 @@ export const columns_config_evaluate = [
     }
   },
   {
-    type: 'state',
     title: '快筛',
-    stateOption: [
-      { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
-      { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
-      { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
-      { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
-    ]
+    slotName: 'filterStatus',
+    prop: 'filterStatus'
+    // stateOption: [
+    //   { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
+    //   { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
+    //   { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
+    //   { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
+    // ]
   },
   {
     type: 'popState',
@@ -106,7 +107,7 @@ export const columns_config_ortho = [
       { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
     ]
   },
-  { title: '面评建议', prop: 'facialAdvise', type: 'text' },
+
   {
     type: 'operation',
     title: '操作',
