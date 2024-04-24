@@ -778,9 +778,9 @@ async function handleAdvice() {
       id: facialCompletionId.value || '',
       aptmId: appId,
       patientId: patientId,
-      clinicalExamination: clinicalExamination.value,
-      imageUpload: imageUpload.value,
-      imageAnalysis: imageAnalysis.value,
+      clinicalExamination: '',
+      imageUpload: '',
+      imageAnalysis: '',
       facialConclusion: '1'
     })
     facialConclusion.value = ''
