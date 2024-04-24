@@ -635,7 +635,8 @@ async function initiateApproval() {
   dialogVisible.value = true
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,
-    apmtId: appId
+    apmtId: appId,
+    ljOfficeId: ljOfficeId
   })
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
