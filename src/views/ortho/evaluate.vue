@@ -690,7 +690,7 @@ async function checkCompletion() {
     clinicalExamination: clinicalExamination.value,
     imageUpload: imageUpload.value,
     imageAnalysis: imageAnalysis.value,
-    facialConclusion: '0'
+    facialConclusion: ''
   })
   facialCompletionId.value = res.data.facialCompletionId
 }
@@ -783,6 +783,7 @@ async function handleAdvice() {
       imageAnalysis: imageAnalysis.value,
       facialConclusion: '1'
     })
+    facialConclusion.value = ''
   } catch (err) {
     console.log(err)
   }

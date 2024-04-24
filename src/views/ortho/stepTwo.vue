@@ -81,6 +81,7 @@
                     :disabled="!item.hasImage"
                     :title="title"
                     :appId="appId"
+                    :showViewer="showViewer"
                     @refreshList="refreshList"
                     :classId="item.id"
                     :owningModule="item.owningModule"
@@ -385,7 +386,6 @@
               <template v-if="index == panoramicData[0].orthTitleList.length - 1">
                 <form-item :label="title.titleName" width="120px">
                   <a-textarea
-                    placeholder="请输入"
                     v-model="title.otherContent"
                     @blur="
                       handleSubmit(
@@ -1498,6 +1498,7 @@ function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
       useFdiToothCodeEffect(a)
+
       a.showInput = false
       a.popVisible = false
     })
@@ -1509,7 +1510,6 @@ function handlePanoData(panoramicData) {
         title.optionId = ''
         title.text = ''
         title.showInput = false
-
         const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
         if (choosenOptions.length > 0) {
           title.optionId = choosenOptions[0].id
@@ -1532,7 +1532,6 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  console.log(panoramicData.value)
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
@@ -1559,8 +1558,13 @@ async function getOrthPanoramicList() {
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
           const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6)
-          panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
+          codeTitleList.value = res.data.slice(6, 20)
+          const other = res.data.slice(20)
+          panoramicData.value[0].orthTitleList = [
+            ...nonCodeTitleList,
+            ...codeTitleList.value,
+            ...other
+          ]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
         }

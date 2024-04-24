@@ -446,10 +446,10 @@ async function getOrthoList(val) {
           { label: '问诊和检查', finished: !!+item.clinicalExamination },
           { label: '图像上传', finished: !!+item.imageUpload },
           { label: '图像分析', finished: !!+item.imageAnalysis },
-          { label: '模型分析', finished: !!+item.facialConclusion },
-          { label: '诊断', finished: !!+item.facialConclusion },
-          { label: '方案和工具', finished: !!+item.facialConclusion },
-          { label: '审批提交', finished: !!+item.facialConclusion }
+          { label: '模型分析', finished: !!+item.modelAnalysis },
+          { label: '诊断', finished: !!+item.diagnosis },
+          { label: '方案和工具', finished: !!+item.plansTools },
+          { label: '审批提交', finished: !!+item.approvalSubmitted }
         ]
       }))
       patientList.value = orthoList.value
@@ -681,7 +681,7 @@ const handleEvaluateOrth = async (item) => {
       patientId: item.patientId,
       aptmId: item.aptmId
     }).then(({ data }) => {
-      item.facialId = data.facialId
+      item.facialId = data?.facialId
       store.commit('setPatientInfo', item)
       sessionStorage.setItem('patientInfo', JSON.stringify(item))
     })
