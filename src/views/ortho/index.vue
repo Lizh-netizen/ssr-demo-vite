@@ -636,7 +636,7 @@ async function initiateApproval() {
   const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
     patientId: patientId,
     apmtId: appId,
-    ljOfficeId: ljOfficeId
+    ljOfficeId: +ljOfficeId
   })
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
