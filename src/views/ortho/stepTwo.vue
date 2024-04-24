@@ -1006,7 +1006,6 @@ const handleDragEnd = () => {
 
 // 保存图片
 async function handleSavePics() {
-  // imgDialogVisible.value = false
   // imageList.value.forEach((item) => (item.reminder = false))
   // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   // const arr = orthImageList.map((item) => ({

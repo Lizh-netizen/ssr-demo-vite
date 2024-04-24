@@ -48,7 +48,7 @@
             <template v-else>
               <div v-for="(item, index) in imageArr" :key="index">
                 <div>
-                  {{ item.StartTime.split('T')[0] }}
+                  {{ item.StartTime?.split('T')[0] }}
                 </div>
                 <div class="imgContainer">
                   <div
@@ -92,7 +92,7 @@
                     cursor: 'pointer'
                   }"
                   @click="handleLoadPic"
-                  v-if="!item.file && index === imageArr.length - 1"
+                  v-if="!item.file && index === imageArr.length - 1 && imageArr.length > 0"
                 >
                   <span>加载上次影像</span><img src="@/assets/svg/morePic.svg" />
                 </div>
@@ -252,9 +252,9 @@ onMounted(() => {
       showGif.value = false
     })
   }, 1000)
-  getImageList()
+  handleChangeFilterBtn('全部')
 })
-console.log(22)
+
 onBeforeMount(() => {
   getClassifiedImgList()
 })
@@ -265,19 +265,28 @@ const filterList = [
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
+
 const handleChangeFilterBtn = async (label) => {
   currentBtn.value = label
-  const res = await Get(
-    `/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}&?typeName=${label}`
-  )
+  let path
+  path =
+    label == '全部'
+      ? `/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}`
+      : `/prod-api/emr/orthCommon/getTImageList?patientId=${props.patientId}&typeName=${label}`
+  const res = await Get(path)
   totalArr.value = res.data
-  if (res.data.find((a) => a.imageList.length !== 0)) {
+  if (res.data.length > 0 && res.data.find((a) => a.imageList.length !== 0)) {
     imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
 
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value[0].imageList.forEach((img) => {
       img.imgUrl = img.ossImagePath
     })
+  } else {
+    const index = imageArr.value.find((a) => !a.file)
+    if (index) {
+      imageArr.value.splice(index, 1)
+    }
   }
 }
 const emit = defineEmits(['savePics', 'cancel'])
@@ -331,24 +340,24 @@ const openImgDialog = () => {
   getClassifiedImgList()
 }
 // 获取左右图像
-async function getImageList() {
-  if (imageArr.value.length !== 0) {
-    return
-  } else {
-    Get(`/prod-api/business/orthImage/imageList?patientId=${props.patientId}`).then((res) => {
-      totalArr.value = res.data
-      if (res.data.find((a) => a.imageList.length !== 0)) {
-        imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
+// async function getImageList() {
+//   if (imageArr.value.length !== 0) {
+//     return
+//   } else {
+//     Get(`/prod-api/business/orthImage/imageList?patientId=${props.patientId}`).then((res) => {
+//       totalArr.value = res.data
+//       if (res.data.find((a) => a.imageList.length !== 0)) {
+//         imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
 
-        index.value = res.data.findIndex((a) => a.imageList.length !== 0)
-        imageArr.value[0].imageList.forEach((img) => {
-          img.imgUrl = img.fileUrl
-          img.choose = false
-        })
-      }
-    })
-  }
-}
+//         index.value = res.data.findIndex((a) => a.imageList.length !== 0)
+//         imageArr.value[0].imageList.forEach((img) => {
+//           img.imgUrl = img.fileUrl
+//           img.choose = false
+//         })
+//       }
+//     })
+//   }
+// }
 async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${props.appId}`)
   if (res.code == 200 && res.data.length > 0) {
@@ -674,6 +683,7 @@ const handleFileChange = (event) => {
       imageArr.value[0].imageList = fileListWithFlag.value
     }
   }
+  console.log(imageArr.value)
 }
 const chooseImgNum = computed(() => {
   let num = 0
@@ -834,6 +844,7 @@ async function handleSingleImage(file, image) {
 // 保存图片
 async function handleSavePics() {
   emit('cancel')
+  emit('savePics')
   imageList.value.forEach((item) => (item.reminder = false))
 
   const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
@@ -846,8 +857,6 @@ async function handleSavePics() {
   Post('/prod-api/business/orthImage', {
     apmtId: props.appId,
     orthImageList: arr
-  }).then(() => {
-    emit('savePics')
   })
 }
 const handleDragOver = (e) => {
