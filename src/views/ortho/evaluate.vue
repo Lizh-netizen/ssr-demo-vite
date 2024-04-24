@@ -320,7 +320,7 @@
     module="evaluate"
     :appId="appId"
     :patientId="patientId"
-    :dialogVisible="imgDialogVisible"
+    v-if="imgDialogVisible"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
