@@ -2880,27 +2880,6 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 </script>
 <style>
-.file-upload {
-  position: relative;
-  cursor: pointer;
-}
-
-.file-upload__label {
-  display: inline-block;
-  color: #333;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
 .el-dialog {
   border-radius: 12px;
 }

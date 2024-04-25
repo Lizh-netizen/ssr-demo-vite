@@ -1671,16 +1671,6 @@ async function main() {
   cursor: pointer;
 }
 
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-
 .el-input.measured .el-input__wrapper {
   box-shadow: none;
 }
