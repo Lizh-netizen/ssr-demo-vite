@@ -66,6 +66,17 @@
                       }"
                     >
                       <img
+                        v-if="!img.file"
+                        :style="{ display: 'block' }"
+                        class="img"
+                        :src="img.imgUrl"
+                        draggable="true"
+                        @dragstart="handleDragStart(img, $event)"
+                        @dragend="handleDragEnd"
+                        @click="handleToggleChoose(img)"
+                      />
+                      <img
+                        v-if="img.file"
                         :style="{ display: 'block' }"
                         class="img"
                         :src="img.imgUrl"
@@ -280,7 +291,7 @@ const handleChangeFilterBtn = async (label) => {
 
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value[0].imageList.forEach((img) => {
-      img.imgUrl = img.ossImagePath
+      img.imgUrl = img.thumbnailOssPath
     })
   } else {
     const index = imageArr.value.find((a) => !a.file)
@@ -581,7 +592,7 @@ async function handleClassifyPics() {
               if (a.choose) {
                 return {
                   ljUrl: a.imgUrl,
-                  ljId: a.id,
+                  ljId: a.ljImageId,
                   LJCreateDatetime: a.timestamp
                 }
               }
@@ -791,6 +802,7 @@ const handleDrop = (e, image) => {
 // file是拖拽的，image是被拖的
 const failCount = ref(0)
 async function handleSingleImage(file, image) {
+  console.log('🚀 ~ handleSingleImage ~ image:', file)
   const formData = new FormData()
   if (file.type) {
     formData.append('file', file, 'Cover')
@@ -811,7 +823,7 @@ async function handleSingleImage(file, image) {
         orthImageList: [
           {
             ljUrl: file.imgUrl,
-            ljId: file.id,
+            ljId: file.ljImageId,
             LJCreateDatetime: file.timestamp,
             startTime: file.StartTime
           }
@@ -829,12 +841,12 @@ async function handleSingleImage(file, image) {
     if (failCount.value == 0) {
       failCount.value++
       ElMessage({
-        message: '拖拽失败，请再试一次',
+        message: '拖拽失败',
         type: 'warning'
       })
     } else {
       ElMessage({
-        message: '拖拽失败，请联系管理员',
+        message: '拖拽失败',
         type: 'warning'
       })
     }
