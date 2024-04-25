@@ -15,10 +15,12 @@
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
               {{ '可直接拖拽照片到右侧指定位置～' }}
             </div>
-            <div class="title__right file-upload">
-              <div class="file-upload__label">
-                <el-button type="primary" link :icon="Upload">上传图片</el-button>
-              </div>
+            <div class="title__right file-upload flex justify-end items-center">
+              <img src="../../assets/svg/Sync.svg" @click="handleSyncOss" />
+              <label for="fileInput" class="position-absolute">
+                <img src="../../assets/svg/Upload.svg" />
+              </label>
+
               <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
             </div>
           </div>
@@ -213,6 +215,7 @@ import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   module: {
@@ -276,7 +279,19 @@ const filterList = [
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
-
+// 同步影像
+const handleSyncOss = async () => {
+  const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
+    patientId: props.patientId,
+    appId: props.appId
+  })
+  if (res.code == 200) {
+    ElMessage({
+      message: res.message,
+      type: 'success'
+    })
+  }
+}
 const handleChangeFilterBtn = async (label) => {
   currentBtn.value = label
   let path
@@ -970,8 +985,6 @@ const handleCloseImgDialog = () => {
     }
   }
   .file-upload {
-    position: relative;
-    cursor: pointer !important;
   }
 
   .file-upload__label {
@@ -982,11 +995,10 @@ const handleCloseImgDialog = () => {
   }
 
   .file-upload__input {
-    position: absolute;
     top: 0;
     left: 0;
     opacity: 0;
-    width: 100%;
+    width: 30px;
     height: 100%;
     cursor: pointer;
   }
