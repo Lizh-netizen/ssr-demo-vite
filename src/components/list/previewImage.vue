@@ -1,10 +1,26 @@
-import { computed } from 'vue';
 <template>
   <div class="image-viewer" v-if="showViewer">
     <div class="overlay" @click="closeViewer"></div>
+    <div class="position-absolute className">{{ className }}</div>
+    <div>
+      <img
+        src="./../../assets/svg/cancelDarkMode.svg"
+        class="position-absolute top-[10px] right-[10px] height-[24px]"
+        alt="close"
+        @click="closeViewer"
+      />
+    </div>
     <!-- <div class="modal"> -->
-    <img :src="imageUrl" :style="viewerStyle" @click.stop class="modal" />
-    <div class="rotate-buttons">
+    <img :src="imageUrl" :style="viewerStyle" @click.stop class="image" />
+    <div
+      class="rotate-buttons px-[24px] py-[24px]"
+      v-if="showBtn"
+      @click="
+        () => {
+          return false
+        }
+      "
+    >
       <div class="flex justify-center">
         <div @click="rotateLeft" class="mr-[24px]">
           <img src="../../assets/svg/leftRotate.svg" />
@@ -17,9 +33,21 @@ import { computed } from 'vue';
 </template>
 
 <script setup>
-const props = defineProps(['imageUrl', 'showViewer'])
+import { Get } from '../../utils/request'
+const props = defineProps(['imageUrl', 'showViewer', 'id', 'degree', 'owningModule', 'className'])
 const emit = defineEmits(['closeViewer'])
-const rotation = ref(0)
+const rotation = ref(props.degree || 0)
+const showBtn = ref(false)
+watch(props, (newVal) => {
+  if (newVal.degree) {
+    rotation.value = +newVal.degree
+  }
+  if (newVal.owningModule == '口内照') {
+    showBtn.value = true
+  } else {
+    showBtn.value = false
+  }
+})
 
 const openViewer = () => {
   showOverlay.value = true
@@ -29,16 +57,22 @@ const closeViewer = () => {
   emit('closeViewer')
 }
 
-const rotateLeft = () => {
-  rotation.value -= 90
+const rotateLeft = async () => {
+  rotation.value += 90
+  await Get(
+    `/prod-api/emr/orthCommon/updateOrthImageById?id=${props.id}&imageRotationDegree=${rotation.value}`
+  )
 }
 const viewerStyle = computed(() => {
   return {
     transform: `translate(-50%, -50%) rotate(${rotation.value}deg)`
   }
 })
-const rotateRight = () => {
-  rotation.value += 90
+const rotateRight = async () => {
+  rotation.value -= 90
+  await Get(
+    `/prod-api/emr/orthCommon/updateOrthImageById?id=${props.id}&imageRotationDegree=${rotation.value}`
+  )
 }
 </script>
 
@@ -49,6 +83,14 @@ const rotateRight = () => {
   bottom: 0;
   left: 0;
   right: 0;
+  .className {
+    position: absolute;
+    top: 10px;
+    color: #ffffff;
+    left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+  }
 }
 
 .overlay {
@@ -57,15 +99,15 @@ const rotateRight = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.69);
 }
 
-.modal {
+.image {
   position: fixed;
   top: 50%;
   left: 50%;
 
-  height: 80%;
+  max-width: 50%;
   border-radius: 5px;
 }
 

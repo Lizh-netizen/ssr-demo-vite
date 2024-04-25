@@ -19,7 +19,7 @@ export type ComponentType =
   | 'notes'
 
 // icon类型
-export type IconType = 'uncheck' | 'success' | 'failed'
+export type IconType = 'uncheck' | 'success' | 'failed' | 'halfComplete'
 
 // 筛选控件类型
 export type FilterType = 'date' | 'select' | 'search' | 'radio' | 'checkbox'

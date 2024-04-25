@@ -19,12 +19,13 @@
                   id="FrontalRose"
                   width="320"
                   height="240"
-                  @click="handlePreviewImage(item.imageUrl)"
+                  @click="handlePreviewImage(item)"
                 ></canvas>
               </template>
               <template v-else>
                 <img
                   v-lazy="item.imageUrl"
+                  @click="handlePreviewImage(item)"
                   :style="{
                     height: '240px',
                     'object-fit': 'cover',
@@ -33,7 +34,10 @@
                 />
               </template> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.prevent.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div> </template></template
           ><template #content>
@@ -62,7 +66,8 @@
                       >
                         {{ option.optionName }}
                         <img
-                          class="aiFlagImg"
+                          class="aiFlagImg highZIndex"
+                          :class="{ highZIndex: !showViewer }"
                           src="@/assets/svg/AIFlagForFront.svg"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
@@ -76,6 +81,7 @@
                     :disabled="!item.hasImage"
                     :title="title"
                     :appId="appId"
+                    :showViewer="showViewer"
                     @refreshList="refreshList"
                     :classId="item.id"
                     :owningModule="item.owningModule"
@@ -101,6 +107,7 @@
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
+                @click="handlePreviewImage(item)"
                 :src="item.imageUrl"
                 :style="{
                   height: '240px',
@@ -116,6 +123,7 @@
               <div :style="{ 'margin-top': '40px' }">
                 <template v-if="frontCover"
                   ><img
+                    @click="handlePreviewImage(item)"
                     :src="frontCover"
                     :style="{
                       height: '240px',
@@ -153,7 +161,11 @@
         </ImageItem>
       </template>
     </div>
-    <Header text="全景片" />
+    <Header
+      text="全景片"
+      @dblclick.prevent.stop="handleDblClick"
+      @click.prevent.stop="console.log(11)"
+    />
     <div class="content panoramic">
       <template v-for="item in panoramicData" :key="item.id">
         <div class="placeholderContainer">
@@ -171,7 +183,10 @@
                 @click="handleZoomPanoImage"
               /> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div>
             </template>
@@ -352,7 +367,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 13">
+                  <template v-if="index >= 13 && index <= 19">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -367,7 +382,22 @@
                 </template>
               </div>
             </div>
-            <!-- <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item> -->
+            <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+              <template v-if="index == panoramicData[0].orthTitleList.length - 1">
+                <form-item :label="title.titleName" width="120px">
+                  <a-textarea
+                    v-model="title.otherContent"
+                    @blur="
+                      handleSubmit(
+                        title.optionId,
+                        title,
+                        panoramicData[0].id,
+                        panoramicData[0].owningModule
+                      )
+                    "
+                  ></a-textarea></form-item
+              ></template>
+            </template>
           </div>
         </div>
       </template>
@@ -429,9 +459,7 @@
                   effect="light"
                   placement="top"
                   :content="title.titlePrompt"
-                  ><img
-                    src="@/assets/svg/questionMark.svg"
-                    :class="{ hide: ['SNA', 'SNB'].includes(title.titleName) }"
+                  ><img src="@/assets/svg/questionMark.svg"
                 /></el-tooltip>
 
                 <div class="formItem__content">
@@ -451,7 +479,17 @@
                       v-model="title.cephalometricsContent"
                       @focus="title.measured = false"
                       @blur="handleBlurInput(title)"
-                      :class="{ measured: title.measured === true }"
+                      :class="{
+                        measured: title.measured === true,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2
+                      }"
                     ></el-input>
                     <img
                       src="@/assets/svg/downwards.svg"
@@ -479,7 +517,20 @@
                       :label="option.id"
                       :class="{
                         serious: option.serious == '1',
-                        checked: option.choosen === true
+                        checked: option.choosen === true,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2,
+
+                        green:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 0,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1
                       }"
                       v-for="option in title?.orthOptionsList"
                       :key="option.id"
@@ -530,7 +581,7 @@
     module="ortho"
     :appId="appId"
     :patientId="patientId"
-    :dialogVisible="imgDialogVisible"
+    v-if="imgDialogVisible"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
@@ -564,6 +615,10 @@
     }"
   />
   <PreviewImage
+    :owningModule="previewImageOwningModule"
+    :className="previewImageClassName"
+    :degree="imageRotationDegree"
+    :id="previewImageId"
     :showViewer="showViewer"
     :imageUrl="previewImageUrl"
     @closeViewer="handleCloseViewer"
@@ -619,13 +674,21 @@ const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const showViewer = ref(false)
-const previewImageUrl = ref('')
-const header = document.querySelector('.header')
-const handlePreviewImage = (url) => {
-  header.style.position = 'static'
 
-  previewImageUrl.value = url
+const previewImageUrl = ref('')
+const previewImageId = ref()
+const imageRotationDegree = ref()
+const previewImageClassName = ref()
+const header = document.querySelector('.header')
+const previewImageOwningModule = ref()
+const handlePreviewImage = (item) => {
+  previewImageClassName.value = item.className
+  previewImageOwningModule.value = item.owningModule
+  header.style.position = 'static'
+  previewImageId.value = item.imageId
+  previewImageUrl.value = item.imageUrl
   showViewer.value = true
+  imageRotationDegree.value = item.imageRotationDegree
 }
 const handleCloseViewer = () => {
   header.style.position = 'sticky'
@@ -943,7 +1006,6 @@ const handleDragEnd = () => {
 
 // 保存图片
 async function handleSavePics() {
-  // imgDialogVisible.value = false
   // imageList.value.forEach((item) => (item.reminder = false))
   // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   // const arr = orthImageList.map((item) => ({
@@ -1088,6 +1150,7 @@ async function calculateFrontal2(pointList, classId, owningModule) {
 }
 // 计算面下
 async function calculateFrontal3(pointList, classId, owningModule) {
+  console.log(11)
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
@@ -1434,6 +1497,7 @@ function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
       useFdiToothCodeEffect(a)
+
       a.showInput = false
       a.popVisible = false
     })
@@ -1445,7 +1509,6 @@ function handlePanoData(panoramicData) {
         title.optionId = ''
         title.text = ''
         title.showInput = false
-
         const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
         if (choosenOptions.length > 0) {
           title.optionId = choosenOptions[0].id
@@ -1468,7 +1531,6 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  console.log(panoramicData.value)
 }
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
@@ -1495,8 +1557,13 @@ async function getOrthPanoramicList() {
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
           const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6)
-          panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
+          codeTitleList.value = res.data.slice(6, 20)
+          const other = res.data.slice(20)
+          panoramicData.value[0].orthTitleList = [
+            ...nonCodeTitleList,
+            ...codeTitleList.value,
+            ...other
+          ]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
         }
@@ -2110,6 +2177,7 @@ async function getPoints(file) {
 //       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
 //       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
 //       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+//       console.log('🚀 ~ getPoints ~ standardDistance:', standardDistance)
 //     }
 //   }
 // }
@@ -2330,7 +2398,9 @@ const handleOpenImageDialogue = (caption) => {
   // reminder是提醒从这个跳进去的
   title.value = caption
 }
-
+const handleDblClick = () => {
+  console.log(33)
+}
 async function getImageList() {
   if (imageArr.value.length !== 0) {
     return
@@ -2393,6 +2463,7 @@ function calculateSinglePoint(ratio, item, changed) {
     foundPoint.aiFlag = '1'
   }
 }
+
 function calculateAllPoints() {
   pointRatio.forEach((item) => {
     let ratio = calculateDistanceRatio(item, coordinatesSmall.value)
@@ -2425,6 +2496,7 @@ function calculateAllPoints() {
   calculateSinglePoint(distance, 'Wits', false)
 }
 async function updateResult() {
+  console.log(cephaData.value)
   // post值和选项
   cephaData.value.forEach((item) => {
     if (!['颈椎分期', '腺样体', '扁桃体'].includes(item.titleName)) {
@@ -2776,6 +2848,14 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
 //   })
 // }
 const handleSubmit = (optionId, title, classId, owningModule) => {
+  console.log(
+    '🚀 ~ handleSubmit ~ optionId, title, classId, owningModule:',
+    optionId,
+    title,
+    classId,
+    owningModule
+  )
+
   useUpdateOption(optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
@@ -2842,6 +2922,21 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep(.el-input.blue) {
+  .el-input__inner {
+    color: #2e6ce4;
+  }
+}
+:deep(.el-input.red) {
+  .el-input__inner {
+    color: #f65b56;
+  }
+}
+img {
+  &:hover {
+    cursor: zoom-in;
+  }
+}
 :deep .imageItem.frontCoverImage {
   border-bottom: none !important;
   padding: 0;
@@ -3605,6 +3700,22 @@ div.el-input__wrapper {
     box-shadow: none;
     border: none;
     background: #fdebeb;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.green {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #ddf9e3;
+    color: #23c343;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.blue {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #eaf0fc;
+    color: #2e6ce4;
   }
 }
 .content.mouth {

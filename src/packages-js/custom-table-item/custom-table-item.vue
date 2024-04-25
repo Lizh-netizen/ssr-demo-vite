@@ -6,6 +6,7 @@
 import { ref, useSlots, defineAsyncComponent } from 'vue'
 import style from './index.module.scss'
 import unNote from '@/assets/imgs/unNote.png'
+import PopContent from '../popContent.vue'
 import { ElTableColumn, ElTooltip, ElInput } from 'element-plus'
 import { Doption, Dropdown, Button } from '@arco-design/web-vue'
 const SvgIcon = defineAsyncComponent(() => import('../svg-icon/svg-icon.vue'))
@@ -22,6 +23,7 @@ const {
   rightTagOption,
   stateOption,
   stateIcon,
+  list,
   editStateType
 } = defineProps([
   'prop',
@@ -34,10 +36,10 @@ const {
   'leftTagOption',
   'rightTagOption',
   'stateOption',
+  'list',
   'stateIcon',
   'editStateType'
 ])
-
 // 表格当前数据类型
 const TdType = {
   /**纯文本展示 */
@@ -59,7 +61,8 @@ const TdType = {
   /**操作 */
   operation: 'operation',
   /**备注 */
-  notes: 'notes'
+  notes: 'notes',
+  popState: 'popState'
 }
 
 // 颜色类型
@@ -203,6 +206,28 @@ const renderTableColumn = () => (
                       </div>
                     )
                 )}
+              </>
+            )
+          } else if (type === TdType.popState) {
+            {
+              /* popState 状态 */
+            }
+            const svg_name = ''
+            return (
+              <>
+                <el-popover
+                  trigger="hover"
+                  popper-class="popoverState"
+                  v-slots={{
+                    reference: () => (
+                      <SvgIcon
+                        name={stateOption.filter((i) => i.value == row.completStatus)[0]?.name}
+                      />
+                    )
+                  }}
+                >
+                  <PopContent data={row.list} />
+                </el-popover>
               </>
             )
           } else if (type === TdType.editState) {

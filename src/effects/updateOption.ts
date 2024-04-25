@@ -67,6 +67,19 @@ async function useUpdateOption(
         owningModule: owningModule
       }
     }
+    // 全景片的其他的提交
+  } else if (owningModule == '全景片') {
+    obj = {
+      aptmId: appId,
+      titleId: title.id,
+      optionsIdStr: [],
+      otherContent: title.otherContent,
+      cephalometricsContent: '',
+      fdiToothCode: '',
+      showPosition: '',
+      classId: classId,
+      owningModule: owningModule
+    }
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
   return res
