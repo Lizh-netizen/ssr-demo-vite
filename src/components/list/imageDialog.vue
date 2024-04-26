@@ -24,7 +24,9 @@
               <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
             </div>
           </div>
-          <div class="flex mt-[50px] px-[12px] py-[12px] gap-[16px] w-[542px] z-[2]">
+          <div
+            class="flex mt-[50px] px-[12px] py-[12px] gap-[16px] w-[542px] z-[2] position-absolute bg-[#fff]!"
+          >
             <div
               v-for="(item, index) in filterList"
               :key="index"
@@ -176,8 +178,12 @@
           </div>
         </div>
       </div>
-      <img src="../../assets/svg/message.svg" v-if="showGif" class="message" />
-      <div class="gif-container" id="gif-container" ref="gif" v-if="showGif">
+      <img
+        src="../../assets/svg/message.svg"
+        v-if="showGif && module !== 'ortho'"
+        class="message z-2"
+      />
+      <div class="gif-container" id="gif-container" ref="gif" v-if="showGif && module !== 'ortho'">
         <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
       </div>
       <template #footer>
@@ -306,7 +312,7 @@ const handleChangeFilterBtn = async (label) => {
 
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value[0].imageList.forEach((img) => {
-      img.imgUrl = img.thumbnailOssPath
+      img.imgUrl = img.ossImagePath
     })
   } else {
     const index = imageArr.value.find((a) => !a.file)
@@ -412,6 +418,7 @@ const handleLoadPic = () => {
     const itemWithImage = totalArr.value
       .slice(index.value + 1)
       .find((a) => a.imageList.length !== 0)
+    console.log('🚀 ~ handleLoadPic ~ itemWithImage:', itemWithImage)
     if (itemWithImage) {
       imageArr.value.push(itemWithImage)
       index.value = totalArr.value.findIndex(
@@ -423,6 +430,7 @@ const handleLoadPic = () => {
     } else {
       ElMessage('没有更多图像了哦')
     }
+    console.log('totalArr.value', imageArr.value)
   }
 }
 
@@ -782,13 +790,26 @@ const handleDragEnd = () => {
   const image2 = document.getElementById('img')
   image2.style.opacity = 0
 }
+const handleSingleImage1 = (file, image) => {
+  image.imageId = file.id
+  image.startTime = file.startTime
+  image.fileUrl = file.ossImagePath
+  console.log('🚀 ~ handleSingleImage1 ~ image:', image)
+}
 const handleDrop = (e, image) => {
   const image2 = document.getElementById('img')
   image2.style.opacity = 0
   e.target.classList.remove('hover')
   if (!dragFile.value.rightDrop) {
     // 从左拖到右
-    handleSingleImage(dragFile.value, image)
+
+    if (dragFile.value.name) {
+      // 本地图片
+      handleSingleImage(dragFile.value, image)
+    } else {
+      // 图库里的
+      handleSingleImage1(dragFile.value, image)
+    }
   } else {
     // 有id的话是分类过的，要通过接口删除
     if (dragFile.value.id) {
@@ -817,39 +838,39 @@ const handleDrop = (e, image) => {
 // file是拖拽的，image是被拖的
 const failCount = ref(0)
 async function handleSingleImage(file, image) {
-  console.log('🚀 ~ handleSingleImage ~ image:', file)
   const formData = new FormData()
   if (file.type) {
     formData.append('file', file, 'Cover')
     formData.append(
-      'orthImageString',
+      'tImageString',
       JSON.stringify({
         patientId: props.patientId,
-        apmtId: props.appId,
-        orthImageList: []
-      })
-    )
-  } else {
-    formData.append(
-      'orthImageString',
-      JSON.stringify({
-        patientId: props.patientId,
-        apmtId: props.appId,
-        orthImageList: [
-          {
-            ljUrl: file.imgUrl,
-            ljId: file.ljImageId,
-            LJCreateDatetime: file.timestamp,
-            startTime: file.StartTime
-          }
-        ]
+        aptmId: props.appId,
+        tImageList: []
       })
     )
   }
-  const res = await Post('/prod-api/business/orthImage/handleSingleImage', formData, true)
-  if (res.code == 200 && res.data[0].fileUrl) {
-    image.fileUrl = res.data[0].fileUrl
-    image.imageId = res.data[0].fileId
+  // else {
+  //   formData.append(
+  //     'orthImageString',
+  //     JSON.stringify({
+  //       patientId: props.patientId,
+  //       apmtId: props.appId,
+  //       orthImageList: [
+  //         {
+  //           ljUrl: file.imgUrl,
+  //           ljId: file.ljImageId,
+  //           LJCreateDatetime: file.timestamp,
+  //           startTime: file.StartTime
+  //         }
+  //       ]
+  //     })
+  //   )
+  // }
+  const res = await Post('/prod-api/emr/orthCommon/handleSingleImage', formData, true)
+  if (res.code == 200 && res.data.length > 0) {
+    image.fileUrl = res.data[0].ossImagePath
+    image.imageId = res.data[0].id
     image.startTime = res.data[0].startTime
   } else {
     image.fileUrl = placeholderUrl
@@ -870,10 +891,7 @@ async function handleSingleImage(file, image) {
 
 // 保存图片
 async function handleSavePics() {
-  emit('cancel')
-  emit('savePics')
   imageList.value.forEach((item) => (item.reminder = false))
-
   const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   const arr = orthImageList.map((item) => ({
     imageType: item.caption,
@@ -881,10 +899,12 @@ async function handleSavePics() {
     imageId: item.fileId || null,
     startTime: item.startTime
   }))
-  Post('/prod-api/business/orthImage', {
+  await Post('/prod-api/business/orthImage', {
     apmtId: props.appId,
     orthImageList: arr
   })
+  emit('cancel')
+  emit('savePics')
 }
 const handleDragOver = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
@@ -941,7 +961,7 @@ const handleCloseImgDialog = () => {
     }
   }
   .title {
-    width: 547px;
+    width: 543px;
     height: 50px;
     position: absolute;
     background: #ffffff;
