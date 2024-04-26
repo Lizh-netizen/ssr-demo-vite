@@ -499,7 +499,10 @@ const checkCompletion = async () => {
     plansTools: active.value == 5 ? plansTools.value : '',
     approvalSubmitted: active.value == 6 ? approvalSubmitted.value : ''
   })
-  planCompletionId.value = res.data?.planCompletionId || ''
+  if (res.data.planCompletionId) {
+    sessionStorage.setItem('planCompletionId', res.data.planCompletionId)
+  }
+  planCompletionId.value = res.data?.planCompletionId.value || ''
 }
 const handleNextStep = async () => {
   if (active.value == 4) {

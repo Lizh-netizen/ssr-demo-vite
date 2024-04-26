@@ -658,10 +658,6 @@ const facialCompletionId = ref()
 const facialConclusion = ref(0)
 async function checkImageOptions() {
   // 包含前牙覆盖选项的
-  console.log(
-    '🚀 ~ checkImageOptions ~ checkFugaiOptions(mouthData.value):',
-    checkFugaiOptions(mouthData.value)
-  )
   checkFugaiOptions(mouthData.value)
   checkOptions(panoramicData.value)
   return (
@@ -696,6 +692,10 @@ async function checkCompletion() {
     imageAnalysis: imageAnalysis.value,
     facialConclusion: ''
   })
+  if (res.data.facialCompletionId) {
+    sessionStorage.setItem('facialCompletionId', res.data.facialCompletionId)
+  }
+
   facialCompletionId.value = res.data.facialCompletionId
 }
 const id = ref()
@@ -753,6 +753,7 @@ async function handleAdvice() {
       orthDoctorName: orthDoctorName || '',
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
+      ljProviderId: userInfo.value.ljProviderId,
       facialAdvise: facialAdvise,
       facialOrthDoctorId:
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
