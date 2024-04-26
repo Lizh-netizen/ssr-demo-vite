@@ -296,6 +296,7 @@ const handleSyncOss = async () => {
       message: res.message,
       type: 'success'
     })
+    handleChangeFilterBtn('全部')
   }
 }
 const handleChangeFilterBtn = async (label) => {

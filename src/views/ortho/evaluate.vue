@@ -684,7 +684,7 @@ async function checkCompletion() {
   imageAnalysis.value = isImageAnalysis ? '1' : '0'
 
   const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
-    id: sessionStorage.facialCompletionId || '',
+    id: +sessionStorage.facialCompletionId || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: clinicalExamination.value,
@@ -780,7 +780,7 @@ async function handleAdvice() {
       ElMessage.success(res.msg)
     }
     await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
-      id: facialCompletionId.value || '',
+      id: +facialCompletionId.value || '',
       aptmId: appId,
       patientId: patientId,
       clinicalExamination: '',

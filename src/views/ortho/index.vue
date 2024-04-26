@@ -488,7 +488,7 @@ const checkCompletion = async () => {
     modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
-    id: sessionStorage.getItem(`planCompletionId`) || '',
+    id: +sessionStorage.getItem(`planCompletionId`) || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: active.value == 1 ? clinicalExamination.value : '',
