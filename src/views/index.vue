@@ -405,7 +405,7 @@ async function getEvaluateList(val) {
       total.value = res.total
       evaluateList.value = res.rows.map((item) => ({
         ...item,
-        StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
+        StartTime: item.startTime.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
@@ -443,7 +443,7 @@ async function getOrthoList(val) {
       total.value = res.total
       orthoList.value = res.rows.map((item) => ({
         ...item,
-        StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
+        StartTime: item.startTime?.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',

@@ -41,7 +41,7 @@
             :style="{
               'padding-left': '14px',
               'padding-bottom': '50px',
-              'padding-top': '0px'
+              'padding-top': '110px'
             }"
           >
             <img
@@ -412,6 +412,7 @@ async function getClassifiedImgList() {
 }
 // 加载更多图像
 const handleLoadPic = () => {
+  console.log(imageArr.value.length, totalArr.value.length)
   if (imageArr.value.length < totalArr.value.length) {
     totalArr.value[imageArr.value.length].imageList.forEach((img) => {
       img.imgUrl = img.fileUrl
@@ -432,6 +433,8 @@ const handleLoadPic = () => {
       ElMessage('没有更多图像了哦')
     }
     console.log('totalArr.value', imageArr.value)
+  } else {
+    ElMessage('没有更多图像了哦')
   }
 }
 
