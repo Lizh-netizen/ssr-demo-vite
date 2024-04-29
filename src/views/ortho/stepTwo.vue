@@ -688,7 +688,7 @@ const handlePreviewImage = (item) => {
   previewImageId.value = item.imageId
   previewImageUrl.value = item.imageUrl
   showViewer.value = true
-  imageRotationDegree.value = item.imageRotationDegree
+  imageRotationDegree.value = item.imageRotationDegree % 360
   header.style.position = 'static'
 }
 const handleCloseViewer = () => {
