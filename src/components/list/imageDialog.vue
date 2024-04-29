@@ -7,7 +7,11 @@
       @close="handleCloseImgDialog"
       :close-on-click-modal="false"
     >
-      <div class="imageManagement" ref="loadingTarget2">
+      <div
+        class="imageManagement"
+        ref="loadingTarget2"
+        :class="{ bgWhite: showGif && module !== 'ortho' }"
+      >
         <div class="imageManagement__images subSection">
           <div class="title left">
             <div class="title__left">图库</div>
@@ -312,9 +316,11 @@ const handleChangeFilterBtn = async (label) => {
     imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
 
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
-    imageArr.value[0].imageList.forEach((img) => {
-      img.imgUrl = img.ossImagePath
-    })
+    imageArr.value.forEach((item) =>
+      item.imageList.forEach((img) => {
+        img.imgUrl = img.ossImagePath
+      })
+    )
   } else {
     const index = imageArr.value.find((a) => !a.file)
     if (index) {
@@ -412,27 +418,25 @@ async function getClassifiedImgList() {
 }
 // 加载更多图像
 const handleLoadPic = () => {
-  console.log(imageArr.value.length, totalArr.value.length)
   if (imageArr.value.length < totalArr.value.length) {
     totalArr.value[imageArr.value.length].imageList.forEach((img) => {
-      img.imgUrl = img.fileUrl
+      img.imgUrl = img.ossImagePath
     })
     const itemWithImage = totalArr.value
       .slice(index.value + 1)
       .find((a) => a.imageList.length !== 0)
-    console.log('🚀 ~ handleLoadPic ~ itemWithImage:', itemWithImage)
+
     if (itemWithImage) {
       imageArr.value.push(itemWithImage)
       index.value = totalArr.value.findIndex(
         (item) => item == imageArr.value[imageArr.value.length - 1]
       )
       imageArr.value[imageArr.value.length - 1].imageList.forEach((img) => {
-        img.imgUrl = img.fileUrl
+        img.imgUrl = img.ossImagePath
       })
     } else {
       ElMessage('没有更多图像了哦')
     }
-    console.log('totalArr.value', imageArr.value)
   } else {
     ElMessage('没有更多图像了哦')
   }
@@ -721,7 +725,6 @@ const handleFileChange = (event) => {
       imageArr.value[0].imageList = fileListWithFlag.value
     }
   }
-  console.log(imageArr.value)
 }
 const chooseImgNum = computed(() => {
   let num = 0
@@ -798,7 +801,6 @@ const handleSingleImage1 = (file, image) => {
   image.imageId = file.id
   image.startTime = file.startTime
   image.fileUrl = file.ossImagePath
-  console.log('🚀 ~ handleSingleImage1 ~ image:', image)
 }
 const handleDrop = (e, image) => {
   const image2 = document.getElementById('img')
@@ -946,6 +948,10 @@ const handleCloseImgDialog = () => {
 .imageManagement {
   position: relative;
   display: flex;
+  &.bgWhite {
+    background: #fff;
+    opacity: 0.3;
+  }
   .filterBtn {
     width: 60px;
     height: 30px;

@@ -213,6 +213,7 @@ const renderTableColumn = () => (
               /* popState 状态 */
             }
             const svg_name = ''
+
             return (
               <>
                 <el-popover
@@ -221,7 +222,7 @@ const renderTableColumn = () => (
                   v-slots={{
                     reference: () => (
                       <SvgIcon
-                        name={stateOption.filter((i) => i.value == row.completStatus)[0]?.name}
+                        name={stateOption.filter((i) => i.value === row.completeStatus)[0]?.name}
                       />
                     )
                   }}

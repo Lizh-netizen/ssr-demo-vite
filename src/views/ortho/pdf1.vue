@@ -117,7 +117,8 @@
                     width: '210px',
                     'border-radius': '12px',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    height: '300px'
                   }"
                   v-for="image in item.imageList1"
                   :key="image.className"
@@ -126,7 +127,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    :style="{ width: '100%' }"
+                    :style="{ width: '100%', height: '100%' }"
                   />
                 </div>
               </div>
@@ -171,7 +172,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList2"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
                     {{ image.className }}
@@ -179,7 +180,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -198,7 +199,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList3"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption">
                     {{ image.className }}
@@ -206,7 +207,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -219,7 +220,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList4"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption">
                     {{ image.className }}
@@ -227,7 +228,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -322,7 +323,9 @@
                 </div>
               </div>
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
+            <div class="subTitle mt-[10px]" v-if="data.find((item) => item.owningModule == '风险')">
+              风险
+            </div>
             <div class="content">
               <list
                 :list="data.find((item) => item.owningModule == '风险').list"
@@ -837,16 +840,16 @@ async function main() {
 const loading = ref()
 
 onMounted(() => {
-  if (!src.value) {
-    loading.value = ElLoading.service({
-      lock: true,
-      text: '报告生成中',
-      // 把颜色改成不透明的，就看不到后面的pdf的内容了
-      background: 'rgba(37, 38, 38, 1)'
-    })
-    main()
-  }
-  // main()
+  // if (!src.value) {
+  //   loading.value = ElLoading.service({
+  //     lock: true,
+  //     text: '报告生成中',
+  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
+  //     background: 'rgba(37, 38, 38, 1)'
+  //   })
+  //   main()
+  // }
+  main()
 })
 </script>
 
@@ -903,7 +906,7 @@ body {
   color: #ffffff;
   position: absolute;
   padding: 4px 12px;
-  background: #2e6ce4;
+  background: rgba(0, 0, 0, 0.5);
   left: 0px;
   top: 0px;
   border-radius: 12px 0px 12px 0px;
@@ -1075,8 +1078,9 @@ body {
             width: 50%;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            max-height: 400px;
+            height: 250px;
             overflow: hidden;
+            border-radius: 12px;
             img {
               width: 100%;
             }
@@ -1087,12 +1091,13 @@ body {
             overflow: hidden;
             img {
               width: 100%;
+              height: 100%;
             }
           }
           .image2 {
             grid-column: 3;
             grid-row: 1;
-            max-height: 200px;
+            height: 250px;
             img {
               width: 100%;
             }

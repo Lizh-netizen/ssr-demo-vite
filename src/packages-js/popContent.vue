@@ -21,7 +21,7 @@ const props = defineProps({
 <style scoped>
 .popover-content {
   /* 样式 */
-  padding: 16px;
+  padding: 6px;
   overflow: auto;
 }
 .item {
