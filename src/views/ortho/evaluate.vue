@@ -472,12 +472,12 @@
                 >
                   面型评估
                 </div>
-                <div class="p-[8px] max-w-[320px]">
+                <div class="p-[8px] max-w-[320px] color-[#1D2129]">
                   <div class="grid grid-cols-2 w-full gap-[8px]">
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
                       crossOrigin="anonymous"
-                      class="w-[120px]"
+                      class="w-[120px] h-[180px]"
                       v-for="image in facialData?.imageList"
                       :key="image.imageUrl"
                     />
@@ -496,7 +496,7 @@
                 >
                   全景片
                 </div>
-                <div class="p-[8px] pb-[0]!">
+                <div class="p-[8px] pb-[0]! color-[#1D2129]">
                   <div>
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
@@ -520,12 +520,12 @@
               >
                 口内照
               </div>
-              <div class="flex items-center p-[8px]">
+              <div class="flex items-center p-[8px] color-[#1D2129] h-[510px]">
                 <!-- 这里是图片, grid布局-->
                 <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
                   <img
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="h-[100px]"
+                    class="h-[100px] w-[150px]"
                     crossOrigin="anonymous"
                     v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
