@@ -54,7 +54,7 @@
                 />
                 <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
-              <draggableTool class="ORTHTOOL" :list="toolList"></draggableTool>
+              <draggableTool class="ORTHTOOL h-[250px]!" :list="toolList"></draggableTool>
             </template>
           </div>
         </div>

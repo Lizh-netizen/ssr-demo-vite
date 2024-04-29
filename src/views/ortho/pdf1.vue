@@ -5,7 +5,7 @@
         <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
         <div class="title">
           <div>
-            <div class="Chinese">正畸检查报告</div>
+            <div class="Chinese"><img src="../../assets/pdfTemplate/title.svg" /></div>
             <div class="font-size-[24px] mb-[33px]!">（含治疗计划）</div>
             <div class="item">
               <div class="label">姓名</div>
@@ -34,7 +34,7 @@
             <el-row class="flex mb-[10px]!">
               <img
                 :src="imgCover + `?random=${Math.random()}`"
-                class="h-[200px]!"
+                class="h-[300px]! w-[200px]!"
                 crossOrigin="anonymous"
               />
               <div class="personalInfo flex-1">
@@ -108,7 +108,7 @@
 
         <template v-if="item.owningModule === '面型评估'">
           <div class="pdfPage face">
-            <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
+            <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
             <Header text="面型评估" />
             <div class="flex">
               <div class="imageList1">
@@ -323,7 +323,10 @@
                 </div>
               </div>
             </div>
-            <div class="subTitle mt-[10px]" v-if="data.find((item) => item.owningModule == '风险')">
+            <div
+              class="subTitle mt-[10px]!"
+              v-if="data.find((item) => item.owningModule == '风险')"
+            >
               风险
             </div>
             <div class="content">
@@ -840,16 +843,16 @@ async function main() {
 const loading = ref()
 
 onMounted(() => {
-  // if (!src.value) {
-  //   loading.value = ElLoading.service({
-  //     lock: true,
-  //     text: '报告生成中',
-  //     // 把颜色改成不透明的，就看不到后面的pdf的内容了
-  //     background: 'rgba(37, 38, 38, 1)'
-  //   })
-  //   main()
-  // }
-  main()
+  if (!src.value) {
+    loading.value = ElLoading.service({
+      lock: true,
+      text: '报告生成中',
+      // 把颜色改成不透明的，就看不到后面的pdf的内容了
+      background: 'rgba(37, 38, 38, 1)'
+    })
+    main()
+  }
+  // main()
 })
 </script>
 
@@ -1122,6 +1125,7 @@ body {
         background: #eaf0fc;
         border-radius: 16px;
         justify-content: space-between;
+        height: 460px;
 
         .content2.content {
           display: flex;
