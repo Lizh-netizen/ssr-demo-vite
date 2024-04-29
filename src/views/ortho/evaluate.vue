@@ -657,9 +657,16 @@ const imageAnalysis = ref(0)
 const facialCompletionId = ref()
 const facialConclusion = ref(0)
 async function checkImageOptions() {
+  await getFaceAccessList()
+  await checkOrthOptions(faceAccessData.value)
   // 包含前牙覆盖选项的
   checkFugaiOptions(mouthData.value)
   checkOptions(panoramicData.value)
+  console.log(
+    checkOrthOptions(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkOptions(panoramicData.value)
+  )
   return (
     checkOrthOptions(faceAccessData.value) &&
     checkFugaiOptions(mouthData.value) &&
@@ -669,7 +676,6 @@ async function checkImageOptions() {
 
 async function checkCompletion() {
   await getClassifiedImgList()
-  await checkOrthOptions(faceAccessData.value)
   await getMouthList()
   await getPanoramicList()
   const checkData = await getCheckList()
