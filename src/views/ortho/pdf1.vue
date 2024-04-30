@@ -5,7 +5,7 @@
         <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
         <div class="title">
           <div>
-            <div class="Chinese">正畸检查报告</div>
+            <div class="Chinese"><img src="../../assets/pdfTemplate/title.svg" /></div>
             <div class="font-size-[24px] mb-[33px]!">（含治疗计划）</div>
             <div class="item">
               <div class="label">姓名</div>
@@ -34,7 +34,7 @@
             <el-row class="flex mb-[10px]!">
               <img
                 :src="imgCover + `?random=${Math.random()}`"
-                class="h-[200px]!"
+                class="h-[300px]! w-[200px]!"
                 crossOrigin="anonymous"
               />
               <div class="personalInfo flex-1">
@@ -108,7 +108,7 @@
 
         <template v-if="item.owningModule === '面型评估'">
           <div class="pdfPage face">
-            <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
+            <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
             <Header text="面型评估" />
             <div class="flex">
               <div class="imageList1">
@@ -117,7 +117,8 @@
                     width: '210px',
                     'border-radius': '12px',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    height: '300px'
                   }"
                   v-for="image in item.imageList1"
                   :key="image.className"
@@ -126,7 +127,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    :style="{ width: '100%' }"
+                    :style="{ width: '100%', height: '100%' }"
                   />
                 </div>
               </div>
@@ -171,7 +172,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList2"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
                     {{ image.className }}
@@ -179,7 +180,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -198,7 +199,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList3"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption">
                     {{ image.className }}
@@ -206,7 +207,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -219,7 +220,7 @@
                 <div
                   :style="{ position: 'relative' }"
                   v-for="image in item.imageList4"
-                  class="w-[50%]! max-h-[230px]! overflow-hidden"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
                 >
                   <div class="imageCaption">
                     {{ image.className }}
@@ -227,7 +228,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]!"
+                    class="w-[100%]! h-[100%]!"
                   />
                 </div>
               </div>
@@ -322,7 +323,12 @@
                 </div>
               </div>
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
+            <div
+              class="subTitle mt-[10px]!"
+              v-if="data.find((item) => item.owningModule == '风险')"
+            >
+              风险
+            </div>
             <div class="content">
               <list
                 :list="data.find((item) => item.owningModule == '风险').list"
@@ -903,7 +909,7 @@ body {
   color: #ffffff;
   position: absolute;
   padding: 4px 12px;
-  background: #2e6ce4;
+  background: rgba(0, 0, 0, 0.5);
   left: 0px;
   top: 0px;
   border-radius: 12px 0px 12px 0px;
@@ -1075,8 +1081,9 @@ body {
             width: 50%;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            max-height: 400px;
+            height: 250px;
             overflow: hidden;
+            border-radius: 12px;
             img {
               width: 100%;
             }
@@ -1087,12 +1094,13 @@ body {
             overflow: hidden;
             img {
               width: 100%;
+              height: 100%;
             }
           }
           .image2 {
             grid-column: 3;
             grid-row: 1;
-            max-height: 200px;
+            height: 250px;
             img {
               width: 100%;
             }
@@ -1117,6 +1125,7 @@ body {
         background: #eaf0fc;
         border-radius: 16px;
         justify-content: space-between;
+        height: 460px;
 
         .content2.content {
           display: flex;

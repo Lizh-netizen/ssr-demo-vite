@@ -123,7 +123,7 @@
               <div :style="{ 'margin-top': '40px' }">
                 <template v-if="frontCover"
                   ><img
-                    @click="handlePreviewImage(item)"
+                    @click="handlePreviewImage(frontCoverItem)"
                     :src="frontCover"
                     :style="{
                       height: '240px',
@@ -684,11 +684,12 @@ const previewImageOwningModule = ref()
 const handlePreviewImage = (item) => {
   previewImageClassName.value = item.className
   previewImageOwningModule.value = item.owningModule
-  header.style.position = 'static'
+
   previewImageId.value = item.imageId
   previewImageUrl.value = item.imageUrl
   showViewer.value = true
-  imageRotationDegree.value = item.imageRotationDegree
+  imageRotationDegree.value = item.imageRotationDegree % 360
+  header.style.position = 'static'
 }
 const handleCloseViewer = () => {
   header.style.position = 'sticky'
@@ -1349,6 +1350,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
   }
   return { width, height, ratio }
 }
+const frontCoverItem = ref()
 const mouthData = ref([])
 const frontCover = ref()
 async function getOrthMouthList() {
@@ -1393,6 +1395,7 @@ async function getOrthMouthList() {
       }
     })
     if (item.className == '前牙覆盖') {
+      frontCoverItem.value = item
       frontCover.value = item.imageUrl
     }
     if (item.className == '正面咬合') {
@@ -2565,7 +2568,7 @@ async function getAIResult() {
     const loading = ElLoading.service({
       lock: true,
       text: '正在计算中',
-      background: 'rgba(0, 0, 0, 0.7)',
+      background: 'rgba(255, 255, 255, 0.66);',
       target: loadingTarget.value
     })
     if (cephaImage.value) {
@@ -2880,27 +2883,6 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 </script>
 <style>
-.file-upload {
-  position: relative;
-  cursor: pointer;
-}
-
-.file-upload__label {
-  display: inline-block;
-  color: #333;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
 .el-dialog {
   border-radius: 12px;
 }

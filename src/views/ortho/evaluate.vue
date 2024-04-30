@@ -472,12 +472,12 @@
                 >
                   面型评估
                 </div>
-                <div class="p-[8px] max-w-[320px]">
+                <div class="p-[8px] max-w-[320px] color-[#1D2129]">
                   <div class="grid grid-cols-2 w-full gap-[8px]">
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
                       crossOrigin="anonymous"
-                      class="w-[120px]"
+                      class="w-[120px] h-[180px]"
                       v-for="image in facialData?.imageList"
                       :key="image.imageUrl"
                     />
@@ -496,7 +496,7 @@
                 >
                   全景片
                 </div>
-                <div class="p-[8px] pb-[0]!">
+                <div class="p-[8px] pb-[0]! color-[#1D2129]">
                   <div>
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
@@ -520,12 +520,12 @@
               >
                 口内照
               </div>
-              <div class="flex items-center p-[8px]">
+              <div class="flex items-center p-[8px] color-[#1D2129] h-[510px]">
                 <!-- 这里是图片, grid布局-->
                 <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
                   <img
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="h-[100px]"
+                    class="h-[100px] w-[150px]"
                     crossOrigin="anonymous"
                     v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
@@ -657,13 +657,16 @@ const imageAnalysis = ref(0)
 const facialCompletionId = ref()
 const facialConclusion = ref(0)
 async function checkImageOptions() {
+  await getFaceAccessList()
+  await checkOrthOptions(faceAccessData.value)
   // 包含前牙覆盖选项的
-  console.log(
-    '🚀 ~ checkImageOptions ~ checkFugaiOptions(mouthData.value):',
-    checkFugaiOptions(mouthData.value)
-  )
   checkFugaiOptions(mouthData.value)
   checkOptions(panoramicData.value)
+  console.log(
+    checkOrthOptions(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkOptions(panoramicData.value)
+  )
   return (
     checkOrthOptions(faceAccessData.value) &&
     checkFugaiOptions(mouthData.value) &&
@@ -673,7 +676,6 @@ async function checkImageOptions() {
 
 async function checkCompletion() {
   await getClassifiedImgList()
-  await checkOrthOptions(faceAccessData.value)
   await getMouthList()
   await getPanoramicList()
   const checkData = await getCheckList()
@@ -688,7 +690,7 @@ async function checkCompletion() {
   imageAnalysis.value = isImageAnalysis ? '1' : '0'
 
   const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
-    id: sessionStorage.facialCompletionId || '',
+    id: +sessionStorage.facialCompletionId || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: clinicalExamination.value,
@@ -696,6 +698,10 @@ async function checkCompletion() {
     imageAnalysis: imageAnalysis.value,
     facialConclusion: ''
   })
+  if (res.data.facialCompletionId) {
+    sessionStorage.setItem('facialCompletionId', res.data.facialCompletionId)
+  }
+
   facialCompletionId.value = res.data.facialCompletionId
 }
 const id = ref()
@@ -753,6 +759,7 @@ async function handleAdvice() {
       orthDoctorName: orthDoctorName || '',
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
+      ljProviderId: userInfo.value.ljProviderId,
       facialAdvise: facialAdvise,
       facialOrthDoctorId:
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
@@ -779,7 +786,7 @@ async function handleAdvice() {
       ElMessage.success(res.msg)
     }
     await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
-      id: facialCompletionId.value || '',
+      id: +facialCompletionId.value || '',
       aptmId: appId,
       patientId: patientId,
       clinicalExamination: '',
@@ -1668,16 +1675,6 @@ async function main() {
   display: inline-block;
   color: #333;
   border-radius: 4px;
-  cursor: pointer;
-}
-
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
   cursor: pointer;
 }
 

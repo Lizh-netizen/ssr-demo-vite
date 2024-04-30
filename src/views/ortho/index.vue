@@ -487,7 +487,7 @@ const checkCompletion = async () => {
     modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
-    id: sessionStorage.getItem(`planCompletionId`) || '',
+    id: +sessionStorage.getItem(`planCompletionId`) || '',
     aptmId: appId,
     patientId: patientId,
     clinicalExamination: active.value == 1 ? clinicalExamination.value : '',
@@ -498,7 +498,10 @@ const checkCompletion = async () => {
     plansTools: active.value == 5 ? plansTools.value : '',
     approvalSubmitted: active.value == 6 ? approvalSubmitted.value : ''
   })
-  planCompletionId.value = res.data?.planCompletionId || ''
+  if (res.data.planCompletionId) {
+    sessionStorage.setItem('planCompletionId', res.data.planCompletionId)
+  }
+  planCompletionId.value = res.data?.planCompletionId.value || ''
 }
 const handleNextStep = async () => {
   if (active.value == 4) {

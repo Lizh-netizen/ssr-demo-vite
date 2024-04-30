@@ -11,7 +11,9 @@
       />
     </div>
     <!-- <div class="modal"> -->
+
     <img :src="imageUrl" :style="viewerStyle" @click.stop class="image" />
+
     <div
       class="rotate-buttons px-[24px] py-[24px]"
       v-if="showBtn"
@@ -25,7 +27,7 @@
         <div @click="rotateLeft" class="mr-[24px]">
           <img src="../../assets/svg/leftRotate.svg" />
         </div>
-        <div @click="rotateRight"><img src="../../assets/svg/leftRotate.svg" /></div>
+        <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
       </div>
     </div>
     <!-- </div> -->
@@ -99,23 +101,23 @@ const rotateRight = async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.69);
+  background: rgba(0, 0, 0, 0.89);
 }
 
 .image {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
-
-  max-width: 50%;
+  height: 80vh;
+  width: 90vw;
   border-radius: 5px;
 }
 
 .rotate-buttons {
   position: absolute;
   left: 50%;
-  transform: translate(-50%, -50%);
-  bottom: -10px;
+  transform: translateX(-50%);
+  bottom: 6px;
 }
 
 .rotate-buttons button {
