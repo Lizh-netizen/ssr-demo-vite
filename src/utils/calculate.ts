@@ -183,7 +183,15 @@ function findFootPointCoordinates(A: any, B: any, C: any) {
 
   return { x: footPointX, y: footPointY }
 }
-export function calculateWits(A: any, B: any, U1: any, L1: any, U6: any, L6: any, standardDistance: any) {
+export function calculateWits(
+  A: any,
+  B: any,
+  U1: any,
+  L1: any,
+  U6: any,
+  L6: any,
+  standardDistance: any
+) {
   const M_U6L6 = {
     x: (U6.x + L6.x) / 2,
     y: (U6.y + L6.y) / 2
@@ -203,9 +211,9 @@ export function calculateWits(A: any, B: any, U1: any, L1: any, U6: any, L6: any
   const deltaY = B_foot.y - A_foot.y
   const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
   if (B_foot.x > A_foot.x) {
-    return (distance * 20) / standardDistance
+    return distance / standardDistance
   } else {
-    return (-distance * 20) / standardDistance
+    return -distance / standardDistance
   }
 
   // const vectorAtoLine = { x: A.x - M_U6L6.x, y: A.y - M_U6L6.y }
@@ -237,15 +245,7 @@ export function calculateWits(A: any, B: any, U1: any, L1: any, U6: any, L6: any
   //   return -distance
   // }
 }
-// @ts-expect-error TS(2554): Expected 7 arguments, but got 6.
-calculateWits(
-  { x: 1, y: 2 },
-  { x: -1, y: -2 },
-  { x: 2, y: 1 },
-  { x: 2, y: -1 },
-  { x: -2, y: -1 },
-  { x: -2, y: 1 }
-)
+
 // 计算垂足距离
 export function perpendicularDistance(pointA: any, pointB: any, pointC: any) {
   // 计算线段BC的长度

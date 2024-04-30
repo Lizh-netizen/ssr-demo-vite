@@ -24,7 +24,7 @@
               </template>
               <template v-else>
                 <img
-                  v-lazy="item.imageUrl"
+                  :src="item.imageUrl"
                   :style="{
                     height: '240px',
                     'object-fit': 'cover',
