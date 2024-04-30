@@ -24,7 +24,8 @@
               </template>
               <template v-else>
                 <img
-                  v-lazy="item.imageUrl"
+                  :src="item.imageUrl"
+                  @click="handlePreviewImage(item)"
                   :style="{
                     height: '240px',
                     'object-fit': 'cover',
