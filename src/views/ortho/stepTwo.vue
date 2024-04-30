@@ -25,7 +25,6 @@
               <template v-else>
                 <img
                   :src="item.imageUrl"
-                  @click="handlePreviewImage(item)"
                   :style="{
                     height: '240px',
                     'object-fit': 'cover',
