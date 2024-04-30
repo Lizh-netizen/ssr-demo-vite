@@ -313,19 +313,22 @@ const handleChangeFilterBtn = async (label) => {
   const res = await Get(path)
   totalArr.value = res.data
   if (res.data.length > 0 && res.data.find((a) => a.imageList.length !== 0)) {
-    imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
-
+    imageArr.value = []
+    imageArr.value[0] = res.data[0]
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value.forEach((item) =>
       item.imageList.forEach((img) => {
         img.imgUrl = img.ossImagePath
       })
     )
+    console.log('🚀 ~ handleChangeFilterBtn ~ imageArr.value:', imageArr.value, totalArr.value)
   } else {
     const index = imageArr.value.find((a) => !a.file)
-    if (index) {
-      imageArr.value.splice(index, 1)
-    }
+    totalArr.value = []
+    imageArr.value = []
+    // if (index) {
+    //   imageArr.value.splice(index, 1)
+    // }
   }
 }
 const emit = defineEmits(['savePics', 'cancel'])
@@ -894,7 +897,7 @@ async function handleSingleImage(file, image) {
     }
   }
 }
-
+const imageUrlChanged = ref(false)
 // 保存图片
 async function handleSavePics() {
   imageList.value.forEach((item) => (item.reminder = false))
@@ -905,12 +908,15 @@ async function handleSavePics() {
     imageId: item.fileId || null,
     startTime: item.startTime
   }))
-  await Post('/prod-api/business/orthImage', {
+  const res = await Post('/prod-api/business/orthImage', {
     apmtId: props.appId,
     orthImageList: arr
   })
+  if (res.code == 200) {
+    imageUrlChanged.value = res.data.find((item) => item.imageType == '正面像')?.imageUrlChanged
+  }
   emit('cancel')
-  emit('savePics')
+  emit('savePics', imageUrlChanged.value)
 }
 const handleDragOver = (e) => {
   if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {

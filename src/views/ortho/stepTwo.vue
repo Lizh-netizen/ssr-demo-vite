@@ -1004,9 +1004,10 @@ const handleDragEnd = () => {
   const image2 = document.getElementById('img')
   image2.style.opacity = 0
 }
-
+const imageUrlChanged = ref(false)
 // 保存图片
-async function handleSavePics() {
+async function handleSavePics(val) {
+  imageUrlChanged.value = val
   // imageList.value.forEach((item) => (item.reminder = false))
   // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   // const arr = orthImageList.map((item) => ({
@@ -1252,7 +1253,6 @@ async function getOrthFaceAccessList() {
             if (interruptSignal) {
               return
             }
-
             loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
             // })
           } else {

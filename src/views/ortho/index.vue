@@ -678,11 +678,11 @@ async function confirmApproval() {
       apmtId: appId,
       ...orthContent.value
     })
-    approvalSubmitted.value = '1'
-    checkCompletion()
     dialogVisible.value = false
     loading.close()
-    if (res.code === 200) {
+    if (res.code === 200 || res.code === 204) {
+      approvalSubmitted.value = '1'
+      checkCompletion()
       ElMessage({
         type: 'success',
         message: res.msg
