@@ -17,6 +17,7 @@ window.addEventListener('message', (event) => {
     if (event.data.startsWith('{"createBy')) {
       sessionStorage.setItem('jc_odos_user', event.data)
     }
+    console.log(event.data)
     if (event.data.startWith('ey')) {
       sessionStorage.setItem('odos_token', event.data)
     }
