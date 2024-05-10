@@ -1,35 +1,37 @@
 <template>
   <div class="image-viewer" v-if="showViewer">
-    <div class="overlay" @click="closeViewer"></div>
-    <div class="position-absolute className">{{ className }}</div>
-    <div>
-      <img
-        src="./../../assets/svg/cancelDarkMode.svg"
-        class="position-absolute top-[10px] right-[10px] height-[24px]"
-        alt="close"
-        @click="closeViewer"
-      />
-    </div>
-    <!-- <div class="modal"> -->
+    <div class="overlay" @click="closeViewer">
+      <div class="position-absolute className">{{ className }}</div>
+      <div>
+        <img
+          src="./../../assets/svg/cancelDarkMode.svg"
+          class="position-absolute top-[10px] right-[10px] height-[24px]"
+          alt="close"
+          @click="closeViewer"
+        />
+      </div>
+      <div class="modal">
+        <img :src="imageUrl" :style="viewerStyle" @click.stop class="image" />
+      </div>
 
-    <img :src="imageUrl" :style="viewerStyle" @click.stop class="image" />
-
-    <div
-      class="rotate-buttons px-[24px] py-[24px]"
-      v-if="showBtn"
-      @click="
-        () => {
-          return false
-        }
-      "
-    >
-      <div class="flex justify-center">
-        <div @click="rotateLeft" class="mr-[24px]">
-          <img src="../../assets/svg/leftRotate.svg" />
+      <div
+        class="rotate-buttons px-[24px] py-[24px]"
+        v-if="showBtn"
+        @click="
+          () => {
+            return false
+          }
+        "
+      >
+        <div class="flex justify-center">
+          <div @click="rotateLeft" class="mr-[24px]">
+            <img src="../../assets/svg/leftRotate.svg" />
+          </div>
+          <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
         </div>
-        <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
       </div>
     </div>
+
     <!-- </div> -->
   </div>
 </template>
