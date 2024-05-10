@@ -1505,8 +1505,9 @@ const handleCloseImgDialog = () => {
   imageList.value.forEach((image) => (image.reminder = false))
 }
 const handleBackToList = () => {
-  router.push('/index')
-  checkCompletion()
+  checkCompletion().then(() => {
+    router.push('/index')
+  })
 }
 function processData(data) {
   const result = {

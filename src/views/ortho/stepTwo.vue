@@ -153,6 +153,7 @@
                     :disabled="!item.hasImage"
                     :savedTitleList="savedTitleList1"
                     :classId="item.id"
+                    :className="item.className"
                   ></MouthOption>
                 </form-item>
               </template>
@@ -420,7 +421,8 @@
             :style="{
               cursor: 'pointer'
             }"
-          ></canvas>
+          >
+          </canvas>
           <template v-if="cephaImage">
             <el-button class="cephalometric__button" type="primary" @click="getAIResult"
               >AI测量</el-button
@@ -512,7 +514,8 @@
                       handleChangeOption(title.optionId, title, cephaClassId, '侧位片', '侧位片')
                     "
                     v-model="title.optionId"
-                    ><el-radio-button
+                  >
+                    <el-radio-button
                       :disabled="!cephaImage"
                       :label="option.id"
                       :class="{
@@ -587,7 +590,7 @@
   ></ImageDialog>
 
   <div class="overlay" ref="overlayRef" @click="handleZoomOutCepha">
-    <div class="overlay__header"></div>
+    <div class="overlay__header">{{ overlayName }}</div>
     <div class="overlay__mask"></div>
     <img
       class="zoomPanoImage"
@@ -733,9 +736,11 @@ const refreshList = (val) => {
 }
 // 点击全景片图片逻辑
 const zoomPano = ref(false)
+const overlayName = ref('')
 const handleZoomPanoImage = () => {
   overlayRef.value.style.display = 'flex'
   zoomPano.value = true
+  overlayName.value = '全景片'
 }
 const handleZoomOutPanoImage = () => {
   overlayRef.value.style.display = 'none'
@@ -1004,9 +1009,10 @@ const handleDragEnd = () => {
   const image2 = document.getElementById('img')
   image2.style.opacity = 0
 }
-
+const imageUrlChanged = ref(false)
 // 保存图片
-async function handleSavePics() {
+async function handleSavePics(val) {
+  imageUrlChanged.value = val
   // imageList.value.forEach((item) => (item.reminder = false))
   // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
   // const arr = orthImageList.map((item) => ({
@@ -1252,7 +1258,6 @@ async function getOrthFaceAccessList() {
             if (interruptSignal) {
               return
             }
-
             loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
             // })
           } else {
@@ -1701,6 +1706,7 @@ const initZoomCanvas = () => {
   canvas.addEventListener('mouseup', handleMouseUp)
   const timestamp = new Date().getTime()
   image.src = `${cephaImage.value}` // 设置图片源地址
+  overlayName.value = '侧位片'
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
@@ -3065,12 +3071,20 @@ img {
   opacity: 1;
   z-index: 10;
   /* 自动布局 */
-
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.86);
   display: none;
+
+  &__header {
+    position: absolute;
+    top: 10px;
+    color: #ffffff;
+    left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+  }
 }
 .dragging {
   opacity: 0.5;

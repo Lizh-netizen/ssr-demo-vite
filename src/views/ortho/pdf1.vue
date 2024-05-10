@@ -185,7 +185,8 @@
                 </div>
               </div>
               <div class="content2 content">
-                <customList :list="item.list2" />
+                <customList :list="item.list2.list1" />
+                <customList :list="item.list2.list2" />
               </div>
             </div>
           </div>
@@ -212,10 +213,11 @@
                 </div>
               </div>
               <div class="content2 content">
-                <customList :list="item.list2" />
+                <customList :list="item.list3.list1" />
+                <customList :list="item.list3.list2" />
               </div>
             </div>
-            <div class="bottom section">
+            <div class="bottom section" v-if="item.imageList4.length > 0">
               <div class="imageList2">
                 <div
                   :style="{ position: 'relative' }"
@@ -233,7 +235,8 @@
                 </div>
               </div>
               <div class="content2 content">
-                <customList :list="item.list2" />
+                <customList :list="item.list4.list1" />
+                <customList :list="item.list4.list2" />
               </div>
             </div>
           </div>
@@ -581,19 +584,31 @@ async function getDataList() {
               className: cur.className,
               imageUrl: cur.imageUrl
             })
-            acc[cur.owningModule].list2 = acc[cur.owningModule].list2.concat(cur.list)
+            if (acc[cur.owningModule].imageList2.length == 1) {
+              acc[cur.owningModule].list2.list1 = acc[cur.owningModule].list2.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list2.list2 = acc[cur.owningModule].list2.list2.concat(cur.list)
+            }
           } else if (mouthImageList3.includes(cur.className)) {
             acc[cur.owningModule].imageList3.push({
               className: cur.className,
               imageUrl: cur.imageUrl
             })
-            acc[cur.owningModule].list3 = acc[cur.owningModule].list3.concat(cur.list)
+            if (acc[cur.owningModule].imageList3.length == 1) {
+              acc[cur.owningModule].list3.list1 = acc[cur.owningModule].list3.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list3.list2 = acc[cur.owningModule].list3.list2.concat(cur.list)
+            }
           } else {
-            acc[cur.owningModule].list4 = acc[cur.owningModule].list4.concat(cur.list)
             acc[cur.owningModule].imageList4.push({
               className: cur.className,
               imageUrl: cur.imageUrl
             })
+            if (acc[cur.owningModule].imageList4.length == 1) {
+              acc[cur.owningModule].list4.list1 = acc[cur.owningModule].list4.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list4.list2 = acc[cur.owningModule].list4.list2.concat(cur.list)
+            }
           }
         } else {
           acc[cur.owningModule] = cur
@@ -602,9 +617,15 @@ async function getDataList() {
           acc[cur.owningModule].imageList2 = []
           acc[cur.owningModule].imageList3 = []
           acc[cur.owningModule].imageList4 = []
-          acc[cur.owningModule].list2 = []
-          acc[cur.owningModule].list3 = []
-          acc[cur.owningModule].list4 = []
+          acc[cur.owningModule].list2 = {}
+          acc[cur.owningModule].list2.list1 = []
+          acc[cur.owningModule].list2.list2 = []
+          acc[cur.owningModule].list3 = {}
+          acc[cur.owningModule].list3.list1 = []
+          acc[cur.owningModule].list3.list2 = []
+          acc[cur.owningModule].list4 = {}
+          acc[cur.owningModule].list4.list1 = []
+          acc[cur.owningModule].list4.list2 = []
           if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
@@ -619,6 +640,7 @@ async function getDataList() {
       return acc
     }, {})
     data.value = Object.values(reduced)
+    console.log('🚀 ~ getDataList ~ data.value:', data.value)
 
     const objective = data.value.find((item) => item.owningModule == '目标')
     const method = data.value.find((item) => item.owningModule == '方法')
@@ -1129,7 +1151,7 @@ body {
 
         .content2.content {
           display: flex;
-          align-items: center;
+
           flex: 1;
           .list1 {
             width: 100%;

@@ -120,8 +120,8 @@
                 <a-dropdown trigger="click" class="mt-[4px]!">
                   <span class="el-dropdown-link">
                     <div class="addFeature" @click="plan.popVisible = true">
-                      <a-button class="addFeatureBtn"
-                        ><template #icon> <icon-plus /> </template>添加特点
+                      <a-button class="addFeatureBtn">
+                        <template #icon> <icon-plus /> </template>添加特点
                       </a-button>
                       <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
                         {{ plan.featureTagIds?.length }}
@@ -1654,9 +1654,9 @@ defineExpose({
         }
       }
 
-      :deep .container {
-        height: 220px;
-      }
+      // :deep .container {
+      //   height: 220px;
+      // }
       :deep .container.ORTHTOOL {
         .list-group {
           margin-top: 8px !important;

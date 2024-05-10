@@ -206,7 +206,7 @@ const steps = [
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
   { num: 4, desc: '诊断' },
-  { num: 5, desc: '目标和工具' },
+  { num: 5, desc: '方案和工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -290,7 +290,7 @@ const handleGeneratePdf = async () => {
     await getPlanList()
     if (!validateGoalAndTarget(step5.value.planList)) {
       ElMessage({
-        message: '请选择目标和工具',
+        message: '请选择方案和工具',
         type: 'warning'
       })
       return false
@@ -675,11 +675,11 @@ async function confirmApproval() {
       apmtId: appId,
       ...orthContent.value
     })
-    approvalSubmitted.value = '1'
-    checkCompletion()
     dialogVisible.value = false
     loading.close()
-    if (res.code === 200) {
+    if (res.code === 200 || res.code === 204) {
+      approvalSubmitted.value = '1'
+      checkCompletion()
       ElMessage({
         type: 'success',
         message: res.msg

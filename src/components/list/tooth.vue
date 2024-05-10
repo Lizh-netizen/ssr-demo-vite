@@ -126,7 +126,6 @@ const handleSubmitTooth = (title) => {
     if (!title.submitAble) {
       return
     }
-
     if (props.module == 'evaluate') {
       let obj = {
         aptmId: props.appId,

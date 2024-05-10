@@ -311,9 +311,6 @@ const aptmAble = ref(false)
 const orthoAble = ref(false)
 const evalAble = ref(false)
 const userInfo = ref()
-if (params.token) {
-  sessionStorage.odos_token = params.token
-}
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
 const setInitialState = (val) => {
