@@ -209,6 +209,10 @@ const props = defineProps({
   classId: {
     type: Number,
     default: ''
+  },
+  className: {
+    type: String,
+    default: ''
   }
 })
 
@@ -366,6 +370,14 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
+  console.log(
+    '🚀 ~ handleSubmitTooth ~ option, title, classId, owningModule:',
+    option,
+    title,
+    classId,
+    owningModule,
+    props.className
+  )
   let obj
   if (option) {
     option.visible = false
@@ -380,100 +392,121 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   // 选项中的牙位
   if (option) {
     if (option.toothCode.length == 0) {
-      let item1 = props.mouthData.find((item) => item.className == '正面咬合')
-      obj = {
-        aptmId: props.appId,
-        titleId: title.id,
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId,
-        owningModule: owningModule
+      if (props.className == '正面咬合') {
+        let item1 = props.mouthData.find((item) => item.className == '正面咬合')
+        obj = {
+          aptmId: props.appId,
+          titleId: title.id,
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        const obj1 = {
+          aptmId: props.appId,
+          titleId: '',
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        const obj2 = {
+          aptmId: props.appId,
+          titleId: '',
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        const obj3 = {
+          aptmId: props.appId,
+          titleId: '',
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        const obj4 = {
+          aptmId: props.appId,
+          titleId: '',
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        let title1 = {}
+        let title2 = {}
+        let title3 = {}
+        let title4 = {}
+        if (option.optionName == '前牙反覆合') {
+          title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+          title2 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
+          title3 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+          title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
+        } else if (option.optionName == '前牙反覆盖') {
+          title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+          title2 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
+          title3 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
+          title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
+        } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
+          title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
+        } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
+          title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
+        }
+        obj1.titleId = title1.id
+        obj2.titleId = title2.id
+        obj3.titleId = title3.id
+        obj4.titleId = title4.id
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
+          option.submitAble = false
+          title.submitAble = false
+          emit('refreshList', owningModule)
+        })
+        return
+      } else {
+        obj = {
+          aptmId: props.appId,
+          titleId: title.id,
+          optionsIdStr: [],
+          otherContent: '',
+          cephalometricsContent: '',
+          optionSuffix: '牙位图',
+          fdiToothCode: '',
+          showPosition: '',
+          classId: classId,
+          owningModule: owningModule
+        }
+        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
+          option.submitAble = false
+          title.submitAble = false
+          emit('refreshList', owningModule)
+        })
+        return
       }
-      const obj1 = {
-        aptmId: props.appId,
-        titleId: '',
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId,
-        owningModule: owningModule
-      }
-      const obj2 = {
-        aptmId: props.appId,
-        titleId: '',
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId,
-        owningModule: owningModule
-      }
-      const obj3 = {
-        aptmId: props.appId,
-        titleId: '',
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId,
-        owningModule: owningModule
-      }
-      const obj4 = {
-        aptmId: props.appId,
-        titleId: '',
-        optionsIdStr: [],
-        otherContent: '',
-        cephalometricsContent: '',
-        optionSuffix: '牙位图',
-        fdiToothCode: '',
-        showPosition: '',
-        classId: classId,
-        owningModule: owningModule
-      }
-      let title1 = {}
-      let title2 = {}
-      let title3 = {}
-      let title4 = {}
-      if (option.optionName == '前牙反覆合') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
-        title2 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
-        title3 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
-        title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
-      } else if (option.optionName == '前牙反覆盖') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
-        title2 = item1.orthTitleList.find((title) => title.titleName == '反覆盖程度')
-        title3 = item1.orthTitleList.find((title) => title.titleName == '反覆合程度')
-        title4 = item1.orthTitleList.find((title) => title.titleName == '凹面型表现')
-      } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆盖') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆合')
-      } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
-        title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
-      }
-      obj1.titleId = title1.id
-      obj2.titleId = title2.id
-      obj3.titleId = title3.id
-      obj4.titleId = title4.id
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
-      Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
-        option.submitAble = false
-        title.submitAble = false
-        emit('refreshList', owningModule)
-      })
-      return
     }
   }
   if (

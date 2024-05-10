@@ -153,6 +153,7 @@
                     :disabled="!item.hasImage"
                     :savedTitleList="savedTitleList1"
                     :classId="item.id"
+                    :className="item.className"
                   ></MouthOption>
                 </form-item>
               </template>

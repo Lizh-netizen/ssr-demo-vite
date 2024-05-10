@@ -292,8 +292,7 @@ const filterList = [
 // 同步影像
 const handleSyncOss = async () => {
   const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
-    patientId: props.patientId,
-    appId: props.appId
+    patientId: props.patientId
   })
   if (res.code == 200) {
     ElMessage({
