@@ -196,7 +196,6 @@ window.addEventListener('message', function (event) {
   }
 })
 const ljOfficeId = JSON.parse(sessionStorage.getItem('jc_odos_user')).ljOfficeId
-
 const router = useRouter()
 const route = useRoute()
 const appId = route.params.appId
@@ -603,7 +602,6 @@ function processData(data) {
     const stageName = entry.stageName
     const targetNames = entry.targetNames ? entry.targetNames.split(',') : []
     const toolNames = entry.toolNames ? entry.toolNames.split(',') : []
-
     let goal =
       stageName +
       '（' +
@@ -611,7 +609,6 @@ function processData(data) {
       (entry.fdiToothCode ? ' ' + entry.fdiToothCode : '') +
       '）'
     let tool = stageName + '（' + toolNames.join(',') + '）'
-
     if (entry.targetIds) {
       if (targetStr !== '') targetStr += '；'
       targetStr += goal

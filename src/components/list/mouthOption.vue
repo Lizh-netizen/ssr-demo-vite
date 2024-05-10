@@ -393,6 +393,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   if (option) {
     if (option.toothCode.length == 0) {
       if (props.className == '正面咬合') {
+        console.log('enter', title)
         let item1 = props.mouthData.find((item) => item.className == '正面咬合')
         obj = {
           aptmId: props.appId,
@@ -473,10 +474,10 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         } else if (option.optionName == '前牙对刃' && title.titleName == '前牙覆合') {
           title1 = item1.orthTitleList.find((title) => title.titleName == '前牙覆盖')
         }
-        obj1.titleId = title1.id
-        obj2.titleId = title2.id
-        obj3.titleId = title3.id
-        obj4.titleId = title4.id
+        obj1.titleId = title1?.id
+        obj2.titleId = title2?.id
+        obj3.titleId = title3?.id
+        obj4.titleId = title4?.id
         Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
         Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
         Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
