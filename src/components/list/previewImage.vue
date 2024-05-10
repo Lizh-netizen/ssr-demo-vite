@@ -13,26 +13,26 @@
       <img :src="imageUrl" @click.stop class="image" />
     </div>
 
-      <div
-        class="rotate-buttons px-[24px] py-[24px]"
-        v-if="showBtn"
-        @click="
-          () => {
-            return false
-          }
-        "
-      >
-        <div class="flex justify-center">
-          <div @click="rotateLeft" class="mr-[24px]">
-            <img src="../../assets/svg/leftRotate.svg" />
-          </div>
-          <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
+    <div
+      class="rotate-buttons px-[24px] py-[24px]"
+      v-if="showBtn"
+      @click="
+        () => {
+          return false
+        }
+      "
+    >
+      <div class="flex justify-center">
+        <div @click="rotateLeft" class="mr-[24px]">
+          <img src="../../assets/svg/leftRotate.svg" />
         </div>
+        <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
       </div>
     </div>
-
-    <!-- </div> -->
   </div>
+
+  <!-- </div> -->
+  <!-- </div> -->
 </template>
 
 <script setup>
