@@ -316,6 +316,9 @@ sessionStorage.setItem('currentTab', currentTab.value)
 const setInitialState = (val) => {
   requestAble.value[val] = true
 }
+if (params.token) {
+  sessionStorage.odos_token = params.token
+}
 // 切换卡片
 // 首次渲染的时候也执行了
 const isChangeTab = ref(true)
