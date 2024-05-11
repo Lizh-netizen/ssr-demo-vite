@@ -262,15 +262,20 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆合') {
       if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙对刃') {
         const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
+        const title4 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
         const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
-
+        const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
         // 反覆合如果有选中的，需要取消
         if (title1Choose) {
           updateOption(null, title1, props.appId, classId, owningModule)
         }
+        if (title4Choose) {
+          updateOption(null, title4, props.appId, classId, owningModule)
+        }
 
         // 判断凹面型表现是否需要清空
         const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆盖')
+
         // 如果前牙覆盖中的反覆盖选项被选中，需要清空
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
@@ -282,6 +287,7 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
         if (!option.choosen && title3Choose) {
           updateOption(null, title3, props.appId, classId, owningModule)
         }
@@ -294,14 +300,20 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙反覆盖') {
       if (title.orthOptionsList.find((a) => optionId == a.id).optionName !== '前牙对刃') {
         const title1 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
+        const title4 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
         const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
+        const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
         // 反覆盖如果有选中的，需要取消
         if (title1Choose) {
           updateOption(null, title1, props.appId, classId, owningModule)
         }
-
+        // 反覆合如果有选中的，需要取消
+        if (title4Choose) {
+          updateOption(null, title4, props.appId, classId, owningModule)
+        }
         // 判断凹面型表现是否需要清空
         const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆合')
+
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆合')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
         if (option.choosen) {

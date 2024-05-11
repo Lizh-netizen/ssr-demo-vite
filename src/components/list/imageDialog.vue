@@ -833,12 +833,7 @@ const handleDrop = (e, image) => {
 // file是拖拽的，image是被拖的
 const failCount = ref(0)
 async function handleSingleImage(file, image) {
-  let startTime
-  if (sessionStorage.getItem('currentTab') == '面评') {
-    startTime = JSON.parse(sessionStorage.getItem('evaluate'))?.date
-  } else if (sessionStorage.getItem('currentTab') == '矫正方案') {
-    startTime = JSON.parse(sessionStorage.getItem('ortho'))?.date
-  }
+  let startTime = JSON.parse(sessionStorage.getItem('patientInfo')).StartTime
   const formData = new FormData()
   if (file.type) {
     formData.append('file', file, 'Cover')
