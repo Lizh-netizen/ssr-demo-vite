@@ -320,7 +320,6 @@ const handleChangeFilterBtn = async (label) => {
         img.imgUrl = img.ossImagePath
       })
     )
-    console.log('🚀 ~ handleChangeFilterBtn ~ imageArr.value:', imageArr.value, totalArr.value)
   } else {
     const index = imageArr.value.find((a) => !a.file)
     totalArr.value = []
@@ -373,32 +372,7 @@ const handleDeleteImage1 = (img) => {
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
-const openImgDialog = () => {
-  imgDialogVisible.value = true
-  imageList.value.forEach((a) => {
-    a.fileUrl = placeholderUrl
-  })
-  getClassifiedImgList()
-}
-// 获取左右图像
-// async function getImageList() {
-//   if (imageArr.value.length !== 0) {
-//     return
-//   } else {
-//     Get(`/prod-api/business/orthImage/imageList?patientId=${props.patientId}`).then((res) => {
-//       totalArr.value = res.data
-//       if (res.data.find((a) => a.imageList.length !== 0)) {
-//         imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
 
-//         index.value = res.data.findIndex((a) => a.imageList.length !== 0)
-//         imageArr.value[0].imageList.forEach((img) => {
-//           img.imgUrl = img.fileUrl
-//           img.choose = false
-//         })
-//       }
-//     })
-//   }
-// }
 async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${props.appId}`)
   if (res.code == 200 && res.data.length > 0) {

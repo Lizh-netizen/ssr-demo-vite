@@ -478,10 +478,18 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         obj2.titleId = title2?.id
         obj3.titleId = title3?.id
         obj4.titleId = title4?.id
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+        if (obj1.titleId) {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
+        }
+        if (obj2.titleId) {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
+        }
+        if (obj3.titleId) {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
+        }
+        if (obj4.titleId) {
+          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+        }
         Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
           option.submitAble = false
           title.submitAble = false

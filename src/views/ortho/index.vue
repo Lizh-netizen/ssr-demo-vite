@@ -206,7 +206,7 @@ const steps = [
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
   { num: 4, desc: '诊断' },
-  { num: 5, desc: '方案和工具' },
+  { num: 5, desc: '目标和工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -633,9 +633,9 @@ async function initiateApproval() {
     return
   }
   dialogVisible.value = true
-  const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
-    patientId: patientId,
-    apmtId: appId,
+  const res = await Post('/prod-api/emr/orthPlan/selectOrthApprovalDetailInfo', {
+    patientId: +patientId,
+    aptmId: +appId,
     ljOfficeId: +ljOfficeId
   })
   orthContent.value = res.data

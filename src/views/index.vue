@@ -381,16 +381,12 @@ firstDate.value = formatTime().firstDate
 date.value = formatTime().formattedToday
 
 const columns = ref([...columns_config_evaluate])
-const filterVal = ref({})
+
 const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
 
-// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
-// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
-const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
-const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/emr/orthCommon/appointmentList', {
@@ -453,7 +449,7 @@ async function getOrthoList(val) {
           { label: '图像分析', finished: !!+item.imageAnalysis },
           { label: '模型分析', finished: !!+item.modelAnalysis },
           { label: '诊断', finished: !!+item.diagnosis },
-          { label: '方案和工具', finished: !!+item.plansTools },
+          { label: '目标和工具', finished: !!+item.plansTools },
           { label: '审批提交', finished: !!+item.approvalSubmitted }
         ]
       }))

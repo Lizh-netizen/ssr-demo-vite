@@ -672,7 +672,7 @@ import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
 import MouthOption from '@/components/list/mouthOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
-import previewImage from '../../components/list/previewImage.vue'
+import PreviewImage from '../../components/list/previewImage.vue'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -768,14 +768,6 @@ window.addEventListener('resize', () => {
   }
 })
 
-// 上传图片逻辑
-const fileList = ref([])
-const fileListWithFlag = ref([])
-
-const params = new FormData()
-
-const upload = ref(false)
-
 const handleBlurInput = (title) => {
   title.measured = true
   if (title.cephalometricsContent !== title.AIValue) {
@@ -831,25 +823,6 @@ const handleBlurInput = (title) => {
   })
 }
 
-const chooseImgNum = computed(() => {
-  let num = 0
-  imageArr.value.forEach((item) => {
-    item.imageList.forEach((img) => {
-      if (img.choose) {
-        num++
-      }
-    })
-  })
-  return num
-})
-
-// 影像管理逻辑
-const index = ref(0)
-const imageArr = ref([])
-const totalArr = ref([])
-const handleImageDialog = () => {
-  imgDialogVisible.value = !imgDialogVisible.value
-}
 const openImgDialog = () => {
   imgDialogVisible.value = true
 }
@@ -963,69 +936,11 @@ async function getToken() {
 //   return token
 // }
 const loading = ref(false)
-const loadingTarget2 = ref()
-// 自动分类
-// 图片拖拽
-const dragFile = ref(null)
-const src = ref()
-// 在右边区域拖拽
-const handleDragStart1 = (img) => {
-  dragFile.value = img
-  dragFile.value.rightDrop = true
-  src.value = dragFile.value.fileUrl
-  const image2 = document.getElementById('img')
-  image2.src = img.fileUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-// 从左侧拖到右侧
-const handleDragStart = (file, event) => {
-  if (file.file) {
-    event.dataTransfer.setData('text/plain', file)
-    dragFile.value = event.dataTransfer.files[0]
-  } else {
-    dragFile.value = file
-  }
-  const image2 = document.getElementById('img')
-  image2.src = file.imgUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-const handleDragEnd = () => {
-  const image2 = document.getElementById('img')
-  image2.style.opacity = 0
-}
+
 const imageUrlChanged = ref(false)
 // 保存图片
 async function handleSavePics(val) {
   imageUrlChanged.value = val
-  // imageList.value.forEach((item) => (item.reminder = false))
-  // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  // const arr = orthImageList.map((item) => ({
-  //   imageType: item.caption,
-  //   imageUrl: item.fileUrl,
-  //   imageId: item.fileId || null
-  // }))
-  // Post('/prod-api/business/orthImage', {
-  //   apmtId: appId,
-  //   orthImageList: arr
-  // }).then(() => {
-  //   getAllData()
-  // })
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -1034,18 +949,6 @@ async function handleSavePics(val) {
 const handleClose = () => {
   imgDialogVisible.value = false
 }
-const handleDragOver = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = blueBgUrl
-    e.target.classList.add('hover')
-  }
-}
-const handleDragLeave = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = placeholderUrl
-  }
-  e.target.classList.remove('hover')
-}
 
 function getAllData() {
   getOrthFaceAccessList()
@@ -1053,9 +956,7 @@ function getAllData() {
   getOrthMouthList()
   getOrthPanoramicList()
 }
-const handleCloseImgDialog = () => {
-  imageList.value.forEach((image) => (image.reminder = false))
-}
+
 // 获取照片和相关信息
 
 const faceAccessData = ref([])
@@ -1243,57 +1144,91 @@ async function getOrthFaceAccessList() {
         FrontalReposeImageUrl.value = item.imageUrl
         const formData = new FormData()
         formData.append('imageUrl', item.imageUrl)
-        Get(`/prod-api/business/orthPoint/list?apmtId=${appId}&pointType=2`).then((res) => {
-          if (res.data.length > 0) {
-            faceSet.value = res.data.map((item) => ({
-              label: item.pointName,
-              x: item.xcoordinate,
-              y: item.ycoordinate
-            }))
-            if (AiTest.value) {
-              calculateFront(faceSet.value, item.id, item.owningModule)
-            }
-            // nextTick(() => {
-            // 如果快速切换了页面，那么就不画图了
-            if (interruptSignal) {
-              return
-            }
-            loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-            // })
-          } else {
-            Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
-              (res) => {
-                if (res.data.face_list) {
-                  const data = res.data.face_list[0].landmark201
-                  const image = new Image()
-                  image.onload = () => {
-                    const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
-                    // 比例缩放的因子
-                    const scaleFactorWidth = width / image.width
-                    const scaleFactorHeight = height / image.height
-                    faceSet.value = FrontalRose.map((a) => ({
-                      label: a,
-                      x: data[a].x * scaleFactorWidth,
-                      y: data[a].y * scaleFactorHeight
-                    }))
-                    calculateFront(faceSet.value, item.id, item.owningModule)
-                    const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                    addFaceset(set)
-                  }
-                  image.src = FrontalReposeImageUrl.value
-
-                  // nextTick(() => {
-                  if (interruptSignal) {
-                    return
-                  }
-                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                } else {
-                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                }
+        // 如果有图片变化，则先调用算法接口
+        if (imageUrlChanged.value) {
+          imageUrlChanged.value = false
+          Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then((res) => {
+            if (res.data.face_list) {
+              const data = res.data.face_list[0].landmark201
+              const image = new Image()
+              image.onload = () => {
+                const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
+                // 比例缩放的因子
+                const scaleFactorWidth = width / image.width
+                const scaleFactorHeight = height / image.height
+                faceSet.value = FrontalRose.map((a) => ({
+                  label: a,
+                  x: data[a].x * scaleFactorWidth,
+                  y: data[a].y * scaleFactorHeight
+                }))
+                calculateFront(faceSet.value, item.id, item.owningModule)
+                const set = faceSet.value.map((item) => [item.label, item.x, item.y])
+                addFaceset(set)
               }
-            )
-          }
-        })
+              image.src = FrontalReposeImageUrl.value
+
+              // nextTick(() => {
+              if (interruptSignal) {
+                return
+              }
+              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+            } else {
+              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+            }
+          })
+        } else {
+          Get(`/prod-api/business/orthPoint/list?apmtId=${appId}&pointType=2`).then((res) => {
+            if (res.data.length > 0) {
+              faceSet.value = res.data.map((item) => ({
+                label: item.pointName,
+                x: item.xcoordinate,
+                y: item.ycoordinate
+              }))
+              if (AiTest.value) {
+                calculateFront(faceSet.value, item.id, item.owningModule)
+              }
+              // nextTick(() => {
+              // 如果快速切换了页面，那么就不画图了
+              if (interruptSignal) {
+                return
+              }
+              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+              // })
+            } else {
+              Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
+                (res) => {
+                  if (res.data.face_list) {
+                    const data = res.data.face_list[0].landmark201
+                    const image = new Image()
+                    image.onload = () => {
+                      const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
+                      // 比例缩放的因子
+                      const scaleFactorWidth = width / image.width
+                      const scaleFactorHeight = height / image.height
+                      faceSet.value = FrontalRose.map((a) => ({
+                        label: a,
+                        x: data[a].x * scaleFactorWidth,
+                        y: data[a].y * scaleFactorHeight
+                      }))
+                      calculateFront(faceSet.value, item.id, item.owningModule)
+                      const set = faceSet.value.map((item) => [item.label, item.x, item.y])
+                      addFaceset(set)
+                    }
+                    image.src = FrontalReposeImageUrl.value
+
+                    // nextTick(() => {
+                    if (interruptSignal) {
+                      return
+                    }
+                    loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+                  } else {
+                    loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
+                  }
+                }
+              )
+            }
+          })
+        }
       }
       if (item.className == '正面微笑像') {
         FrontalSmileImageUrl.value = item.imageUrl
@@ -2410,42 +2345,6 @@ const handleOpenImageDialogue = (caption) => {
 const handleDblClick = () => {
   console.log(33)
 }
-async function getImageList() {
-  if (imageArr.value.length !== 0) {
-    return
-  } else {
-    Get(`/prod-api/business/orthImage/imageList?patientId=${patientId}`).then((res) => {
-      totalArr.value = res.data
-      if (res.data.find((a) => a.imageList.length !== 0)) {
-        imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
-
-        index.value = res.data.findIndex((a) => a.imageList.length !== 0)
-        imageArr.value[0].imageList.forEach((img) => {
-          img.imgUrl = img.fileUrl
-          img.choose = false
-        })
-      }
-    })
-  }
-}
-async function getClassifiedImgList() {
-  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
-  if (res.code == 200 && res.data.length > 0) {
-    res.data.forEach((item) => {
-      imageList.value.forEach((a) => {
-        // a.fileUrl = placeholderUrl
-        if (item.imageType == a.caption) {
-          a.fileUrl = item.imageUrl
-          a.id = item.id
-        }
-      })
-    })
-  } else {
-    imageList.value.forEach((a) => {
-      a.fileUrl = placeholderUrl
-    })
-  }
-}
 
 const angleListWithThreePoints = [
   'ANB',
@@ -2505,7 +2404,6 @@ function calculateAllPoints() {
   calculateSinglePoint(distance, 'Wits', false)
 }
 async function updateResult() {
-  console.log(cephaData.value)
   // post值和选项
   cephaData.value.forEach((item) => {
     if (!['颈椎分期', '腺样体', '扁桃体'].includes(item.titleName)) {

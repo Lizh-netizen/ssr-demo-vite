@@ -502,10 +502,17 @@ async function getDataList() {
             serious: cur.serious
           })
         } else if (cur.owningModule == '备注') {
-          acc[cur.owningModule].list.push({
-            title_name: '备注',
-            option_names: cur.cephalometricsContent
-          })
+          if (cur.cephalometricsContent) {
+            acc[cur.owningModule].list.push({
+              title_name: '备注',
+              option_names: cur.cephalometricsContent
+            })
+          } else {
+            acc[cur.owningModule].list.push({
+              title_name: '备注',
+              option_names: '无'
+            })
+          }
         } else {
           if (cur.titleName == '主诉' || cur.titleName == '现病史') {
             acc[cur.owningModule].list.push({
@@ -640,7 +647,6 @@ async function getDataList() {
       return acc
     }, {})
     data.value = Object.values(reduced)
-    console.log('🚀 ~ getDataList ~ data.value:', data.value)
 
     const objective = data.value.find((item) => item.owningModule == '目标')
     const method = data.value.find((item) => item.owningModule == '方法')
@@ -654,6 +660,9 @@ async function getDataList() {
   }
   data.value.push({ owningModule: '问题列表', data: issuesList })
   data.value.push({ owningModule: '方案', data: schemeData })
+  if (!data.value.find((item) => item.owningModule == '备注')) {
+    data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
+  }
 }
 const schemeData = ref([])
 const getSchemeList = async () => {

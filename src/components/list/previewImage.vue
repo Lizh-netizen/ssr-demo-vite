@@ -124,21 +124,11 @@ const rotateRight = async () => {
   z-index: -1;
 }
 
-// .image {
-//   position: absolute;
-//   top: 50%;
-//   left: 50%;
-//   height: 80vh;
-//   width: 90vw;
-//   border-radius: 5px;
-// }
-
 .rotate-buttons {
   position: absolute;
   z-index: 5;
-  // left: 50%;
-  // transform: translateX(-50%);
-  // bottom: 6px;
+  padding-bottom: 12px;
+  bottom: 0;
 }
 
 .rotate-buttons button {
