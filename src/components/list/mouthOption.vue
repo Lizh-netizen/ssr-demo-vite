@@ -74,7 +74,7 @@
                 </svg>
               </el-radio-button>
             </template>
-            <ChooseTooth :option="option"></ChooseTooth>
+            <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
           </el-popover>
         </template>
         <template v-else>
@@ -129,6 +129,7 @@
               :title="option"
               :appId="appId"
               @submitTooth="(val) => handleSubmitTooth(val, title, classId, owningModule)"
+              @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
         </template>
@@ -368,6 +369,9 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     emit('refreshList', props.owningModule)
   }
 }
+const handleToothClicked = (option) => {
+  option.toothClicked = true
+}
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
   console.log(
@@ -381,7 +385,11 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   let obj
   if (option) {
     option.visible = false
+    if (!option.toothClicked) {
+      return
+    }
   }
+
   if (title) {
     title.visible = false
   }
