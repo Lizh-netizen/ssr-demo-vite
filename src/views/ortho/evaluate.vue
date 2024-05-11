@@ -475,13 +475,17 @@
                 </div>
                 <div class="p-[8px] max-w-[320px] color-[#1D2129]">
                   <div class="grid grid-cols-2 w-full gap-[8px]">
-                    <img
-                      :src="image.imageUrl + `?random=${Math.random()}`"
-                      crossOrigin="anonymous"
-                      class="w-[120px] h-[150px]"
+                    <div
+                      class="w-[120px] h-[150px] overflow-hidden"
                       v-for="image in facialData?.imageList"
                       :key="image.imageUrl"
-                    />
+                    >
+                      <img
+                        :src="image.imageUrl + `?random=${Math.random()}`"
+                        crossOrigin="anonymous"
+                        class="w-full"
+                      />
+                    </div>
                   </div>
                   <div><List :list="facialData?.list" /></div>
                 </div>
@@ -498,13 +502,15 @@
                   全景片
                 </div>
                 <div class="p-[8px] pb-[0]! color-[#1D2129]">
-                  <div>
+                  <div
+                    class="w-[290px] h-[150px] overflow-hidden"
+                    v-for="image in panoData?.imageList"
+                    :key="image.imageUrl"
+                  >
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
-                      v-for="image in panoData?.imageList"
-                      :key="image.imageUrl"
                       crossOrigin="anonymous"
-                      class="w-[290px] h-[150px]"
+                      class="w-full"
                     />
                   </div>
                   <div><List :list="panoData?.list" :pano="true" /></div>
@@ -521,16 +527,20 @@
               >
                 口内照
               </div>
-              <div class="flex items-center p-[8px] color-[#1D2129] h-[510px]">
+              <div class="flex items-start p-[8px] color-[#1D2129] h-[510px]">
                 <!-- 这里是图片, grid布局-->
                 <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
-                  <img
-                    :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="h-[100px] w-[150px]"
-                    crossOrigin="anonymous"
+                  <div
+                    class="h-[100px] w-[150px] overflow-hidden"
                     v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
-                  />
+                  >
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      class="w-full"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
                 </div>
                 <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
               </div>

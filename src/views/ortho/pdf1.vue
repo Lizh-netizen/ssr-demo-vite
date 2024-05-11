@@ -127,7 +127,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    :style="{ width: '100%', height: '100%' }"
+                    :style="{ width: '100%' }"
                   />
                 </div>
               </div>
@@ -180,7 +180,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]! h-[100%]!"
+                    class="w-[100%]!"
                   />
                 </div>
               </div>
@@ -208,7 +208,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]! h-[100%]!"
+                    class="w-[100%]!"
                   />
                 </div>
               </div>
@@ -230,7 +230,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="w-[100%]! h-[100%]!"
+                    class="w-[100%]!"
                   />
                 </div>
               </div>
