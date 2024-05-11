@@ -290,16 +290,28 @@ const filterList = [
   { label: '侧位片', value: 'cepha' }
 ]
 // 同步影像
+const hasSync = ref(false)
 const handleSyncOss = async () => {
-  const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
-    patientId: props.patientId
-  })
-  if (res.code == 200) {
+  if (hasSync.value) {
     ElMessage({
-      message: res.message,
-      type: 'success'
+      message: '正在同步中，请勿重复操作',
+      type: 'warning'
     })
-    handleChangeFilterBtn('全部')
+    return
+  }
+  if (!hasSync.value) {
+    hasSync.value = true
+    const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
+      patientId: props.patientId
+    })
+    if (res.code == 200) {
+      hasSync.value = false
+      ElMessage({
+        message: res.message,
+        type: 'success'
+      })
+      handleChangeFilterBtn('全部')
+    }
   }
 }
 const handleChangeFilterBtn = async (label) => {
