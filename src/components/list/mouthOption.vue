@@ -374,18 +374,11 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
-  console.log(
-    '🚀 ~ handleSubmitTooth ~ option, title, classId, owningModule:',
-    option,
-    title,
-    classId,
-    owningModule,
-    props.className
-  )
+  console.log(option)
   let obj
   if (option) {
     option.visible = false
-    if (!option.toothClicked) {
+    if (!option.toothClicked && option.toothCode.length > 0) {
       return
     }
   }
@@ -401,7 +394,6 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   if (option) {
     if (option.toothCode.length == 0) {
       if (props.className == '正面咬合') {
-        console.log('enter', title)
         let item1 = props.mouthData.find((item) => item.className == '正面咬合')
         obj = {
           aptmId: props.appId,

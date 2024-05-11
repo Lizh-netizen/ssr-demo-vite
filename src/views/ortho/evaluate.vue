@@ -167,6 +167,7 @@
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
+                        :className="item.className"
                       ></Option>
                     </form-item>
                   </template>
@@ -477,7 +478,7 @@
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
                       crossOrigin="anonymous"
-                      class="w-[120px] h-[180px]"
+                      class="w-[120px] h-[150px]"
                       v-for="image in facialData?.imageList"
                       :key="image.imageUrl"
                     />
@@ -1426,27 +1427,6 @@ async function getClassifiedImgList() {
     classifiedImageList.value = res.data
   }
 }
-// 上传图片
-// 上传图片逻辑e
-const fileList = ref([])
-const fileListWithFlag = ref([])
-
-const params = new FormData()
-
-const upload = ref(false)
-
-// 影像管理
-const chooseImgNum = computed(() => {
-  let num = 0
-  imageArr.value.forEach((item) => {
-    item.imageList.forEach((img) => {
-      if (img.choose) {
-        num++
-      }
-    })
-  })
-  return num
-})
 
 const orthDoctorId = ref(+patientInfo.value?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
@@ -1477,10 +1457,8 @@ async function getThreeLevelDoctorList() {
 
 getOrthDoctorList()
 getThreeLevelDoctorList()
-// 影像管理逻辑
-const index = ref(0)
 const imageArr = ref([])
-const totalArr = ref([])
+
 const title = ref()
 const handleOpenImageDialogue = (caption) => {
   imgDialogVisible.value = true
@@ -1501,9 +1479,7 @@ function getAllData() {
   getPanoramicList()
   getFreePic()
 }
-const handleCloseImgDialog = () => {
-  imageList.value.forEach((image) => (image.reminder = false))
-}
+
 const handleBackToList = () => {
   checkCompletion().then(() => {
     router.push('/index')
@@ -1559,10 +1535,10 @@ async function getDataList(appId) {
   )
   data.value = Object.values(processData(res.data))
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
-
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
+  console.log('🚀 ~ getDataList ~ mouthDataPdf.value:', mouthDataPdf.value)
 }
 // 得到当天日期
 const today = new Date()
