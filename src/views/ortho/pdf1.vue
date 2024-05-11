@@ -394,16 +394,7 @@ if (month < 10) {
 }
 const formattedDate = `${year}-${month}-${day}`
 const data = ref([])
-const inquiryList = ref()
-const checkList = ref()
-const diagnoseList = ref()
-const facialList = ref()
-const mouthList = ref()
-const panoList = ref()
-const cephaList = ref()
-const goalList = ref()
 
-const methodList = ref()
 const order = [
   '问诊',
   '临床检查',
@@ -547,6 +538,7 @@ async function getDataList() {
     // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
 
     data.value = Object.values(acc)
+    console.log(data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
@@ -587,6 +579,7 @@ async function getDataList() {
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           } else if (mouthImageList2.includes(cur.className)) {
+            console.log(cur.className)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
               imageUrl: cur.imageUrl
@@ -639,6 +632,27 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
+          }
+          if (mouthImageList2.includes(cur.className)) {
+            acc[cur.owningModule].imageList2.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list2.list1 = cur.list
+          }
+          if (mouthImageList3.includes(cur.className)) {
+            acc[cur.owningModule].imageList3.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list3.list1 = cur.list
+          }
+          if (mouthImageList4.includes(cur.className)) {
+            acc[cur.owningModule].imageList4.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list4.list1 = cur.list
           }
         }
       } else {
