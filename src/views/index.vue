@@ -640,6 +640,7 @@ const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.aptmId}/${item.patientId}`)
   sessionStorage.setItem('planCompletionId', item.planCompletionId)
+  sessionStorage.setItem('patientInfo', JSON.stringify(item))
   window.parent.postMessage(`ortho/${item.aptmId}/${item.patientId}`, '*')
 }
 const orthStatus = ref(-1)

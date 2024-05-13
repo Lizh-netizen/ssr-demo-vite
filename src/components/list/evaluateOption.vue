@@ -251,7 +251,8 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     title.titleName == '反覆合程度' ||
     title.titleName == '反覆盖程度' ||
     title.titleName == '左侧后牙' ||
-    title.titleName == '右侧后牙'
+    title.titleName == '右侧后牙' ||
+    title.titleName == '凹面型表现'
   ) {
     requestAgain.value = true
   }
@@ -288,7 +289,25 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
 
-        if (!option.choosen && title3Choose) {
+        if (title3Choose) {
+          updateOption(null, title3, props.appId, classId, owningModule)
+        }
+      } else {
+        const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
+        const title4 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
+        const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
+        const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
+        // 反覆合如果有选中的，需要取消
+        if (title1Choose) {
+          updateOption(null, title1, props.appId, classId, owningModule)
+        }
+        if (title4Choose) {
+          updateOption(null, title4, props.appId, classId, owningModule)
+        }
+        const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+        const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
+        if (title3Choose) {
           updateOption(null, title3, props.appId, classId, owningModule)
         }
       }
@@ -324,7 +343,25 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
-        if (!option.choosen && title3Choose) {
+        if (title3Choose) {
+          updateOption(null, title3, props.appId, classId, owningModule)
+        }
+      } else {
+        const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
+        const title4 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
+        const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
+        const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
+        // 反覆合如果有选中的，需要取消
+        if (title1Choose) {
+          updateOption(null, title1, props.appId, classId, owningModule)
+        }
+        if (title4Choose) {
+          updateOption(null, title4, props.appId, classId, owningModule)
+        }
+        const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
+        const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
+        if (title3Choose) {
           updateOption(null, title3, props.appId, classId, owningModule)
         }
       }

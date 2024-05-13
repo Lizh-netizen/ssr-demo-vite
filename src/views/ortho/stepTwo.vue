@@ -1238,15 +1238,31 @@ async function getOrthFaceAccessList() {
       savedTitleList.value = [...item.orthTitleList]
       const title1 = item.orthTitleList.find((title) => title.titleName == '凸面型表现')
       const title2 = item.orthTitleList.find((title) => title.titleName == '凹面型表现')
+      //
       const choosen1 = !title1.orthOptionsList.some((option) => option.choosen === true)
       const choosen2 = !title2.orthOptionsList.some((option) => option.choosen === true)
-      if (choosen1 && choosen2) {
-        item.orthTitleList.splice(1, 2)
-      } else if (choosen2) {
+      const title3 = item.orthTitleList.find((title) => title.titleName == '侧貌')
+      const option = title3.orthOptionsList.filter((option) => {
+        return option.choosen === true
+      })
+
+      if (option.length > 0 && option[0].optionName == '凸面型') {
         item.orthTitleList.splice(2, 1)
-      } else if (choosen1) {
+      }
+      if (option.length > 0 && option[0].optionName == '凹面型') {
         item.orthTitleList.splice(1, 1)
       }
+      if (option.length > 0 && option[0].optionName == '直面型') {
+        item.orthTitleList.splice(1, 1)
+        item.orthTitleList.splice(1, 1)
+      }
+      // if (choosen1) {
+      //   item.orthTitleList.splice(1, 1)
+      // } else if (choosen2) {
+      //   item.orthTitleList.splice(2, 1)
+      // } else if (choosen1) {
+      //   item.orthTitleList.splice(1, 1)
+      // }
     }
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -2686,6 +2702,9 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
+      await useUpdateOption(title.optionId, title, appId, classId, owningModule)
+      getOrthFaceAccessList()
+      return
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
       const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
@@ -2695,6 +2714,9 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
+      await useUpdateOption(title.optionId, title, appId, classId, owningModule)
+      getOrthFaceAccessList()
+      return
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
       found.orthTitleList = savedTitleList.value.filter(
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
@@ -2717,7 +2739,6 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       getOrthFaceAccessList()
       return
     }
-    // getOrthFaceAccessList()
   }
 
   if (className == '侧位片') {
