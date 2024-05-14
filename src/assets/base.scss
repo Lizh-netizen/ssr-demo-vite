@@ -117,7 +117,7 @@ img {
   max-height:400px !important;
 }
 .arco-dropdown {
-  height: 220px !important;
+  height: 256px !important;
 }
 .arco-popconfirm-popup-content .arco-popconfirm-body .arco-popconfirm-icon .arco-icon-info-circle-fill{
   color: red !important;
@@ -142,4 +142,8 @@ img {
 ::-webkit-scrollbar-thumb {
   border-radius: 1em;
   background-color: rgba(50, 50, 50, 0.3);
+}
+.el-popper.is-light.el-popover.popoverState {
+  width: 308px !important;
+  border-radius: 12px !important;
 }

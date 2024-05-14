@@ -116,6 +116,11 @@
               }}
             </div>
           </template>
+          <template #filterStatus="{ row }">
+            <div>
+              {{ row.filterStatus == 1 ? '已筛选' : '未筛选' }}
+            </div>
+          </template>
           <template #responsibleDoctor="{ row }">
             <a-select
               placeholder="请选择"
@@ -306,13 +311,13 @@ const aptmAble = ref(false)
 const orthoAble = ref(false)
 const evalAble = ref(false)
 const userInfo = ref()
-if (params.token) {
-  sessionStorage.odos_token = params.token
-}
 const currentTab = ref(sessionStorage.currentTab || '面评')
 sessionStorage.setItem('currentTab', currentTab.value)
 const setInitialState = (val) => {
   requestAble.value[val] = true
+}
+if (params.token) {
+  sessionStorage.odos_token = params.token
 }
 // 切换卡片
 // 首次渲染的时候也执行了
@@ -376,16 +381,12 @@ firstDate.value = formatTime().firstDate
 date.value = formatTime().formattedToday
 
 const columns = ref([...columns_config_evaluate])
-const filterVal = ref({})
+
 const evaluateList = ref([])
 const page = ref(sessionStorage.getItem('page') || 1)
 const pageSize = ref(sessionStorage.getItem('pageSize') || 10)
 const storageName = ref(strategy[sessionStorage.getItem('currentTab')].storage)
 
-// const officeId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.officeId || '')
-// const doctorId = ref(JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId || '')
-const officeId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.officeId || '')
-const doctorId = ref(JSON.parse(sessionStorage.getItem(storageName.value))?.doctorId || '')
 async function getEvaluateList(val) {
   if (date.value) {
     const res = await Post('/prod-api/emr/orthCommon/appointmentList', {
@@ -400,10 +401,16 @@ async function getEvaluateList(val) {
       total.value = res.total
       evaluateList.value = res.rows.map((item) => ({
         ...item,
-        StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
+        StartTime: item.startTime.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
-        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
+        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
+        list: [
+          { label: '临床检查', finished: !!+item.clinicalExamination },
+          { label: '图像上传', finished: !!+item.imageUpload },
+          { label: '检查结果', finished: !!+item.imageAnalysis },
+          { label: '面评结论', finished: !!+item.facialConclusion }
+        ]
       }))
       patientList.value = evaluateList.value
       total.value = res.total
@@ -432,10 +439,19 @@ async function getOrthoList(val) {
       total.value = res.total
       orthoList.value = res.rows.map((item) => ({
         ...item,
-        StartTime: item.StartTime.replace('T', ' ').slice(0, 16),
+        StartTime: item.startTime?.replace('T', ' ').slice(0, 16),
         patientName: item.patientName,
         age: item.age,
-        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估'
+        facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
+        list: [
+          { label: '问诊和检查', finished: !!+item.clinicalExamination },
+          { label: '图像上传', finished: !!+item.imageUpload },
+          { label: '图像分析', finished: !!+item.imageAnalysis },
+          { label: '模型分析', finished: !!+item.modelAnalysis },
+          { label: '诊断', finished: !!+item.diagnosis },
+          { label: '目标和工具', finished: !!+item.plansTools },
+          { label: '审批提交', finished: !!+item.approvalSubmitted }
+        ]
       }))
       patientList.value = orthoList.value
       total.value = res.total
@@ -623,6 +639,8 @@ const remoteMethod1 = (query) => {
 const router = useRouter()
 const handleViewOrth = (item) => {
   router.push(`/ortho/${item.aptmId}/${item.patientId}`)
+  sessionStorage.setItem('planCompletionId', item.planCompletionId)
+  sessionStorage.setItem('patientInfo', JSON.stringify(item))
   window.parent.postMessage(`ortho/${item.aptmId}/${item.patientId}`, '*')
 }
 const orthStatus = ref(-1)
@@ -659,13 +677,13 @@ const handleEvaluateOrth = async (item) => {
   }
 
   let path = ''
- 
+
   if (!item.facialId) {
     await Post('/prod-api/emr/public/api/v1/assessment/add', {
       patientId: item.patientId,
       aptmId: item.aptmId
     }).then(({ data }) => {
-      item.facialId = data.facialId
+      item.facialId = data?.facialId
       store.commit('setPatientInfo', item)
       sessionStorage.setItem('patientInfo', JSON.stringify(item))
     })
@@ -674,8 +692,8 @@ const handleEvaluateOrth = async (item) => {
     store.commit('setPatientInfo', item)
     sessionStorage.setItem('patientInfo', JSON.stringify(item))
   }
-  console.log(item.facialId)
- path =
+  sessionStorage.setItem('facialCompletionId', item.facialCompletionId)
+  path =
     orthStatus.value !== -1
       ? `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}/${orthStatus.value}`
       : `/evaluateOrtho/${item.aptmId}/${item.patientId}/${item.facialId}`

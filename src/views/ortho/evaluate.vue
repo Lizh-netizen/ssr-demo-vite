@@ -167,6 +167,7 @@
                         :mouthData="mouthData"
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
+                        :className="item.className"
                       ></Option>
                     </form-item>
                   </template>
@@ -213,7 +214,7 @@
                     v-for="(title, index) in panoramicData[0].orthTitleList"
                     :key="title.id"
                   >
-                    <template v-if="index <= 1">
+                    <template v-if="index <= 2">
                       <form-item :label="title.titleName" width="120px">
                         <el-radio-group
                           v-if="title.type == 1"
@@ -241,7 +242,7 @@
                 </div>
                 <div class="leftLower-column">
                   <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(2, 7)"
+                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(3, 8)"
                     :key="title.id"
                   >
                     <!-- <template v-if="index >= 2"> -->
@@ -320,7 +321,7 @@
     module="evaluate"
     :appId="appId"
     :patientId="patientId"
-    :dialogVisible="imgDialogVisible"
+    v-if="imgDialogVisible"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
@@ -333,7 +334,7 @@
   />
   <el-dialog v-model="adviceVisible" title="面评建议" width="30%" class="advice">
     <div style="margin-top: 20px" class="advice__state">
-      <div class="w-[70px] text-right mr-[16px]">状态选择</div>
+      <div class="w-[70px] text-right mr-[16px]">结论</div>
       <el-radio-group v-model="advice" @change="handleAdviceChange">
         <el-radio-button :label="i" v-for="i in advices" :key="i" />
       </el-radio-group>
@@ -472,15 +473,19 @@
                 >
                   面型评估
                 </div>
-                <div class="p-[8px] max-w-[320px]">
+                <div class="p-[8px] max-w-[320px] color-[#1D2129]">
                   <div class="grid grid-cols-2 w-full gap-[8px]">
-                    <img
-                      :src="image.imageUrl + `?random=${Math.random()}`"
-                      crossOrigin="anonymous"
-                      class="w-[120px]"
+                    <div
+                      class="w-[120px] h-[150px] overflow-hidden"
                       v-for="image in facialData?.imageList"
                       :key="image.imageUrl"
-                    />
+                    >
+                      <img
+                        :src="image.imageUrl + `?random=${Math.random()}`"
+                        crossOrigin="anonymous"
+                        class="w-full"
+                      />
+                    </div>
                   </div>
                   <div><List :list="facialData?.list" /></div>
                 </div>
@@ -496,14 +501,16 @@
                 >
                   全景片
                 </div>
-                <div class="p-[8px] pb-[0]!">
-                  <div>
+                <div class="p-[8px] pb-[0]! color-[#1D2129]">
+                  <div
+                    class="w-[290px] h-[150px] overflow-hidden"
+                    v-for="image in panoData?.imageList"
+                    :key="image.imageUrl"
+                  >
                     <img
                       :src="image.imageUrl + `?random=${Math.random()}`"
-                      v-for="image in panoData?.imageList"
-                      :key="image.imageUrl"
                       crossOrigin="anonymous"
-                      class="w-[290px] h-[150px]"
+                      class="w-full"
                     />
                   </div>
                   <div><List :list="panoData?.list" :pano="true" /></div>
@@ -520,16 +527,20 @@
               >
                 口内照
               </div>
-              <div class="flex items-center p-[8px]">
+              <div class="flex items-start p-[8px] color-[#1D2129] h-[510px]">
                 <!-- 这里是图片, grid布局-->
                 <div class="grid grid-cols-2 gap-[4px] mr-[16px]">
-                  <img
-                    :src="image.imageUrl + `?random=${Math.random()}`"
-                    class="h-[100px]"
-                    crossOrigin="anonymous"
+                  <div
+                    class="h-[100px] w-[150px] overflow-hidden"
                     v-for="image in mouthDataPdf?.imageList"
                     :key="image.imageUrl"
-                  />
+                  >
+                    <img
+                      :src="image.imageUrl + `?random=${Math.random()}`"
+                      class="w-full"
+                      crossOrigin="anonymous"
+                    />
+                  </div>
                 </div>
                 <div class="flex-1 mr-[12px]"><List :list="mouthDataPdf?.list" /></div>
               </div>
@@ -563,7 +574,12 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import Option from '@/components/list/evaluateOption.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
-
+import {
+  checkOrthOptions,
+  checkImageUpload,
+  checkFugaiOptions,
+  checkOptions
+} from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
 const store = useStore()
 const router = useRouter()
@@ -642,8 +658,63 @@ const advice = ref(
 const time = ref(patientInfo.value?.facialTime?.slice(0, 10) || '')
 async function handleConfirm() {
   adviceVisible.value = true
+  checkCompletion()
 }
 
+function checkImage() {}
+const clinicalExamination = ref(0)
+const imageUpload = ref(0)
+const imageAnalysis = ref(0)
+const facialCompletionId = ref()
+const facialConclusion = ref(0)
+async function checkImageOptions() {
+  await getFaceAccessList()
+  await checkOrthOptions(faceAccessData.value)
+  // 包含前牙覆盖选项的
+  checkFugaiOptions(mouthData.value)
+  checkOptions(panoramicData.value)
+  console.log(
+    checkOrthOptions(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkOptions(panoramicData.value)
+  )
+  return (
+    checkOrthOptions(faceAccessData.value) &&
+    checkFugaiOptions(mouthData.value) &&
+    checkOptions(panoramicData.value)
+  )
+}
+
+async function checkCompletion() {
+  await getClassifiedImgList()
+  await getMouthList()
+  await getPanoramicList()
+  const checkData = await getCheckList()
+  // 临床检查
+  const isCheck = checkOrthOptions(checkData)
+  clinicalExamination.value = isCheck ? '1' : '0'
+  // 图片上传
+  const isImageUpload = await checkImageUpload(classifiedImageList)
+  imageUpload.value = isImageUpload ? '1' : '0'
+  // 图像分析的选项
+  const isImageAnalysis = await checkImageOptions()
+  imageAnalysis.value = isImageAnalysis ? '1' : '0'
+
+  const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
+    id: +sessionStorage.facialCompletionId || '',
+    aptmId: appId,
+    patientId: patientId,
+    clinicalExamination: clinicalExamination.value,
+    imageUpload: imageUpload.value,
+    imageAnalysis: imageAnalysis.value,
+    facialConclusion: ''
+  })
+  if (res.data.facialCompletionId) {
+    sessionStorage.setItem('facialCompletionId', res.data.facialCompletionId)
+  }
+
+  facialCompletionId.value = res.data.facialCompletionId
+}
 const id = ref()
 async function getId() {
   const res = await Get(`/prod-api/business/orthBase/${appId}`)
@@ -699,6 +770,7 @@ async function handleAdvice() {
       orthDoctorName: orthDoctorName || '',
       orthDoctorId: orthDoctorId.value || '',
       remark: '',
+      ljProviderId: userInfo.value.ljProviderId,
       facialAdvise: facialAdvise,
       facialOrthDoctorId:
         advice.value === '立即矫正' && (orthStatus == 1 || orthStatus == 2)
@@ -724,6 +796,16 @@ async function handleAdvice() {
     if (res.code === 200) {
       ElMessage.success(res.msg)
     }
+    await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
+      id: +facialCompletionId.value || '',
+      aptmId: appId,
+      patientId: patientId,
+      clinicalExamination: '',
+      imageUpload: '',
+      imageAnalysis: '',
+      facialConclusion: '1'
+    })
+    facialConclusion.value = ''
   } catch (err) {
     console.log(err)
   }
@@ -929,6 +1011,7 @@ const refreshList = (val) => {
 // 获取数据
 
 const checkData = ref([])
+
 async function getCheckList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/1/临床检查/${appId}`)
   checkData.value = result.data[0]
@@ -1014,6 +1097,7 @@ async function getCheckList() {
       }
     })
   })
+  return result.data
 }
 
 const faceAccessData = ref([])
@@ -1196,8 +1280,8 @@ async function getPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 2)
-          codeTitleList.value = res.data.slice(2, 7)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 3)
+          codeTitleList.value = res.data.slice(3)
           panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
@@ -1338,88 +1422,7 @@ async function handleSubmitRemark(title, classId, owningModule) {
 }
 
 const imgDialogVisible = ref(false)
-const imageList = ref([
-  {
-    caption: '正面像',
-    typeName: 'FrontalRepose',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面微笑像',
-    typeName: 'FrontalSmile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面像',
-    typeName: 'LeftProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '90度侧面微笑像',
-    typeName: 'RightProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面像',
-    typeName: 'LeftSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '45度侧面微笑像',
-    typeName: 'RightSideProfile',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（左侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '口内照（右侧）',
-    typeName: '',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（左侧）',
-    typeName: 'Left',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '磨牙关系（右侧）',
-    typeName: 'Right',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '正面咬合',
-    typeName: 'Anterior',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '前牙覆盖',
-    typeName: 'Cover',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '上颌',
-    typeName: 'Upper',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '下颌',
-    typeName: 'Lower',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '全景片',
-    typeName: 'Panoramic',
-    fileUrl: placeholderUrl
-  },
-  {
-    caption: '侧位片',
-    typeName: 'Cephalometric',
-    fileUrl: placeholderUrl
-  }
-])
+
 const openImgDialog = () => {
   imgDialogVisible.value = true
   imageList.value.forEach((a) => {
@@ -1427,45 +1430,13 @@ const openImgDialog = () => {
   })
   getClassifiedImgList()
 }
+const classifiedImageList = ref([])
 async function getClassifiedImgList() {
   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
   if (res.code == 200 && res.data.length > 0) {
-    res.data.forEach((item) => {
-      imageList.value.forEach((a) => {
-        // a.fileUrl = placeholderUrl
-        if (item.imageType == a.caption) {
-          a.fileUrl = item.imageUrl
-          a.id = item.id
-        }
-      })
-    })
-  } else {
-    imageList.value.forEach((a) => {
-      a.fileUrl = placeholderUrl
-    })
+    classifiedImageList.value = res.data
   }
 }
-// 上传图片
-// 上传图片逻辑e
-const fileList = ref([])
-const fileListWithFlag = ref([])
-
-const params = new FormData()
-
-const upload = ref(false)
-
-// 影像管理
-const chooseImgNum = computed(() => {
-  let num = 0
-  imageArr.value.forEach((item) => {
-    item.imageList.forEach((img) => {
-      if (img.choose) {
-        num++
-      }
-    })
-  })
-  return num
-})
 
 const orthDoctorId = ref(+patientInfo.value?.facialOrthDoctorId || '')
 const orthDoctorList = ref([])
@@ -1496,10 +1467,8 @@ async function getThreeLevelDoctorList() {
 
 getOrthDoctorList()
 getThreeLevelDoctorList()
-// 影像管理逻辑
-const index = ref(0)
 const imageArr = ref([])
-const totalArr = ref([])
+
 const title = ref()
 const handleOpenImageDialogue = (caption) => {
   imgDialogVisible.value = true
@@ -1520,11 +1489,11 @@ function getAllData() {
   getPanoramicList()
   getFreePic()
 }
-const handleCloseImgDialog = () => {
-  imageList.value.forEach((image) => (image.reminder = false))
-}
+
 const handleBackToList = () => {
-  router.push('/index')
+  checkCompletion().then(() => {
+    router.push('/index')
+  })
 }
 function processData(data) {
   const result = {
@@ -1576,10 +1545,10 @@ async function getDataList(appId) {
   )
   data.value = Object.values(processData(res.data))
   checkDataPdf.value = data.value.find((item) => item.owningModule == '临床检查')
-
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
+  console.log('🚀 ~ getDataList ~ mouthDataPdf.value:', mouthDataPdf.value)
 }
 // 得到当天日期
 const today = new Date()
@@ -1693,16 +1662,6 @@ async function main() {
   display: inline-block;
   color: #333;
   border-radius: 4px;
-  cursor: pointer;
-}
-
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
   cursor: pointer;
 }
 

@@ -5,8 +5,8 @@
         <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
         <div class="title">
           <div>
-            <div class="title-date">{{ formattedDate }}</div>
-            <div class="Chinese">正畸检查报告及治疗计划</div>
+            <div class="Chinese"><img src="../../assets/pdfTemplate/title.svg" /></div>
+            <div class="font-size-[24px] mb-[33px]!">（含治疗计划）</div>
             <div class="item">
               <div class="label">姓名</div>
               <div class="value">{{ patientInfo.Name }}</div>
@@ -19,6 +19,10 @@
               <div class="label">诊所</div>
               <div class="value">{{ patientInfo.aptmOfficeName }}</div>
             </div>
+            <div class="item">
+              <div class="label">检查日期</div>
+              <div class="value">{{ formattedDate }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -27,24 +31,32 @@
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
             <Header text="基础信息" />
-            <div class="personalInfo">
-              <div class="item">
-                <div class="label">姓名</div>
-                {{ patientInfo.Name }}
+            <el-row class="flex mb-[10px]!">
+              <img
+                :src="imgCover + `?random=${Math.random()}`"
+                class="h-[300px]! w-[200px]!"
+                crossOrigin="anonymous"
+              />
+              <div class="personalInfo flex-1">
+                <div class="item">
+                  <div class="label">姓名</div>
+                  {{ patientInfo.Name + patientInfo.age?.match(/\(([^)]+)\)/)[0] }}
+                </div>
+                <div class="item">
+                  <div class="label">病例号</div>
+                  {{ patientInfo.PrivateId }}
+                </div>
+                <div class="item">
+                  <div class="label">出生日期</div>
+                  {{ patientInfo.Birth?.split('T')?.[0] }}
+                </div>
+                <div class="item">
+                  <div class="label">评估日期</div>
+                  {{ formattedDate }}
+                </div>
               </div>
-              <div class="item">
-                <div class="label">病例号</div>
-                {{ patientInfo.PrivateId }}
-              </div>
-              <div class="item">
-                <div class="label">出生日期</div>
-                {{ patientInfo.Birth?.split('T')?.[0] }}
-              </div>
-              <div class="item">
-                <div class="label">评估日期</div>
-                {{ formattedDate }}
-              </div>
-            </div>
+            </el-row>
+
             <div class="subTitle">主诉&既往史</div>
             <template v-if="item.owningModule === '问诊'">
               <div class="content">
@@ -96,18 +108,17 @@
 
         <template v-if="item.owningModule === '面型评估'">
           <div class="pdfPage face">
-            <img class="background" src="../../assets/pdfTemplate/faceTemp.png" />
-            <Header text="影像分析" />
-            <div class="className">面型评估</div>
-            <div class="imageList1">
-              <div :style="{ display: 'flex', gap: '16px' }">
+            <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
+            <Header text="面型评估" />
+            <div class="flex">
+              <div class="imageList1">
                 <div
                   :style="{
-                    width: '170px',
+                    width: '210px',
                     'border-radius': '12px',
-                    height: '230px',
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    height: '300px'
                   }"
                   v-for="image in item.imageList1"
                   :key="image.className"
@@ -120,32 +131,9 @@
                   />
                 </div>
               </div>
-            </div>
-            <div class="content1 content">
-              <customList :list="item.list1" />
-            </div>
-            <div class="imageList2">
-              <div
-                :style="{
-                  width: '170px',
-                  'border-radius': '12px',
-                  height: '230px',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }"
-                v-for="image in item.imageList2"
-                :key="image.className"
-              >
-                <div class="imageCaption" v-if="image.imageUrl">{{ image.className }}</div>
-                <img
-                  crossOrigin="anonymous"
-                  :style="{ width: '100%' }"
-                  :src="image.imageUrl + `?random=${Math.random()}`"
-                />
+              <div class="content1 content">
+                <customList :list="item.list1" />
               </div>
-            </div>
-            <div class="content2 content">
-              <customList :list="item.list2" />
             </div>
           </div>
         </template>
@@ -153,8 +141,7 @@
         <template v-if="item.owningModule === '口内照'">
           <div class="pdfPage mouth">
             <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
-            <Header text="影像分析" />
-            <div class="className">口内照</div>
+            <Header text="咬合分析" />
             <div class="middle section">
               <div class="imageList1">
                 <div class="image1" :style="{ position: 'relative' }">
@@ -175,74 +162,81 @@
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
                   />
                 </div>
-                <div :style="{ position: 'relative' }" class="image3">
-                  <div class="imageCaption" v-if="item.imageList1[2]?.imageUrl">
-                    {{ item.imageList1[2]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList1[2]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
               </div>
               <div class="content1 content">
                 <customList :list="item.list1" />
               </div>
             </div>
             <div class="bottom section">
-              <div class="content2 content">
-                <customList :list="item.list2" />
-              </div>
               <div class="imageList2">
-                <div :style="{ position: 'relative' }" class="image1">
+                <div
+                  :style="{ position: 'relative' }"
+                  v-for="image in item.imageList2"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
+                >
                   <div class="imageCaption" v-if="item.imageList2[0]?.imageUrl">
-                    {{ item.imageList2[0]?.className }}
+                    {{ image.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    :src="item.imageList2[0]?.imageUrl + `?random=${Math.random()}`"
+                    :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="w-[100%]!"
                   />
                 </div>
-                <div :style="{ position: 'relative' }" class="image2">
-                  <div class="imageCaption" v-if="item.imageList2[1]?.imageUrl">
-                    {{ item.imageList2[1]?.className }}
+              </div>
+              <div class="content2 content">
+                <customList :list="item.list2.list1" />
+                <customList :list="item.list2.list2" />
+              </div>
+            </div>
+          </div>
+        </template>
+        <template v-if="item.owningModule === '口内照'">
+          <div class="pdfPage mouth">
+            <img class="background" src="../../assets/pdfTemplate/mouthTemp.png" />
+            <Header text="咬合分析" />
+            <div class="bottom section">
+              <div class="imageList2">
+                <div
+                  :style="{ position: 'relative' }"
+                  v-for="image in item.imageList3"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
+                >
+                  <div class="imageCaption">
+                    {{ image.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    :src="item.imageList2[1]?.imageUrl + `?random=${Math.random()}`"
+                    :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="w-[100%]!"
                   />
                 </div>
-                <div :style="{ position: 'relative' }" class="image3">
-                  <div class="imageCaption" v-if="item.imageList2[2]?.imageUrl">
-                    {{ item.imageList2[2]?.className }}
+              </div>
+              <div class="content2 content">
+                <customList :list="item.list3.list1" />
+                <customList :list="item.list3.list2" />
+              </div>
+            </div>
+            <div class="bottom section" v-if="item.imageList4.length > 0">
+              <div class="imageList2">
+                <div
+                  :style="{ position: 'relative' }"
+                  v-for="image in item.imageList4"
+                  class="w-[50%]! h-[250px]! overflow-hidden"
+                >
+                  <div class="imageCaption">
+                    {{ image.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
-                    :src="item.imageList2[2]?.imageUrl + `?random=${Math.random()}`"
+                    :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="w-[100%]!"
                   />
                 </div>
-                <div :style="{ position: 'relative' }" class="image4">
-                  <div class="imageCaption" v-if="item.imageList2[3]?.imageUrl">
-                    {{ item.imageList2[3]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[3]?.imageUrl + `?random=${Math.random()}`"
-                  />
-                </div>
-                <div :style="{ position: 'relative' }" class="image5">
-                  <div
-                    class="imageCaption"
-                    v-if="item.imageList2[4] && item.imageList2[4]?.imageUrl"
-                  >
-                    {{ item.imageList2[4]?.className }}
-                  </div>
-                  <img
-                    crossOrigin="anonymous"
-                    :src="item.imageList2[4]?.imageUrl + `?random=${Math.random()}`"
-                    v-if="item.imageList2[4]"
-                  />
-                </div>
+              </div>
+              <div class="content2 content">
+                <customList :list="item.list4.list1" />
+                <customList :list="item.list4.list2" />
               </div>
             </div>
           </div>
@@ -332,7 +326,12 @@
                 </div>
               </div>
             </div>
-            <div class="subTitle" v-if="data.find((item) => item.owningModule == '风险')">风险</div>
+            <div
+              class="subTitle mt-[10px]!"
+              v-if="data.find((item) => item.owningModule == '风险')"
+            >
+              风险
+            </div>
             <div class="content">
               <list
                 :list="data.find((item) => item.owningModule == '风险').list"
@@ -395,15 +394,7 @@ if (month < 10) {
 }
 const formattedDate = `${year}-${month}-${day}`
 const data = ref([])
-const inquiryList = ref()
-const checkList = ref()
-const diagnoseList = ref()
-const facialList = ref()
-const mouthList = ref()
-const panoList = ref()
-const cephaList = ref()
-const goalList = ref()
-const methodList = ref()
+
 const order = [
   '问诊',
   '临床检查',
@@ -431,10 +422,18 @@ function sort(a, b) {
 }
 // 获取非问题列表页面的数据
 
-const faceImageList1 = ['正面像', '正面微笑像']
-const faceImageList2 = ['90度侧面像', '45度侧面像', '45度侧面微笑像', '90度侧面微笑像']
-const mouthImageList1 = ['正面咬合', '口内照（左侧）', '口内照（右侧）']
-const mouthImageList2 = ['前牙覆盖', '磨牙关系（左侧）', '磨牙关系（右侧）', '上颌', '下颌']
+const faceImageList1 = [
+  '正面像',
+  '正面微笑像',
+  '90度侧面像',
+  '45度侧面像',
+  '45度侧面微笑像',
+  '90度侧面微笑像'
+]
+const mouthImageList1 = ['正面咬合', '前牙覆盖']
+const mouthImageList2 = ['口内照（左侧）', '口内照（右侧）']
+const mouthImageList3 = ['磨牙关系（左侧）', '磨牙关系（右侧）']
+const mouthImageList4 = ['上颌', '下颌']
 async function getDataList() {
   const result = await Get(
     `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2`
@@ -494,10 +493,17 @@ async function getDataList() {
             serious: cur.serious
           })
         } else if (cur.owningModule == '备注') {
-          acc[cur.owningModule].list.push({
-            title_name: '备注',
-            option_names: cur.cephalometricsContent
-          })
+          if (cur.cephalometricsContent) {
+            acc[cur.owningModule].list.push({
+              title_name: '备注',
+              option_names: cur.cephalometricsContent
+            })
+          } else {
+            acc[cur.owningModule].list.push({
+              title_name: '备注',
+              option_names: '无'
+            })
+          }
         } else {
           if (cur.titleName == '主诉' || cur.titleName == '现病史') {
             acc[cur.owningModule].list.push({
@@ -532,6 +538,7 @@ async function getDataList() {
     // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
 
     data.value = Object.values(acc)
+    console.log(data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
@@ -542,12 +549,6 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
-          } else {
-            acc[cur.owningModule].list2.push(...cur.list)
-            acc[cur.owningModule].imageList2.push({
-              className: cur.className,
-              imageUrl: cur.imageUrl
-            })
           }
         } else {
           acc[cur.owningModule] = cur
@@ -577,25 +578,81 @@ async function getDataList() {
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
-          } else {
-            acc[cur.owningModule].list2.push(...cur.list)
+          } else if (mouthImageList2.includes(cur.className)) {
+            console.log(cur.className)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
               imageUrl: cur.imageUrl
             })
+            if (acc[cur.owningModule].imageList2.length == 1) {
+              acc[cur.owningModule].list2.list1 = acc[cur.owningModule].list2.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list2.list2 = acc[cur.owningModule].list2.list2.concat(cur.list)
+            }
+          } else if (mouthImageList3.includes(cur.className)) {
+            acc[cur.owningModule].imageList3.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            if (acc[cur.owningModule].imageList3.length == 1) {
+              acc[cur.owningModule].list3.list1 = acc[cur.owningModule].list3.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list3.list2 = acc[cur.owningModule].list3.list2.concat(cur.list)
+            }
+          } else {
+            acc[cur.owningModule].imageList4.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            if (acc[cur.owningModule].imageList4.length == 1) {
+              acc[cur.owningModule].list4.list1 = acc[cur.owningModule].list4.list1.concat(cur.list)
+            } else {
+              acc[cur.owningModule].list4.list2 = acc[cur.owningModule].list4.list2.concat(cur.list)
+            }
           }
         } else {
           acc[cur.owningModule] = cur
           acc[cur.owningModule].list1 = []
           acc[cur.owningModule].imageList1 = []
           acc[cur.owningModule].imageList2 = []
-          acc[cur.owningModule].list2 = []
+          acc[cur.owningModule].imageList3 = []
+          acc[cur.owningModule].imageList4 = []
+          acc[cur.owningModule].list2 = {}
+          acc[cur.owningModule].list2.list1 = []
+          acc[cur.owningModule].list2.list2 = []
+          acc[cur.owningModule].list3 = {}
+          acc[cur.owningModule].list3.list1 = []
+          acc[cur.owningModule].list3.list2 = []
+          acc[cur.owningModule].list4 = {}
+          acc[cur.owningModule].list4.list1 = []
+          acc[cur.owningModule].list4.list2 = []
           if (mouthImageList1.includes(cur.className)) {
             acc[cur.owningModule].imageList1.push({
               className: cur.className,
               imageUrl: cur.imageUrl
             })
             acc[cur.owningModule].list1 = cur.list
+          }
+          if (mouthImageList2.includes(cur.className)) {
+            acc[cur.owningModule].imageList2.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list2.list1 = cur.list
+          }
+          if (mouthImageList3.includes(cur.className)) {
+            acc[cur.owningModule].imageList3.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list3.list1 = cur.list
+          }
+          if (mouthImageList4.includes(cur.className)) {
+            acc[cur.owningModule].imageList4.push({
+              className: cur.className,
+              imageUrl: cur.imageUrl
+            })
+            acc[cur.owningModule].list4.list1 = cur.list
           }
         }
       } else {
@@ -617,7 +674,9 @@ async function getDataList() {
   }
   data.value.push({ owningModule: '问题列表', data: issuesList })
   data.value.push({ owningModule: '方案', data: schemeData })
-  console.log('🚀 ~ getDataList ~ data.value:', data.value)
+  if (!data.value.find((item) => item.owningModule == '备注')) {
+    data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
+  }
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -711,106 +770,16 @@ const getFeatureEffect = async () => {
   ]
 }
 getFeatureEffect()
-const mockData = [
-  {
-    planName: '方案一',
-    checked: true,
-    featureList: [246, 247, 250, 249],
-    stageList: [
-      { stageName: '阶段', goalList: [{ label: '目标' }], toolList: [{ label: '工具' }] },
-      {
-        stageName: '3个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }],
-        toolList: [{ label: '工具1' }, { label: '工具2' }]
-      },
-      {
-        stageName: '6个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }],
-        toolList: [{ label: '工具1' }, { label: '工具2' }]
-      }
-    ]
-  },
-  {
-    planName: '方案er',
-    checked: false,
-    featureList: [{ label: '中等难度' }, { label: '中等难度' }],
-    stageList: [
-      {
-        stageName: '3个月',
-        goalList: [{ label: '目标1' }, { label: '目标2' }]
-      }
-    ]
-  }
-]
-const imgCount = ref(0)
-// 获取完数据在其中添加图片
-// async function getClassifiedImgList() {
-//   const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
-//   if (res.code == 200) {
-//     // const molar = res.data.find((item) => item.imageType === '磨牙关系（左侧）')
-//     const face = data.value.find((d) => d.owningModule === '面型评估')
-//     const mouth = data.value.find((d) => d.owningModule === '口内照')
 
-//     faceImageList1.forEach((item) => {
-//       if (face && !face.imageList1.some((image) => image.className === item)) {
-//         face.imageList1.push({ className: item })
-//       }
-//     })
-//     faceImageList2.forEach((item) => {
-//       if (face && !face.imageList2.some((image) => image.className === item)) {
-//         face.imageList2.push({ className: item })
-//       }
-//     })
-//     mouthImageList1.forEach((item) => {
-//       if (mouth && !mouth.imageList1.some((image) => image.className === item)) {
-//         mouth.imageList1.push({ className: item })
-//       }
-//     })
-//     mouthImageList2.forEach((item) => {
-//       if (mouth && !mouth.imageList2.some((image) => image.className === item)) {
-//         mouth.imageList2.push({ className: item })
-//       }
-//     })
-//     res.data.forEach((item) => {
-//       face?.imageList1?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       face?.imageList2?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       mouth?.imageList1?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       mouth?.imageList2?.forEach((a) => {
-//         if (item.imageType == a.className) {
-//           a.imageUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//       // if (molar && item.imageType === '磨牙关系（右侧）') {
-//       //   mouth?.imageList2?.push({
-//       //     className: '磨牙关系（右侧）',
-//       //     imageUrl: item.imageUrl
-//       //   })
-//       // }
-//       data.value.forEach((b) => {
-//         if (b.className === item.imageType && item.imageUrl) {
-//           b.fileUrl = item.imageUrl
-//           imgCount.value++
-//         }
-//       })
-//     })
-//   }
-// }
+const imgCover = ref()
+// 获取完数据在其中添加图片
+async function getClassifiedImgList() {
+  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
+  if (res.code == 200) {
+    const front = res.data.find((item) => item.imageType == '正面像')
+    imgCover.value = front?.imageUrl
+  }
+}
 
 const issuesList = ref([])
 // 获取问题列表
@@ -906,7 +875,7 @@ async function main() {
   await getAlignerList()
   await getSchemeList()
   await getDataList()
-  // await getClassifiedImgList()
+  await getClassifiedImgList()
   await getIssuesList()
   await getPatientInfo()
 
@@ -928,7 +897,7 @@ onMounted(() => {
     })
     main()
   }
-  // main()
+  //main()
 })
 </script>
 
@@ -985,7 +954,7 @@ body {
   color: #ffffff;
   position: absolute;
   padding: 4px 12px;
-  background: #2e6ce4;
+  background: rgba(0, 0, 0, 0.5);
   left: 0px;
   top: 0px;
   border-radius: 12px 0px 12px 0px;
@@ -1001,10 +970,7 @@ body {
 .contentImg {
   position: absolute;
   z-index: 10;
-  &.content1 {
-    top: 232px;
-    left: 204px;
-  }
+
   &.content2 {
     top: 438px;
     left: 483px;
@@ -1079,11 +1045,10 @@ body {
         color: #2e6ce4;
       }
       .imageList1 {
-        width: 360px;
-        height: 226px;
-        top: 410px;
-        left: 26px;
-        position: absolute;
+        display: grid;
+        grid-template-columns: auto auto;
+
+        gap: 10px;
       }
       .imageList2 {
         width: 360px;
@@ -1096,30 +1061,15 @@ body {
         grid-row-gap: 18px;
         grid-template-columns: auto auto;
       }
-      .content2 {
-        position: absolute;
-        right: 28px;
-        width: 360px;
-        top: 160px;
-        height: 400px;
-        display: flex;
-        align-items: center;
 
-        &.content {
-          .list1 {
-            width: 100%;
-            display: block;
-          }
-        }
-      }
       .content1 {
-        position: absolute;
-        left: 30px;
         width: 340px;
-        top: 660px;
-        height: 390px;
+        background: #eaf0fc;
         display: flex;
         align-items: center;
+        margin-left: 12px;
+        border-radius: 12px;
+
         &.content {
           .list1 {
             width: 100%;
@@ -1160,40 +1110,42 @@ body {
         color: #2e6ce4;
       }
       .section {
-        display: flex;
         img {
           border-radius: 12px;
         }
       }
       .middle {
+        padding: 10px;
         margin-top: 16px;
-
+        background: #eaf0fc;
+        border-radius: 16px;
         .imageList1 {
-          display: grid;
-          grid-gap: 10px;
+          display: flex;
+          gap: 10px;
           .image1 {
-            max-width: 267px;
+            width: 50%;
             grid-column: 1 / span 2;
             grid-row: 1 / span 2;
-            max-height: 400px;
+            height: 250px;
             overflow: hidden;
-            img {
-              width: 100%;
-            }
-          }
-          .image2,
-          .image3 {
-            width: 126px;
-            height: 200px;
-            overflow: hidden;
+            border-radius: 12px;
             img {
               width: 100%;
             }
           }
           .image2 {
+            width: 200px;
+
+            overflow: hidden;
+            img {
+              width: 100%;
+              height: 100%;
+            }
+          }
+          .image2 {
             grid-column: 3;
             grid-row: 1;
-            max-height: 200px;
+            height: 250px;
             img {
               width: 100%;
             }
@@ -1207,7 +1159,6 @@ body {
         .content1 {
           flex: 1;
           margin-left: 10px;
-          background: #f4f7fd;
           border-radius: 12px;
           display: flex;
           align-items: center;
@@ -1215,14 +1166,15 @@ body {
       }
       .bottom {
         margin-top: 18px;
-        background: #f4f7fd;
-        padding: 16px;
-        padding-left: 0;
+        padding: 10px;
+        background: #eaf0fc;
+        border-radius: 16px;
         justify-content: space-between;
-        border-radius: 12px;
+        height: 460px;
+
         .content2.content {
           display: flex;
-          align-items: center;
+
           flex: 1;
           .list1 {
             width: 100%;
@@ -1234,11 +1186,8 @@ body {
           }
         }
         .imageList2 {
-          width: 316px;
-          height: 100%;
-          display: grid;
-          grid-gap: 10px;
-          grid-template-columns: auto auto;
+          display: flex;
+          gap: 10px;
           .image1 {
             width: 316px;
             grid-column: 1 / span 2;
@@ -1289,9 +1238,6 @@ body {
         margin-bottom: 12px;
         letter-spacing: 0.16em;
       }
-      .Chinese {
-        margin-bottom: 33px;
-      }
       .item {
         display: flex;
         margin-bottom: 20px;
@@ -1302,11 +1248,12 @@ body {
           font-weight: 500;
           line-height: normal;
           letter-spacing: 0px;
-          padding: 2px 14px;
+          display: flex;
+          justify-content: center;
           box-sizing: border-box;
           color: #ffffff;
           background: #3b4485;
-          width: 52px;
+          width: 62px;
         }
         .value {
           font-size: 14px;
@@ -1340,12 +1287,11 @@ body {
       }
     }
     .personalInfo {
-      margin-left: 14px;
-      margin-top: -11px;
+      margin-left: 44px;
       width: 100%;
       display: flex;
-      align-items: center;
-      flex-wrap: wrap;
+      flex-direction: column;
+      justify-content: space-around;
       font-size: 13px;
       font-weight: normal;
       line-height: normal;
@@ -1359,6 +1305,7 @@ body {
         .label {
           width: 60px;
           margin-right: 16px;
+          text-align: right;
         }
       }
     }

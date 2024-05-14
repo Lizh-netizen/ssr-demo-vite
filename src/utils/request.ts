@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 const instance = axios.create({
   // @ts-expect-error TS(1343): The 'import.meta' meta-property is only allowed wh... Remove this comment to see the full error message
   baseURL: import.meta.env.VITE_APP_API_URL,
-  timeout: 100000,
+  timeout: 1000000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -38,13 +38,13 @@ export function Post1(url: any, data: any, isMultipart = false, token: any) {
       .post(url, data)
       .then((res) => {
         // 请求本身成功，但是业务逻辑错误
-        if (res.data.code && res.data.code !== 200) {
-          ElMessage({
-            type: 'error',
-            // 状态码500，未知错误
-            message: res.data.msg ? res.data.msg : '发生未知错误'
-          })
-        }
+        // if (res.data.code && res.data.code !== 200) {
+        //   ElMessage({
+        //     type: 'error',
+        //     // 状态码500，未知错误
+        //     message: res.data.msg ? res.data.msg : '发生未知错误'
+        //   })
+        // }
         resolve(res.data)
       })
       .catch((err) => {
@@ -57,7 +57,7 @@ instance.interceptors.request.use(
     config.headers = {
       Authorization:
         sessionStorage.odos_token ||
-        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyOTAsInVzZXJfa2V5IjoiMmFlMTg1YzItOGYyOS00YmNiLWE0ZjctYTMxOWQ5Nzk4NmE5IiwidXNlcm5hbWUiOiJsaXpoYW5naHVhIn0.mwAiXPkgAD3TYJ-jJRqQDrPV6onen77b67w2-WuAjeY1llPE8Tc-mduaXWvr1EPIvhWUoKPdp1tMencCsAAw9A'
+        'eyJhbGciOiJIUzUxMiJ9.eyJ0ZW5hbnRfaWQiOiI5N2FkMjAyNC03N2I5LTExZWUtOTYxOC1iODU5OWYyYThjNDAiLCJ1c2VyX2lkIjoyOTAsInVzZXJfa2V5IjoiZDFmMjU4ODctOWI3My00MWQzLThhNDgtZmI4YWM4MWRlNTQ4IiwidXNlcm5hbWUiOiJsaXpoYW5naHVhIn0.m_QBA-D8Qv48IwDeZ2BO4ynUxdjaKntyuDEQ7qVdXxJHX9XbikxL4k29t7PFbcP54CUCsyuya0x7xbbT4wOLZw'
     }
 
     return config
@@ -120,13 +120,13 @@ export function Post(url: any, data: any, isMultipart = false) {
       .post(url, data)
       .then((res) => {
         // 请求本身成功，但是业务逻辑错误
-        if (res.data.code && res.data.code !== 200) {
-          ElMessage({
-            type: 'error',
-            // 状态码500，未知错误
-            message: res.data.msg ? res.data.msg : '发生未知错误'
-          })
-        }
+        // if (res.data.code && res.data.code !== 200) {
+        //   ElMessage({
+        //     type: 'error',
+        //     // 状态码500，未知错误
+        //     message: res.data.msg ? res.data.msg : '发生未知错误'
+        //   })
+        // }
         resolve(res.data)
       })
       .catch((err) => {
@@ -170,13 +170,13 @@ export function Put(url: any, data: any) {
     instance
       .put(url, data)
       .then((res) => {
-        if (res.data.code && res.data.code !== 200) {
-          ElMessage({
-            type: 'error',
-            // 状态码500，未知错误
-            message: res.data.msg ? res.data.msg : '发生未知错误'
-          })
-        }
+        // if (res.data.code && res.data.code !== 200) {
+        //   ElMessage({
+        //     type: 'error',
+        //     // 状态码500，未知错误
+        //     message: res.data.msg ? res.data.msg : '发生未知错误'
+        //   })
+        // }
         resolve(res.data)
       })
       .catch((err) => {

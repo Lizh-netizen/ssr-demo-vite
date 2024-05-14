@@ -179,7 +179,16 @@ import { Get, Put, Post } from '@/utils/request'
 import formItem from '@/components/list/formItem.vue'
 import formatTime from '../../utils/formatTime'
 import { useStore } from 'vuex'
-
+import {
+  checkOrthOptions,
+  checkInquiry,
+  checkFugaiOptions,
+  checkOrthoCheck,
+  checkOptions,
+  checkOrthFace,
+  checkOrthImageUpload,
+  checkModelOptions
+} from '../../effects/checkCompletion'
 const doctorId = ref()
 window.addEventListener('message', function (event) {
   if (event.origin === 'https://odostest.orangedental.cn:4403') {
@@ -193,11 +202,11 @@ const appId = route.params.appId
 const patientId = route.params.patientId
 // 切换步骤条
 const steps = [
-  { num: 1, desc: '基础信息' },
+  { num: 1, desc: '问诊和检查' },
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
-  { num: 4, desc: '问题列表' },
-  { num: 5, desc: '方案目标' },
+  { num: 4, desc: '诊断' },
+  { num: 5, desc: '目标和工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -218,6 +227,7 @@ const handleChangeStep = (num) => {
   } else {
     active.value = num
   }
+  console.log('🚀 ~ handleChangeStep ~ active.value:', active.value)
 }
 
 onMounted(() => {
@@ -237,9 +247,6 @@ function validateGoalAndTarget(planList) {
   const found = planList.find((plan, index) => plan.checked)
   for (let item of found.stageList) {
     if (item.targetIds.length > 0 && item.toolIds.length > 0) {
-      console.log('🚀 ~ validateGoalAndTarget ~ item.targetIds && item.toolIds:', item)
-
-      console.log(111)
       return true
     }
   }
@@ -265,9 +272,11 @@ function validate(planList) {
 // 校验是否选中了方案
 function validateCheck(planList) {
   const found = planList.find((plan, index) => plan.checked)
-  console.log('🚀 ~ validateCheck ~ found:', found)
 
   return found ? false : true
+}
+function validateRisk(riskData) {
+  return riskData[0].orthTitleList[0].orthOptionsList.some((option) => option.choosen)
 }
 const handleGeneratePdf = async () => {
   if (active.value == 5) {
@@ -279,13 +288,9 @@ const handleGeneratePdf = async () => {
       return false
     }
     await getPlanList()
-    console.log(
-      '🚀 ~ handleGeneratePdf ~ validateGoalAndTarget(step5.value.planList):',
-      validateGoalAndTarget(step5.value.planList)
-    )
     if (!validateGoalAndTarget(step5.value.planList)) {
       ElMessage({
-        message: '请选择目标和工具',
+        message: '请选择方案和工具',
         type: 'warning'
       })
       return false
@@ -297,7 +302,17 @@ const handleGeneratePdf = async () => {
       })
       return false
     }
+    await getRiskData()
+    if (!validateRisk(riskData.value)) {
+      ElMessage({
+        message: '请选择风险',
+        type: 'warning'
+      })
+      return false
+    }
   }
+  plansTools.value = '1'
+  checkCompletion()
   nextTick(() => {
     editStep.value = active.value
     active.value++
@@ -383,9 +398,110 @@ function checkChoosenOptions(data) {
         }
       }
     }
-    // 如果没有选中的选项，则返回false
   }
+  // 如果没有选中的选项，则返回false
   return { dentition, other }
+}
+const planCompletionId = ref()
+const clinicalExamination = ref()
+const imageUpload = ref()
+const imageAnalysis = ref()
+const modelAnalysis = ref()
+const diagnosis = ref()
+const plansTools = ref()
+const approvalSubmitted = ref()
+// 获取问诊数据
+const inquiryData = ref()
+async function getOrthInquiryList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/问诊/${appId}`)
+  inquiryData.value = result.data
+}
+const checkData = ref()
+async function getOrthCheckList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/临床检查/${appId}`)
+  checkData.value = result.data
+}
+const classifiedImageList = ref([])
+async function getClassifiedImgList() {
+  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
+  if (res.code == 200 && res.data.length > 0) {
+    classifiedImageList.value = res.data
+  }
+}
+const faceAccessData = ref()
+async function getOrthFaceAccessList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
+  faceAccessData.value = result.data
+}
+const modelData = ref({})
+async function getOrthModelList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/模型分析/${appId}`)
+  modelData.value = result.data
+}
+const mouthData = ref()
+async function getOrthMouthList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/口内照/${appId}`)
+  mouthData.value = result.data
+}
+const panoramicData = ref()
+const cepha = ref()
+async function getOrthPanoList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
+  panoramicData.value = result.data
+}
+async function getOrthCephaList() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/侧位片/${appId}`)
+  cepha.value = result.data
+}
+async function checkOrthImageAnalysis() {
+  await getOrthFaceAccessList()
+  await getOrthMouthList()
+  await getOrthPanoList()
+  await getOrthCephaList()
+
+  const result =
+    checkOrthFace(faceAccessData.value) &&
+    checkFugaiOptions(mouthData.value) &&
+    checkOptions(panoramicData.value) &&
+    checkOptions(cepha.value)
+
+  return result
+}
+
+const checkCompletion = async () => {
+  if (active.value == 1) {
+    await getOrthInquiryList()
+    await getOrthCheckList()
+
+    clinicalExamination.value =
+      checkInquiry(inquiryData.value) && checkOrthoCheck(checkData.value) ? '1' : '0'
+  }
+
+  if (active.value == 2) {
+    await getClassifiedImgList()
+    imageUpload.value = checkOrthImageUpload(classifiedImageList) ? '1' : '0'
+    imageAnalysis.value = (await checkOrthImageAnalysis()) ? '1' : '0'
+  }
+  if (active.value == 3) {
+    await getOrthModelList()
+    modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
+  }
+  const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
+    id: +sessionStorage.getItem(`planCompletionId`) || '',
+    aptmId: appId,
+    patientId: patientId,
+    clinicalExamination: active.value == 1 ? clinicalExamination.value : '',
+    imageUpload: active.value == 2 ? imageUpload.value : '',
+    imageAnalysis: active.value == 2 ? imageAnalysis.value : '',
+    modelAnalysis: active.value == 3 ? modelAnalysis.value : '',
+    diagnosis: active.value == 4 ? diagnosis.value : '',
+    plansTools: active.value == 5 ? plansTools.value : '',
+    approvalSubmitted: active.value == 6 ? approvalSubmitted.value : ''
+  })
+  if (res.data.planCompletionId) {
+    sessionStorage.setItem('planCompletionId', res.data.planCompletionId)
+  }
+  planCompletionId.value = res.data?.planCompletionId.value || ''
 }
 const handleNextStep = async () => {
   if (active.value == 4) {
@@ -405,7 +521,9 @@ const handleNextStep = async () => {
       })
       return
     }
+    diagnosis.value = '1'
   }
+  await checkCompletion()
   nextTick(() => {
     editStep.value = active.value
     active.value++
@@ -455,6 +573,11 @@ const downloadPdf = () => {
 const dialogVisible = ref(false)
 const orthContent = ref({})
 const planList = ref()
+const riskData = ref()
+async function getRiskData() {
+  const result = await Get(`/prod-api/emr/orthCommon/list/2/风险/${appId}`)
+  riskData.value = result.data
+}
 async function getPlanList() {
   const result = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   if (result.code == 200 && result.data?.length > 0) {
@@ -510,9 +633,10 @@ async function initiateApproval() {
     return
   }
   dialogVisible.value = true
-  const res = await Post('/prod-api/business/orthBase/selectOrthRisk', {
-    patientId: patientId,
-    apmtId: appId
+  const res = await Post('/prod-api/emr/orthPlan/selectOrthApprovalDetailInfo', {
+    patientId: +patientId,
+    aptmId: +appId,
+    ljOfficeId: +ljOfficeId
   })
   orthContent.value = res.data
   orthContent.value['dentitionType'] = res.data.dentitionType || '无'
@@ -520,6 +644,7 @@ async function initiateApproval() {
   orthContent.value['targetStr'] = res.data['targetStr'] || targetStr
   orthContent.value['planStr'] = res.data['planStr'] || planStr
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
+  orthContent.value['explain'] = res.data['explain'] || '无'
   orthContent.value['riskValueSystem'] = res.data['riskValueSystem'].split('')[0]
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
@@ -552,7 +677,9 @@ async function confirmApproval() {
     })
     dialogVisible.value = false
     loading.close()
-    if (res.code === 200) {
+    if (res.code === 200 || res.code === 204) {
+      approvalSubmitted.value = '1'
+      checkCompletion()
       ElMessage({
         type: 'success',
         message: res.msg
@@ -582,7 +709,7 @@ const labelList = [
   { label: '病例风险（系统）', value: 'riskValue' },
   { label: '病历风险（自评）', value: 'riskValueSystem' },
   { label: '预计矫正周期', value: 'correctionPeriod' },
-  { label: '说明', value: 'explain' }
+  { label: '备注', value: 'explain' }
 ]
 </script>
 <style>
@@ -604,9 +731,13 @@ const labelList = [
 }
 
 .formItem {
-  height: 26px;
+  height: 34px;
   &__label {
+    height: 100%;
     text-align: left;
+  }
+  &__content {
+    height: 100%;
   }
 }
 
@@ -617,8 +748,9 @@ const labelList = [
     text-align: left;
   }
   .desc {
+    height: 100%;
     max-height: 52px;
-    overflow: scroll;
+    overflow-y: auto;
   }
 }
 .gap {

@@ -67,18 +67,11 @@ const useChangeOption = (
     // 无和别的选项互斥逻辑
     // type 2 多选
 
-    if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o: any) => o !== 10)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(10) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(10)
-    ) {
-      title.optionId1 = [10]
-      title.optionId = [10]
-      title.otherContent = ''
-    }
+    handleExclusiveOptions(title, 10)
+    handleExclusiveOptions(title, 44)
+    handleExclusiveOptions(title, 311)
+    // 正常和别的选项互斥逻辑
+
     title.orthOptionsList.forEach((option: any) => {
       if (!title.optionId.includes(option.id)) {
         option.choosen = false
@@ -125,5 +118,18 @@ const useChangeOption = (
     }
   }
 }
-
+function handleExclusiveOptions(title: any, optionId: number) {
+  if (title.optionId1.includes(optionId) && title.optionId1.length < title.optionId.length) {
+    title.optionId1 = title.optionId.filter((o: any) => o !== optionId)
+    title.optionId = title.optionId1
+  } else if (
+    !title.optionId1.includes(optionId) &&
+    title.optionId1.length < title.optionId.length &&
+    title.optionId.includes(optionId)
+  ) {
+    title.optionId1 = [optionId]
+    title.optionId = [optionId]
+    title.otherContent = ''
+  }
+}
 export default useChangeOption

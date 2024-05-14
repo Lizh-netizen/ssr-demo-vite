@@ -29,13 +29,25 @@ export const columns_config_evaluate = [
     }
   },
   {
-    type: 'state',
     title: '快筛',
+    slotName: 'filterStatus',
+    prop: 'filterStatus'
+    // stateOption: [
+    //   { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
+    //   { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
+    //   { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
+    //   { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
+    // ]
+  },
+  {
+    type: 'popState',
+    title: '完成情况',
+    list: [],
     stateOption: [
-      { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
-      { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
-      { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
-      { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
+      { name: 'failed', prop: 'completeStatus', color: 'Warning', value: '0' },
+      { name: 'failed', prop: 'completeStatus', color: 'Warning', value: null },
+      { name: 'success', prop: 'completeStatus', color: 'Alarm', value: '1' },
+      { name: 'halfComplete', prop: 'completeStatus', color: 'Warning', value: '99' }
     ]
   },
   { title: '面评建议', prop: 'facialAdvise', slotName: 'facialAdvise' },
@@ -77,16 +89,28 @@ export const columns_config_ortho = [
     }
   },
   {
-    type: 'state',
-    title: '快筛',
+    type: 'popState',
+    title: '完成情况',
+    list: [],
     stateOption: [
-      { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
-      { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
-      { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
-      { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
+      { name: 'failed', prop: 'completeStatus', color: 'Warning', value: '0' },
+      { name: 'failed', prop: 'completeStatus', color: 'Warning', value: null },
+      { name: 'success', prop: 'completeStatus', color: 'Alarm', value: '1' },
+      { name: 'halfComplete', prop: 'completeStatus', color: 'Warning', value: '99' }
     ]
   },
-  { title: '面评建议', prop: 'facialAdvise', type: 'text' },
+  {
+    title: '快筛',
+    slotName: 'filterStatus',
+    prop: 'filterStatus'
+    // stateOption: [
+    //   { name: '未筛选', prop: 'filterStatus', color: 'Warning', value: 0 },
+    //   { name: '矫正', prop: 'filterStatus', color: 'Alarm', value: 1 },
+    //   { name: '不矫正', prop: 'filterStatus', color: 'Warning', value: 2 },
+    //   { name: '进一步面评', prop: 'filterStatus', color: 'Neutral', value: 3 }
+    // ]
+  },
+
   {
     type: 'operation',
     title: '操作',

@@ -427,21 +427,18 @@ async function getOrthInquiryList() {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
-  console.log(11, title)
-  if (title.cephalometricsContent) {
-    const obj = {
-      aptmId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      classId: classId,
-      owningModule: owningModule
-    }
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  const obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: '',
+    classId: classId,
+    owningModule: owningModule
   }
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 getOrthInquiryList()
 

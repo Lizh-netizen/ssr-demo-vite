@@ -19,7 +19,7 @@
       <div class="body pb-[16px]">
         <div
           class="body-left content"
-          :style="{ height: planList?.some((plan) => plan.checked) ? '680px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '390px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
@@ -54,8 +54,7 @@
                 />
                 <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
-
-              <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
+              <draggableTool class="ORTHTOOL h-[250px]!" :list="toolList"></draggableTool>
             </template>
           </div>
         </div>
@@ -121,8 +120,8 @@
                 <a-dropdown trigger="click" class="mt-[4px]!">
                   <span class="el-dropdown-link">
                     <div class="addFeature" @click="plan.popVisible = true">
-                      <a-button class="addFeatureBtn"
-                        ><template #icon> <icon-plus /> </template>添加特点
+                      <a-button class="addFeatureBtn">
+                        <template #icon> <icon-plus /> </template>添加特点
                       </a-button>
                       <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
                         {{ plan.featureTagIds?.length }}
@@ -492,8 +491,11 @@
               @blur="
                 handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
               "
-            /> </form-item></template
-      ></template>
+              >无</a-textarea
+            >
+          </form-item></template
+        ></template
+      >
     </div>
   </div>
 </template>
@@ -519,6 +521,7 @@ import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
+import draggableTool from '../../components/layout/draggableTool.vue'
 import { useStore } from 'vuex'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
@@ -536,29 +539,47 @@ const props = defineProps({
 const emit = defineEmits(['requestPlanList'])
 // 获取工具数据
 const toolList = ref([])
+function processOrthtoolData(data) {
+  let processedData = []
+
+  for (const category in data) {
+    if (data.hasOwnProperty(category)) {
+      const tools = data[category]
+      let categoryObj = {
+        label: category,
+        list: []
+      }
+
+      tools.forEach((tool) => {
+        categoryObj.list.push({
+          name: tool.dictCodeName,
+          id: tool.id,
+          dictType: tool.dictType
+        })
+      })
+
+      processedData.push(categoryObj)
+    }
+  }
+
+  return processedData
+}
 async function getOrthToolList() {
   const result = await Post('/prod-api/business/globalDict/getDictListByType', {
-    dictType: 'ORTHTOOL'
+    dictType: 'ORTHTOOL',
+    className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 // 搜索工具
 const searchValue = ref('')
 const handleSearch = async (val) => {
   const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
     dictType: 'ORTHTOOL',
-    dictCodeName: val
+    dictCodeName: val,
+    className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType,
-    showPosition: null
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 getOrthToolList()
 // 获取目标数据
@@ -1286,20 +1307,18 @@ const handleMouseLeaveBtn = (e, option) => {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
-  if (title.cephalometricsContent) {
-    const obj = {
-      aptmId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      classId: classId,
-      owningModule: owningModule
-    }
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  const obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: '',
+    classId: classId,
+    owningModule: owningModule
   }
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 const riskData = ref([])
 async function getOrthRiskList() {
@@ -1391,7 +1410,8 @@ const handleScheme = async (scheme) => {
 }
 defineExpose({
   clicked,
-  planList
+  planList,
+  riskData
 })
 </script>
 
@@ -1634,9 +1654,9 @@ defineExpose({
         }
       }
 
-      :deep .container {
-        height: 220px;
-      }
+      // :deep .container {
+      //   height: 220px;
+      // }
       :deep .container.ORTHTOOL {
         .list-group {
           margin-top: 8px !important;

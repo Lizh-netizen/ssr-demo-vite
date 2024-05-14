@@ -86,7 +86,7 @@ import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId', 'owningModule'])
-const emit = defineEmits(['submitTooth', 'changePopVisible'])
+const emit = defineEmits(['submitTooth', 'changePopVisible', 'toothClicked'])
 const title = ref(props.title)
 
 const data = ref(props.data)
@@ -119,6 +119,7 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 选中牙位
 const handleSelectTooth = (item, title) => {
+  emit('toothClicked')
   useSelectTooth(item, props.title)
 }
 const handleSubmitTooth = (title) => {
@@ -126,7 +127,6 @@ const handleSubmitTooth = (title) => {
     if (!title.submitAble) {
       return
     }
-
     if (props.module == 'evaluate') {
       let obj = {
         aptmId: props.appId,
