@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@arco-design/web-vue':
-    specifier: ^2.52.1
+    specifier: ^2.55.0
     version: 2.55.0(vue@3.4.21)
   '@element-plus/icons-vue':
     specifier: ^2.1.0
