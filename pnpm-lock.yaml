@@ -8,6 +8,9 @@ dependencies:
   '@arco-design/web-vue':
     specifier: ^2.55.0
     version: 2.55.0(vue@3.4.21)
+  '@babel/helper-annotate-as-pure':
+    specifier: ^7.22.5
+    version: 7.22.5
   '@element-plus/icons-vue':
     specifier: ^2.1.0
     version: 2.3.1(vue@3.4.21)
@@ -35,6 +38,9 @@ dependencies:
   html2pdf.js:
     specifier: ^0.10.1
     version: 0.10.1
+  install:
+    specifier: ^0.13.0
+    version: 0.13.0
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -261,7 +267,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/types': 7.24.0
-    dev: true
 
   /@babel/helper-builder-binary-assignment-operator-visitor@7.22.15:
     resolution: {integrity: sha512-QkBXwGgaoC2GtGZRoma6kv7Szfv06khvhFav67ZExau2RaXzy8MpHSMO2PNoP2XtmQphJQRHFfg77Bq731Yizw==}
@@ -5205,6 +5210,11 @@ packages:
       undeclared-identifiers: 1.1.3
       xtend: 4.0.2
     dev: true
+
+  /install@0.13.0:
+    resolution: {integrity: sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==}
+    engines: {node: '>= 0.10'}
+    dev: false
 
   /interpret@3.1.1:
     resolution: {integrity: sha512-6xwYfHbajpoF0xLW+iwLkhwgvLoZDfjYfoFNu8ftMoXINzwuymNLd9u/KmwtdT2GbR+/Cz66otEGEVVUHX9QLQ==}
