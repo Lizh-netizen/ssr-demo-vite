@@ -14,25 +14,15 @@
           ><template #img
             ><template v-if="item.imageUrl">
               <!-- 正面像放在canvas中展示 -->
-              <template v-if="item.className == '正面像'">
-                <canvas
-                  id="FrontalRose"
-                  width="320"
-                  height="240"
-                  @click="handlePreviewImage(item)"
-                ></canvas>
-              </template>
-              <template v-else>
-                <img
-                  :src="item.imageUrl"
-                  @click="handlePreviewImage(item)"
-                  :style="{
-                    height: '240px',
-                    'object-fit': 'cover',
-                    'max-width': '320px'
-                  }"
-                />
-              </template> </template
+              <img
+                :src="item.imageUrl"
+                @click="handlePreviewImage(item)"
+                :style="{
+                  height: '240px',
+                  'object-fit': 'cover',
+                  'max-width': '320px'
+                }"
+              /> </template
             ><template v-else>
               <div
                 class="imageItem__placeholder"
@@ -1137,98 +1127,11 @@ async function getOrthFaceAccessList() {
         const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
         const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
         // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
-        const isTitle1Test = title1.orthOptionsList.some((option) => option.choosen == true)
-        const isTitle2Test = title2.orthOptionsList.some((option) => option.choosen == true)
-        const isTitle3Test = title3.orthOptionsList.some((option) => option.choosen == true)
-        AiTest.value = !isTitle1Test || !isTitle2Test || !isTitle3Test
+
         FrontalReposeImageUrl.value = item.imageUrl
         const formData = new FormData()
         formData.append('imageUrl', item.imageUrl)
         // 如果有图片变化，则先调用算法接口
-        if (imageUrlChanged.value) {
-          imageUrlChanged.value = false
-          Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then((res) => {
-            if (res.data.face_list) {
-              const data = res.data.face_list[0].landmark201
-              const image = new Image()
-              image.onload = () => {
-                const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
-                // 比例缩放的因子
-                const scaleFactorWidth = width / image.width
-                const scaleFactorHeight = height / image.height
-                faceSet.value = FrontalRose.map((a) => ({
-                  label: a,
-                  x: data[a].x * scaleFactorWidth,
-                  y: data[a].y * scaleFactorHeight
-                }))
-                calculateFront(faceSet.value, item.id, item.owningModule)
-                const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                addFaceset(set)
-              }
-              image.src = FrontalReposeImageUrl.value
-
-              // nextTick(() => {
-              if (interruptSignal) {
-                return
-              }
-              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-            } else {
-              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-            }
-          })
-        } else {
-          Get(`/prod-api/business/orthPoint/list?apmtId=${appId}&pointType=2`).then((res) => {
-            if (res.data.length > 0) {
-              faceSet.value = res.data.map((item) => ({
-                label: item.pointName,
-                x: item.xcoordinate,
-                y: item.ycoordinate
-              }))
-              if (AiTest.value) {
-                calculateFront(faceSet.value, item.id, item.owningModule)
-              }
-              // nextTick(() => {
-              // 如果快速切换了页面，那么就不画图了
-              if (interruptSignal) {
-                return
-              }
-              loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-              // })
-            } else {
-              Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
-                (res) => {
-                  if (res.data.face_list) {
-                    const data = res.data.face_list[0].landmark201
-                    const image = new Image()
-                    image.onload = () => {
-                      const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
-                      // 比例缩放的因子
-                      const scaleFactorWidth = width / image.width
-                      const scaleFactorHeight = height / image.height
-                      faceSet.value = FrontalRose.map((a) => ({
-                        label: a,
-                        x: data[a].x * scaleFactorWidth,
-                        y: data[a].y * scaleFactorHeight
-                      }))
-                      calculateFront(faceSet.value, item.id, item.owningModule)
-                      const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                      addFaceset(set)
-                    }
-                    image.src = FrontalReposeImageUrl.value
-
-                    // nextTick(() => {
-                    if (interruptSignal) {
-                      return
-                    }
-                    loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                  } else {
-                    loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                  }
-                }
-              )
-            }
-          })
-        }
       }
       if (item.className == '正面微笑像') {
         FrontalSmileImageUrl.value = item.imageUrl
