@@ -152,11 +152,7 @@
         </ImageItem>
       </template>
     </div>
-    <Header
-      text="全景片"
-      @dblclick.prevent.stop="handleDblClick"
-      @click.prevent.stop="console.log(11)"
-    />
+    <Header text="全景片" @dblclick.prevent.stop="handleDblClick" />
     <div class="content panoramic">
       <template v-for="item in panoramicData" :key="item.id">
         <div class="placeholderContainer">
@@ -264,7 +260,7 @@
               </div>
               <div class="right-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index <= 5 && index >= 3">
+                  <template v-if="index <= 6 && index >= 4">
                     <form-item :label="title.titleName" width="120px">
                       <el-radio-group
                         v-if="title.type == 1"
@@ -340,9 +336,72 @@
                   </template>
                 </template>
               </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 3">
+                    <form-item :label="title.titleName" width="120px">
+                      <el-radio-group
+                        v-model="title.optionId"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
+                        @dblclick="
+                          handleEmptyRadio(title.optionId, title, item.id, item.owningModule)
+                        "
+                      >
+                        <el-radio-button
+                          :disabled="!panoramicData[0].hasImage"
+                          :class="{
+                            serious: option.serious == '1',
+                            checked: option.choosen === true
+                          }"
+                          v-for="option in title.orthOptionsList"
+                          :key="option.id"
+                          :label="option.id"
+                        >
+                          {{ option.optionName }}
+                        </el-radio-button>
+                      </el-radio-group>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 7">
+                    <form-item :label="title.titleName" width="120px">
+                      <a-select
+                        :style="{ width: '320px' }"
+                        :loading="loading"
+                        placeholder="请选择"
+                        v-model="selectedDsy"
+                        multiple
+                        :class="{ 'w-[200px]!': maxTagCount == 1, 'w-[220px]!': maxTagCount == 0 }"
+                        @search="handleSearch"
+                        :filter-option="false"
+                        :max-tag-count="maxTagCount"
+                        @change="handleChangeDsy(title, item.id)"
+                        @popup-visible-change="handlePopupVisibleChange"
+                      >
+                        <a-option v-for="item of dsyData" :value="item.supernumeraryTeethOrder"
+                          >{{ item.supernumeraryTeeth
+                          }}<img
+                            v-if="selectedDsy.includes(item.supernumeraryTeethOrder)"
+                            src="../../assets/svg/check.svg"
+                        /></a-option>
+                      </a-select>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 6 && index <= 12">
+                  <template v-if="index >= 8 && index <= 14">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -358,7 +417,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 13 && index <= 19">
+                  <template v-if="index >= 15 && index <= 20">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -1358,15 +1417,37 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
-      useFdiToothCodeEffect(a)
-
-      a.showInput = false
-      a.popVisible = false
+      if (a.titleName !== '多生牙') {
+        useFdiToothCodeEffect(a)
+        a.showInput = false
+        a.popVisible = false
+      } else if (a.titleName == '多生牙') {
+        selectedDsy.value = a.fdiToothCode.split(',')
+        selectedDsy.value.forEach((item) => {
+          dsyData.value.forEach((a) => {
+            if (item == a.supernumeraryTeethOrder) {
+              a.choosen = true
+            }
+          })
+        })
+      }
     })
   })
 
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
+      if (title.titleName == '下颌升支长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '-┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└-左短右长'
+      }
+      if (title.titleName == '下颌骨体长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '└- ---┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└--- -┘左短右长'
+      }
       if (title.type == 1) {
         title.optionId = ''
         title.text = ''
@@ -1394,6 +1475,7 @@ function handlePanoData(panoramicData) {
     })
   })
 }
+
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
@@ -1418,8 +1500,8 @@ async function getOrthPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6, 20)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+          codeTitleList.value = res.data.slice(7, 20)
           const other = res.data.slice(20)
           panoramicData.value[0].orthTitleList = [
             ...nonCodeTitleList,
@@ -1435,6 +1517,54 @@ async function getOrthPanoramicList() {
 
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
+  }
+}
+
+// 多生牙逻辑
+const maxTagCount = ref(1)
+const dsyData = ref()
+const getDsyData = async () => {
+  const res = await Get('/prod-api/emr/orthCommon/selectSupernumeraryTeeth')
+  dsyData.value = res.data
+}
+getDsyData()
+const selectedDsy = ref([])
+const handleChangeDsy = async (title, classId) => {
+  title.fdiToothCode = selectedDsy.value.join(',')
+  let obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: title.otherContent,
+    cephalometricsContent: '',
+    fdiToothCode: title.fdiToothCode,
+    showPosition: '',
+    aiFlag: '',
+    classId: classId,
+    owningModule: '全景片'
+  }
+  await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+}
+
+const options = ref(['Option1', 'Option2', 'Option3', 'Option4', 'Option5', 'Option6'])
+const handlePopupVisibleChange = (val) => {
+  const select = document.querySelector('.search-select')
+  console.log('🚀 ~ handlePopupVisibleChange ~ select:', select)
+  if (val) {
+    maxTagCount.value = 0
+  } else {
+    maxTagCount.value = 1
+  }
+}
+const handleSearch = (value) => {
+  if (value) {
+    loading.value = true
+    window.setTimeout(() => {
+      options.value = [`${value}-Option1`, `${value}-Option2`, `${value}-Option3`]
+      loading.value = false
+    }, 2000)
+  } else {
+    options.value = []
   }
 }
 
@@ -2711,6 +2841,37 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 </script>
 <style>
+.arco-select-option-selected {
+  img {
+    display: block;
+  }
+}
+.arco-select-view {
+  border-radius: 6px;
+}
+.arco-select-option-checkbox {
+  width: 100%;
+  &.arco-checkbox-checked {
+    .arco-checkbox-label {
+      color: #2e6ce4;
+    }
+  }
+}
+.arco-scrollbar-container.arco-select-dropdown-list-wrapper {
+  height: 180px;
+}
+.arco-checkbox-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.arco-checkbox-icon-hover {
+  display: none;
+}
+.arco-select-dropdown {
+  height: 180px !important;
+}
 .el-dialog {
   border-radius: 12px;
 }
@@ -3328,7 +3489,7 @@ img {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 420px 300px;
+      grid-template-columns: 480px 300px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;

@@ -538,7 +538,6 @@ async function getDataList() {
     // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
 
     data.value = Object.values(acc)
-    console.log(data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
@@ -579,7 +578,6 @@ async function getDataList() {
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           } else if (mouthImageList2.includes(cur.className)) {
-            console.log(cur.className)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
               imageUrl: cur.imageUrl
@@ -677,6 +675,9 @@ async function getDataList() {
   if (!data.value.find((item) => item.owningModule == '备注')) {
     data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
   }
+
+  const found = data.value.find((item) => item.owningModule == '问诊')
+  found.list = found.list.filter((item) => item.title_name !== '家长矫正意愿')
 }
 const schemeData = ref([])
 const getSchemeList = async () => {

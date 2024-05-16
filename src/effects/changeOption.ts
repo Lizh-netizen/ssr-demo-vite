@@ -1,5 +1,5 @@
 import { Post } from '../utils/request'
-//
+// 改变样式的
 const useChangeOption = (
   optionId: any,
   title: any,
@@ -70,6 +70,7 @@ const useChangeOption = (
     handleExclusiveOptions(title, 10)
     handleExclusiveOptions(title, 44)
     handleExclusiveOptions(title, 311)
+    handleExclusiveOptions(title, 321)
     // 正常和别的选项互斥逻辑
 
     title.orthOptionsList.forEach((option: any) => {
@@ -91,13 +92,6 @@ const useChangeOption = (
       title.optionId = [299]
       title.otherContent = ''
     }
-    title.orthOptionsList.forEach((option: any) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
   }
   if (title.type == 1) {
     // type 1 单选
