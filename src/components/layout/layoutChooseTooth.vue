@@ -47,7 +47,6 @@ watch(
 )
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
-  console.log(333)
   useSelectTooth(item, title)
   if (props.arrange) {
     handleArrangeTooth(item, title)

@@ -54,78 +54,16 @@ watch(
   (val) => {
     // 深拷贝是因为从左侧拖到右侧时改变右侧区域左侧区域会被同步更改
     data.value = JSON.parse(JSON.stringify(val.list))
-    console.log('🚀 ~ data.value:', data.value)
   },
 
   { deep: true }
 )
 watch(data, (val) => {
   data.value = val
-  console.log('🚀 ~ watch ~ data.value:', data.value)
 })
-
-// const onChange = (event) => {
-//   if (event.removed && event.removed.element) {
-//     const newItem = JSON.parse(JSON.stringify(event.removed.element))
-
-//     if (newItem.name.includes('拔牙')) {
-//       symptomList.value.forEach((row) => {
-//         row.forEach((a) => {
-//           a.active = false
-//         })
-//       })
-//       flag.value = true
-//       // 刚开始显示十字牙位时update一次，控制visible的显示
-//       emit('update', {
-//         data: data.value,
-//         removeFlag: true,
-//         planIndex: props.planIndex,
-//         stageIndex: props.stageIndex
-//       })
-//       return
-//     }
-//   }
-//   // 没牙位的时候
-//   if (event.added && event.added.element) {
-//     const newItem = JSON.parse(JSON.stringify(event.added.element))
-
-//     if (newItem.name == '拔牙') {
-//       showMask.value = true
-
-//       toothItem.value = newItem
-//       flag.value = true
-//       // 刚开始显示十字牙位时update一次，控制visible的显示
-//       emit('update', {
-//         data: data.value,
-//         flag: flag.value,
-//         planIndex: props.planIndex,
-//         stageIndex: props.stageIndex
-//       })
-//       flag.value = false
-//       return
-//     }
-//   }
-//   // 有牙位的时候
-//   if (event.added && event.added.element) {
-//     const newItem = JSON.parse(JSON.stringify(event.added.element))
-
-//     if (newItem.name.includes('拔牙')) {
-//       emit('update', {
-//         data: data.value,
-//         addFlag: true,
-//         planIndex: props.planIndex,
-//         stageIndex: props.stageIndex
-//       })
-//       return
-//     }
-//   }
-//   // 非拔牙的拖拽逻辑
-//   emit('update', { data: data.value })
-// }
 
 // 控制哪些可以拖拽，哪些不可以
 const onMove = (e, originalEvent) => {
-  console.log(e, originalEvent)
   if (
     (e.draggedContext.element.id,
     e.relatedContext.list.some((item) => item.id === e.draggedContext.element.id))
@@ -149,7 +87,6 @@ const elements = ref({
     }
   }
 })
-console.log('🚀 ~ elements:', elements)
 watch(elements, (newVal) => {
   put.value = newVal.put
   elements.value = newVal

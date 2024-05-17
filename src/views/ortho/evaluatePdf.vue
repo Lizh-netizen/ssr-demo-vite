@@ -178,7 +178,7 @@ const generatePDF = () => {
           perBlob,
           `${patientInfo.patientName}__正畸报告__${formattedDate}.pdf`
         )
-        console.log('entewr')
+
         Post('/prod-api/emr/upload', formData, true)
           .then((res) => {
             if (res.code == 200) {

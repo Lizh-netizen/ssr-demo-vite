@@ -5,42 +5,27 @@
       <span
         class="placeholder"
         v-if="props.placeholder"
-       :class="{
-         clicked: props.hasVal
-       }"
+        :class="{
+          clicked: props.hasVal
+        }"
         >{{ props.placeholder }}</span
       >
       <div class="suffix">{{ titleName === 'SPEE曲线' ? 'mm' : '%' }}</div>
     </div>
     <div class="showRange">
-      <div
-        class="range left"
-        :class="{ active: props.conclusion === props.left }"
-      >
+      <div class="range left" :class="{ active: props.conclusion === props.left }">
         <div class="text">{{ props.left }}</div>
       </div>
-      <div
-        class="range middle"
-        :class="{ active: props.conclusion === props.middle }"
-      >
+      <div class="range middle" :class="{ active: props.conclusion === props.middle }">
         <div class="text">{{ props.middle }}</div>
       </div>
-      <div
-        class="range right"
-        :class="{ active: props.conclusion === props.right }"
-      >
+      <div class="range right" :class="{ active: props.conclusion === props.right }">
         <div class="text">{{ props.right }}</div>
       </div>
-      <div
-        class="refNum firstRefNum"
-        :class="{ distanceNum: String(props.min).endsWith('m') }"
-      >
+      <div class="refNum firstRefNum" :class="{ distanceNum: String(props.min).endsWith('m') }">
         {{ props.min }}
       </div>
-      <div
-        class="refNum secondRefNum"
-        :class="{ distanceNum: String(props.max).endsWith('m') }"
-      >
+      <div class="refNum secondRefNum" :class="{ distanceNum: String(props.max).endsWith('m') }">
         {{ props.max }}
       </div>
     </div>
@@ -70,12 +55,9 @@ const input = ref(props.cephalometricsContent)
 
 const emit = defineEmits(['change'])
 const handleBlur = (e) => {
-  if (!input.value)
-    e.target.parentElement.children[1].classList?.remove('clicked')
+  if (!input.value) e.target.parentElement.children[1].classList?.remove('clicked')
 }
-const handleInput = (e) => {
-  console.log(e.target.value === '')
-}
+const handleInput = (e) => {}
 
 watch(input, (newVal) => {
   emit('change', newVal, props.value)

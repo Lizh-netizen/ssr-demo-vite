@@ -1108,7 +1108,6 @@ async function calculateFrontal2(pointList, classId, owningModule) {
 }
 // 计算面下
 async function calculateFrontal3(pointList, classId, owningModule) {
-  console.log(11)
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
@@ -1172,7 +1171,6 @@ async function getOrthFaceAccessList() {
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
 
   result.data.forEach((item) => {
-    console.log(23432, item.className)
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
@@ -1485,7 +1483,6 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  console.log(panoramicData.value)
 }
 
 // const lastApmtId  =ref()
@@ -1562,7 +1559,6 @@ const handleChangeDsy = async (title, classId) => {
 const options = ref(['Option1', 'Option2', 'Option3', 'Option4', 'Option5', 'Option6'])
 const handlePopupVisibleChange = (val) => {
   const select = document.querySelector('.search-select')
-  console.log('🚀 ~ handlePopupVisibleChange ~ select:', select)
   if (val) {
     maxTagCount.value = 0
   } else {
@@ -2805,33 +2801,7 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
   useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 
-// const handleSubmitTooth = (title) => {
-//   if (!title.submitAble) {
-//     return
-//   }
-
-//   let obj = {
-//     apmtId: appId,
-//     titleId: title.id,
-//     optionsIdStr: [],
-//     otherContent: '',
-//     cephalometricsContent: '',
-//     fdiToothCode: title.toothCode.join(),
-//     showPosition: JSON.stringify(title.position)
-//   }
-//   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
-//     title.submitAble = false
-//   })
-// }
 const handleSubmit = (optionId, title, classId, owningModule) => {
-  console.log(
-    '🚀 ~ handleSubmit ~ optionId, title, classId, owningModule:',
-    optionId,
-    title,
-    classId,
-    owningModule
-  )
-
   useUpdateOption(optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title, classId, owningModule) {

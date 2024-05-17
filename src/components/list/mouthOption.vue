@@ -437,7 +437,6 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
-  console.log(option)
   let obj
   if (option) {
     option.visible = false

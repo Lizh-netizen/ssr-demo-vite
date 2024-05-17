@@ -1548,7 +1548,6 @@ async function getDataList(appId) {
   facialData.value = data.value.find((item) => item.owningModule == '面型评估')
   panoData.value = data.value.find((item) => item.owningModule == '全景片')
   mouthDataPdf.value = data.value.find((item) => item.owningModule == '口内照')
-  console.log('🚀 ~ getDataList ~ mouthDataPdf.value:', mouthDataPdf.value)
 }
 // 得到当天日期
 const today = new Date()

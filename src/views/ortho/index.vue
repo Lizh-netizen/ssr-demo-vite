@@ -185,6 +185,7 @@ import {
   checkFugaiOptions,
   checkOrthoCheck,
   checkOptions,
+  checkPanoOptions,
   checkOrthFace,
   checkOrthImageUpload,
   checkModelOptions
@@ -227,7 +228,6 @@ const handleChangeStep = (num) => {
   } else {
     active.value = num
   }
-  console.log('🚀 ~ handleChangeStep ~ active.value:', active.value)
 }
 
 onMounted(() => {
@@ -458,13 +458,13 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-
+  console.log(345)
   const result =
     checkOrthFace(faceAccessData.value) &&
     checkFugaiOptions(mouthData.value) &&
-    checkOptions(panoramicData.value) &&
+    checkPanoOptions(panoramicData.value) &&
     checkOptions(cepha.value)
-
+  console.log(checkPanoOptions(panoramicData.value))
   return result
 }
 
