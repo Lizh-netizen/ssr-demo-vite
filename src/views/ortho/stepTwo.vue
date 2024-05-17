@@ -2842,21 +2842,14 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
     }
   }
 }
-.arco-scrollbar-container.arco-select-dropdown-list-wrapper {
-  height: 180px;
-}
+
 .arco-checkbox-label {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.arco-checkbox-icon-hover {
-  display: none;
-}
-.arco-select-dropdown {
-  height: 180px !important;
-}
+
 .el-dialog {
   border-radius: 12px;
 }
@@ -2878,6 +2871,15 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep(.arco-select-dropdown) {
+  height: 180px !important;
+}
+:deep(.arco-scrollbar-container.arco-select-dropdown-list-wrapper) {
+  height: 180px;
+}
+:deep(.arco-checkbox-icon-hover) {
+  display: none;
+}
 :deep(.el-input.blue) {
   .el-input__inner {
     color: #2e6ce4;

@@ -643,29 +643,13 @@ async function getPlanList() {
                 : []
             }))
     }))
-    // const defaultStage = ['3个月', '6个月', '9个月', '12个月']
-
-    // 不够的打上补丁
-    // planList.value.forEach((plan) => {
-    //   const length = plan.stageList?.length
-    //   if (plan.stageList?.length < 4) {
-    //     for (let i = 0; i < 4 - length; i++) {
-    //       plan.stageList.push({
-    //         stageName: defaultStage[length + i],
-    //         targetIds: [],
-    //         toolIds: [],
-    //         meritIds: [],
-    //         effectIds: []
-    //       })
-    //     }
-    //   }
-    // })
 
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         const filteredList = stage.targetIds.filter(
           (item) => item.name == '拔牙' || item.name == '个别牙反合纠正'
         )
+
         if (stage.showPosition && filteredList.length > 0) {
           filteredList.forEach((a) => {
             if (a) {
@@ -674,11 +658,14 @@ async function getPlanList() {
               a.bottomLeft = []
               a.bottomRight = []
             }
+            let arr
+            if (stage.toothCodeInfo[a.id]) {
+              arr = JSON.parse(stage.toothCodeInfo[a.id]?.showPosition)
+            }
 
-            const arr = JSON.parse(stage.showPosition)
-            if (stage.fdiToothCode) {
-              a.toothCode = stage.fdiToothCode.split(',')
-              stage.fdiToothCode.split(',').forEach((code, index) => {
+            if (stage.toothCodeInfo) {
+              a.toothCode = stage.toothCodeInfo[a.id]?.fdiToothCode.split(',')
+              stage.toothCodeInfo[a.id]?.fdiToothCode.split(',').forEach((code, index) => {
                 if (code.startsWith('1') || code.startsWith('5')) {
                   a.topLeft.push(arr[+index][0])
                 } else if (code.startsWith('2') || code.startsWith('6')) {
@@ -698,6 +685,7 @@ async function getPlanList() {
         }
       })
     })
+    console.log(planList.value)
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
@@ -963,15 +951,13 @@ const updateList = (val, plan, stageName, cardName) => {
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
-
+    console.log(val)
     // 刚开始选择牙位
     if (val.flag) {
       // 避免修改右侧数据影响左侧
       goalList.value.find((item) => (item.visible = false))
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const target = stage.targetIds.find((item) => item.name.includes('拔牙'))
-      const target1 = stage.targetIds.find((item) => item.name.includes('个别牙反合纠正'))
-
       const id = featureEffectList.value.find((item) => item.name == '拔牙').id
 
       if (!found.featureTagIds.some((i) => i == id) && target) {
@@ -982,6 +968,18 @@ const updateList = (val, plan, stageName, cardName) => {
         // 设置牙位
         useFdiToothCodeEffect(target)
       }
+
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
+    }
+    if (val.flag1) {
+      // 避免修改右侧数据影响左侧
+      goalList.value.find((item) => (item.visible = false))
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const target1 = stage.targetIds.find((item) => item.name.includes('个别牙反合纠正'))
       if (target1) {
         target1.visible = true
         useFdiToothCodeEffect(target1)
@@ -1023,9 +1021,9 @@ const updateList = (val, plan, stageName, cardName) => {
       stage.toolIds.splice(index, 1)
     }
   }
-  // 如果是拔牙，则先不提交
-  if (val.flag || val.addFlag) return
-  handleScheme(found).then(() => {
+  // 如果是拔牙/个别牙，则先不提交
+  if (val.flag || val.addFlag || val.flag1) return
+  handleScheme(found, val.name).then(() => {
     if (val.delete) {
       getOrthGoalList()
       // 也要重新请求一次planList
@@ -1375,7 +1373,7 @@ async function getRemark() {
 
 getRemark()
 
-const handleScheme = async (scheme) => {
+const handleScheme = async (scheme, valName) => {
   // 校验哪个计划的选择器没写
   let obj = {
     id: scheme.id || null,
@@ -1386,58 +1384,31 @@ const handleScheme = async (scheme) => {
     featureTagIds: scheme.featureTagIds?.join(','),
     primaryApplianceId: scheme.primaryApplianceId,
     stageList: scheme.stageList?.map((stage) => {
-      // stage.targetIds.forEach((target) => {
-      //   if (target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')) {
-      //     return {
-      //       id: stage.id || null,
-      //       fdiToothCode:
-      //         stage.targetIds &&
-      //         stage.targetIds
-      //           .filter(
-      //             (target) =>
-      //               target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')
-      //           )
-      //           ?.toothCode?.join(),
-      //       optionId:
-      //         stage.targetIds &&
-      //         stage.targetIds.find((target) => target.name?.includes('拔牙'))?.id,
-      //       showPosition:
-      //         stage.targetIds && stage.targetIds.find((target) => target.name?.includes('拔牙'))
-      //           ? JSON.stringify(
-      //               stage.targetIds.find((target) => target.name?.includes('拔牙'))?.position
-      //             )
-      //           : '',
-      //       stageName: stage.stageName,
-      //       targetIds: stage.targetIds?.map((target) => target.id)?.join(','),
-      //       toolIds: stage.toolIds?.map((tool) => tool.id)?.join(',')
-      //     }
-      //   }
-      // })
+      let toothCodeInfo = {}
+      const item1 = stage.targetIds.find((s) => s.name.includes('拔牙'))
+      const item2 = stage.targetIds.find((s) => s.name.includes('牙周'))
+      if (item1) {
+        toothCodeInfo[item1.id] = {
+          fdiToothCode: item1.toothCode?.join(),
+          showPosition: JSON.stringify(item1.position)
+        }
+      }
+      if (item2) {
+        toothCodeInfo[item2.id] = {
+          fdiToothCode: item2.toothCode?.join(),
+          showPosition: JSON.stringify(item2.position)
+        }
+      }
       return {
         id: stage.id || null,
+        toothCodeInfo: toothCodeInfo,
         fdiToothCode:
           stage.targetIds &&
-          stage.targetIds
-            .find(
-              (target) => target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')
-            )
-            ?.toothCode?.join(),
-        optionId:
-          stage.targetIds &&
-          stage.targetIds.find(
-            (target) => target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')
-          )?.id,
+          stage.targetIds.find((target) => target.name == valName)?.toothCode?.join(),
+        optionId: stage.targetIds && +stage.targetIds.find((target) => target.name == valName)?.id,
         showPosition:
-          stage.targetIds &&
-          stage.targetIds.find(
-            (target) => target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')
-          )
-            ? JSON.stringify(
-                stage.targetIds.find(
-                  (target) =>
-                    target.name?.includes('拔牙') || target.name?.includes('个别牙反合纠正')
-                )?.position
-              )
+          stage.targetIds && stage.targetIds.find((target) => target.name == valName)
+            ? JSON.stringify(stage.targetIds.find((target) => target.name == valName)?.position)
             : '',
         stageName: stage.stageName,
         targetIds: stage.targetIds?.map((target) => target.id)?.join(','),

@@ -209,7 +209,7 @@ const onChange = (event) => {
           a.active = false
         })
       })
-      flag.value = true
+      flag1.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
         data: data.value,
@@ -243,15 +243,15 @@ const onChange = (event) => {
       showMask.value = true
 
       toothItem.value = newItem
-      flag.value = true
+      flag1.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
         data: data.value,
-        flag: flag.value,
+        flag1: flag1.value,
         planIndex: props.planIndex,
         stageIndex: props.stageIndex
       })
-      flag.value = false
+      flag1.value = false
       return
     }
   }
@@ -329,8 +329,9 @@ const onMove = (e, originalEvent) => {
   }
   return true
 }
+// 区分拔牙和个别牙
 const flag = ref(false)
-
+const flag1 = ref(false)
 const put = ref(true)
 
 const elements = ref({
@@ -417,7 +418,8 @@ onMounted(() => {
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
-              stageIndex: props.stageIndex
+              stageIndex: props.stageIndex,
+              name: item.value.item.name
             })
 
             data.value.forEach((element) => {

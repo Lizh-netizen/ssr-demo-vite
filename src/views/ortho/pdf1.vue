@@ -677,7 +677,9 @@ async function getDataList() {
   }
 
   const found = data.value.find((item) => item.owningModule == '问诊')
-  found.list = found.list.filter((item) => item.title_name !== '家长矫正意愿')
+  if (found) {
+    found.list = found?.list.filter((item) => item.title_name !== '家长矫正意愿')
+  }
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
@@ -898,7 +900,7 @@ onMounted(() => {
     })
     main()
   }
-  //main()
+  // main()
 })
 </script>
 
