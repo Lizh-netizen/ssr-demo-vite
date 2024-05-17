@@ -376,14 +376,14 @@
                   <template v-if="index == 7">
                     <form-item :label="title.titleName" width="120px">
                       <a-select
+                        :disabled="!item.hasImage"
                         :style="{ width: '320px' }"
                         :loading="loading"
                         placeholder="请选择"
                         v-model="selectedDsy"
                         multiple
                         :class="{ 'w-[200px]!': maxTagCount == 1, 'w-[220px]!': maxTagCount == 0 }"
-                        @search="handleSearch"
-                        :filter-option="false"
+                        allow-search
                         :max-tag-count="maxTagCount"
                         @change="handleChangeDsy(title, item.id)"
                         @popup-visible-change="handlePopupVisibleChange"
@@ -391,7 +391,7 @@
                         <a-option v-for="item of dsyData" :value="item.supernumeraryTeethOrder"
                           >{{ item.supernumeraryTeeth
                           }}<img
-                            v-if="selectedDsy.includes(item.supernumeraryTeethOrder)"
+                            v-if="selectedDsy && selectedDsy.includes(item.supernumeraryTeethOrder)"
                             src="../../assets/svg/check.svg"
                         /></a-option>
                       </a-select>
@@ -854,7 +854,8 @@ const handleBlurInput = (title) => {
         cephalometricsList: [
           {
             titleId: title.id,
-            aiType: 2
+            aiType: 2,
+            classId: cephaClassId.value
           }
         ]
       })
@@ -1169,33 +1170,42 @@ async function getOrthFaceAccessList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+
   result.data.forEach((item) => {
+    console.log(23432, item.className)
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
       item.hasImage = true
       // 预加载如果没很快用到会有警告
-
-      if (item.className === '正面像') {
-        const preloadLink = document.createElement('link')
-        preloadLink.href = item.imageUrl
-        preloadLink.rel = 'preload'
-        preloadLink.as = 'image'
-        document.head.appendChild(preloadLink)
-        const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
-        const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
-        const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
-        // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
-
-        FrontalReposeImageUrl.value = item.imageUrl
-        const formData = new FormData()
-        formData.append('imageUrl', item.imageUrl)
-        // 如果有图片变化，则先调用算法接口
-      }
-      if (item.className == '正面微笑像') {
-        FrontalSmileImageUrl.value = item.imageUrl
-      }
     }
+    if (item.className === '正面像') {
+      const preloadLink = document.createElement('link')
+      preloadLink.href = item.imageUrl
+      preloadLink.rel = 'preload'
+      preloadLink.as = 'image'
+      document.head.appendChild(preloadLink)
+      const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
+      const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
+      // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
+
+      FrontalReposeImageUrl.value = item.imageUrl
+      const formData = new FormData()
+      formData.append('imageUrl', item.imageUrl)
+      // 如果有图片变化，则先调用算法接口
+    }
+    if (item.className == '正面微笑像') {
+      FrontalSmileImageUrl.value = item.imageUrl
+      const title = item.orthTitleList.find((a) => a.titleName == '𬌗平面')
+
+      const option1 = title.orthOptionsList.find((a) => a.optionName == '左高右低偏斜')
+
+      option1.optionName = '╱左高右低偏斜'
+      const option2 = title.orthOptionsList.find((a) => a.optionName == '左低右高偏斜')
+      option2.optionName = '╲左低右高偏斜'
+    }
+
     if (item.className == '90度侧面像') {
       savedTitleList.value = [...item.orthTitleList]
       const title1 = item.orthTitleList.find((title) => title.titleName == '凸面型表现')
@@ -1421,21 +1431,22 @@ function handlePanoData(panoramicData) {
         useFdiToothCodeEffect(a)
         a.showInput = false
         a.popVisible = false
-      } else if (a.titleName == '多生牙') {
-        selectedDsy.value = a.fdiToothCode.split(',')
-        selectedDsy.value.forEach((item) => {
-          dsyData.value.forEach((a) => {
-            if (item == a.supernumeraryTeethOrder) {
-              a.choosen = true
-            }
-          })
-        })
       }
     })
   })
 
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
+      if (title.titleName == '多生牙') {
+        selectedDsy.value = title.fdiToothCode?.split(',')
+        selectedDsy.value?.forEach((i) => {
+          dsyData.value.forEach((a) => {
+            if (i == a.supernumeraryTeethOrder) {
+              a.choosen = true
+            }
+          })
+        })
+      }
       if (title.titleName == '下颌升支长度') {
         const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
         option1.optionName = '-┘左长右短'
@@ -1474,6 +1485,7 @@ function handlePanoData(panoramicData) {
       }
     })
   })
+  console.log(panoramicData.value)
 }
 
 // const lastApmtId  =ref()
@@ -1541,7 +1553,8 @@ const handleChangeDsy = async (title, classId) => {
     showPosition: '',
     aiFlag: '',
     classId: classId,
-    owningModule: '全景片'
+    owningModule: '全景片',
+    optionSuffix: '牙位图'
   }
   await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
@@ -2004,7 +2017,8 @@ const handleZoomOutPic = (fromBtn) => {
         .filter((title) => title.changeCoor === true)
         .map((title) => ({
           titleId: title.id,
-          aiType: 1
+          aiType: 1,
+          classId: cephaClassId.value
         }))
       // 是坐标引起的变化
       Post('/prod-api/business/optionsResult/updateAIType', {
@@ -2781,7 +2795,8 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       cephalometricsList: [
         {
           titleId: title.id,
-          aiType: 3
+          aiType: 3,
+          classId: cephaClassId.value
         }
       ]
     })

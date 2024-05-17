@@ -122,6 +122,7 @@ const handleSelectTooth = (item, title) => {
   emit('toothClicked')
   useSelectTooth(item, props.title)
 }
+
 const handleSubmitTooth = (title) => {
   if (props.step == 2) {
     if (!title.submitAble) {
@@ -167,7 +168,6 @@ const handleSubmitTooth = (title) => {
 }
 const openPop = (title, item) => {
   // 如果没有图片，就不显示popover
-
   // 点击下一个十字牙位时，先吧之前的清空
 
   item.orthTitleList.forEach((t) => {
