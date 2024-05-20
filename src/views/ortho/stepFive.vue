@@ -1029,9 +1029,9 @@ const updateList = (val, plan, stageName, cardName) => {
       // 也要重新请求一次planList
     }
   })
-  if (cardName == 'tool') {
-    getOrthToolList()
-  }
+  // if (cardName == 'tool') {
+  //   getOrthToolList()
+  // }
   getOrthGoalList()
 }
 // 更改问题状态

@@ -3476,7 +3476,7 @@ img {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 480px 300px;
+      grid-template-columns: 480px 420px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;
