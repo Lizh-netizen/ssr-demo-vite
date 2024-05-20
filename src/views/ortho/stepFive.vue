@@ -1386,7 +1386,7 @@ const handleScheme = async (scheme, valName) => {
     stageList: scheme.stageList?.map((stage) => {
       let toothCodeInfo = {}
       const item1 = stage.targetIds.find((s) => s.name.includes('拔牙'))
-      const item2 = stage.targetIds.find((s) => s.name.includes('牙周'))
+      const item2 = stage.targetIds.find((s) => s.name.includes('个别牙反合纠正'))
       if (item1) {
         toothCodeInfo[item1.id] = {
           fdiToothCode: item1.toothCode?.join(),

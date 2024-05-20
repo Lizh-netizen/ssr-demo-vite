@@ -705,10 +705,12 @@ function transformData(data) {
         // 检查targetNames是否包含拔牙
         let targetName = stage.targetNames || ''
 
-        if (targetName.includes('拔牙')) {
+        if (targetName.includes('拔牙') || targetName.includes('个别牙反合纠正')) {
           const targets = targetName.split(',')
           const index = targetName.indexOf('拔牙')
-          targets.splice(index + 1, 0, stage.fdiToothCode)
+          targets.splice(index + 1, 0, '(' + stage.toothCodeInfo[138]?.fdiToothCode + ')')
+          const index1 = targetName.indexOf('个别牙反合纠正')
+          targets.splice(index1 + 1, 0, '(' + stage.toothCodeInfo[139]?.fdiToothCode + ')')
           // 如果包含拔牙，则将fdiToothCode添加到targetName后面并加上括号
           targetName = targets
         } else {
