@@ -685,7 +685,7 @@ async function getPlanList() {
         }
       })
     })
-    console.log(planList.value)
+
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
@@ -951,7 +951,7 @@ const updateList = (val, plan, stageName, cardName) => {
   const found = planList.value.find((item) => item.id == plan.id && item.name == plan.name)
   if (cardName == 'target') {
     found.stageList.find((item) => item.stageName == stageName).targetIds = val.data
-    console.log(val)
+
     // 刚开始选择牙位
     if (val.flag) {
       // 避免修改右侧数据影响左侧
@@ -1022,7 +1022,9 @@ const updateList = (val, plan, stageName, cardName) => {
     }
   }
   // 如果是拔牙/个别牙，则先不提交
-  if (val.flag || val.addFlag || val.flag1) return
+  if (val.flag || val.addFlag || val.flag1) {
+    sessionStorage.setItem('toothFlag', 'true')
+  }
   handleScheme(found, val.name).then(() => {
     if (val.delete) {
       getOrthGoalList()

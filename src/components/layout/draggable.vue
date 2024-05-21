@@ -410,7 +410,7 @@ onMounted(() => {
               stageIndex: props.stageIndex,
               name: item.value?.item?.name
             })
-
+            sessionStorage.setItem('toothFlag', 'false')
             data.value.forEach((element) => {
               element.visible = false
             })
