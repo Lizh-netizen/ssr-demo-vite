@@ -353,7 +353,7 @@
       </div>
     </div>
   </template>
-  <iframe :src="src" v-if="src" width="100%" height="600px"></iframe>
+  <iframe :src="src" v-if="src" width="100%" height="100%"></iframe>
 </template>
 
 <script setup>

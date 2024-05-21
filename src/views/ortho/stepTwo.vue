@@ -461,7 +461,7 @@
       }"
     >
       <div class="placeholderContainer">
-        <div class="image" :style="{ flex: cephaImage ? '1' : '0' }">
+        <div class="image">
           <canvas
             v-show="cephaImage"
             ref="myCanvas"
@@ -696,6 +696,7 @@ import { Post, Get, Put, Delete, Post1 } from '@/utils/request'
 import axios from 'axios'
 // import { Upload } from '@element-plus/icons-vue'
 // import { ElLoading, ElMessage } from 'element-plus'
+
 import {
   calculateFourPointsAngle,
   calculateThreePointsAngle,
@@ -722,6 +723,8 @@ import Option from '@/components/list/option.vue'
 import MouthOption from '@/components/list/mouthOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
 import PreviewImage from '../../components/list/previewImage.vue'
+import elementResizeDetectorMaker from 'element-resize-detector'
+import { ElMessage } from 'element-plus'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
@@ -736,7 +739,8 @@ const previewImageOwningModule = ref()
 const handlePreviewImage = (item) => {
   previewImageClassName.value = item.className
   previewImageOwningModule.value = item.owningModule
-
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
   previewImageId.value = item.imageId
   previewImageUrl.value = item.imageUrl
   showViewer.value = true
@@ -744,6 +748,8 @@ const handlePreviewImage = (item) => {
   header.style.position = 'static'
 }
 const handleCloseViewer = () => {
+  const page = document.querySelector('.ortho-page')
+  page.removeEventListener('mousewheel', preventDefault)
   header.style.position = 'sticky'
   showViewer.value = false
 }
@@ -789,6 +795,8 @@ const overlayName = ref('')
 const handleZoomPanoImage = () => {
   overlayRef.value.style.display = 'flex'
   zoomPano.value = true
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
   overlayName.value = '全景片'
 }
 const handleZoomOutPanoImage = () => {
@@ -800,7 +808,17 @@ const canvasMaxX = ref(window.innerWidth - 900)
 const ratio = 665 / 390
 const canvasMaxY = ref((canvasMaxX.value / ratio).toFixed(2))
 
-window.addEventListener('resize', () => {
+// 防抖函数
+function debounce(func, wait) {
+  let timeout
+  return function (...args) {
+    clearTimeout(timeout)
+    timeout = setTimeout(() => func.apply(this, args), wait)
+  }
+}
+
+// 初始化 canvas 的函数
+function initializeCanvas() {
   if (window.innerWidth < 1080) {
     return
   }
@@ -815,7 +833,13 @@ window.addEventListener('resize', () => {
     }))
     initCanvas(canvasMaxX.value, canvasMaxY.value, true)
   }
-})
+}
+
+// 使用防抖函数包装 resize 事件处理函数
+const debouncedResize = debounce(initializeCanvas, 200)
+
+// 添加事件监听器
+window.addEventListener('resize', debouncedResize)
 
 const handleBlurInput = (title) => {
   title.measured = true
@@ -1703,6 +1727,8 @@ const initZoomCanvas = () => {
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
   initZoomCanvas()
 }
 // 移动canvas点逻辑
@@ -1887,7 +1913,13 @@ const handleZoomOutCepha = (e) => {
     handleZoomOutPic(true)
   }
 }
+// 防止默认事件的具名函数
+const preventDefault = (e) => {
+  e.preventDefault()
+}
 const handleZoomOutPic = (fromBtn) => {
+  const page = document.querySelector('.ortho-page')
+  page.removeEventListener('mousewheel', preventDefault)
   // 判断是从全景片还是侧位片关闭的
   if (zoomPano.value) {
     overlayRef.value.style.display = 'none'
@@ -2150,6 +2182,11 @@ async function getPoints(file) {
       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+    } else {
+      ElMessage({
+        message: res.msg,
+        type: 'warning'
+      })
     }
   }
 }
