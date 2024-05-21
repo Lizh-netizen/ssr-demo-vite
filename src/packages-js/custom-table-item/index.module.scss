@@ -2,10 +2,10 @@
   display: flex;
   align-items: center;
 }
-.icon{
+.icon {
   display: flex;
   align-items: center;
-  justify-content: center
+  justify-content: center;
 }
 // 左边icon
 .leftIcon {
@@ -151,6 +151,7 @@
       .arco-dropdown-option-content {
         display: inline-flex;
         align-items: center;
+
         .item {
           background-color: rgba(46, 108, 228, 1);
           width: 98px;
@@ -165,6 +166,7 @@
             @include circle;
           }
         }
+
         .svg-icon.icon-check {
           color: #2e6ce4;
         }

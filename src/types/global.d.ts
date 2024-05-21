@@ -36,6 +36,7 @@ export type TableColumnData = {
   fixed?: boolean | string
   sortable?: boolean | string
   type?: ComponentType
+  textAlign?: 'center' | 'end' | 'left'
   iconOption?: {
     name: IconType | string
     secondName?: IconType | string
