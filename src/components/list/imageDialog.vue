@@ -4,6 +4,7 @@
       v-model="imgDialogVisible"
       title="影像管理"
       width="1183px"
+      align-center
       @close="handleCloseImgDialog"
       :close-on-click-modal="false"
     >
