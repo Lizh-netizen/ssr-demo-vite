@@ -8,6 +8,7 @@ async function useUpdateOption(
   owningModule: any,
   otherContent: any
 ) {
+  console.log(title)
   let obj
   if (title.type == 1) {
     obj = {
@@ -21,6 +22,11 @@ async function useUpdateOption(
       aiFlag: title.aiFlag,
       classId: classId,
       owningModule: owningModule
+    }
+    if (title.titleName == '骨龄') {
+      if (title.optionId !== 73 && title.optionId !== 74) {
+        obj.otherContent = ''
+      }
     }
   } else if (title.type == 2) {
     if (title.titleName === '矫治风险' && optionId.includes(237)) {

@@ -280,6 +280,9 @@ function validateRisk(riskData) {
   return riskData[0].orthTitleList[0].orthOptionsList.some((option) => option.choosen)
 }
 const handleGeneratePdf = async () => {
+  if (sessionStorage.getItem('toothFlag') == 'true') {
+    return
+  }
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({

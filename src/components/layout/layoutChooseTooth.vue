@@ -41,10 +41,12 @@ const symptomList = ref(props.symptomList)
 watch(
   props,
   (val) => {
+    console.log(val)
     symptomList.value = val.symptomList
   },
   { deep: true }
 )
+console.log(123123)
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)
@@ -65,7 +67,7 @@ const handleArrangeTooth = (item, title) => {
   }
   // 删除牙位信息
   else {
-    if (title.name.includes(';')) {
+    if (title.name.includes(';') && title.name.includes('拔牙')) {
       // 将输入字符串拆分为数组
       const teeth = title.name.slice(3, -1).split(';')
       // 查找要移除的牙齿在数组中的索引
@@ -76,6 +78,17 @@ const handleArrangeTooth = (item, title) => {
       }
       // 将更新后的牙齿数组重新连接成字符串
       title.name = `拔牙(${teeth.join(';')})`
+    } else if (title.name.includes(';') && title.name.includes('个别牙反合纠正')) {
+      // 将输入字符串拆分为数组
+      const teeth = title.name.slice(8, -1).split(';')
+      // 查找要移除的牙齿在数组中的索引
+      const toothIndex = teeth.indexOf(item.value.toString())
+      // 如果牙齿存在，则将其移除
+      if (toothIndex !== -1) {
+        teeth.splice(toothIndex, 1)
+      }
+      // 将更新后的牙齿数组重新连接成字符串
+      title.name = `个别牙反合纠正(${teeth.join(';')})`
     } else {
       title.name = title.name.replace('(' + String(item.value) + ')', '')
     }
