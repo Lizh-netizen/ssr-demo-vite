@@ -859,7 +859,7 @@ const tabData = ref([
   //   right_text: '需要矫正人数'
   // },
   {
-    svg_name: 'cardSvg1',
+    svg_name: 'cardSvg2',
     name: '面评',
     left_num: 0,
     right_num: 0,

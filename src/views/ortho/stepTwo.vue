@@ -152,11 +152,7 @@
         </ImageItem>
       </template>
     </div>
-    <Header
-      text="全景片"
-      @dblclick.prevent.stop="handleDblClick"
-      @click.prevent.stop="console.log(11)"
-    />
+    <Header text="全景片" @dblclick.prevent.stop="handleDblClick" />
     <div class="content panoramic">
       <template v-for="item in panoramicData" :key="item.id">
         <div class="placeholderContainer">
@@ -264,7 +260,7 @@
               </div>
               <div class="right-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index <= 5 && index >= 3">
+                  <template v-if="index <= 6 && index >= 4">
                     <form-item :label="title.titleName" width="120px">
                       <el-radio-group
                         v-if="title.type == 1"
@@ -340,9 +336,72 @@
                   </template>
                 </template>
               </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 3">
+                    <form-item :label="title.titleName" width="120px">
+                      <el-radio-group
+                        v-model="title.optionId"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
+                        @dblclick="
+                          handleEmptyRadio(title.optionId, title, item.id, item.owningModule)
+                        "
+                      >
+                        <el-radio-button
+                          :disabled="!panoramicData[0].hasImage"
+                          :class="{
+                            serious: option.serious == '1',
+                            checked: option.choosen === true
+                          }"
+                          v-for="option in title.orthOptionsList"
+                          :key="option.id"
+                          :label="option.id"
+                        >
+                          {{ option.optionName }}
+                        </el-radio-button>
+                      </el-radio-group>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 7">
+                    <form-item :label="title.titleName" width="120px">
+                      <a-select
+                        :disabled="!item.hasImage"
+                        :style="{ width: '320px' }"
+                        :loading="loading"
+                        placeholder="请选择"
+                        v-model="selectedDsy"
+                        multiple
+                        :class="{ 'w-[200px]!': maxTagCount == 1, 'w-[220px]!': maxTagCount == 0 }"
+                        allow-search
+                        :max-tag-count="maxTagCount"
+                        @change="handleChangeDsy(title, item.id)"
+                        @popup-visible-change="handlePopupVisibleChange"
+                      >
+                        <a-option v-for="item of dsyData" :value="item.supernumeraryTeethOrder"
+                          >{{ item.supernumeraryTeeth
+                          }}<img
+                            v-if="selectedDsy && selectedDsy.includes(item.supernumeraryTeethOrder)"
+                            src="../../assets/svg/check.svg"
+                        /></a-option>
+                      </a-select>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 6 && index <= 12">
+                  <template v-if="index >= 8 && index <= 14">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -358,7 +417,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 13 && index <= 19">
+                  <template v-if="index >= 15 && index <= 20">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -796,7 +855,8 @@ const handleBlurInput = (title) => {
         cephalometricsList: [
           {
             titleId: title.id,
-            aiType: 2
+            aiType: 2,
+            classId: cephaClassId.value
           }
         ]
       })
@@ -1049,7 +1109,6 @@ async function calculateFrontal2(pointList, classId, owningModule) {
 }
 // 计算面下
 async function calculateFrontal3(pointList, classId, owningModule) {
-  console.log(11)
   const bottomTitle = faceAccessData.value[0].orthTitleList[4]
   bottomTitle.aiFlag = '1'
   bottomTitle.aiTest = true
@@ -1111,33 +1170,41 @@ async function getOrthFaceAccessList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+
   result.data.forEach((item) => {
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
       item.hasImage = true
       // 预加载如果没很快用到会有警告
-
-      if (item.className === '正面像') {
-        const preloadLink = document.createElement('link')
-        preloadLink.href = item.imageUrl
-        preloadLink.rel = 'preload'
-        preloadLink.as = 'image'
-        document.head.appendChild(preloadLink)
-        const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
-        const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
-        const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
-        // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
-
-        FrontalReposeImageUrl.value = item.imageUrl
-        const formData = new FormData()
-        formData.append('imageUrl', item.imageUrl)
-        // 如果有图片变化，则先调用算法接口
-      }
-      if (item.className == '正面微笑像') {
-        FrontalSmileImageUrl.value = item.imageUrl
-      }
     }
+    if (item.className === '正面像') {
+      const preloadLink = document.createElement('link')
+      preloadLink.href = item.imageUrl
+      preloadLink.rel = 'preload'
+      preloadLink.as = 'image'
+      document.head.appendChild(preloadLink)
+      const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
+      const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
+      // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
+
+      FrontalReposeImageUrl.value = item.imageUrl
+      const formData = new FormData()
+      formData.append('imageUrl', item.imageUrl)
+      // 如果有图片变化，则先调用算法接口
+    }
+    if (item.className == '正面微笑像') {
+      FrontalSmileImageUrl.value = item.imageUrl
+      const title = item.orthTitleList.find((a) => a.titleName == '𬌗平面')
+
+      const option1 = title.orthOptionsList.find((a) => a.optionName == '左高右低偏斜')
+
+      option1.optionName = '╱左高右低偏斜'
+      const option2 = title.orthOptionsList.find((a) => a.optionName == '左低右高偏斜')
+      option2.optionName = '╲左低右高偏斜'
+    }
+
     if (item.className == '90度侧面像') {
       savedTitleList.value = [...item.orthTitleList]
       const title1 = item.orthTitleList.find((title) => title.titleName == '凸面型表现')
@@ -1359,15 +1426,38 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
-      useFdiToothCodeEffect(a)
-
-      a.showInput = false
-      a.popVisible = false
+      if (a.titleName !== '多生牙') {
+        useFdiToothCodeEffect(a)
+        a.showInput = false
+        a.popVisible = false
+      }
     })
   })
 
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
+      if (title.titleName == '多生牙') {
+        selectedDsy.value = title.fdiToothCode?.split(',')
+        selectedDsy.value?.forEach((i) => {
+          dsyData.value.forEach((a) => {
+            if (i == a.supernumeraryTeethOrder) {
+              a.choosen = true
+            }
+          })
+        })
+      }
+      if (title.titleName == '下颌升支长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '-┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└-左短右长'
+      }
+      if (title.titleName == '下颌骨体长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '└- ---┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└--- -┘左短右长'
+      }
       if (title.type == 1) {
         title.optionId = ''
         title.text = ''
@@ -1395,6 +1485,7 @@ function handlePanoData(panoramicData) {
     })
   })
 }
+
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
@@ -1419,8 +1510,8 @@ async function getOrthPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6, 20)
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+          codeTitleList.value = res.data.slice(7, 20)
           const other = res.data.slice(20)
           panoramicData.value[0].orthTitleList = [
             ...nonCodeTitleList,
@@ -1436,6 +1527,54 @@ async function getOrthPanoramicList() {
 
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
+  }
+}
+
+// 多生牙逻辑
+const maxTagCount = ref(1)
+const dsyData = ref()
+const getDsyData = async () => {
+  const res = await Get('/prod-api/emr/orthCommon/selectSupernumeraryTeeth')
+  dsyData.value = res.data
+}
+getDsyData()
+const selectedDsy = ref([])
+const handleChangeDsy = async (title, classId) => {
+  title.fdiToothCode = selectedDsy.value.join(',')
+  let obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: title.otherContent,
+    cephalometricsContent: '',
+    fdiToothCode: title.fdiToothCode,
+    showPosition: '',
+    aiFlag: '',
+    classId: classId,
+    owningModule: '全景片',
+    optionSuffix: '牙位图'
+  }
+  await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+}
+
+const options = ref(['Option1', 'Option2', 'Option3', 'Option4', 'Option5', 'Option6'])
+const handlePopupVisibleChange = (val) => {
+  const select = document.querySelector('.search-select')
+  if (val) {
+    maxTagCount.value = 0
+  } else {
+    maxTagCount.value = 1
+  }
+}
+const handleSearch = (value) => {
+  if (value) {
+    loading.value = true
+    window.setTimeout(() => {
+      options.value = [`${value}-Option1`, `${value}-Option2`, `${value}-Option3`]
+      loading.value = false
+    }, 2000)
+  } else {
+    options.value = []
   }
 }
 
@@ -1875,7 +2014,8 @@ const handleZoomOutPic = (fromBtn) => {
         .filter((title) => title.changeCoor === true)
         .map((title) => ({
           titleId: title.id,
-          aiType: 1
+          aiType: 1,
+          classId: cephaClassId.value
         }))
       // 是坐标引起的变化
       Post('/prod-api/business/optionsResult/updateAIType', {
@@ -2652,7 +2792,8 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       cephalometricsList: [
         {
           titleId: title.id,
-          aiType: 3
+          aiType: 3,
+          classId: cephaClassId.value
         }
       ]
     })
@@ -2661,33 +2802,7 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
   useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 
-// const handleSubmitTooth = (title) => {
-//   if (!title.submitAble) {
-//     return
-//   }
-
-//   let obj = {
-//     apmtId: appId,
-//     titleId: title.id,
-//     optionsIdStr: [],
-//     otherContent: '',
-//     cephalometricsContent: '',
-//     fdiToothCode: title.toothCode.join(),
-//     showPosition: JSON.stringify(title.position)
-//   }
-//   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
-//     title.submitAble = false
-//   })
-// }
 const handleSubmit = (optionId, title, classId, owningModule) => {
-  console.log(
-    '🚀 ~ handleSubmit ~ optionId, title, classId, owningModule:',
-    optionId,
-    title,
-    classId,
-    owningModule
-  )
-
   useUpdateOption(optionId, title, appId, classId, owningModule)
 }
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
@@ -2712,6 +2827,30 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 </script>
 <style>
+.arco-select-option-selected {
+  img {
+    display: block;
+  }
+}
+.arco-select-view {
+  border-radius: 6px;
+}
+.arco-select-option-checkbox {
+  width: 100%;
+  &.arco-checkbox-checked {
+    .arco-checkbox-label {
+      color: #2e6ce4;
+    }
+  }
+}
+
+.arco-checkbox-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .el-dialog {
   border-radius: 12px;
 }
@@ -2733,6 +2872,15 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep(.arco-select-dropdown) {
+  height: 180px !important;
+}
+:deep(.arco-scrollbar-container.arco-select-dropdown-list-wrapper) {
+  height: 180px;
+}
+:deep(.arco-checkbox-icon-hover) {
+  display: none;
+}
 :deep(.el-input.blue) {
   .el-input__inner {
     color: #2e6ce4;
@@ -3341,7 +3489,7 @@ img {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 420px 300px;
+      grid-template-columns: 480px 420px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;

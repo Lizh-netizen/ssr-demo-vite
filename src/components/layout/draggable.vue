@@ -203,6 +203,22 @@ const onChange = (event) => {
       })
       return
     }
+    if (newItem.name.includes('个别牙反合纠正')) {
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
+      flag1.value = true
+      // 刚开始显示十字牙位时update一次，控制visible的显示
+      emit('update', {
+        data: data.value,
+        removeFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      return
+    }
   }
   // 没牙位的时候
   if (event.added && event.added.element) {
@@ -223,12 +239,36 @@ const onChange = (event) => {
       flag.value = false
       return
     }
+    if (newItem.name == '个别牙反合纠正') {
+      showMask.value = true
+
+      toothItem.value = newItem
+      flag1.value = true
+      // 刚开始显示十字牙位时update一次，控制visible的显示
+      emit('update', {
+        data: data.value,
+        flag1: flag1.value,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      flag1.value = false
+      return
+    }
   }
   // 有牙位的时候
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
 
     if (newItem.name.includes('拔牙')) {
+      emit('update', {
+        data: data.value,
+        addFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      return
+    }
+    if (newItem.name.includes('个别牙反合纠正')) {
       emit('update', {
         data: data.value,
         addFlag: true,
@@ -289,8 +329,9 @@ const onMove = (e, originalEvent) => {
   }
   return true
 }
+// 区分拔牙和个别牙
 const flag = ref(false)
-
+const flag1 = ref(false)
 const put = ref(true)
 
 const elements = ref({
@@ -347,7 +388,9 @@ onMounted(() => {
       if (e.target !== popover) {
         if (data.value.length > 0 && props.planTarget) {
           toothFlag.value = data.value.some(
-            (element) => element.toothCode?.length == 0 && element.name == '拔牙'
+            (element) =>
+              element.toothCode?.length == 0 &&
+              (element.name == '拔牙' || element.name == '个别牙反合纠正')
           )
           // 存在没有选牙位的拔牙选项，出现mask，并且给提醒
           if (toothFlag.value) {
@@ -375,7 +418,8 @@ onMounted(() => {
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
-              stageIndex: props.stageIndex
+              stageIndex: props.stageIndex,
+              name: item.value.item.name
             })
 
             data.value.forEach((element) => {

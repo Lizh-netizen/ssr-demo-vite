@@ -756,7 +756,6 @@ const handleDragStart1 = (img) => {
 }
 // 从左侧拖到右侧
 const handleDragStart = (file, event) => {
-  console.log(`output->file`, file)
   if (file.file) {
     // 本地上传的图片
     event.dataTransfer.setData('text/plain', file)

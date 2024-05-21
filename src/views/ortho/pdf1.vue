@@ -561,7 +561,6 @@ async function getDataList() {
             })
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           } else if (mouthImageList2.includes(cur.className)) {
-            console.log(cur.className)
             acc[cur.owningModule].imageList2.push({
               className: cur.className,
               imageUrl: cur.imageUrl
@@ -659,11 +658,17 @@ async function getDataList() {
   if (!data.value.find((item) => item.owningModule == '备注')) {
     data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
   }
+
+  const found = data.value.find((item) => item.owningModule == '问诊')
+  if (found) {
+    found.list = found?.list.filter((item) => item.title_name !== '家长矫正意愿')
+  }
 }
 const schemeData = ref([])
 const getSchemeList = async () => {
   const res = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
   schemeData.value = transformData(res.data)
+  console.log('🚀 ~ getSchemeList ~ schemeData.value:', schemeData.value)
 
   schemeData.value.forEach((scheme) => {
     scheme.featureList = featureList.value.filter((feature) => {
@@ -682,22 +687,24 @@ function transformData(data) {
       // 如果 targetIds 或 toolIds 为空，则不添加该阶段
       if (stage.targetIds || stage.toolIds) {
         // 检查targetNames是否包含拔牙
-        let targetName = stage.targetNames || ''
+        let goalList = []
 
-        if (targetName.includes('拔牙')) {
-          const targets = targetName.split(',')
-          const index = targetName.indexOf('拔牙')
-          targets.splice(index + 1, 0, stage.fdiToothCode)
-          // 如果包含拔牙，则将fdiToothCode添加到targetName后面并加上括号
-          targetName = targets
-        } else {
-          const targets = targetName.split(',')
-          targetName = targets
+        if (stage.targetNames) {
+          goalList = stage.targetNames.split(',').map((targetName) => {
+            if (targetName === '拔牙' || targetName === '个别牙反合纠正') {
+              const toothCode =
+                stage.toothCodeInfo[targetName === '拔牙' ? '138' : '139']?.fdiToothCode
+              if (toothCode) {
+                return `${targetName}(${toothCode})`
+              }
+            }
+            return targetName
+          })
         }
 
         acc.push({
           stageName: stage.stageName,
-          goalList: targetName,
+          goalList: goalList,
           toolList: stage.toolNames
         })
       }
