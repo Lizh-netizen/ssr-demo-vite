@@ -617,13 +617,14 @@
   <div class="overlay" ref="overlayRef" @click="handleZoomOutCepha">
     <div class="overlay__header">{{ overlayName }}</div>
     <div class="overlay__mask"></div>
-    <img
-      class="zoomPanoImage"
-      :src="panoImageUrl"
-      :style="{ cursor: 'pointer' }"
-      @click="handleZoomOutPanoImage"
-      v-if="zoomPano"
-    />
+    <div class="overlay__photo" v-if="zoomPano">
+      <img
+        class="zoomPanoImage"
+        :src="panoImageUrl"
+        :style="{ cursor: 'pointer' }"
+        @click="handleZoomOutPanoImage"
+      />
+    </div>
     <canvas id="myZoomCanvas" @click="handleZoomOutPic" v-if="!zoomPano"></canvas>
     <img
       src="@/assets/svg/close.svg"
@@ -3067,6 +3068,18 @@ img {
     left: 10px;
     font-weight: bold;
     font-size: 16px;
+  }
+
+  &__photo {
+    height: 80vh;
+    width: 90vw;
+    border-radius: 5px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
   }
 }
 .dragging {

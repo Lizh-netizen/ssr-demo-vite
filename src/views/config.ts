@@ -48,7 +48,8 @@ export const columns_config_evaluate = [
       { name: 'failed', prop: 'completeStatus', color: 'Warning', value: null },
       { name: 'success', prop: 'completeStatus', color: 'Alarm', value: '1' },
       { name: 'halfComplete', prop: 'completeStatus', color: 'Warning', value: '99' }
-    ]
+    ],
+    textAlign: 'center'
   },
   { title: '面评建议', prop: 'facialAdvise', slotName: 'facialAdvise' },
   {
@@ -97,7 +98,8 @@ export const columns_config_ortho = [
       { name: 'failed', prop: 'completeStatus', color: 'Warning', value: null },
       { name: 'success', prop: 'completeStatus', color: 'Alarm', value: '1' },
       { name: 'halfComplete', prop: 'completeStatus', color: 'Warning', value: '99' }
-    ]
+    ],
+    textAlign: 'center'
   },
   {
     title: '快筛',
