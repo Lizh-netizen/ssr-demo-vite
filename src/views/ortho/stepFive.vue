@@ -17,9 +17,10 @@
         </div>
       </div>
       <div class="body pb-[16px]">
+        <!-- content -->
         <div
           class="body-left content"
-          :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '610px' : '390px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
@@ -1532,7 +1533,7 @@ defineExpose({
     margin-right: 20px;
     position: sticky;
     top: 72px;
-    overflow: scroll;
+    overflow: hidden;
     :deep(.list-group-item) {
       margin-right: 0;
     }

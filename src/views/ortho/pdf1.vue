@@ -2,10 +2,10 @@
   <!-- <template v-if="!src"> -->
   <div class="pdfContent" :style="{ display: 'none' }">
     <div class="pdfPage">
-      <img class="background" src="../../assets/pdfTemplate/frontCover.png" />
+      <img class="background" src="@/assets/pdfTemplate/frontCover.png" />
       <div class="title">
         <div>
-          <div class="Chinese"><img src="../../assets/pdfTemplate/title.svg" /></div>
+          <div class="Chinese"><img src="@/assets/pdfTemplate/title.svg" /></div>
           <div class="font-size-[24px] mb-[33px]!">（含治疗计划）</div>
 
           <div class="item">
@@ -30,14 +30,26 @@
     <template v-for="item in data" :key="item.id">
       <template v-if="item.owningModule === '问诊'">
         <div class="pdfPage">
-          <img class="background" src="../../assets/pdfTemplate/template1.png" />
+          <img class="background" src="@/assets/pdfTemplate/template1.png" />
           <Header text="基础信息" />
           <el-row class="flex mb-[10px]!">
             <img
               :src="imgCover + `?random=${Math.random()}`"
               class="h-[134px]! w-[89px]!"
               crossOrigin="anonymous"
+              v-if="imgCover"
             />
+            <img
+              class="h-[134px]! w-[89px]!"
+              src="@/assets/imgs/avatar-boy.png"
+              v-else-if="!imgCover && patientInfo.Sex == 1"
+            />
+            <img
+              class="h-[134px]! w-[89px]!"
+              src="@/assets/imgs/avatar-girl.png"
+              v-else-if="!imgCover && patientInfo.Sex == 2"
+            />
+
             <div class="personalInfo">
               <div class="item">
                 <div class="label">姓名</div>
@@ -246,7 +258,7 @@
             />
             <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
           </div>
-          <div class="content blueBackground">
+          <div class="content blueBackground" v-show="item.list.length > 0">
             <list :list="item.list" />
           </div>
         </div>
@@ -331,7 +343,7 @@
       </template>
     </template>
     <div class="last-page">
-      <img class="background" src="../../assets/pdfTemplate/endCover.png" />
+      <img class="background" src="@/assets/pdfTemplate/endCover.png" />
     </div>
   </div>
   <!-- </template> -->
@@ -408,9 +420,9 @@ const faceImageList1 = [
   '正面像',
   '正面微笑像',
   '90度侧面像',
+  '90度侧面微笑像',
   '45度侧面像',
-  '45度侧面微笑像',
-  '90度侧面微笑像'
+  '45度侧面微笑像'
 ]
 const mouthImageList1 = ['正面咬合', '前牙覆盖']
 const mouthImageList2 = ['口内照（左侧）', '口内照（右侧）']
@@ -494,11 +506,13 @@ async function getDataList() {
               serious: cur.serious
             })
           } else {
-            acc[cur.owningModule].list.push({
-              title_name: cur.titleName,
-              option_names: cur.optionsNames,
-              serious: cur.serious
-            })
+            if (cur.titleName || cur.optionsNames) {
+              acc[cur.owningModule].list.push({
+                title_name: cur.titleName,
+                option_names: cur.optionsNames,
+                serious: cur.serious
+              })
+            }
           }
         }
       } else if (
@@ -517,19 +531,19 @@ async function getDataList() {
       }
       return acc
     }, {})
-    // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
 
+    // 得到的数组按照order的顺序，除了面型评估和口内照其他的每个一个item, 然后对面型评估和口内照进行合并
     data.value = Object.values(acc)
-    console.log('data', data.value)
     data.value.sort(sort)
     const reduced = data.value.reduce((acc, cur) => {
       if (cur.owningModule == '面型评估') {
         if (acc[cur.owningModule]) {
           if (faceImageList1.includes(cur.className)) {
-            acc[cur.owningModule].imageList1.push({
+            const index = faceImageList1.indexOf(cur.className)
+            acc[cur.owningModule].imageList1[index] = {
               className: cur.className,
               imageUrl: cur.imageUrl
-            })
+            }
             acc[cur.owningModule].list1 = acc[cur.owningModule].list1.concat(cur.list)
           }
         } else {
@@ -539,10 +553,11 @@ async function getDataList() {
           acc[cur.owningModule].imageList2 = []
           acc[cur.owningModule].list2 = []
           if (faceImageList1.includes(cur.className)) {
-            acc[cur.owningModule].imageList1.push({
+            const index = faceImageList1.indexOf(cur.className)
+            acc[cur.owningModule].imageList1[index] = {
               className: cur.className,
               imageUrl: cur.imageUrl
-            })
+            }
             acc[cur.owningModule].list1 = cur.list
           } else {
             acc[cur.owningModule].imageList2.push({

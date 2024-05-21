@@ -168,9 +168,7 @@ const handleSubmitTooth = (title) => {
 }
 const openPop = (title, item) => {
   // 如果没有图片，就不显示popover
-  // 点击下一个十字牙位时，先吧之前的清空
-
-  item.orthTitleList.forEach((t) => {
+  item.orthTitleList?.forEach((t) => {
     if (title !== t) {
       t.popVisible = false
     }
@@ -186,9 +184,10 @@ onMounted(() => {
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
+    console.log(`output->e.target`, e.target)
     if (popover) {
       if (e.target !== popover && !popover.contains(e.target) && data.value) {
-        const index = data.value.orthTitleList.findIndex((title) => title.popVisible)
+        const index = data.value.orthTitleList?.findIndex((title) => title.popVisible)
 
         if (index !== -1) {
           data.value.orthTitleList[index].popVisible = false
