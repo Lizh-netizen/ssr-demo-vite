@@ -49,6 +49,7 @@
                 src="@/assets/imgs/avatar-girl.png"
                 v-else-if="!imgCover && patientInfo.Sex == 2"
               />
+              <img class="h-[134px]! w-[89px]!" src="@/assets/imgs/avatar.png" v-else />
 
               <div class="personalInfo">
                 <div class="item">
@@ -358,7 +359,7 @@
       </div>
     </div>
   </template>
-  <iframe :src="src" v-if="src" width="100%" height="600px"></iframe>
+  <iframe :src="src" v-if="src" width="100%" height="100%"></iframe>
 </template>
 
 <script setup>
