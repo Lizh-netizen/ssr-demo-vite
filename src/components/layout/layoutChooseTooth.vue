@@ -41,12 +41,10 @@ const symptomList = ref(props.symptomList)
 watch(
   props,
   (val) => {
-    console.log(val)
     symptomList.value = val.symptomList
   },
   { deep: true }
 )
-console.log(123123)
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
   useSelectTooth(item, title)

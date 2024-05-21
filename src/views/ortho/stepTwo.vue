@@ -212,19 +212,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -290,19 +278,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -3513,7 +3489,7 @@ img {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 480px 420px;
+      grid-template-columns: 480px 360px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;

@@ -1024,6 +1024,7 @@ const updateList = (val, plan, stageName, cardName) => {
   // 如果是拔牙/个别牙，则先不提交
   if (val.flag || val.addFlag || val.flag1) {
     sessionStorage.setItem('toothFlag', 'true')
+    return
   }
   handleScheme(found, val.name).then(() => {
     if (val.delete) {
