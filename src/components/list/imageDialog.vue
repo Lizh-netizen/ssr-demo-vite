@@ -924,6 +924,9 @@ const handleCloseImgDialog = () => {
 </script>
 
 <style scoped lang="scss">
+.imageDialog {
+  position: relative;
+}
 .message {
   position: absolute;
   top: 20%;
@@ -946,7 +949,8 @@ const handleCloseImgDialog = () => {
     opacity: 0.3;
   }
   .filterBtn {
-    width: 60px;
+    // width: 60px;
+    padding: 0 16px;
     height: 30px;
     border-radius: 16px;
     display: flex;
