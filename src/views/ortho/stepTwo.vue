@@ -785,38 +785,8 @@ const canvasMaxX = ref(window.innerWidth - 900)
 const ratio = 665 / 390
 const canvasMaxY = ref((canvasMaxX.value / ratio).toFixed(2))
 
-// 防抖函数
-function debounce(func, wait) {
-  let timeout
-  return function (...args) {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func.apply(this, args), wait)
-  }
-}
-
-// 初始化 canvas 的函数
-function initializeCanvas() {
-  if (window.innerWidth < 1080) {
-    return
-  }
-  const canvas = document.getElementById('myCanvas')
-  if (canvas) {
-    canvasMaxX.value = window.innerWidth - 900
-    canvasMaxY.value = (canvasMaxX.value / ratio).toFixed(2)
-    coordinatesSmall.value = coordinatesBase.value.map((point) => ({
-      label: point.label,
-      x: point.x * canvasMaxX.value,
-      y: point.y * canvasMaxY.value
-    }))
-    initCanvas(canvasMaxX.value, canvasMaxY.value, true)
-  }
-}
-
-// 使用防抖函数包装 resize 事件处理函数
-const debouncedResize = debounce(initializeCanvas, 200)
-
 // 添加事件监听器
-window.addEventListener('resize', debouncedResize)
+window.addEventListener('resize', () => initCanvas(canvasMaxX.value, canvasMaxY.value, true))
 
 const handleBlurInput = (title) => {
   title.measured = true
@@ -1704,6 +1674,7 @@ const initZoomCanvas = () => {
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
+
   const page = document.querySelector('.ortho-page')
   page.addEventListener('mousewheel', preventDefault)
   initZoomCanvas()

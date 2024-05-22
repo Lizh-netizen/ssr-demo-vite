@@ -249,8 +249,15 @@
           <div class="pdfPage flexPdfPage">
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
-            <div class="imgBox imageBox" :class="{ cepha: item.owningModule === '侧位片' }">
-              <div class="imageCaption" v-if="item.imageUrl">
+            <div
+              class="imgBox imageBox"
+              :class="{
+                cepha: item.owningModule === '侧位片',
+                pano: item.owningModule === '全景片',
+                hasBackGround: item.imageUrl
+              }"
+            >
+              <div class="imageCaption">
                 {{ item.className }}
               </div>
               <img
@@ -260,7 +267,7 @@
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
             </div>
             <div class="content blueBackground" v-show="item.list.length > 0">
               <list :list="item.list" />
@@ -967,10 +974,17 @@ body {
   margin: 0;
 }
 .cepha {
-  background: #060606;
   border-radius: 12px;
   display: flex;
   justify-content: center;
+}
+.pano {
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+}
+.hasBackGround {
+  background-color: #060606;
 }
 .imageCaption {
   font-size: 10px;
@@ -990,8 +1004,6 @@ body {
 
   img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 }
 
@@ -1053,7 +1065,6 @@ body {
     .imgBox {
       width: 100%;
       height: 500px;
-      background: #060606;
       display: flex;
       justify-content: center;
       align-items: center;
