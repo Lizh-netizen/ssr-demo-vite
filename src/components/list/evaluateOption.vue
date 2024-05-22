@@ -573,15 +573,6 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   ) {
     emit('syncOption', { option: option, titleName: title.titleName })
   }
-  console.log(
-    '🚀 ~ updateOption ~ title.optionId, title, props.appId, classId, owningModule, option:',
-    title.optionId,
-    title,
-    props.appId,
-    classId,
-    owningModule,
-    option
-  )
   updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {
     if (option) {
       option.submitAble = false

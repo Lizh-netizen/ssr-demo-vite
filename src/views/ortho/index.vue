@@ -6,45 +6,38 @@
     }"
   >
     <div class="gap"></div>
-
-    <div class="header">
-      <div
-        :style="{
-          display: 'flex',
-          'align-items': 'center',
-          'margin-right': '40px',
-          cursor: 'pointer',
-          'min-width': '100px',
-          'margin-left': '20px'
-        }"
-        @click="handleBackToList"
-      >
-        <el-icon><ArrowLeft /></el-icon>返回列表
-      </div>
-      <div
-        :style="{
-          display: 'flex',
-          'justify-content': 'center',
-          flex: 1
-        }"
-      >
+    <div class="headerBox">
+      <div class="header" ref="headerRef" :class="{ isFixed: scrollDistance > 20 }">
+        <div class="goBack" @click="handleBackToList">
+          <el-icon><ArrowLeft /></el-icon>返回列表
+        </div>
         <div
-          class="step"
-          @click="handleChangeStep(step.num)"
-          :class="{ active: active === step.num }"
-          v-for="step in steps"
-          :key="step.num"
+          :style="{
+            display: 'flex',
+            'justify-content': 'center',
+            flex: 1
+          }"
         >
-          <template v-if="editStep < step.num || active === step.num"
-            ><span class="step-num">{{ step.num }}</span></template
-          ><template v-else-if="editStep >= step.num"
-            ><img :style="{ 'margin-right': '12px' }" src="../../assets/svg/Steps.svg" /></template
-          ><span
-            class="step-text"
-            :class="{ finished: active === step.num || step.num <= editStep }"
-            >{{ step.desc }}</span
+          <div
+            class="step"
+            @click="handleChangeStep(step.num)"
+            :class="{ active: active === step.num }"
+            v-for="step in steps"
+            :key="step.num"
           >
-          <el-divider :class="{ finished: active === step.num || step.num <= editStep }" />
+            <template v-if="editStep < step.num || active === step.num"
+              ><span class="step-num">{{ step.num }}</span></template
+            ><template v-else-if="editStep >= step.num"
+              ><img
+                :style="{ 'margin-right': '12px' }"
+                src="../../assets/svg/Steps.svg" /></template
+            ><span
+              class="step-text"
+              :class="{ finished: active === step.num || step.num <= editStep }"
+              >{{ step.desc }}</span
+            >
+            <el-divider :class="{ finished: active === step.num || step.num <= editStep }" />
+          </div>
         </div>
       </div>
     </div>
@@ -185,6 +178,7 @@ import {
   checkFugaiOptions,
   checkOrthoCheck,
   checkOptions,
+  checkPanoOptions,
   checkOrthFace,
   checkOrthImageUpload,
   checkModelOptions
@@ -227,10 +221,16 @@ const handleChangeStep = (num) => {
   } else {
     active.value = num
   }
-  console.log('🚀 ~ handleChangeStep ~ active.value:', active.value)
 }
 
+const scrollDistance = ref(0)
+const headerRef = ref()
 onMounted(() => {
+  // 监听滚动，固定导航栏
+  window.addEventListener('scroll', () => {
+    scrollDistance.value = window.pageYOffset || document.documentElement.scrollTop
+  })
+
   step.push(step1, step2, step3, step4, step5)
   const page = document.querySelector('.ortho-page')
   // page.addEventListener('mousewheel', function (e) {
@@ -239,6 +239,7 @@ onMounted(() => {
   //   }
   // })
 })
+
 const loading = ref()
 const id = ref(0)
 const pdf = ref()
@@ -279,6 +280,9 @@ function validateRisk(riskData) {
   return riskData[0].orthTitleList[0].orthOptionsList.some((option) => option.choosen)
 }
 const handleGeneratePdf = async () => {
+  if (sessionStorage.getItem('toothFlag') == 'true') {
+    return
+  }
   if (active.value == 5) {
     if (validateCheck(step5.value.planList)) {
       ElMessage({
@@ -458,13 +462,13 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-
+  console.log(345)
   const result =
     checkOrthFace(faceAccessData.value) &&
     checkFugaiOptions(mouthData.value) &&
-    checkOptions(panoramicData.value) &&
+    checkPanoOptions(panoramicData.value) &&
     checkOptions(cepha.value)
-
+  console.log(checkPanoOptions(panoramicData.value))
   return result
 }
 
@@ -757,18 +761,33 @@ const labelList = [
   height: 16px;
   background: #f2f3f5;
 }
-.header {
-  position: sticky;
+.isFixed {
+  position: fixed;
   top: 0;
-  margin-left: 20px;
-  margin-right: 20px;
-  display: flex;
+  z-index: 2;
+}
+.headerBox {
   height: 72px;
-  background: #ffffff;
-  border-radius: 12px;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
+
+  .header {
+    height: 72px;
+    background-color: #fff;
+    border-radius: 12px;
+    margin-right: 20px;
+    margin-left: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .goBack {
+    display: flex;
+    align-items: center;
+    margin: 0 40px 0 20px;
+    min-width: 100px;
+    cursor: pointer;
+  }
+
   .step {
     display: flex;
     width: 15%;

@@ -70,7 +70,8 @@ const viewerStyle = computed(() => {
   const rotate = (rotation.value / 90) % 2
   return {
     transform: `rotate(${rotation.value}deg)`,
-    width: rotate == 0 ? `90vh !important` : `80vh`
+    width: rotate !== 0 ? '80vw !important' : '90vw',
+    height: rotate !== 0 ? 'calc(45vh - 36px) !important' : '80vh'
   }
 })
 const rotateRight = async () => {
@@ -102,14 +103,14 @@ const rotateRight = async () => {
   }
 
   .photo {
-    height: 80vh;
     width: 90vw;
+    height: 80vh;
     border-radius: 5px;
 
     img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
   }
 }

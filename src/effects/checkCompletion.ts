@@ -68,12 +68,6 @@ export function checkFugaiOptions(jsonData: any) {
   return isChosen
 }
 export function checkOrthOptions(data: any) {
-  // console.log(
-  //   '🚀 ~ checkOrthOptions ~ return data.every((item: any) => face',
-  //   data.every((item: any) =>
-  //     item.orthTitleList.every((title: any) => checkChoosen(title.orthOptionsList))
-  //   )
-  // )
   return data.every((item: any) =>
     item.orthTitleList.every((title: any) => checkChoosen(title.orthOptionsList))
   )
@@ -111,6 +105,25 @@ export async function checkImageUpload(classifiedImageList: any) {
 export function checkOptions(data: any) {
   let allChoosen = true
   data[0].orthTitleList.forEach((item: any) => {
+    if (
+      item.orthOptionsList &&
+      item.orthOptionsList.length > 0 &&
+      !item.orthOptionsList.some((option: any) => option.choosen)
+    ) {
+      allChoosen = false
+    }
+  })
+
+  return allChoosen
+}
+export function checkPanoOptions(data: any) {
+  let allChoosen = true
+  data[0].orthTitleList.forEach((item: any) => {
+    if (item.titleName == '多生牙') {
+      if (!item.fdiToothCode) {
+        allChoosen = false
+      }
+    }
     if (
       item.orthOptionsList &&
       item.orthOptionsList.length > 0 &&

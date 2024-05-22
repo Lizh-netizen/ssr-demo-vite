@@ -4,6 +4,7 @@
       v-model="imgDialogVisible"
       title="影像管理"
       width="1183px"
+      align-center
       @close="handleCloseImgDialog"
       :close-on-click-modal="false"
     >
@@ -756,7 +757,6 @@ const handleDragStart1 = (img) => {
 }
 // 从左侧拖到右侧
 const handleDragStart = (file, event) => {
-  console.log(`output->file`, file)
   if (file.file) {
     // 本地上传的图片
     event.dataTransfer.setData('text/plain', file)
@@ -925,6 +925,9 @@ const handleCloseImgDialog = () => {
 </script>
 
 <style scoped lang="scss">
+.imageDialog {
+  position: relative;
+}
 .message {
   position: absolute;
   top: 20%;
@@ -947,7 +950,8 @@ const handleCloseImgDialog = () => {
     opacity: 0.3;
   }
   .filterBtn {
-    width: 60px;
+    // width: 60px;
+    padding: 0 16px;
     height: 30px;
     border-radius: 16px;
     display: flex;

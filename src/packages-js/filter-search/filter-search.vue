@@ -487,7 +487,7 @@ const preNextDate = (str, prop) => {
 }
 @import './index.module.scss';
 </style>
-<style lang="scss">
+<style lang="scss" scoped>
 .Neutral {
   color: rgba(46, 108, 228, 1) !important;
 }
