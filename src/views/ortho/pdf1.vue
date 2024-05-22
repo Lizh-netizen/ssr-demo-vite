@@ -183,7 +183,10 @@
             </div>
             <div class="bottom section">
               <div class="imageList2">
-                <div v-for="image in item.imageList2" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList2"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
@@ -208,7 +211,10 @@
             <Header text="咬合分析" />
             <div class="bottom section">
               <div class="imageList2">
-                <div v-for="image in item.imageList3" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList3"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
@@ -227,7 +233,10 @@
             </div>
             <div class="bottom section" v-if="item.imageList4.length > 0">
               <div class="imageList2">
-                <div v-for="image in item.imageList4" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList4"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
