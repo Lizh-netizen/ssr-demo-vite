@@ -164,13 +164,14 @@
                   />
                   <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
                 </div>
-                <div class="imageBox image2">
+                <div class="imageBox image2 overflow-hidden">
                   <div class="imageCaption">
                     {{ item.imageList1[1]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
+                    class="h-full! w-auto!"
                     v-if="item.imageList1[1]?.imageUrl"
                   />
                   <img src="@/assets/imgs/placeholder-v-blue.png" v-else />
