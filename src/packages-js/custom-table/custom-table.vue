@@ -38,6 +38,8 @@
             :right-tag-option="item.rightTagOption"
             :state-option="item.stateOption"
             :state-icon="item.stateIcon"
+            :list="item.list"
+            :text-align="item.textAlign"
             :edit-state-type="item.editStateType"
             @edit-state="(data) => emit(item.editStateEventName, data)"
             @change-note="changeNote"

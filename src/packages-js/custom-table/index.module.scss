@@ -1,5 +1,6 @@
 .table {
   position: relative;
+   display: block !important;
   .set {
     height: 48px;
     display: flex;
@@ -128,6 +129,9 @@
       }
     }
   }
+  .no-y-scrollbar .el-table__body-wrapper {
+    overflow-y: hidden;
+  }
   // 分页器
   .pagination {
     display: flex;
@@ -159,6 +163,6 @@
     background-color: rgba(248, 250, 255, 1);
   }
 }
-:deep .el-table tr{
+:deep .el-table tr {
   background: none;
 }

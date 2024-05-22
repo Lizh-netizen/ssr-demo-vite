@@ -86,7 +86,7 @@ import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 import { Post } from '@/utils/request'
 const props = defineProps(['title', 'appId', 'data', 'step', 'module', 'classId', 'owningModule'])
-const emit = defineEmits(['submitTooth', 'changePopVisible'])
+const emit = defineEmits(['submitTooth', 'changePopVisible', 'toothClicked', 'update:title'])
 const title = ref(props.title)
 
 const data = ref(props.data)
@@ -119,14 +119,15 @@ const handleBeforeEnterPopover = (title) => {
 }
 // 选中牙位
 const handleSelectTooth = (item, title) => {
+  emit('toothClicked')
   useSelectTooth(item, props.title)
 }
+
 const handleSubmitTooth = (title) => {
   if (props.step == 2) {
     if (!title.submitAble) {
       return
     }
-
     if (props.module == 'evaluate') {
       let obj = {
         aptmId: props.appId,
@@ -167,28 +168,25 @@ const handleSubmitTooth = (title) => {
 }
 const openPop = (title, item) => {
   // 如果没有图片，就不显示popover
-
-  // 点击下一个十字牙位时，先吧之前的清空
-
-  item.orthTitleList.forEach((t) => {
-    if (title !== t) {
-      t.popVisible = false
-    }
-  })
+  if (item) {
+    item.orthTitleList?.forEach((t) => {
+      if (title !== t) {
+        t.popVisible = false
+      }
+    })
+  }
   title.popVisible = !title.popVisible
 }
 const handleClick = (title, data) => {
   openPop(title, data)
-  activeTitle.value = title
 }
-const activeTitle = ref()
 onMounted(() => {
   window.addEventListener('click', (e) => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
     if (popover) {
       if (e.target !== popover && !popover.contains(e.target) && data.value) {
-        const index = data.value.orthTitleList.findIndex((title) => title.popVisible)
+        const index = data.value.orthTitleList?.findIndex((title) => title.popVisible)
 
         if (index !== -1) {
           data.value.orthTitleList[index].popVisible = false

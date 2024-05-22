@@ -4,16 +4,17 @@
 // )
 window.parent.postMessage('done', '*')
 
-// src跳转
+// // src跳转
 window.addEventListener('message', (event) => {
   if (
     event.origin == 'https://orangetest.aiorange.com' ||
     event.origin == 'https://orangedev.aiorange.com' ||
     event.origin == 'https://odos.aiorange.com'
   ) {
-    if (event.data.startsWith('clear')) {
-      sessionStorage.clear()
-    }
+    // if (event.data.startsWith('clear')) {
+    //   sessionStorage.clear()
+    // }
+    console.log(typeof event.data)
     if (event.data.startsWith('{"createBy')) {
       sessionStorage.setItem('jc_odos_user', event.data)
     }

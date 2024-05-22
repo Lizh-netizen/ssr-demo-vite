@@ -19,7 +19,7 @@ export type ComponentType =
   | 'notes'
 
 // icon类型
-export type IconType = 'uncheck' | 'success' | 'failed'
+export type IconType = 'uncheck' | 'success' | 'failed' | 'halfComplete'
 
 // 筛选控件类型
 export type FilterType = 'date' | 'select' | 'search' | 'radio' | 'checkbox'
@@ -36,6 +36,7 @@ export type TableColumnData = {
   fixed?: boolean | string
   sortable?: boolean | string
   type?: ComponentType
+  textAlign?: 'center' | 'end' | 'left'
   iconOption?: {
     name: IconType | string
     secondName?: IconType | string

@@ -47,7 +47,7 @@ const useSelectTooth = (item: any, title: any) => {
       )
     }
     title.position.splice(
-      title.position.findIndex((a: any) => a[0].value == item.label),
+      title.position.findIndex((a: any) => a[0]?.value == item.label),
       1
     )
   }

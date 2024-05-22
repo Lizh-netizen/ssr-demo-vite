@@ -28,6 +28,7 @@ declare module 'vue' {
     CustomHeader: typeof import('./src/components/customHeader.vue')['default']
     CustomList: typeof import('./src/components/pdf/customList.vue')['default']
     Draggable: typeof import('./src/components/layout/draggable.vue')['default']
+    DraggableTool: typeof import('./src/components/layout/draggableTool.vue')['default']
     Drawer: typeof import('./src/components/list/drawer.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: (typeof import('element-plus/es'))['ElCard']

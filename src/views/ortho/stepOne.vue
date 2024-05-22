@@ -344,7 +344,6 @@ const handleMouseLeave = (option) => {
   })
 }
 async function handleSubmitContent(optionId, title, option, classId, owningModule) {
-  console.log(option, option.otherContent)
   option.visible = false
   if (option.otherContent) {
     const res = await useUpdateOption(
@@ -427,21 +426,18 @@ async function getOrthInquiryList() {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
-  console.log(11, title)
-  if (title.cephalometricsContent) {
-    const obj = {
-      aptmId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      classId: classId,
-      owningModule: owningModule
-    }
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  const obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: '',
+    classId: classId,
+    owningModule: owningModule
   }
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 getOrthInquiryList()
 
@@ -546,10 +542,14 @@ async function handleChangeOption(optionId, title, classId, owningModule) {
   }
 
   useChangeOption(optionId, title, appId, classId, owningModule, isShow, checkData)
-  await useUpdateOption(title.optionId, title, appId, classId, owningModule)
-  // if ((res.code == 200) & (title.titleName == '骨龄')) {
-  //   // getOrthCheckList()
-  // }
+  const res = await useUpdateOption(title.optionId, title, appId, classId, owningModule)
+  if (
+    (res.code == 200) & (title.titleName == '骨龄') &&
+    title.optionId !== 73 &&
+    title.optionId !== 74
+  ) {
+    getOrthCheckList()
+  }
 }
 const showPopover = (index) => {
   // 值为空的情况下聚焦，否则是展示状态

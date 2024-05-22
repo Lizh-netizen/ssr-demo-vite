@@ -17,9 +17,10 @@
         </div>
       </div>
       <div class="body pb-[16px]">
+        <!-- content -->
         <div
           class="body-left content"
-          :style="{ height: planList?.some((plan) => plan.checked) ? '680px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '610px' : '390px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
@@ -54,8 +55,7 @@
                 />
                 <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
-
-              <draggable class="ORTHTOOL" :unmutable="true" :list="toolList"></draggable>
+              <draggableTool class="ORTHTOOL h-[250px]!" :list="toolList"></draggableTool>
             </template>
           </div>
         </div>
@@ -121,8 +121,8 @@
                 <a-dropdown trigger="click" class="mt-[4px]!">
                   <span class="el-dropdown-link">
                     <div class="addFeature" @click="plan.popVisible = true">
-                      <a-button class="addFeatureBtn"
-                        ><template #icon> <icon-plus /> </template>添加特点
+                      <a-button class="addFeatureBtn">
+                        <template #icon> <icon-plus /> </template>添加特点
                       </a-button>
                       <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
                         {{ plan.featureTagIds?.length }}
@@ -160,19 +160,6 @@
                   </template>
                 </a-dropdown>
               </div>
-
-              <!-- <div
-                class="tag"
-                v-if="
-                  planList.some((plan) =>
-                    plan.stageList?.some((stage) =>
-                      stage.targetIds?.some((target) => target.name === '拔牙')
-                    )
-                  )
-                "
-              >
-                拔牙
-              </div> -->
               <div style="position: absolute; right: 12px" class="flex">
                 <el-tooltip class="box-item" effect="dark" content="复制方案" placement="top"
                   ><img
@@ -459,7 +446,7 @@
                         <Tooth
                           :step="5"
                           :title="option"
-                          :appId="appId"
+                          :appId="appId"                       
                           @submitTooth="
                             (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
                           "
@@ -492,8 +479,11 @@
               @blur="
                 handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
               "
-            /> </form-item></template
-      ></template>
+              >无</a-textarea
+            >
+          </form-item></template
+        ></template
+      >
     </div>
   </div>
 </template>
@@ -519,6 +509,7 @@ import useUpdateOption from '@/effects/updateOption.ts'
 import emptyRadio from '@/effects/emptyRadio.ts'
 import img from '@/assets/svg/addPic.svg'
 import draggable from '../../components/layout/draggable.vue'
+import draggableTool from '../../components/layout/draggableTool.vue'
 import { useStore } from 'vuex'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
 import Tooth from '@/components/list/tooth.vue'
@@ -536,29 +527,47 @@ const props = defineProps({
 const emit = defineEmits(['requestPlanList'])
 // 获取工具数据
 const toolList = ref([])
+function processOrthtoolData(data) {
+  let processedData = []
+
+  for (const category in data) {
+    if (data.hasOwnProperty(category)) {
+      const tools = data[category]
+      let categoryObj = {
+        label: category,
+        list: []
+      }
+
+      tools.forEach((tool) => {
+        categoryObj.list.push({
+          name: tool.dictCodeName,
+          id: tool.id,
+          dictType: tool.dictType
+        })
+      })
+
+      processedData.push(categoryObj)
+    }
+  }
+
+  return processedData
+}
 async function getOrthToolList() {
   const result = await Post('/prod-api/business/globalDict/getDictListByType', {
-    dictType: 'ORTHTOOL'
+    dictType: 'ORTHTOOL',
+    className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 // 搜索工具
 const searchValue = ref('')
 const handleSearch = async (val) => {
   const result = await Post(`/prod-api/business/globalDict/getDictListByType`, {
     dictType: 'ORTHTOOL',
-    dictCodeName: val
+    dictCodeName: val,
+    className: 'ORTHTOOL'
   })
-  toolList.value = result.data.map((item) => ({
-    name: item.dictCodeName,
-    id: item.id,
-    dictType: item.dictType,
-    showPosition: null
-  }))
+  toolList.value = processOrthtoolData(result.data)
 }
 getOrthToolList()
 // 获取目标数据
@@ -635,63 +644,58 @@ async function getPlanList() {
                 : []
             }))
     }))
-    // const defaultStage = ['3个月', '6个月', '9个月', '12个月']
-
-    // 不够的打上补丁
-    // planList.value.forEach((plan) => {
-    //   const length = plan.stageList?.length
-    //   if (plan.stageList?.length < 4) {
-    //     for (let i = 0; i < 4 - length; i++) {
-    //       plan.stageList.push({
-    //         stageName: defaultStage[length + i],
-    //         targetIds: [],
-    //         toolIds: [],
-    //         meritIds: [],
-    //         effectIds: []
-    //       })
-    //     }
-    //   }
-    // })
 
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
-        const a = stage.targetIds.find((item) => item.name == '拔牙')
-        if (stage.showPosition && a) {
-          if (a) {
-            a.topLeft = []
-            a.topRight = []
-            a.bottomLeft = []
-            a.bottomRight = []
-          }
+        const filteredList = stage.targetIds.filter(
+          (item) => item.name == '拔牙' || item.name == '个别牙反合纠正'
+        )
 
-          const arr = JSON.parse(stage.showPosition)
-          if (stage.fdiToothCode) {
-            a.toothCode = stage.fdiToothCode.split(',')
-            stage.fdiToothCode.split(',').forEach((code, index) => {
-              if (code.startsWith('1') || code.startsWith('5')) {
-                a.topLeft.push(arr[+index][0])
-              } else if (code.startsWith('2') || code.startsWith('6')) {
-                a.topRight.push(arr[+index][0])
-              } else if (code.startsWith('4') || code.startsWith('8')) {
-                a.bottomLeft.push(arr[+index][0])
-              } else if (code.startsWith('3') || code.startsWith('7')) {
-                a.bottomRight.push(arr[+index][0])
-              }
-            })
-          } else {
-            a.toothCode = []
-          }
-          a.position = arr || []
-          a.submitAble = false
+        if (stage.showPosition && filteredList.length > 0) {
+          filteredList.forEach((a) => {
+            if (a) {
+              a.topLeft = []
+              a.topRight = []
+              a.bottomLeft = []
+              a.bottomRight = []
+            }
+            let arr
+            if (stage.toothCodeInfo[a.id]) {
+              arr = JSON.parse(stage.toothCodeInfo[a.id]?.showPosition)
+            }
+
+            if (stage.toothCodeInfo) {
+              a.toothCode = stage.toothCodeInfo[a.id]?.fdiToothCode.split(',')
+              stage.toothCodeInfo[a.id]?.fdiToothCode.split(',').forEach((code, index) => {
+                if (code.startsWith('1') || code.startsWith('5')) {
+                  a.topLeft.push(arr[+index][0])
+                } else if (code.startsWith('2') || code.startsWith('6')) {
+                  a.topRight.push(arr[+index][0])
+                } else if (code.startsWith('4') || code.startsWith('8')) {
+                  a.bottomLeft.push(arr[+index][0])
+                } else if (code.startsWith('3') || code.startsWith('7')) {
+                  a.bottomRight.push(arr[+index][0])
+                }
+              })
+            } else {
+              a.toothCode = []
+            }
+            a.position = arr || []
+            a.submitAble = false
+          })
         }
       })
     })
+
     planList.value.forEach((plan) => {
       plan.stageList?.forEach((stage) => {
         if (stage.targetIds.length > 0) {
           stage.targetIds?.forEach((target) => {
             if (target.name?.includes('拔牙') && target.toothCode?.length > 0) {
               target.name = '拔牙' + '(' + target.toothCode?.join(';') + ')'
+            }
+            if (target.name?.includes('个别牙反合纠正') && target.toothCode?.length > 0) {
+              target.name = '个别牙反合纠正' + '(' + target.toothCode?.join(';') + ')'
             }
           })
         }
@@ -956,13 +960,32 @@ const updateList = (val, plan, stageName, cardName) => {
       const stage = planList.value[val.planIndex].stageList[val.stageIndex]
       const target = stage.targetIds.find((item) => item.name.includes('拔牙'))
       const id = featureEffectList.value.find((item) => item.name == '拔牙').id
-      if (!found.featureTagIds.some((i) => i == id)) {
+
+      if (!found.featureTagIds.some((i) => i == id) && target) {
         found.featureTagIds.push(id)
       }
+      if (target) {
+        target.visible = true
+        // 设置牙位
+        useFdiToothCodeEffect(target)
+      }
 
-      target.visible = true
-      // 设置牙位
-      useFdiToothCodeEffect(target)
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
+    }
+    if (val.flag1) {
+      // 避免修改右侧数据影响左侧
+      goalList.value.find((item) => (item.visible = false))
+      const stage = planList.value[val.planIndex].stageList[val.stageIndex]
+      const target1 = stage.targetIds.find((item) => item.name.includes('个别牙反合纠正'))
+      if (target1) {
+        target1.visible = true
+        useFdiToothCodeEffect(target1)
+      }
+
       symptomList.value.forEach((row) => {
         row.forEach((a) => {
           a.active = false
@@ -999,17 +1022,20 @@ const updateList = (val, plan, stageName, cardName) => {
       stage.toolIds.splice(index, 1)
     }
   }
-  // 如果是拔牙，则先不提交
-  if (val.flag || val.addFlag) return
-  handleScheme(found).then(() => {
+  // 如果是拔牙/个别牙，则先不提交
+  if (val.flag || val.addFlag || val.flag1) {
+    sessionStorage.setItem('toothFlag', 'true')
+    return
+  }
+  handleScheme(found, val.name).then(() => {
     if (val.delete) {
       getOrthGoalList()
       // 也要重新请求一次planList
     }
   })
-  if (cardName == 'tool') {
-    getOrthToolList()
-  }
+  // if (cardName == 'tool') {
+  //   getOrthToolList()
+  // }
   getOrthGoalList()
 }
 // 更改问题状态
@@ -1286,20 +1312,18 @@ const handleMouseLeaveBtn = (e, option) => {
   })
 }
 const handleSubmitAddtionalContent = (title, classId, owningModule) => {
-  if (title.cephalometricsContent) {
-    const obj = {
-      aptmId: appId,
-      titleId: title.id,
-      optionsIdStr: [],
-      otherContent: '',
-      cephalometricsContent: title.cephalometricsContent,
-      fdiToothCode: '',
-      showPosition: '',
-      classId: classId,
-      owningModule: owningModule
-    }
-    Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+  const obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: '',
+    cephalometricsContent: title.cephalometricsContent,
+    fdiToothCode: '',
+    showPosition: '',
+    classId: classId,
+    owningModule: owningModule
   }
+  Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
 }
 const riskData = ref([])
 async function getOrthRiskList() {
@@ -1353,7 +1377,7 @@ async function getRemark() {
 
 getRemark()
 
-const handleScheme = async (scheme) => {
+const handleScheme = async (scheme, valName) => {
   // 校验哪个计划的选择器没写
   let obj = {
     id: scheme.id || null,
@@ -1364,18 +1388,31 @@ const handleScheme = async (scheme) => {
     featureTagIds: scheme.featureTagIds?.join(','),
     primaryApplianceId: scheme.primaryApplianceId,
     stageList: scheme.stageList?.map((stage) => {
+      let toothCodeInfo = {}
+      const item1 = stage.targetIds.find((s) => s.name.includes('拔牙'))
+      const item2 = stage.targetIds.find((s) => s.name.includes('个别牙反合纠正'))
+      if (item1) {
+        toothCodeInfo[item1.id] = {
+          fdiToothCode: item1.toothCode?.join(),
+          showPosition: JSON.stringify(item1.position)
+        }
+      }
+      if (item2) {
+        toothCodeInfo[item2.id] = {
+          fdiToothCode: item2.toothCode?.join(),
+          showPosition: JSON.stringify(item2.position)
+        }
+      }
       return {
         id: stage.id || null,
+        toothCodeInfo: toothCodeInfo,
         fdiToothCode:
           stage.targetIds &&
-          stage.targetIds.find((target) => target.name?.includes('拔牙'))?.toothCode?.join(),
-        optionId:
-          stage.targetIds && stage.targetIds.find((target) => target.name?.includes('拔牙'))?.id,
+          stage.targetIds.find((target) => target.name == valName)?.toothCode?.join(),
+        optionId: stage.targetIds && +stage.targetIds.find((target) => target.name == valName)?.id,
         showPosition:
-          stage.targetIds && stage.targetIds.find((target) => target.name?.includes('拔牙'))
-            ? JSON.stringify(
-                stage.targetIds.find((target) => target.name?.includes('拔牙'))?.position
-              )
+          stage.targetIds && stage.targetIds.find((target) => target.name == valName)
+            ? JSON.stringify(stage.targetIds.find((target) => target.name == valName)?.position)
             : '',
         stageName: stage.stageName,
         targetIds: stage.targetIds?.map((target) => target.id)?.join(','),
@@ -1383,15 +1420,13 @@ const handleScheme = async (scheme) => {
       }
     })
   }
-  // if (planList.value.some((plan) => !plan.primaryApplianceId || !plan.difficultyLevel)) {
-  //   validate(planList.value)
-  //   return false
-  // }
+
   await Post('/prod-api/emr/public/api/v1/scheme', [obj])
 }
 defineExpose({
   clicked,
-  planList
+  planList,
+  riskData
 })
 </script>
 
@@ -1501,7 +1536,7 @@ defineExpose({
     margin-right: 20px;
     position: sticky;
     top: 72px;
-    overflow: scroll;
+    overflow: hidden;
     :deep(.list-group-item) {
       margin-right: 0;
     }
@@ -1634,9 +1669,9 @@ defineExpose({
         }
       }
 
-      :deep .container {
-        height: 220px;
-      }
+      // :deep .container {
+      //   height: 220px;
+      // }
       :deep .container.ORTHTOOL {
         .list-group {
           margin-top: 8px !important;

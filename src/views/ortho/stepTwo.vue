@@ -14,26 +14,20 @@
           ><template #img
             ><template v-if="item.imageUrl">
               <!-- 正面像放在canvas中展示 -->
-              <template v-if="item.className == '正面像'">
-                <canvas
-                  id="FrontalRose"
-                  width="320"
-                  height="240"
-                  @click="handlePreviewImage(item.imageUrl)"
-                ></canvas>
-              </template>
-              <template v-else>
-                <img
-                  :src="item.imageUrl"
-                  :style="{
-                    height: '240px',
-                    'object-fit': 'cover',
-                    'max-width': '320px'
-                  }"
-                />
-              </template> </template
+              <img
+                :src="item.imageUrl"
+                @click="handlePreviewImage(item)"
+                :style="{
+                  height: '240px',
+                  'object-fit': 'cover',
+                  'max-width': '320px'
+                }"
+              /> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.prevent.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div> </template></template
           ><template #content>
@@ -62,7 +56,8 @@
                       >
                         {{ option.optionName }}
                         <img
-                          class="aiFlagImg"
+                          class="aiFlagImg highZIndex"
+                          :class="{ highZIndex: !showViewer }"
                           src="@/assets/svg/AIFlagForFront.svg"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
@@ -76,6 +71,7 @@
                     :disabled="!item.hasImage"
                     :title="title"
                     :appId="appId"
+                    :showViewer="showViewer"
                     @refreshList="refreshList"
                     :classId="item.id"
                     :owningModule="item.owningModule"
@@ -101,6 +97,7 @@
           ><template #img
             ><template v-if="item.imageUrl"
               ><img
+                @click="handlePreviewImage(item)"
                 :src="item.imageUrl"
                 :style="{
                   height: '240px',
@@ -116,6 +113,7 @@
               <div :style="{ 'margin-top': '40px' }">
                 <template v-if="frontCover"
                   ><img
+                    @click="handlePreviewImage(frontCoverItem)"
                     :src="frontCover"
                     :style="{
                       height: '240px',
@@ -145,6 +143,7 @@
                     :disabled="!item.hasImage"
                     :savedTitleList="savedTitleList1"
                     :classId="item.id"
+                    :className="item.className"
                   ></MouthOption>
                 </form-item>
               </template>
@@ -153,7 +152,7 @@
         </ImageItem>
       </template>
     </div>
-    <Header text="全景片" />
+    <Header text="全景片" @dblclick.prevent.stop="handleDblClick" />
     <div class="content panoramic">
       <template v-for="item in panoramicData" :key="item.id">
         <div class="placeholderContainer">
@@ -171,7 +170,10 @@
                 @click="handleZoomPanoImage"
               /> </template
             ><template v-else>
-              <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
+              <div
+                class="imageItem__placeholder"
+                @click.stop="handleOpenImageDialogue(item.className)"
+              >
                 <img :src="imgUrl" class="addPic" />
               </div>
             </template>
@@ -210,19 +212,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -258,7 +248,7 @@
               </div>
               <div class="right-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index <= 5 && index >= 3">
+                  <template v-if="index <= 6 && index >= 4">
                     <form-item :label="title.titleName" width="120px">
                       <el-radio-group
                         v-if="title.type == 1"
@@ -288,19 +278,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -334,9 +312,72 @@
                   </template>
                 </template>
               </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 3">
+                    <form-item :label="title.titleName" width="120px">
+                      <el-radio-group
+                        v-model="title.optionId"
+                        @change="
+                          handleChangeOption(
+                            title.optionId,
+                            title,
+                            panoramicData[0].id,
+                            panoramicData[0].owningModule
+                          )
+                        "
+                        @dblclick="
+                          handleEmptyRadio(title.optionId, title, item.id, item.owningModule)
+                        "
+                      >
+                        <el-radio-button
+                          :disabled="!panoramicData[0].hasImage"
+                          :class="{
+                            serious: option.serious == '1',
+                            checked: option.choosen === true
+                          }"
+                          v-for="option in title.orthOptionsList"
+                          :key="option.id"
+                          :label="option.id"
+                        >
+                          {{ option.optionName }}
+                        </el-radio-button>
+                      </el-radio-group>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
+              <div class="left-column">
+                <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+                  <template v-if="index == 7">
+                    <form-item :label="title.titleName" width="120px">
+                      <a-select
+                        :disabled="!item.hasImage"
+                        :style="{ width: '320px' }"
+                        :loading="loading"
+                        placeholder="请选择"
+                        v-model="selectedDsy"
+                        multiple
+                        :class="{ 'w-[200px]!': maxTagCount == 1, 'w-[220px]!': maxTagCount == 0 }"
+                        allow-search
+                        :max-tag-count="maxTagCount"
+                        @change="handleChangeDsy(title, item.id)"
+                        @popup-visible-change="handlePopupVisibleChange"
+                      >
+                        <a-option v-for="item of dsyData" :value="item.supernumeraryTeethOrder"
+                          >{{ item.supernumeraryTeeth
+                          }}<img
+                            v-if="selectedDsy && selectedDsy.includes(item.supernumeraryTeethOrder)"
+                            src="../../assets/svg/check.svg"
+                        /></a-option>
+                      </a-select>
+                    </form-item>
+                  </template>
+                </template>
+              </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 6 && index <= 12">
+                  <template v-if="index >= 8 && index <= 14">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -352,7 +393,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 13">
+                  <template v-if="index >= 15 && index <= 20">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -367,7 +408,22 @@
                 </template>
               </div>
             </div>
-            <!-- <form-item label="其他" width="120px"> <a-textarea></a-textarea></form-item> -->
+            <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
+              <template v-if="index == panoramicData[0].orthTitleList.length - 1">
+                <form-item :label="title.titleName" width="120px">
+                  <a-textarea
+                    v-model="title.otherContent"
+                    @blur="
+                      handleSubmit(
+                        title.optionId,
+                        title,
+                        panoramicData[0].id,
+                        panoramicData[0].owningModule
+                      )
+                    "
+                  ></a-textarea></form-item
+              ></template>
+            </template>
           </div>
         </div>
       </template>
@@ -381,7 +437,7 @@
       }"
     >
       <div class="placeholderContainer">
-        <div class="image" :style="{ flex: cephaImage ? '1' : '0' }">
+        <div class="image">
           <canvas
             v-show="cephaImage"
             ref="myCanvas"
@@ -390,7 +446,8 @@
             :style="{
               cursor: 'pointer'
             }"
-          ></canvas>
+          >
+          </canvas>
           <template v-if="cephaImage">
             <el-button class="cephalometric__button" type="primary" @click="getAIResult"
               >AI测量</el-button
@@ -429,9 +486,7 @@
                   effect="light"
                   placement="top"
                   :content="title.titlePrompt"
-                  ><img
-                    src="@/assets/svg/questionMark.svg"
-                    :class="{ hide: ['SNA', 'SNB'].includes(title.titleName) }"
+                  ><img src="@/assets/svg/questionMark.svg"
                 /></el-tooltip>
 
                 <div class="formItem__content">
@@ -451,7 +506,17 @@
                       v-model="title.cephalometricsContent"
                       @focus="title.measured = false"
                       @blur="handleBlurInput(title)"
-                      :class="{ measured: title.measured === true }"
+                      :class="{
+                        measured: title.measured === true,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2
+                      }"
                     ></el-input>
                     <img
                       src="@/assets/svg/downwards.svg"
@@ -474,12 +539,26 @@
                       handleChangeOption(title.optionId, title, cephaClassId, '侧位片', '侧位片')
                     "
                     v-model="title.optionId"
-                    ><el-radio-button
+                  >
+                    <el-radio-button
                       :disabled="!cephaImage"
                       :label="option.id"
                       :class="{
                         serious: option.serious == '1',
-                        checked: option.choosen === true
+                        checked: option.choosen === true,
+                        red:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 2,
+
+                        green:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 0,
+                        blue:
+                          title.orthOptionsList.findIndex(
+                            (option) => option.id == title.optionId
+                          ) == 1
                       }"
                       v-for="option in title?.orthOptionsList"
                       :key="option.id"
@@ -530,21 +609,22 @@
     module="ortho"
     :appId="appId"
     :patientId="patientId"
-    :dialogVisible="imgDialogVisible"
+    v-if="imgDialogVisible"
     @savePics="handleSavePics"
     @cancel="handleClose"
   ></ImageDialog>
 
   <div class="overlay" ref="overlayRef" @click="handleZoomOutCepha">
-    <div class="overlay__header"></div>
+    <div class="overlay__header">{{ overlayName }}</div>
     <div class="overlay__mask"></div>
-    <img
-      class="zoomPanoImage"
-      :src="panoImageUrl"
-      :style="{ cursor: 'pointer' }"
-      @click="handleZoomOutPanoImage"
-      v-if="zoomPano"
-    />
+    <div class="overlay__photo" v-if="zoomPano">
+      <img
+        class="zoomPanoImage"
+        :src="panoImageUrl"
+        :style="{ cursor: 'pointer' }"
+        @click="handleZoomOutPanoImage"
+      />
+    </div>
     <canvas id="myZoomCanvas" @click="handleZoomOutPic" v-if="!zoomPano"></canvas>
     <img
       src="@/assets/svg/close.svg"
@@ -564,6 +644,10 @@
     }"
   />
   <PreviewImage
+    :owningModule="previewImageOwningModule"
+    :className="previewImageClassName"
+    :degree="imageRotationDegree"
+    :id="previewImageId"
     :showViewer="showViewer"
     :imageUrl="previewImageUrl"
     @closeViewer="handleCloseViewer"
@@ -589,6 +673,7 @@ import { Post, Get, Put, Delete, Post1 } from '@/utils/request'
 import axios from 'axios'
 // import { Upload } from '@element-plus/icons-vue'
 // import { ElLoading, ElMessage } from 'element-plus'
+
 import {
   calculateFourPointsAngle,
   calculateThreePointsAngle,
@@ -614,20 +699,34 @@ import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
 import MouthOption from '@/components/list/mouthOption.vue'
 import updateOption from '@/effects/mouthOption.ts'
-import previewImage from '../../components/list/previewImage.vue'
+import PreviewImage from '../../components/list/previewImage.vue'
+import elementResizeDetectorMaker from 'element-resize-detector'
+import { ElMessage } from 'element-plus'
 const route = useRoute()
 const appId = route.params.appId
 const patientId = route.params.patientId
 const showViewer = ref(false)
-const previewImageUrl = ref('')
-const header = document.querySelector('.header')
-const handlePreviewImage = (url) => {
-  header.style.position = 'static'
 
-  previewImageUrl.value = url
+const previewImageUrl = ref('')
+const previewImageId = ref()
+const imageRotationDegree = ref()
+const previewImageClassName = ref()
+const header = document.querySelector('.header')
+const previewImageOwningModule = ref()
+const handlePreviewImage = (item) => {
+  previewImageClassName.value = item.className
+  previewImageOwningModule.value = item.owningModule
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
+  previewImageId.value = item.imageId
+  previewImageUrl.value = item.imageUrl
   showViewer.value = true
+  imageRotationDegree.value = item.imageRotationDegree % 360
+  header.style.position = 'static'
 }
 const handleCloseViewer = () => {
+  const page = document.querySelector('.ortho-page')
+  page.removeEventListener('mousewheel', preventDefault)
   header.style.position = 'sticky'
   showViewer.value = false
 }
@@ -669,9 +768,13 @@ const refreshList = (val) => {
 }
 // 点击全景片图片逻辑
 const zoomPano = ref(false)
+const overlayName = ref('')
 const handleZoomPanoImage = () => {
   overlayRef.value.style.display = 'flex'
   zoomPano.value = true
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
+  overlayName.value = '全景片'
 }
 const handleZoomOutPanoImage = () => {
   overlayRef.value.style.display = 'none'
@@ -682,30 +785,8 @@ const canvasMaxX = ref(window.innerWidth - 900)
 const ratio = 665 / 390
 const canvasMaxY = ref((canvasMaxX.value / ratio).toFixed(2))
 
-window.addEventListener('resize', () => {
-  if (window.innerWidth < 1080) {
-    return
-  }
-  const canvas = document.getElementById('myCanvas')
-  if (canvas) {
-    canvasMaxX.value = window.innerWidth - 900
-    canvasMaxY.value = (canvasMaxX.value / ratio).toFixed(2)
-    coordinatesSmall.value = coordinatesBase.value.map((point) => ({
-      label: point.label,
-      x: point.x * canvasMaxX.value,
-      y: point.y * canvasMaxY.value
-    }))
-    initCanvas(canvasMaxX.value, canvasMaxY.value, true)
-  }
-})
-
-// 上传图片逻辑
-const fileList = ref([])
-const fileListWithFlag = ref([])
-
-const params = new FormData()
-
-const upload = ref(false)
+// 添加事件监听器
+window.addEventListener('resize', () => initCanvas(canvasMaxX.value, canvasMaxY.value, true))
 
 const handleBlurInput = (title) => {
   title.measured = true
@@ -744,7 +825,8 @@ const handleBlurInput = (title) => {
         cephalometricsList: [
           {
             titleId: title.id,
-            aiType: 2
+            aiType: 2,
+            classId: cephaClassId.value
           }
         ]
       })
@@ -762,25 +844,6 @@ const handleBlurInput = (title) => {
   })
 }
 
-const chooseImgNum = computed(() => {
-  let num = 0
-  imageArr.value.forEach((item) => {
-    item.imageList.forEach((img) => {
-      if (img.choose) {
-        num++
-      }
-    })
-  })
-  return num
-})
-
-// 影像管理逻辑
-const index = ref(0)
-const imageArr = ref([])
-const totalArr = ref([])
-const handleImageDialog = () => {
-  imgDialogVisible.value = !imgDialogVisible.value
-}
 const openImgDialog = () => {
   imgDialogVisible.value = true
 }
@@ -894,69 +957,11 @@ async function getToken() {
 //   return token
 // }
 const loading = ref(false)
-const loadingTarget2 = ref()
-// 自动分类
-// 图片拖拽
-const dragFile = ref(null)
-const src = ref()
-// 在右边区域拖拽
-const handleDragStart1 = (img) => {
-  dragFile.value = img
-  dragFile.value.rightDrop = true
-  src.value = dragFile.value.fileUrl
-  const image2 = document.getElementById('img')
-  image2.src = img.fileUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-// 从左侧拖到右侧
-const handleDragStart = (file, event) => {
-  if (file.file) {
-    event.dataTransfer.setData('text/plain', file)
-    dragFile.value = event.dataTransfer.files[0]
-  } else {
-    dragFile.value = file
-  }
-  const image2 = document.getElementById('img')
-  image2.src = file.imgUrl
-  image2.style.opacity = 1
-  image2.width = 120
-  image2.height = 80
-  image2.style.position = 'absolute'
-  image2.style.top = '-9999px'
-  image2.style.objectFit = 'cover'
-  image2.style.border = '2px solid #2E6CE4'
-  image2.style.boxShadow = '0px 9px 18px 0px rgba(0, 0, 0, 0.57)'
-  event.dataTransfer.setDragImage(image2, 60, 40)
-}
-const handleDragEnd = () => {
-  const image2 = document.getElementById('img')
-  image2.style.opacity = 0
-}
 
+const imageUrlChanged = ref(false)
 // 保存图片
-async function handleSavePics() {
-  // imgDialogVisible.value = false
-  // imageList.value.forEach((item) => (item.reminder = false))
-  // const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  // const arr = orthImageList.map((item) => ({
-  //   imageType: item.caption,
-  //   imageUrl: item.fileUrl,
-  //   imageId: item.fileId || null
-  // }))
-  // Post('/prod-api/business/orthImage', {
-  //   apmtId: appId,
-  //   orthImageList: arr
-  // }).then(() => {
-  //   getAllData()
-  // })
+async function handleSavePics(val) {
+  imageUrlChanged.value = val
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
@@ -965,18 +970,6 @@ async function handleSavePics() {
 const handleClose = () => {
   imgDialogVisible.value = false
 }
-const handleDragOver = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = blueBgUrl
-    e.target.classList.add('hover')
-  }
-}
-const handleDragLeave = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
-    e.target.src = placeholderUrl
-  }
-  e.target.classList.remove('hover')
-}
 
 function getAllData() {
   getOrthFaceAccessList()
@@ -984,9 +977,7 @@ function getAllData() {
   getOrthMouthList()
   getOrthPanoramicList()
 }
-const handleCloseImgDialog = () => {
-  imageList.value.forEach((image) => (image.reminder = false))
-}
+
 // 获取照片和相关信息
 
 const faceAccessData = ref([])
@@ -1149,100 +1140,70 @@ async function getOrthFaceAccessList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/面型评估/${appId}`)
   faceAccessData.value = result.data
   result.data.forEach((item) => item.orthTitleList.forEach((title) => (title.showInput = false)))
+
   result.data.forEach((item) => {
     if (!item.imageUrl) {
       item.hasImage = false
     } else {
       item.hasImage = true
       // 预加载如果没很快用到会有警告
-
-      if (item.className === '正面像') {
-        const preloadLink = document.createElement('link')
-        preloadLink.href = item.imageUrl
-        preloadLink.rel = 'preload'
-        preloadLink.as = 'image'
-        document.head.appendChild(preloadLink)
-        const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
-        const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
-        const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
-        // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
-        const isTitle1Test = title1.orthOptionsList.some((option) => option.choosen == true)
-        const isTitle2Test = title2.orthOptionsList.some((option) => option.choosen == true)
-        const isTitle3Test = title3.orthOptionsList.some((option) => option.choosen == true)
-        AiTest.value = !isTitle1Test || !isTitle2Test || !isTitle3Test
-        FrontalReposeImageUrl.value = item.imageUrl
-        const formData = new FormData()
-        formData.append('imageUrl', item.imageUrl)
-        Get(`/prod-api/business/orthPoint/list?apmtId=${appId}&pointType=2`).then((res) => {
-          if (res.data.length > 0) {
-            faceSet.value = res.data.map((item) => ({
-              label: item.pointName,
-              x: item.xcoordinate,
-              y: item.ycoordinate
-            }))
-            if (AiTest.value) {
-              calculateFront(faceSet.value, item.id, item.owningModule)
-            }
-            // nextTick(() => {
-            // 如果快速切换了页面，那么就不画图了
-            if (interruptSignal) {
-              return
-            }
-
-            loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-            // })
-          } else {
-            Post('/prod-api/business/orthImage/calculateFaceShapeSet', formData, true).then(
-              (res) => {
-                if (res.data.face_list) {
-                  const data = res.data.face_list[0].landmark201
-                  const image = new Image()
-                  image.onload = () => {
-                    const { width, height, ratio } = getRatio(image.width, image.height, 320, 240)
-                    // 比例缩放的因子
-                    const scaleFactorWidth = width / image.width
-                    const scaleFactorHeight = height / image.height
-                    faceSet.value = FrontalRose.map((a) => ({
-                      label: a,
-                      x: data[a].x * scaleFactorWidth,
-                      y: data[a].y * scaleFactorHeight
-                    }))
-                    calculateFront(faceSet.value, item.id, item.owningModule)
-                    const set = faceSet.value.map((item) => [item.label, item.x, item.y])
-                    addFaceset(set)
-                  }
-                  image.src = FrontalReposeImageUrl.value
-
-                  // nextTick(() => {
-                  if (interruptSignal) {
-                    return
-                  }
-                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                } else {
-                  loadImageToCanvas(320, 240, FrontalReposeImageUrl.value, 'FrontalRose')
-                }
-              }
-            )
-          }
-        })
-      }
-      if (item.className == '正面微笑像') {
-        FrontalSmileImageUrl.value = item.imageUrl
-      }
     }
+    if (item.className === '正面像') {
+      const preloadLink = document.createElement('link')
+      preloadLink.href = item.imageUrl
+      preloadLink.rel = 'preload'
+      preloadLink.as = 'image'
+      document.head.appendChild(preloadLink)
+      const title1 = item.orthTitleList.find((title) => title.titleName == '正貌')
+      const title2 = item.orthTitleList.find((title) => title.titleName == '面中三分之一')
+      const title3 = item.orthTitleList.find((title) => title.titleName == '面下三分之一')
+      // 刚开始的时候都没有选，全部计算，之后改动的话也不会计算了
+
+      FrontalReposeImageUrl.value = item.imageUrl
+      const formData = new FormData()
+      formData.append('imageUrl', item.imageUrl)
+      // 如果有图片变化，则先调用算法接口
+    }
+    if (item.className == '正面微笑像') {
+      FrontalSmileImageUrl.value = item.imageUrl
+      const title = item.orthTitleList.find((a) => a.titleName == '𬌗平面')
+
+      const option1 = title.orthOptionsList.find((a) => a.optionName == '左高右低偏斜')
+
+      option1.optionName = '╱左高右低偏斜'
+      const option2 = title.orthOptionsList.find((a) => a.optionName == '左低右高偏斜')
+      option2.optionName = '╲左低右高偏斜'
+    }
+
     if (item.className == '90度侧面像') {
       savedTitleList.value = [...item.orthTitleList]
       const title1 = item.orthTitleList.find((title) => title.titleName == '凸面型表现')
       const title2 = item.orthTitleList.find((title) => title.titleName == '凹面型表现')
+      //
       const choosen1 = !title1.orthOptionsList.some((option) => option.choosen === true)
       const choosen2 = !title2.orthOptionsList.some((option) => option.choosen === true)
-      if (choosen1 && choosen2) {
-        item.orthTitleList.splice(1, 2)
-      } else if (choosen2) {
+      const title3 = item.orthTitleList.find((title) => title.titleName == '侧貌')
+      const option = title3.orthOptionsList.filter((option) => {
+        return option.choosen === true
+      })
+
+      if (option.length > 0 && option[0].optionName == '凸面型') {
         item.orthTitleList.splice(2, 1)
-      } else if (choosen1) {
+      }
+      if (option.length > 0 && option[0].optionName == '凹面型') {
         item.orthTitleList.splice(1, 1)
       }
+      if (option.length > 0 && option[0].optionName == '直面型') {
+        item.orthTitleList.splice(1, 1)
+        item.orthTitleList.splice(1, 1)
+      }
+      // if (choosen1) {
+      //   item.orthTitleList.splice(1, 1)
+      // } else if (choosen2) {
+      //   item.orthTitleList.splice(2, 1)
+      // } else if (choosen1) {
+      //   item.orthTitleList.splice(1, 1)
+      // }
     }
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1286,6 +1247,7 @@ function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
   }
   return { width, height, ratio }
 }
+const frontCoverItem = ref()
 const mouthData = ref([])
 const frontCover = ref()
 async function getOrthMouthList() {
@@ -1330,6 +1292,7 @@ async function getOrthMouthList() {
       }
     })
     if (item.className == '前牙覆盖') {
+      frontCoverItem.value = item
       frontCover.value = item.imageUrl
     }
     if (item.className == '正面咬合') {
@@ -1433,19 +1396,42 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
-      useFdiToothCodeEffect(a)
-      a.showInput = false
-      a.popVisible = false
+      if (a.titleName !== '多生牙') {
+        useFdiToothCodeEffect(a)
+        a.showInput = false
+        a.popVisible = false
+      }
     })
   })
 
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((title) => {
+      if (title.titleName == '多生牙') {
+        selectedDsy.value = title.fdiToothCode?.split(',')
+        selectedDsy.value?.forEach((i) => {
+          dsyData.value.forEach((a) => {
+            if (i == a.supernumeraryTeethOrder) {
+              a.choosen = true
+            }
+          })
+        })
+      }
+      if (title.titleName == '下颌升支长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '-┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└-左短右长'
+      }
+      if (title.titleName == '下颌骨体长度') {
+        const option1 = title.orthOptionsList.find((option) => option.optionName == '左长右短')
+        option1.optionName = '└- ---┘左长右短'
+        const option2 = title.orthOptionsList.find((option) => option.optionName == '左短右长')
+        option2.optionName = '└--- -┘左短右长'
+      }
       if (title.type == 1) {
         title.optionId = ''
         title.text = ''
         title.showInput = false
-
         const choosenOptions = title.orthOptionsList.filter((option) => option.choosen === true)
         if (choosenOptions.length > 0) {
           title.optionId = choosenOptions[0].id
@@ -1468,8 +1454,8 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  console.log(panoramicData.value)
 }
+
 // const lastApmtId  =ref()
 async function getOrthPanoramicList() {
   const result = await Get(`/prod-api/emr/orthCommon/list/2/全景片/${appId}`)
@@ -1494,9 +1480,14 @@ async function getOrthPanoramicList() {
       }
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 6)
-          codeTitleList.value = res.data.slice(6)
-          panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+          codeTitleList.value = res.data.slice(7, 20)
+          const other = res.data.slice(20)
+          panoramicData.value[0].orthTitleList = [
+            ...nonCodeTitleList,
+            ...codeTitleList.value,
+            ...other
+          ]
           // 获取牙位数据是异步操作，需要分情况处理全景片数据
           handlePanoData(panoramicData)
         }
@@ -1506,6 +1497,54 @@ async function getOrthPanoramicList() {
 
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
+  }
+}
+
+// 多生牙逻辑
+const maxTagCount = ref(1)
+const dsyData = ref()
+const getDsyData = async () => {
+  const res = await Get('/prod-api/emr/orthCommon/selectSupernumeraryTeeth')
+  dsyData.value = res.data
+}
+getDsyData()
+const selectedDsy = ref([])
+const handleChangeDsy = async (title, classId) => {
+  title.fdiToothCode = selectedDsy.value.join(',')
+  let obj = {
+    aptmId: appId,
+    titleId: title.id,
+    optionsIdStr: [],
+    otherContent: title.otherContent,
+    cephalometricsContent: '',
+    fdiToothCode: title.fdiToothCode,
+    showPosition: '',
+    aiFlag: '',
+    classId: classId,
+    owningModule: '全景片',
+    optionSuffix: '牙位图'
+  }
+  await Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj)
+}
+
+const options = ref(['Option1', 'Option2', 'Option3', 'Option4', 'Option5', 'Option6'])
+const handlePopupVisibleChange = (val) => {
+  const select = document.querySelector('.search-select')
+  if (val) {
+    maxTagCount.value = 0
+  } else {
+    maxTagCount.value = 1
+  }
+}
+const handleSearch = (value) => {
+  if (value) {
+    loading.value = true
+    window.setTimeout(() => {
+      options.value = [`${value}-Option1`, `${value}-Option2`, `${value}-Option3`]
+      loading.value = false
+    }, 2000)
+  } else {
+    options.value = []
   }
 }
 
@@ -1631,9 +1670,13 @@ const initZoomCanvas = () => {
   canvas.addEventListener('mouseup', handleMouseUp)
   const timestamp = new Date().getTime()
   image.src = `${cephaImage.value}` // 设置图片源地址
+  overlayName.value = '侧位片'
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
+
+  const page = document.querySelector('.ortho-page')
+  page.addEventListener('mousewheel', preventDefault)
   initZoomCanvas()
 }
 // 移动canvas点逻辑
@@ -1818,7 +1861,13 @@ const handleZoomOutCepha = (e) => {
     handleZoomOutPic(true)
   }
 }
+// 防止默认事件的具名函数
+const preventDefault = (e) => {
+  e.preventDefault()
+}
 const handleZoomOutPic = (fromBtn) => {
+  const page = document.querySelector('.ortho-page')
+  page.removeEventListener('mousewheel', preventDefault)
   // 判断是从全景片还是侧位片关闭的
   if (zoomPano.value) {
     overlayRef.value.style.display = 'none'
@@ -1944,7 +1993,8 @@ const handleZoomOutPic = (fromBtn) => {
         .filter((title) => title.changeCoor === true)
         .map((title) => ({
           titleId: title.id,
-          aiType: 1
+          aiType: 1,
+          classId: cephaClassId.value
         }))
       // 是坐标引起的变化
       Post('/prod-api/business/optionsResult/updateAIType', {
@@ -2080,6 +2130,11 @@ async function getPoints(file) {
       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+    } else {
+      ElMessage({
+        message: res.msg,
+        type: 'warning'
+      })
     }
   }
 }
@@ -2110,6 +2165,7 @@ async function getPoints(file) {
 //       ratio1 = coordinatesBase.value.find((item) => item.label == 'Ratio1')
 //       ratio2 = coordinatesBase.value.find((item) => item.label == 'Ratio2')
 //       standardDistance = calculateDistanceEffect(ratio1, ratio2)
+//       console.log('🚀 ~ getPoints ~ standardDistance:', standardDistance)
 //     }
 //   }
 // }
@@ -2330,42 +2386,8 @@ const handleOpenImageDialogue = (caption) => {
   // reminder是提醒从这个跳进去的
   title.value = caption
 }
-
-async function getImageList() {
-  if (imageArr.value.length !== 0) {
-    return
-  } else {
-    Get(`/prod-api/business/orthImage/imageList?patientId=${patientId}`).then((res) => {
-      totalArr.value = res.data
-      if (res.data.find((a) => a.imageList.length !== 0)) {
-        imageArr.value[0] = res.data.find((a) => a.imageList.length !== 0)
-
-        index.value = res.data.findIndex((a) => a.imageList.length !== 0)
-        imageArr.value[0].imageList.forEach((img) => {
-          img.imgUrl = img.fileUrl
-          img.choose = false
-        })
-      }
-    })
-  }
-}
-async function getClassifiedImgList() {
-  const res = await Get(`/prod-api/business/orthImage/list?apmtId=${appId}`)
-  if (res.code == 200 && res.data.length > 0) {
-    res.data.forEach((item) => {
-      imageList.value.forEach((a) => {
-        // a.fileUrl = placeholderUrl
-        if (item.imageType == a.caption) {
-          a.fileUrl = item.imageUrl
-          a.id = item.id
-        }
-      })
-    })
-  } else {
-    imageList.value.forEach((a) => {
-      a.fileUrl = placeholderUrl
-    })
-  }
+const handleDblClick = () => {
+  console.log(33)
 }
 
 const angleListWithThreePoints = [
@@ -2393,6 +2415,7 @@ function calculateSinglePoint(ratio, item, changed) {
     foundPoint.aiFlag = '1'
   }
 }
+
 function calculateAllPoints() {
   pointRatio.forEach((item) => {
     let ratio = calculateDistanceRatio(item, coordinatesSmall.value)
@@ -2493,7 +2516,7 @@ async function getAIResult() {
     const loading = ElLoading.service({
       lock: true,
       text: '正在计算中',
-      background: 'rgba(0, 0, 0, 0.7)',
+      background: 'rgba(255, 255, 255, 0.66);',
       target: loadingTarget.value
     })
     if (cephaImage.value) {
@@ -2707,6 +2730,9 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凹'))
       title2.orthOptionsList.forEach((option) => (option.choosen = false))
       title2.optionId = []
+      await useUpdateOption(title.optionId, title, appId, classId, owningModule)
+      getOrthFaceAccessList()
+      return
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '凹面型') {
       const title1 = savedTitleList.value.find((title) => title.titleName == '凸面型表现')
       const choosen1 = title1.orthOptionsList.some((option) => option.choosen === true)
@@ -2716,6 +2742,9 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       found.orthTitleList = savedTitleList.value.filter((t) => !t.titleName.includes('凸'))
       title1.optionId = []
       title1.orthOptionsList.forEach((option) => (option.choosen = false))
+      await useUpdateOption(title.optionId, title, appId, classId, owningModule)
+      getOrthFaceAccessList()
+      return
     } else if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '直面型') {
       found.orthTitleList = savedTitleList.value.filter(
         (t) => !t.titleName.includes('凸') && !t.titleName.includes('凹')
@@ -2738,7 +2767,6 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       getOrthFaceAccessList()
       return
     }
-    // getOrthFaceAccessList()
   }
 
   if (className == '侧位片') {
@@ -2748,7 +2776,8 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
       cephalometricsList: [
         {
           titleId: title.id,
-          aiType: 3
+          aiType: 3,
+          classId: cephaClassId.value
         }
       ]
     })
@@ -2757,24 +2786,6 @@ const handleChangeOption = async (optionId, title, classId, owningModule, classN
   useUpdateOption(title.optionId, title, appId, classId, owningModule)
 }
 
-// const handleSubmitTooth = (title) => {
-//   if (!title.submitAble) {
-//     return
-//   }
-
-//   let obj = {
-//     apmtId: appId,
-//     titleId: title.id,
-//     optionsIdStr: [],
-//     otherContent: '',
-//     cephalometricsContent: '',
-//     fdiToothCode: title.toothCode.join(),
-//     showPosition: JSON.stringify(title.position)
-//   }
-//   Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
-//     title.submitAble = false
-//   })
-// }
 const handleSubmit = (optionId, title, classId, owningModule) => {
   useUpdateOption(optionId, title, appId, classId, owningModule)
 }
@@ -2800,27 +2811,30 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
 }
 </script>
 <style>
-.file-upload {
-  position: relative;
-  cursor: pointer;
+.arco-select-option-selected {
+  img {
+    display: block;
+  }
 }
-
-.file-upload__label {
-  display: inline-block;
-  color: #333;
-  border-radius: 4px;
-  cursor: pointer;
+.arco-select-view {
+  border-radius: 6px;
 }
-
-.file-upload__input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
+.arco-select-option-checkbox {
   width: 100%;
-  height: 100%;
-  cursor: pointer;
+  &.arco-checkbox-checked {
+    .arco-checkbox-label {
+      color: #2e6ce4;
+    }
+  }
 }
+
+.arco-checkbox-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .el-dialog {
   border-radius: 12px;
 }
@@ -2842,6 +2856,30 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep(.arco-select-dropdown) {
+  height: 180px !important;
+}
+:deep(.arco-scrollbar-container.arco-select-dropdown-list-wrapper) {
+  height: 180px;
+}
+:deep(.arco-checkbox-icon-hover) {
+  display: none;
+}
+:deep(.el-input.blue) {
+  .el-input__inner {
+    color: #2e6ce4;
+  }
+}
+:deep(.el-input.red) {
+  .el-input__inner {
+    color: #f65b56;
+  }
+}
+img {
+  &:hover {
+    cursor: zoom-in;
+  }
+}
 :deep .imageItem.frontCoverImage {
   border-bottom: none !important;
   padding: 0;
@@ -2988,12 +3026,32 @@ div.el-input__wrapper {
   opacity: 1;
   z-index: 10;
   /* 自动布局 */
-
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.86);
   display: none;
+
+  &__header {
+    position: absolute;
+    top: 10px;
+    color: #ffffff;
+    left: 10px;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  &__photo {
+    height: 80vh;
+    width: 90vw;
+    border-radius: 5px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
 }
 .dragging {
   opacity: 0.5;
@@ -3415,7 +3473,7 @@ div.el-input__wrapper {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 420px 300px;
+      grid-template-columns: 480px 360px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;
@@ -3605,6 +3663,22 @@ div.el-input__wrapper {
     box-shadow: none;
     border: none;
     background: #fdebeb;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.green {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #ddf9e3;
+    color: #23c343;
+  }
+}
+:deep .el-radio-group.cephaRadio .el-radio-button.blue {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #eaf0fc;
+    color: #2e6ce4;
   }
 }
 .content.mouth {

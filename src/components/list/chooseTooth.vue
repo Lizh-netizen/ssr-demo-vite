@@ -37,10 +37,11 @@ import { GetSymptom } from '@/utils/tooth'
 import useSelectTooth from '@/effects/selectTooth.ts'
 const symptomList = ref([])
 const props = defineProps(['option', 'arrange'])
-
+const emit = defineEmits(['toothClicked'])
 symptomList.value = GetSymptom()
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
+  emit('toothClicked')
   useSelectTooth(item, title)
   if (props.arrange) {
     handleArrangeTooth(item, title)

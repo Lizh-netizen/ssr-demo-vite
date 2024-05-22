@@ -81,7 +81,7 @@
                     planTool: planTool == true,
                     border: element.visible
                   }"
-                  @click="element.visible = true"
+                  @click="(e) => handleVisible(e, element)"
                 >
                   <img class="drag" src="../../assets/layout/drag.svg" />
                   <div class="list-group-item-name">{{ element.name }}</div>
@@ -175,18 +175,16 @@ watch(data, (val) => {
   data.value = val
 })
 let toothItem = ref(null)
-const handleDragOver = (e) => {
-  e.target.classList.add('dragOver')
-}
-const handleDragLeave = (e) => {
-  e.target.parentElement.classList
-  e.target.classList.remove('dragOver')
+const handleVisible = (e, element) => {
+  element.visible = true
+  if (element.visible) {
+    e.stopPropagation()
+  }
 }
 
 const onChange = (event) => {
   if (event.removed && event.removed.element) {
     const newItem = JSON.parse(JSON.stringify(event.removed.element))
-
     if (newItem.name.includes('拔牙')) {
       symptomList.value.forEach((row) => {
         row.forEach((a) => {
@@ -194,6 +192,22 @@ const onChange = (event) => {
         })
       })
       flag.value = true
+      // 刚开始显示十字牙位时update一次，控制visible的显示
+      emit('update', {
+        data: data.value,
+        removeFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      return
+    }
+    if (newItem.name.includes('个别牙反合纠正')) {
+      symptomList.value.forEach((row) => {
+        row.forEach((a) => {
+          a.active = false
+        })
+      })
+      flag1.value = true
       // 刚开始显示十字牙位时update一次，控制visible的显示
       emit('update', {
         data: data.value,
@@ -223,12 +237,35 @@ const onChange = (event) => {
       flag.value = false
       return
     }
+    if (newItem.name == '个别牙反合纠正') {
+      showMask.value = true
+      toothItem.value = newItem
+      flag1.value = true
+      // 刚开始显示十字牙位时update一次，控制visible的显示
+      emit('update', {
+        data: data.value,
+        flag1: flag1.value,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      flag1.value = false
+      return
+    }
   }
   // 有牙位的时候
   if (event.added && event.added.element) {
     const newItem = JSON.parse(JSON.stringify(event.added.element))
 
     if (newItem.name.includes('拔牙')) {
+      emit('update', {
+        data: data.value,
+        addFlag: true,
+        planIndex: props.planIndex,
+        stageIndex: props.stageIndex
+      })
+      return
+    }
+    if (newItem.name.includes('个别牙反合纠正')) {
       emit('update', {
         data: data.value,
         addFlag: true,
@@ -290,7 +327,9 @@ const onMove = (e, originalEvent) => {
 
   return true
 }
+// 区分拔牙和个别牙
 const flag = ref(false)
+const flag1 = ref(false)
 const put = ref(true)
 
 const elements = ref({
@@ -343,12 +382,16 @@ onMounted(() => {
   window.addEventListener('click', (e) => {
     // 有牙齿的情况
     const popover = document.querySelector('.el-popper.el-popover.myPopper')
-    if (popover) {
+    const container = document.querySelector('.container')
+    if (popover && container) {
       if (e.target !== popover) {
         if (data.value.length > 0 && props.planTarget) {
           toothFlag.value = data.value.some(
-            (element) => element.toothCode?.length == 0 && element.name == '拔牙'
+            (element) =>
+              element.toothCode?.length == 0 &&
+              (element.name == '拔牙' || element.name == '个别牙反合纠正')
           )
+
           // 存在没有选牙位的拔牙选项，出现mask，并且给提醒
           if (toothFlag.value) {
             ElMessage({
@@ -359,29 +402,25 @@ onMounted(() => {
             e.preventDefault()
             return
           }
-          // 都有牙齿
-          if (!toothFlag && popover?.compareDocumentPosition(e.target) == 2) {
-            data.value.forEach((element) => {
-              element.visible = false
-            })
-          }
-
-          // 有item并且有牙齿才可以提交
-          else if (
-            item.value.changeStatus &&
-            popover?.compareDocumentPosition(e.target) !== 4 &&
-            popover?.compareDocumentPosition(e.target) !== 20
-          ) {
+          if (!toothFlag.value && popover?.compareDocumentPosition(e.target) == 2) {
+            // 选择牙位的弹窗存在，且未选中牙齿时
+            console.log(item.value)
+            if (!item.value.item) {
+              return
+            }
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
-              stageIndex: props.stageIndex
+              stageIndex: props.stageIndex,
+              name: item.value?.item?.name
             })
 
+            sessionStorage.setItem('toothFlag', 'false')
             data.value.forEach((element) => {
               element.visible = false
             })
             item.value.changeStatus = false
+            item.value = {}
           }
         }
       }

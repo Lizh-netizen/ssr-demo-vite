@@ -19,6 +19,7 @@
           class="aiFlagImg"
           src="@/assets/svg/AIFlagForFront.svg"
           v-show="title.aiFlag == '1' && option.choosen"
+          :class="{ 'z-2': !showViewer }"
         />
       </el-radio-button>
 
@@ -173,6 +174,10 @@ const props = defineProps({
   module: {
     type: String,
     default: ''
+  },
+  showViewer: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -328,7 +333,6 @@ const handleMouseLeave = (option) => {
   })
 }
 async function handleSubmitContent(optionId, title, option) {
-  console.log(option)
   option.visible = false
   if (option.otherContent) {
     const res = await useUpdateOption(optionId, title, option.otherContent, appId)
@@ -359,7 +363,6 @@ async function handleSubmitContent(optionId, title, option) {
     position: absolute;
     right: -6px;
     top: -4px;
-   
   }
 }
 </style>
