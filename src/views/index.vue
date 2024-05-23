@@ -733,7 +733,7 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
+onBeforeMount(() => {
   // 初始化
   pagesStorage.value = strategy[currentTab.value].page
   const val = sessionStorage.getItem('currentTab')

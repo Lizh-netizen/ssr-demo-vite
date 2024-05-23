@@ -426,10 +426,8 @@ const filter = () => {
 watch(
   () => modelVal.value,
   (val) => {
-    if (val) {
-      sessionStorage.setItem(storageName, JSON.stringify(modelVal.value))
-      console.log('modelVal', storageName, modelVal.value)
-    }
+    sessionStorage.setItem(storageName, JSON.stringify(modelVal.value))
+    console.log('modelVal', storageName, modelVal.value)
     emit('changeData', filterData.value)
   },
   { deep: true, immediate: true }
