@@ -780,7 +780,6 @@ onBeforeMount(() => {
   }
   storageName.value = strategy[val].storage
   pagesStorage.value = strategy[val].page
-  verifyPermission()
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
   const list = ['ortho', 'evaluate']
@@ -797,6 +796,7 @@ onBeforeMount(() => {
       })
     )
   })
+  verifyPermission()
 })
 
 // 看板数据
