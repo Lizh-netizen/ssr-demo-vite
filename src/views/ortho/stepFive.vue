@@ -29,7 +29,7 @@
                 style="margin-right: 12px"
                 class="object-none"
               />
-              <div class="title">目标</div>
+              <div class="title">里程碑</div>
             </div>
             <draggable
               class="ORTHTARGET"
@@ -446,7 +446,7 @@
                         <Tooth
                           :step="5"
                           :title="option"
-                          :appId="appId"                       
+                          :appId="appId"
                           @submitTooth="
                             (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
                           "

@@ -28,13 +28,7 @@
               options: options,
               allowSearch: true
             },
-            {
-              name: '诊所',
-              type: 'select',
-              prop: 'officeId',
-              options: options1,
-              allowSearch: true
-            },
+
             {
               name: '风险等级',
               type: currentTab == '面评矫正预约率' ? 'select' : undefined,
@@ -449,7 +443,7 @@ async function getOrthoList(val) {
           { label: '图像分析', finished: !!+item.imageAnalysis },
           { label: '模型分析', finished: !!+item.modelAnalysis },
           { label: '诊断', finished: !!+item.diagnosis },
-          { label: '目标和工具', finished: !!+item.plansTools },
+          { label: '里程碑与工具', finished: !!+item.plansTools },
           { label: '审批提交', finished: !!+item.approvalSubmitted }
         ]
       }))

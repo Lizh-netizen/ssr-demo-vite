@@ -306,7 +306,7 @@
         <template v-if="item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="目标&方法&风险" />
+            <Header text="方案&风险" />
             <div class="subTitle">方案</div>
             <div class="content">
               <div
@@ -427,7 +427,7 @@ const order = [
   '口内照',
   '全景片',
   '侧位片',
-  '目标',
+  '里程碑',
   '方法'
 ]
 function sort(a, b) {
@@ -687,7 +687,7 @@ async function getDataList() {
     }, {})
     data.value = Object.values(reduced)
 
-    const objective = data.value.find((item) => item.owningModule == '目标')
+    const objective = data.value.find((item) => item.owningModule == '里程碑')
     const method = data.value.find((item) => item.owningModule == '方法')
     if (objective && method) {
       objective.method = method
@@ -757,8 +757,8 @@ function transformData(data) {
     // 在 stageList 的第一项前加入指定的数据
     stageList.unshift({
       stageName: '阶段',
-      goalList: ['目标'],
-      toolList: '配件'
+      goalList: ['里程碑'],
+      toolList: '工具'
     })
 
     return {
