@@ -422,36 +422,13 @@ const filter = () => {
   sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
   emit('filter', filterData.value)
 }
-// 数据改变的事件
-// watch(
-//   () => modelVal.value,
-//   (val) => {
-//     for (const key in val) {
-//       if (val[key]) {
-//         filterData.value[key] = val[key]
-//       } else {
-//         delete filterData.value[key]
-//       }
-//     }
-//     if (val) {
-//       sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
-//     }
-//     emit('changeData', filterData.value)
-//   },
-//   { deep: true, immediate: true }
-// )
+
 watch(
   () => modelVal.value,
   (val) => {
-    // for (const key in val) {
-    //   if (val[key]) {
-    //     filterData.value[key] = val[key]
-    //   } else {
-    //     delete filterData.value[key]
-    //   }
-    // }
     if (val) {
       sessionStorage.setItem(storageName, JSON.stringify(modelVal.value))
+      console.log('modelVal', storageName, modelVal.value)
     }
     emit('changeData', filterData.value)
   },

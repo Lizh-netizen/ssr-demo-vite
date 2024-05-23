@@ -733,7 +733,7 @@ watch(
   { immediate: true }
 )
 
-onBeforeMount(() => {
+onMounted(() => {
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
   const list = ['ortho', 'evaluate']
