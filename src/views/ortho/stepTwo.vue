@@ -67,7 +67,7 @@
                   <el-checkbox-group
                     v-model="title.optionId"
                     v-if="title.type == 2"
-                    @change="handleChangeOption(title.optionId, title)"
+                    @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
                   >
                     <el-checkbox-button
                       :class="{
