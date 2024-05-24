@@ -171,7 +171,6 @@
                   <img
                     crossOrigin="anonymous"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
-                    class="h-full! w-auto!"
                     v-if="item.imageList1[1]?.imageUrl"
                   />
                   <img src="@/assets/imgs/placeholder-v-blue.png" v-else />
@@ -1190,17 +1189,17 @@ body {
           gap: 10px;
 
           .image1 {
-            // width: 50%;
+            width: 50%;
             // grid-column: 1 / span 2;
             // grid-row: 1 / span 2;
             // height: 250px;
             // overflow: hidden;
-            width: 263px;
-            height: 174px;
+            // width: 263px;
+            height: 224px;
           }
           .image2 {
-            width: 115px;
-            height: 174px;
+            width: 50%;
+            height: 224px;
           }
           // .image2 {
           //   grid-column: 3;
