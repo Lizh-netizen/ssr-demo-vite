@@ -171,6 +171,7 @@
                   <img
                     crossOrigin="anonymous"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
+                    class="h-full! w-auto!"
                     v-if="item.imageList1[1]?.imageUrl"
                   />
                   <img src="@/assets/imgs/placeholder-v-blue.png" v-else />
