@@ -153,16 +153,17 @@
             <Header text="咬合分析" />
             <div class="middle section">
               <div class="imageList1">
-                <div class="imageBox image1">
+                <div class="imageBox image1 overflow-hidden">
                   <div class="imageCaption">
                     {{ item.imageList1[0]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
+                    class="h-full"
                     :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
                     v-if="item.imageList1[0]?.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
                 <div class="imageBox image2 overflow-hidden">
                   <div class="imageCaption">
@@ -174,7 +175,7 @@
                     class="h-full! w-auto!"
                     v-if="item.imageList1[1]?.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-v-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-v-blue.png" class="h-full" v-else />
                 </div>
               </div>
               <div class="content1 content">
@@ -193,9 +194,10 @@
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="h-full"
                     v-if="image.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
               </div>
               <div class="content2 content">
@@ -222,8 +224,9 @@
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
                     v-if="image.imageUrl"
+                    class="h-full"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" class="h-full" v-else />
                 </div>
               </div>
               <div class="content2 content">
@@ -244,8 +247,9 @@
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
                     v-if="image.imageUrl"
+                    class="h-full"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
               </div>
               <div class="content2 content">
@@ -929,7 +933,7 @@ onMounted(() => {
     })
     main()
   }
-  //  main()
+  // main()
 })
 </script>
 
@@ -1196,11 +1200,11 @@ body {
             // height: 250px;
             // overflow: hidden;
             // width: 263px;
-            height: 224px;
+            height: 250px;
           }
           .image2 {
             width: 50%;
-            height: 224px;
+            height: 250px;
           }
           // .image2 {
           //   grid-column: 3;
