@@ -928,7 +928,7 @@ onMounted(() => {
     })
     main()
   }
-  // main()
+  //  main()
 })
 </script>
 
@@ -1132,7 +1132,7 @@ body {
         background: #eaf0fc;
         display: flex;
         align-items: center;
-        margin-left: 12px;
+        // margin-left: 12px;
         border-radius: 12px;
 
         &.content {
@@ -1217,7 +1217,7 @@ body {
         }
         .content1 {
           flex: 1;
-          margin-left: 10px;
+          // margin-left: 10px;
           border-radius: 12px;
           display: flex;
           align-items: center;
@@ -1233,7 +1233,7 @@ body {
 
         .content2.content {
           display: flex;
-
+          gap: 22px;
           flex: 1;
           .list1 {
             width: 100%;
