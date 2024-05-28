@@ -706,7 +706,7 @@ const handleFileChange = (event) => {
       date.value = formatTime().formattedToday
       imageArr.value.unshift({
         file: true,
-        StartTime: date.value,
+        StartTime: '本地上传',
         imageList: fileListWithFlag.value
       })
       upload.value = true
