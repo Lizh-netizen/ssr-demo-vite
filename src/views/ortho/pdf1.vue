@@ -153,27 +153,29 @@
             <Header text="咬合分析" />
             <div class="middle section">
               <div class="imageList1">
-                <div class="imageBox image1">
+                <div class="imageBox image1 overflow-hidden">
                   <div class="imageCaption">
                     {{ item.imageList1[0]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
+                    class="h-full"
                     :src="item.imageList1[0]?.imageUrl + `?random=${Math.random()}`"
                     v-if="item.imageList1[0]?.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
-                <div class="imageBox image2">
+                <div class="imageBox image2 overflow-hidden">
                   <div class="imageCaption">
                     {{ item.imageList1[1]?.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
                     :src="item.imageList1[1]?.imageUrl + `?random=${Math.random()}`"
+                    class="h-full! w-auto!"
                     v-if="item.imageList1[1]?.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-v-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-v-blue.png" class="h-full" v-else />
                 </div>
               </div>
               <div class="content1 content">
@@ -182,16 +184,20 @@
             </div>
             <div class="bottom section">
               <div class="imageList2">
-                <div v-for="image in item.imageList2" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList2"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
                   <img
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
+                    class="h-full"
                     v-if="image.imageUrl"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
               </div>
               <div class="content2 content">
@@ -207,7 +213,10 @@
             <Header text="咬合分析" />
             <div class="bottom section">
               <div class="imageList2">
-                <div v-for="image in item.imageList3" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList3"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
@@ -215,8 +224,9 @@
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
                     v-if="image.imageUrl"
+                    class="h-full"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" class="h-full" v-else />
                 </div>
               </div>
               <div class="content2 content">
@@ -226,7 +236,10 @@
             </div>
             <div class="bottom section" v-if="item.imageList4.length > 0">
               <div class="imageList2">
-                <div v-for="image in item.imageList4" class="w-[50%]! h-[250px]! imageBox">
+                <div
+                  v-for="image in item.imageList4"
+                  class="w-[50%]! h-[250px]! imageBox overflow-hidden"
+                >
                   <div class="imageCaption">
                     {{ image.className }}
                   </div>
@@ -234,8 +247,9 @@
                     crossOrigin="anonymous"
                     :src="image.imageUrl + `?random=${Math.random()}`"
                     v-if="image.imageUrl"
+                    class="h-full"
                   />
-                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else />
+                  <img src="@/assets/imgs/placeholder-h-blue.png" v-else class="h-full" />
                 </div>
               </div>
               <div class="content2 content">
@@ -249,8 +263,15 @@
           <div class="pdfPage flexPdfPage">
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
-            <div class="imgBox imageBox" :class="{ cepha: item.owningModule === '侧位片' }">
-              <div class="imageCaption" v-if="item.imageUrl">
+            <div
+              class="imgBox imageBox"
+              :class="{
+                cepha: item.owningModule === '侧位片',
+                pano: item.owningModule === '全景片',
+                hasBackGround: item.imageUrl
+              }"
+            >
+              <div class="imageCaption">
                 {{ item.className }}
               </div>
               <img
@@ -260,7 +281,7 @@
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
             </div>
             <div class="content blueBackground" v-show="item.list.length > 0">
               <list :list="item.list" />
@@ -289,7 +310,7 @@
         <template v-if="item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="目标&方法&风险" />
+            <Header text="方案&风险" />
             <div class="subTitle">方案</div>
             <div class="content">
               <div
@@ -410,7 +431,7 @@ const order = [
   '口内照',
   '全景片',
   '侧位片',
-  '目标',
+  '里程碑',
   '方法'
 ]
 function sort(a, b) {
@@ -670,7 +691,7 @@ async function getDataList() {
     }, {})
     data.value = Object.values(reduced)
 
-    const objective = data.value.find((item) => item.owningModule == '目标')
+    const objective = data.value.find((item) => item.owningModule == '里程碑')
     const method = data.value.find((item) => item.owningModule == '方法')
     if (objective && method) {
       objective.method = method
@@ -740,8 +761,8 @@ function transformData(data) {
     // 在 stageList 的第一项前加入指定的数据
     stageList.unshift({
       stageName: '阶段',
-      goalList: ['目标'],
-      toolList: '配件'
+      goalList: ['里程碑'],
+      toolList: '工具'
     })
 
     return {
@@ -967,10 +988,17 @@ body {
   margin: 0;
 }
 .cepha {
-  background: #060606;
   border-radius: 12px;
   display: flex;
   justify-content: center;
+}
+.pano {
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+}
+.hasBackGround {
+  background-color: #060606;
 }
 .imageCaption {
   font-size: 10px;
@@ -990,8 +1018,6 @@ body {
 
   img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 }
 
@@ -1053,7 +1079,6 @@ body {
     .imgBox {
       width: 100%;
       height: 500px;
-      background: #060606;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -1112,7 +1137,7 @@ body {
         background: #eaf0fc;
         display: flex;
         align-items: center;
-        margin-left: 12px;
+        // margin-left: 12px;
         border-radius: 12px;
 
         &.content {
@@ -1169,17 +1194,17 @@ body {
           gap: 10px;
 
           .image1 {
-            // width: 50%;
+            width: 50%;
             // grid-column: 1 / span 2;
             // grid-row: 1 / span 2;
             // height: 250px;
             // overflow: hidden;
-            width: 263px;
-            height: 174px;
+            // width: 263px;
+            height: 250px;
           }
           .image2 {
-            width: 115px;
-            height: 174px;
+            width: 50%;
+            height: 250px;
           }
           // .image2 {
           //   grid-column: 3;
@@ -1197,7 +1222,7 @@ body {
         }
         .content1 {
           flex: 1;
-          margin-left: 10px;
+          // margin-left: 10px;
           border-radius: 12px;
           display: flex;
           align-items: center;
@@ -1213,7 +1238,7 @@ body {
 
         .content2.content {
           display: flex;
-
+          gap: 22px;
           flex: 1;
           .list1 {
             width: 100%;

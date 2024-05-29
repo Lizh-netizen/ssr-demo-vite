@@ -19,7 +19,7 @@
                 @click="handlePreviewImage(item)"
                 :style="{
                   height: '240px',
-                  'object-fit': 'cover',
+                  'object-fit': 'contain',
                   'max-width': '320px'
                 }"
               /> </template
@@ -62,8 +62,31 @@
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
                       </el-radio-button>
-                    </template> </el-radio-group
-                ></form-item>
+                    </template>
+                  </el-radio-group>
+                  <el-checkbox-group
+                    v-model="title.optionId"
+                    v-if="title.type == 2"
+                    @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
+                  >
+                    <el-checkbox-button
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      v-for="option in title.orthOptionsList"
+                      :key="option.id"
+                      :value="option.id"
+                      :disabled="disabled"
+                    >
+                      {{ option.optionName }}
+                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="../../assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </el-checkbox-group>
+                </form-item>
               </template>
               <template v-else>
                 <form-item :label="title.titleName" width="120px">
@@ -102,7 +125,7 @@
                 :style="{
                   height: '240px',
                   width: '320px',
-                  'object-fit': 'cover'
+                  'object-fit': 'contain'
                 }" /></template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
@@ -118,7 +141,7 @@
                     :style="{
                       height: '240px',
                       width: '320px',
-                      'object-fit': 'cover'
+                      'object-fit': 'contain'
                     }" /></template
                 ><template v-else>
                   <div class="imageItem__placeholder" @click="handleOpenImageDialogue('前牙覆盖')">
@@ -212,19 +235,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -290,19 +301,7 @@
                           {{ option.optionName }}
                         </el-radio-button>
                       </el-radio-group>
-                      <el-input
-                        v-if="title.optionId == 136"
-                        placeholder="请输入"
-                        v-model="title.otherContent"
-                        @blur="
-                          handleSubmit(
-                            title.optionId,
-                            title,
-                            panoramicData[0].id,
-                            panoramicData[0].owningModule
-                          )
-                        "
-                      />
+
                       <el-checkbox-group
                         v-model="title.optionId"
                         v-else-if="title.type == 2"
@@ -809,38 +808,8 @@ const canvasMaxX = ref(window.innerWidth - 900)
 const ratio = 665 / 390
 const canvasMaxY = ref((canvasMaxX.value / ratio).toFixed(2))
 
-// 防抖函数
-function debounce(func, wait) {
-  let timeout
-  return function (...args) {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => func.apply(this, args), wait)
-  }
-}
-
-// 初始化 canvas 的函数
-function initializeCanvas() {
-  if (window.innerWidth < 1080) {
-    return
-  }
-  const canvas = document.getElementById('myCanvas')
-  if (canvas) {
-    canvasMaxX.value = window.innerWidth - 900
-    canvasMaxY.value = (canvasMaxX.value / ratio).toFixed(2)
-    coordinatesSmall.value = coordinatesBase.value.map((point) => ({
-      label: point.label,
-      x: point.x * canvasMaxX.value,
-      y: point.y * canvasMaxY.value
-    }))
-    initCanvas(canvasMaxX.value, canvasMaxY.value, true)
-  }
-}
-
-// 使用防抖函数包装 resize 事件处理函数
-const debouncedResize = debounce(initializeCanvas, 200)
-
 // 添加事件监听器
-window.addEventListener('resize', debouncedResize)
+window.addEventListener('resize', () => initCanvas(canvasMaxX.value, canvasMaxY.value, true))
 
 const handleBlurInput = (title) => {
   title.measured = true
@@ -1251,13 +1220,10 @@ async function getOrthFaceAccessList() {
         item.orthTitleList.splice(1, 1)
         item.orthTitleList.splice(1, 1)
       }
-      // if (choosen1) {
-      //   item.orthTitleList.splice(1, 1)
-      // } else if (choosen2) {
-      //   item.orthTitleList.splice(2, 1)
-      // } else if (choosen1) {
-      //   item.orthTitleList.splice(1, 1)
-      // }
+      if (option.length == 0) {
+        item.orthTitleList.splice(1, 1)
+        item.orthTitleList.splice(1, 1)
+      }
     }
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1284,23 +1250,6 @@ async function getOrthFaceAccessList() {
   loadingTarget.value.style.display = 'block'
 }
 
-function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
-  let ratio = 0
-  let width = imgWidth
-  let height = imgHeight
-  ratio = imgWidth / imgHeight
-  // 等比例缩放计算
-  if (width > maxWidth) {
-    width = maxWidth
-    height = width / ratio
-  }
-
-  if (height > maxHeight) {
-    height = maxHeight
-    width = height * ratio
-  }
-  return { width, height, ratio }
-}
 const frontCoverItem = ref()
 const mouthData = ref([])
 const frontCover = ref()
@@ -1728,6 +1677,7 @@ const initZoomCanvas = () => {
 }
 const handleZoomPic = () => {
   overlayRef.value.style.display = 'flex'
+
   const page = document.querySelector('.ortho-page')
   page.addEventListener('mousewheel', preventDefault)
   initZoomCanvas()
@@ -3412,7 +3362,7 @@ img {
   .content {
     .container {
       display: grid;
-      grid-template-columns: 480px 420px;
+      grid-template-columns: 480px 360px;
       :deep .el-input {
         width: 140px;
         margin-left: 10px;

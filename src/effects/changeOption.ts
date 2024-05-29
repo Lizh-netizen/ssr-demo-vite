@@ -112,7 +112,7 @@ const useChangeOption = (
     }
   }
 }
-function handleExclusiveOptions(title: any, optionId: number) {
+export function handleExclusiveOptions(title: any, optionId: number) {
   if (title.optionId1.includes(optionId) && title.optionId1.length < title.optionId.length) {
     title.optionId1 = title.optionId.filter((o: any) => o !== optionId)
     title.optionId = title.optionId1

@@ -17,15 +17,21 @@
         </div>
       </div>
       <div class="body pb-[16px]">
-        <!-- content -->
         <div
           class="body-left content"
           :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '425px' }"
         >
           <div class="content_left_header">
+            <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
+              <img
+                src="../../assets/svg/goalCheck.svg"
+                style="margin-right: 12px"
+                class="object-none"
+              />
+              <div class="title">里程碑</div>
             <div class="flex mb-[10px] gap-[12px]">
               <img src="../../assets/svg/goalCheck.svg" class="object-none" />
-              <div class="title">目标</div>
+              <div class="title">里程碑</div>
             </div>
             <draggable
               class="ORTHTARGET"
@@ -1015,6 +1021,7 @@ const updateList = (val, plan, stageName, cardName) => {
   // 如果是拔牙/个别牙，则先不提交
   if (val.flag || val.addFlag || val.flag1) {
     sessionStorage.setItem('toothFlag', 'true')
+    return
   }
   handleScheme(found, val.name).then(() => {
     if (val.delete) {

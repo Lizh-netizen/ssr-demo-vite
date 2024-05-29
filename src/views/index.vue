@@ -28,13 +28,7 @@
               options: options,
               allowSearch: true
             },
-            {
-              name: '诊所',
-              type: 'select',
-              prop: 'officeId',
-              options: options1,
-              allowSearch: true
-            },
+
             {
               name: '风险等级',
               type: currentTab == '面评矫正预约率' ? 'select' : undefined,
@@ -449,7 +443,7 @@ async function getOrthoList(val) {
           { label: '图像分析', finished: !!+item.imageAnalysis },
           { label: '模型分析', finished: !!+item.modelAnalysis },
           { label: '诊断', finished: !!+item.diagnosis },
-          { label: '目标和工具', finished: !!+item.plansTools },
+          { label: '里程碑与工具', finished: !!+item.plansTools },
           { label: '审批提交', finished: !!+item.approvalSubmitted }
         ]
       }))
@@ -740,6 +734,52 @@ watch(
 )
 
 onBeforeMount(() => {
+  // 初始化
+  pagesStorage.value = strategy[currentTab.value].page
+  const val = sessionStorage.getItem('currentTab')
+  const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+
+  const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+  for (let key in strategy) {
+    if (key == '面评') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.officeId = officeId
+        val.doctorId = doctorId
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '矫正方案') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.doctorId = doctorId
+        val.officeId = officeId
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '面评矫正预约率') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.doctorId = doctorId
+        val.officeId = officeId
+        val.date = [firstDate.value, date.value]
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+  }
+  storageName.value = strategy[val].storage
+  pagesStorage.value = strategy[val].page
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
   const list = ['ortho', 'evaluate']
@@ -756,56 +796,8 @@ onBeforeMount(() => {
       })
     )
   })
-}),
-  onMounted(() => {
-    // 初始化
-    pagesStorage.value = strategy[currentTab.value].page
-    const val = sessionStorage.getItem('currentTab')
-    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
-
-    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-    for (let key in strategy) {
-      if (key == '面评') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.officeId = officeId
-          val.doctorId = doctorId
-          val.date = date.value
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-      if (key == '矫正方案') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.doctorId = doctorId
-          val.officeId = officeId
-          val.date = date.value
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-      if (key == '面评矫正预约率') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.doctorId = doctorId
-          val.officeId = officeId
-          val.date = [firstDate.value, date.value]
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-    }
-    storageName.value = strategy[val].storage
-    pagesStorage.value = strategy[val].page
-    verifyPermission()
-  })
+  verifyPermission()
+})
 
 // 看板数据
 const facialCount = ref({})

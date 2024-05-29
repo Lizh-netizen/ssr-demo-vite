@@ -401,38 +401,25 @@ onMounted(() => {
             e.preventDefault()
             return
           }
-          // 都有牙齿
           if (!toothFlag.value && popover?.compareDocumentPosition(e.target) == 2) {
-            console.log(333)
+            // 选择牙位的弹窗存在，且未选中牙齿时
+            console.log(item.value)
+            if (!item.value.item) {
+              return
+            }
             emit('update', {
               data: data.value,
               planIndex: props.planIndex,
               stageIndex: props.stageIndex,
               name: item.value?.item?.name
             })
+
             sessionStorage.setItem('toothFlag', 'false')
             data.value.forEach((element) => {
               element.visible = false
             })
             item.value.changeStatus = false
-          }
-
-          // 有item并且有牙齿才可以提交
-          else if (
-            item.value.changeStatus &&
-            popover?.compareDocumentPosition(e.target) !== 4 &&
-            popover?.compareDocumentPosition(e.target) !== 20
-          ) {
-            // emit('update', {
-            //   data: data.value,
-            //   planIndex: props.planIndex,
-            //   stageIndex: props.stageIndex,
-            //   name: item.value.item.name
-            // })
-            // data.value.forEach((element) => {
-            //   element.visible = false
-            // })
-            // item.value.changeStatus = false
+            item.value = {}
           }
         }
       }

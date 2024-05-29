@@ -200,7 +200,7 @@ const steps = [
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
   { num: 4, desc: '诊断' },
-  { num: 5, desc: '目标和工具' },
+  { num: 5, desc: '里程碑与工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -629,11 +629,11 @@ function processData(data) {
 async function initiateApproval() {
   const { targetStr, planStr, correctionPeriod } = await getPlanList()
   if (!targetStr) {
-    ElMessage.error('还没填写方案中的治疗目标哦')
+    ElMessage.error('还没填写方案中的里程碑哦')
     return
   }
   if (!planStr) {
-    ElMessage.error('还没填写方案中的治疗工具哦')
+    ElMessage.error('还没填写方案中的工具哦')
     return
   }
   dialogVisible.value = true
@@ -764,7 +764,7 @@ const labelList = [
 .isFixed {
   position: fixed;
   top: 0;
-  z-index: 2000;
+  z-index: 2;
 }
 .headerBox {
   height: 72px;
