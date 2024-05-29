@@ -13,7 +13,7 @@
             serious: option.serious == '1',
             checked: option.choosen === true
           }"
-          :label="option.id"
+          :value="option.id"
           :disabled="disabled"
         >
           {{ option.optionName }}
@@ -21,8 +21,9 @@
             class="aiFlagImg"
             src="@/assets/svg/AIFlagForFront.svg"
             v-show="title.aiFlag == '1' && option.choosen"
-          /> </el-radio-button
-      ></template>
+          />
+        </el-radio-button>
+      </template>
       <template v-else>
         <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
         <template v-if="!option.fdiToothCode">
@@ -44,10 +45,10 @@
                   checked: option.choosen === true
                 }"
                 :disabled="disabled"
-                :label="option.id"
+                :value="option.id"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -93,11 +94,11 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -148,7 +149,7 @@
       }"
       v-for="option in title.orthOptionsList"
       :key="option.id"
-      :label="option.id"
+      :value="option.id"
     >
       {{ option.optionName }}
       <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
