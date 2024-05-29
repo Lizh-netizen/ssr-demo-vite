@@ -22,7 +22,7 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
               >
                 {{ option.optionName }}
               </el-radio-button>

@@ -446,7 +446,7 @@ onMounted(() => {
   overflow: auto;
 }
 .list-group {
-  margin-top: 16px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 .list-group-item {

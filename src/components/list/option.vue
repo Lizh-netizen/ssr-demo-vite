@@ -11,7 +11,7 @@
         :class="{
           serious: option.serious == '1'
         }"
-        :label="option.id"
+        :value="option.id"
         :disabled="disabled"
       >
         {{ option.optionName }}
@@ -37,7 +37,7 @@
               serious: option.serious == '1',
               checked: option.choosen === true
             }"
-            :label="option.id"
+            :value="option.id"
             @mouseenter="handleMouseEnter(option)"
             @mouseleave="handleMouseLeave(option)"
             :disabled="disabled"
@@ -96,7 +96,7 @@
       }"
       v-for="option in title.orthOptionsList"
       :key="option.id"
-      :label="option.id"
+      :value="option.id"
       :disabled="disabled"
     >
       {{ option.optionName }}

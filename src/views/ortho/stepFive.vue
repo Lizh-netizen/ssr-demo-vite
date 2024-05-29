@@ -17,10 +17,9 @@
         </div>
       </div>
       <div class="body pb-[16px]">
-        <!-- content -->
         <div
           class="body-left content"
-          :style="{ height: planList?.some((plan) => plan.checked) ? '610px' : '390px' }"
+          :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '425px' }"
         >
           <div class="content_left_header">
             <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
@@ -30,24 +29,24 @@
                 class="object-none"
               />
               <div class="title">里程碑</div>
+            <div class="flex mb-[10px] gap-[12px]">
+              <img src="../../assets/svg/goalCheck.svg" class="object-none" />
+              <div class="title">里程碑</div>
             </div>
             <draggable
               class="ORTHTARGET"
               :unmutable="true"
               :list="goalList"
-              :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : 'auto' }"
+              :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : '380px' }"
             ></draggable>
             <template v-if="planList?.some((plan) => plan.checked)">
-              <div class="flex" :style="{ 'margin-bottom': ' 0px', 'margin-top': '14px' }">
+              <div class="flex mt-[14px]">
                 <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
                 <div class="title">工具</div>
               </div>
               <a-space direction="vertical" size="large">
                 <a-input-search
-                  :style="{
-                    'margin-top': '12px'
-                  }"
-                  class="border-rd-[7px]! bg-#E6E8EB!"
+                  class="border-rd-[7px]! bg-#E6E8EB! mt-[12px]"
                   placeholder="请搜索"
                   v-model="searchValue"
                   @search="handleSearch(searchValue)"
@@ -55,7 +54,7 @@
                 />
                 <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
               </a-space>
-              <draggableTool class="ORTHTOOL h-[250px]!" :list="toolList"></draggableTool>
+              <draggableTool class="ORTHTOOL h-[234px]!" :list="toolList"></draggableTool>
             </template>
           </div>
         </div>
@@ -189,10 +188,7 @@
                 ></a-popconfirm>
               </div>
             </div>
-            <div
-              class="flex overflow-scroll"
-              :style="{ 'padding-left': plan.stageList.length > 4 ? '0' : '12px' }"
-            >
+            <div class="flex overflow-scroll px-[16px]">
               <div
                 class="cardGroup"
                 v-for="(stage, stageIndex) in plan.stageList"
@@ -327,7 +323,7 @@
                         serious: option.serious == '1',
                         checked: option.choosen === true
                       }"
-                      :label="option.id"
+                      :value="option.id"
                     >
                       {{ option.optionName }}
                       <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -353,7 +349,7 @@
                               serious: option.serious == '1',
                               checked: option.choosen === true
                             }"
-                            :label="option.id"
+                            :value="option.id"
                             @mouseenter="option.hover = true"
                             @mouseleave="option.hover = false"
                           >
@@ -408,7 +404,7 @@
                               serious: option.serious == '1',
                               checked: option.choosen === true
                             }"
-                            :label="option.id"
+                            :value="option.id"
                             @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
                           >
                             {{ option.optionName
@@ -1991,120 +1987,7 @@ defineExpose({
     }
   }
 }
-.diagramWrapper {
-  width: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .diagram {
-    position: relative;
-    .diagramBox {
-      width: 122px;
-      height: 25px;
-      display: flex;
-      div {
-        height: 25px;
-        width: 61px;
-        display: flex;
-        align-items: center;
-        padding: 4px;
-        box-sizing: border-box;
-      }
-      &:nth-child(1) {
-        border-bottom: 1px solid #d8d8d8;
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-      &:nth-child(2) {
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-    }
-  }
-}
-.selectContainer {
-  .container {
-    display: grid;
-    grid-template-columns: auto auto;
-    .symptomBox {
-      display: flex;
-      .symptomItem {
-        width: 24px;
-        height: 24px;
-        /* border: solid 1px #ccc; */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 2px 2px;
-        cursor: pointer;
-        border: 0.5px solid #e9e9eb;
-        box-sizing: border-box;
-        &.selected {
-          background-color: #0081cc;
-          border-color: #0081cc;
-          color: #fff;
-        }
-      }
-      &.marginTop {
-        margin-top: 16px;
-      }
-      &.marginBottom {
-        margin-bottom: 16px;
-      }
-      &.marginRight {
-        margin-right: 12px;
-      }
-      &.marginLeft {
-        margin-left: 12px;
-      }
-      &.itemAlignRight {
-        justify-content: end;
-      }
-    }
-  }
-  &:after {
-    content: '';
-    position: absolute;
-    width: 1px;
-    height: 138px;
-    left: 247px;
-    top: 16px;
-    background: #d8d8d8;
-  }
-  &:before {
-    content: '';
-    position: absolute;
-    width: 465px;
-    height: 1px;
-    left: 20px;
-    top: 82px;
-    background: #d8d8d8;
-  }
-  .left {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    left: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-  .right {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    right: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-}
+
 :deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
   color: #2e6ce4;
   background-color: #fff;

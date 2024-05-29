@@ -13,7 +13,7 @@
         }"
         v-for="option in title.orthOptionsList"
         :key="option.id"
-        :label="option.id"
+        :value="option.id"
       >
         {{ option.optionName }}
       </el-radio-button>
