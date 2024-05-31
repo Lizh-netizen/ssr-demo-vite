@@ -52,7 +52,7 @@
                         :class="{
                           serious: option.serious == '1'
                         }"
-                        :label="option.id"
+                        :value="option.id"
                       >
                         {{ option.optionName }}
                         <img
@@ -76,7 +76,7 @@
                       }"
                       v-for="option in title.orthOptionsList"
                       :key="option.id"
-                      :label="option.id"
+                      :value="option.id"
                       :disabled="disabled"
                     >
                       {{ option.optionName }}
@@ -230,7 +230,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -256,7 +256,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                           <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -296,7 +296,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -322,7 +322,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                           <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -361,7 +361,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -565,7 +565,7 @@
                   >
                     <el-radio-button
                       :disabled="!cephaImage"
-                      :label="option.id"
+                      :value="option.id"
                       :class="{
                         serious: option.serious == '1',
                         checked: option.choosen === true,
@@ -608,7 +608,7 @@
                     @dblclick="handleEmptyRadio(title.optionId, title, cephaClassId, '侧位片')"
                     ><el-radio-button
                       :disabled="!cephaImage"
-                      :label="option.id"
+                      :value="option.id"
                       :class="{
                         serious: option.serious == '1',
                         checked: option.choosen === true
@@ -3059,121 +3059,7 @@ img {
 .dragging {
   opacity: 0.5;
 }
-.diagramWrapper {
-  width: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .diagram {
-    position: relative;
-    .diagramBox {
-      width: 122px;
-      height: 30px;
-      display: flex;
-      div {
-        height: 30px;
-        width: 61px;
-        display: flex;
-        align-items: center;
-        padding: 4px;
-        box-sizing: border-box;
-      }
-      &:nth-child(1) {
-        border-bottom: 1px solid #d8d8d8;
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-      &:nth-child(2) {
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-    }
-  }
-}
-.selectContainer {
-  .container {
-    display: grid;
-    grid-template-columns: auto auto;
-    .symptomBox {
-      display: flex;
-      .symptomItem {
-        width: 24px;
-        height: 24px;
-        /* border: solid 1px #ccc; */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 2px 2px;
-        cursor: pointer;
-        border: 0.5px solid #e9e9eb;
-        box-sizing: border-box;
-        &.selected {
-          background-color: #0081cc;
-          border-color: #0081cc;
-          color: #fff;
-        }
-      }
 
-      &.marginTop {
-        margin-top: 16px;
-      }
-      &.marginBottom {
-        margin-bottom: 16px;
-      }
-      &.marginRight {
-        margin-right: 12px;
-      }
-      &.marginLeft {
-        margin-left: 12px;
-      }
-      &.itemAlignRight {
-        justify-content: end;
-      }
-    }
-  }
-  &:after {
-    content: '';
-    position: absolute;
-    width: 1px;
-    height: 138px;
-    left: 247px;
-    top: 16px;
-    background: #d8d8d8;
-  }
-  &:before {
-    content: '';
-    position: absolute;
-    width: 465px;
-    height: 1px;
-    left: 20px;
-    top: 82px;
-    background: #d8d8d8;
-  }
-  .left {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    left: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-  .right {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    right: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-}
 .imageManagement {
   /* padding: 24px; */
 
