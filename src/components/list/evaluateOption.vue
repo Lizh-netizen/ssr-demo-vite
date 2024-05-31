@@ -1,11 +1,11 @@
 <template>
-  <el-radio-group
-    v-if="title.type == 1"
-    v-model="title.optionId"
-    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-    @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
-  >
-    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+  <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+    <el-radio-group
+      v-if="title.type == 1"
+      v-model="title.optionId"
+      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+      @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+    >
       <!-- 没有optionSuffix的情况 -->
       <template v-if="!option.optionSuffix">
         <el-radio-button
@@ -20,8 +20,9 @@
             class="aiFlagImg"
             src="@/assets/svg/AIFlagForFront.svg"
             v-show="title.aiFlag == '1' && option.choosen"
-          /> </el-radio-button
-      ></template>
+          />
+        </el-radio-button>
+      </template>
       <template v-else>
         <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
         <template v-if="!option.fdiToothCode">
@@ -44,8 +45,20 @@
                 }"
                 :value="option.id"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.choosen
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -69,7 +82,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
               </el-radio-button>
             </template>
             <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
@@ -94,8 +107,20 @@
                 :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.choosen
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -119,7 +144,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
               </el-radio-button>
             </template>
             <Tooth
@@ -132,21 +157,20 @@
           </el-popover>
         </template>
       </template>
-    </template>
-  </el-radio-group>
-  <el-checkbox-group
-    v-model="title.optionId"
-    v-if="title.type == 2"
-    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-  >
-    <template v-for="option in title.orthOptionsList" :key="option.id">
+    </el-radio-group>
+
+    <el-checkbox-group
+      v-model="title.optionId"
+      v-if="title.type == 2"
+      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+    >
       <template v-if="!option.optionSuffix">
         <el-checkbox-button
           :class="{
             serious: option.serious == '1',
             checked: option.choosen === true
           }"
-          :label="option.id"
+          :value="option.id"
         >
           {{ option.optionName }}
           <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -172,12 +196,23 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
                 @mouseenter="option.hover = true"
                 @mouseleave="option.hover = false"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -201,7 +236,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -227,11 +262,22 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -255,7 +301,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -272,8 +318,8 @@
           </el-popover>
         </template>
       </template>
-    </template>
-  </el-checkbox-group>
+    </el-checkbox-group>
+  </template>
 
   <el-input
     v-if="
