@@ -22,13 +22,6 @@
           :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '425px' }"
         >
           <div class="content_left_header">
-            <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
-              <img
-                src="../../assets/svg/goalCheck.svg"
-                style="margin-right: 12px"
-                class="object-none"
-              />
-              <div class="title">里程碑</div>
             <div class="flex mb-[10px] gap-[12px]">
               <img src="../../assets/svg/goalCheck.svg" class="object-none" />
               <div class="title">里程碑</div>
