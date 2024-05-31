@@ -161,38 +161,71 @@
                     class="mr-[14px]"
                 /></el-tooltip>
 
-                  <a-popconfirm
-                    :style="{ width: planList.length > 1 ? 'auto' : '260px' }"
-                    :content="
-                      planList.length > 1 ? '确定要删除吗？' : '方案必须有一个，确定清空吗？'
-                    "
-                    @click.self.stop="
-                      () => {
-                        return false
-                      }
-                    "
-                    @ok="handleDeletePlan(plan, planIndex)"
-                    @cancel="
-                      () => {
-                        return false
-                      }
-                    "
-                  >
-                    <a-tooltip class="box-item" effect="dark" content="删除方案" placement="top">
-                      <img
-                        style="cursor: pointer"
-                        src="../../assets/layout/Delete.svg"
-                      /> </a-tooltip
-                  ></a-popconfirm>
-                </div>
-              </div>
-              <div class="flex overflow-scroll px-[16px]">
-                <div
-                  class="cardGroup"
-                  v-for="(stage, stageIndex) in plan.stageList"
-                  :key="stage.stageName"
+                <a-popconfirm
+                  :style="{ width: planList.length > 1 ? 'auto' : '260px' }"
+                  :content="planList.length > 1 ? '确定要删除吗？' : '方案必须有一个，确定清空吗？'"
+                  @click.self.stop="
+                    () => {
+                      return false
+                    }
+                  "
+                  @ok="handleDeletePlan(plan, planIndex)"
+                  @cancel="
+                    () => {
+                      return false
+                    }
+                  "
                 >
-                  <template v-if="!plan.checked">
+                  <a-tooltip class="box-item" effect="dark" content="删除方案" placement="top">
+                    <img style="cursor: pointer" src="../../assets/layout/Delete.svg" /> </a-tooltip
+                ></a-popconfirm>
+              </div>
+            </div>
+            <div class="flex overflow-scroll px-[16px]">
+              <div
+                class="cardGroup"
+                v-for="(stage, stageIndex) in plan.stageList"
+                :key="stage.stageName"
+              >
+                <template v-if="!plan.checked">
+                  <div class="card">
+                    <div class="time flex justify-between! pr-[12px]">
+                      {{ stage.stageName }}
+                      <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex > 0">
+                        <a-popconfirm
+                          content="确定要删除吗？"
+                          @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
+                          @cancel="
+                            () => {
+                              return false
+                            }
+                          "
+                        >
+                          <img class="deleteBtn cursor-pointer" src="../../assets/svg/delete.svg" />
+                        </a-popconfirm>
+                      </template>
+                      <template v-if="stageIndex == plan.stageList.length - 1 && stageIndex == 0">
+                        <img
+                          class="deleteBtn cursor-pointer"
+                          src="../../assets/svg/delete.svg"
+                          @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
+                        />
+                      </template>
+                    </div>
+                    <draggable
+                      class="ORTHTARGET"
+                      :list="stage.targetIds"
+                      @update="(val) => updateList(val, plan, stage.stageName, 'target')"
+                      :showDeleteBtn="true"
+                      :planTarget="true"
+                      :planIndex="planIndex"
+                      :stageIndex="stageIndex"
+                    ></draggable>
+                  </div>
+                  <img src="../../assets/layout/arrowRight.svg" />
+                </template>
+                <template v-else>
+                  <div>
                     <div class="card">
                       <div class="time flex justify-between! pr-[12px]">
                         {{ stage.stageName }}
@@ -225,272 +258,221 @@
                         :list="stage.targetIds"
                         @update="(val) => updateList(val, plan, stage.stageName, 'target')"
                         :showDeleteBtn="true"
+                        @submit="handleSubmit"
                         :planTarget="true"
                         :planIndex="planIndex"
                         :stageIndex="stageIndex"
                       ></draggable>
                     </div>
-                    <img src="../../assets/layout/arrowRight.svg" />
-                  </template>
-                  <template v-else>
-                    <div>
-                      <div class="card">
-                        <div class="time flex justify-between! pr-[12px]">
-                          {{ stage.stageName }}
-                          <template
-                            v-if="stageIndex == plan.stageList.length - 1 && stageIndex > 0"
-                          >
-                            <a-popconfirm
-                              content="确定要删除吗？"
-                              @ok="handleDeleteStage(plan, stage, planIndex, stageIndex)"
-                              @cancel="
-                                () => {
-                                  return false
-                                }
-                              "
-                            >
-                              <img
-                                class="deleteBtn cursor-pointer"
-                                src="../../assets/svg/delete.svg"
-                              />
-                            </a-popconfirm>
-                          </template>
-                          <template
-                            v-if="stageIndex == plan.stageList.length - 1 && stageIndex == 0"
-                          >
-                            <img
-                              class="deleteBtn cursor-pointer"
-                              src="../../assets/svg/delete.svg"
-                              @click="handleDeleteStage1(plan, stage, planIndex, stageIndex)"
-                            />
-                          </template>
-                        </div>
-                        <draggable
-                          class="ORTHTARGET"
-                          :list="stage.targetIds"
-                          @update="(val) => updateList(val, plan, stage.stageName, 'target')"
-                          :showDeleteBtn="true"
-                          @submit="handleSubmit"
-                          :planTarget="true"
-                          :planIndex="planIndex"
-                          :stageIndex="stageIndex"
-                        ></draggable>
-                      </div>
-                      <div class="tool card">
-                        <div class="tool_title ml-[12px]">工具</div>
-                        <draggable
-                          class="ORTHTOOL"
-                          :list="stage.toolIds"
-                          :planTool="true"
-                          @update="(val) => updateList(val, plan, stage.stageName, 'tool')"
-                          :showDeleteBtn="true"
-                          :planIndex="planIndex"
-                          :stageIndex="stageIndex"
-                        ></draggable>
-                      </div>
+                    <div class="tool card">
+                      <div class="tool_title ml-[12px]">工具</div>
+                      <draggable
+                        class="ORTHTOOL"
+                        :list="stage.toolIds"
+                        :planTool="true"
+                        @update="(val) => updateList(val, plan, stage.stageName, 'tool')"
+                        :showDeleteBtn="true"
+                        :planIndex="planIndex"
+                        :stageIndex="stageIndex"
+                      ></draggable>
                     </div>
-
-                    <img src="../../assets/layout/arrowRight.svg" />
-                  </template>
-                </div>
-
-                <div @click.stop="handleAddStage(plan)">
-                  <div
-                    class="addStage w-[224px]"
-                    :style="{ height: plan.checked == true ? '600px' : '284px' }"
-                  >
-                    <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
-                    <div>新增阶段</div>
                   </div>
+
+                  <img src="../../assets/layout/arrowRight.svg" />
+                </template>
+              </div>
+
+              <div @click.stop="handleAddStage(plan)">
+                <div
+                  class="addStage w-[224px]"
+                  :style="{ height: plan.checked == true ? '600px' : '284px' }"
+                >
+                  <img :style="{ 'margin-right': '12px' }" src="../../assets/svg/addStage.svg" />
+                  <div>新增阶段</div>
                 </div>
               </div>
             </div>
-            <div class="addPlan flex" @click.stop="handleAddPlan">
-              <img
-                :style="{ 'margin-right': '12px' }"
-                src="../../assets/layout/add.svg"
-              />添加新方案
-            </div>
+          </div>
+          <div class="addPlan flex" @click.stop="handleAddPlan">
+            <img :style="{ 'margin-right': '12px' }" src="../../assets/layout/add.svg" />添加新方案
           </div>
         </div>
       </div>
-      <Header text="风险" backgroundColor="#f4f7fd" />
-      <div class="content risk" style="background: #fff; border: none">
-        <template v-for="item in riskData" :key="item.id">
-          <template v-for="title in item.orthTitleList" :key="title.id">
-            <template v-if="title.titleName !== '备注'"
-              ><form-item :label="title.titleName">
-                <el-checkbox-group
-                  v-model="title.optionId"
-                  @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
-                >
-                  <template v-for="option in title.orthOptionsList" :key="option.id">
-                    <template v-if="!option.optionSuffix"
-                      ><el-checkbox-button
-                        :class="{
-                          serious: option.serious == '1',
-                          checked: option.choosen === true
-                        }"
-                        :value="option.id"
+    </div>
+    <Header text="风险" backgroundColor="#f4f7fd" />
+    <div class="content risk" style="background: #fff; border: none">
+      <template v-for="item in riskData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <template v-if="title.titleName !== '备注'"
+            ><form-item :label="title.titleName">
+              <el-checkbox-group
+                v-model="title.optionId"
+                @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
+              >
+                <template v-for="option in title.orthOptionsList" :key="option.id">
+                  <template v-if="!option.optionSuffix"
+                    ><el-checkbox-button
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      :value="option.id"
+                    >
+                      {{ option.optionName }}
+                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="../../assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </template>
+                  <template v-else>
+                    <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
+                    <template v-if="!option.fdiToothCode">
+                      <el-popover
+                        placement="right"
+                        :width="490"
+                        trigger="click"
+                        @show="handleBeforeEnterPopover(option)"
+                        @after-leave="handleSubmitTooth(option, title, item.id, item.owningModule)"
                       >
-                        {{ option.optionName }}
-                        <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                          src="../../assets/svg/abnormalChecked.svg"
-                          v-else
-                        />
-                      </el-checkbox-button>
+                        <template #reference>
+                          <el-checkbox-button
+                            @click="option.visible = true"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :value="option.id"
+                            @mouseenter="option.hover = true"
+                            @mouseleave="option.hover = false"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
+                            >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                        ? option.hoverColor
+                                        : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <ChooseTooth :option="option"></ChooseTooth>
+                      </el-popover>
                     </template>
                     <template v-else>
-                      <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
-                      <template v-if="!option.fdiToothCode">
-                        <el-popover
-                          placement="right"
-                          :width="490"
-                          trigger="click"
-                          @show="handleBeforeEnterPopover(option)"
-                          @after-leave="
-                            handleSubmitTooth(option, title, item.id, item.owningModule)
+                      <el-popover
+                        popper-class="myPopper"
+                        :popper-style="{ width: 'auto', 'min-width': '100px' }"
+                        placement="top-start"
+                        :width="200"
+                        :visible="option.visible"
+                        @mouseleave="option.visible = false"
+                      >
+                        <template #reference>
+                          <el-checkbox-button
+                            @mouseenter="handleMouseEnterBtn(option)"
+                            :class="{
+                              serious: option.serious == '1',
+                              checked: option.choosen === true
+                            }"
+                            :value="option.id"
+                            @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
+                          >
+                            {{ option.optionName
+                            }}<svg
+                              v-if="option.optionSuffix"
+                              xmlns="http://www.w3.org/2000/svg"
+                              xmlns:xlink="http://www.w3.org/1999/xlink"
+                              fill="none"
+                              version="1.1"
+                              width="9.999975204467773"
+                              height="9.999975204467773"
+                              viewBox="0 0 9.999975204467773 9.999975204467773"
+                            >
+                              <g>
+                                <path
+                                  d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                                  fill-rule="evenodd"
+                                  :fill="
+                                    option.clicked
+                                      ? option.seriousColor
+                                      : option.hover
+                                        ? option.hoverColor
+                                        : option.fillColor
+                                  "
+                                  fill-opacity="1"
+                                />
+                              </g>
+                            </svg>
+                            <img
+                              src="../../assets/svg/checked.svg"
+                              v-if="option.serious == '0'"
+                            /><img src="../../assets/svg/abnormalChecked.svg" v-else />
+                          </el-checkbox-button>
+                        </template>
+                        <Tooth
+                          :step="5"
+                          :title="option"
+                          :appId="appId"
+                          @submitTooth="
+                            (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
                           "
-                        >
-                          <template #reference>
-                            <el-checkbox-button
-                              @click="option.visible = true"
-                              :class="{
-                                serious: option.serious == '1',
-                                checked: option.choosen === true
-                              }"
-                              :value="option.id"
-                              @mouseenter="option.hover = true"
-                              @mouseleave="option.hover = false"
-                            >
-                              {{ option.optionName
-                              }}<svg
-                                v-if="option.optionSuffix"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlns:xlink="http://www.w3.org/1999/xlink"
-                                fill="none"
-                                version="1.1"
-                                width="9.999975204467773"
-                                height="9.999975204467773"
-                                viewBox="0 0 9.999975204467773 9.999975204467773"
-                              >
-                                <g>
-                                  <path
-                                    d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                                    fill-rule="evenodd"
-                                    :fill="
-                                      option.clicked
-                                        ? option.seriousColor
-                                        : option.hover
-                                          ? option.hoverColor
-                                          : option.fillColor
-                                    "
-                                    fill-opacity="1"
-                                  />
-                                </g>
-                              </svg>
-                              <img
-                                src="../../assets/svg/checked.svg"
-                                v-if="option.serious == '0'"
-                              /><img src="../../assets/svg/abnormalChecked.svg" v-else />
-                            </el-checkbox-button>
-                          </template>
-                          <ChooseTooth :option="option"></ChooseTooth>
-                        </el-popover>
-                      </template>
-                      <template v-else>
-                        <el-popover
-                          popper-class="myPopper"
-                          :popper-style="{ width: 'auto', 'min-width': '100px' }"
-                          placement="top-start"
-                          :width="200"
-                          :visible="option.visible"
-                          @mouseleave="option.visible = false"
-                        >
-                          <template #reference>
-                            <el-checkbox-button
-                              @mouseenter="handleMouseEnterBtn(option)"
-                              :class="{
-                                serious: option.serious == '1',
-                                checked: option.choosen === true
-                              }"
-                              :value="option.id"
-                              @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
-                            >
-                              {{ option.optionName
-                              }}<svg
-                                v-if="option.optionSuffix"
-                                xmlns="http://www.w3.org/2000/svg"
-                                xmlns:xlink="http://www.w3.org/1999/xlink"
-                                fill="none"
-                                version="1.1"
-                                width="9.999975204467773"
-                                height="9.999975204467773"
-                                viewBox="0 0 9.999975204467773 9.999975204467773"
-                              >
-                                <g>
-                                  <path
-                                    d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                                    fill-rule="evenodd"
-                                    :fill="
-                                      option.clicked
-                                        ? option.seriousColor
-                                        : option.hover
-                                          ? option.hoverColor
-                                          : option.fillColor
-                                    "
-                                    fill-opacity="1"
-                                  />
-                                </g>
-                              </svg>
-                              <img
-                                src="../../assets/svg/checked.svg"
-                                v-if="option.serious == '0'"
-                              /><img src="../../assets/svg/abnormalChecked.svg" v-else />
-                            </el-checkbox-button>
-                          </template>
-                          <Tooth
-                            :step="5"
-                            :title="option"
-                            :appId="appId"
-                            @submitTooth="
-                              (val) => handleSubmitTooth(val, title, item.id, item.owningModule)
-                            "
-                          />
-                        </el-popover>
-                      </template>
+                        />
+                      </el-popover>
                     </template>
                   </template>
-                </el-checkbox-group>
-              </form-item>
-            </template>
+                </template>
+              </el-checkbox-group>
+            </form-item>
           </template>
         </template>
-      </div>
-      <Header text="备注" backgroundColor="#f4f7fd" />
-      <div class="content" style="background: #fff; border: none">
-        <template v-for="item in remarkData" :key="item.id">
-          <template v-for="title in item.orthTitleList" :key="title.id">
-            <form-item :label="title.titleName">
-              <a-textarea
-                :style="{ width: '400px', 'border-radius': '8px' }"
-                allow-clear
-                :max-length="125"
-                :auto-size="{
-                  minRows: 1,
-                  maxRows: 5
-                }"
-                show-word-limit
-                v-model="title.cephalometricsContent"
-                @blur="
-                  handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
-                "
-                >无</a-textarea
-              >
-            </form-item></template
-          ></template
-        >
-      </div>
+      </template>
+    </div>
+    <Header text="备注" backgroundColor="#f4f7fd" />
+    <div class="content" style="background: #fff; border: none">
+      <template v-for="item in remarkData" :key="item.id">
+        <template v-for="title in item.orthTitleList" :key="title.id">
+          <form-item :label="title.titleName">
+            <a-textarea
+              :style="{ width: '400px', 'border-radius': '8px' }"
+              allow-clear
+              :max-length="125"
+              :auto-size="{
+                minRows: 1,
+                maxRows: 5
+              }"
+              show-word-limit
+              v-model="title.cephalometricsContent"
+              @blur="
+                handleSubmitAddtionalContent(title, remarkData[0].id, remarkData[0].owningModule)
+              "
+              >无</a-textarea
+            >
+          </form-item></template
+        ></template
+      >
     </div>
   </div>
 </template>
