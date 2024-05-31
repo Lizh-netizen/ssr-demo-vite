@@ -94,14 +94,15 @@
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
                       />
-                      <!-- <img
+                      <img
+                        v-if="img.choose"
                         src="@/assets/svg/imageChecked.svg"
                         :style="{
                           position: 'absolute',
                           right: '6px',
                           bottom: '6px'
                         }"
-                      /> -->
+                      />
                     </div>
                   </div>
                 </div>
@@ -120,10 +121,10 @@
             </template>
           </div>
 
-          <!-- <div class="classifyWrapper" v-if="module == 'ortho'">
+          <div class="classifyWrapper" v-if="module == 'ortho'">
             <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
             ><el-button @click="handleClassifyPics">自动分类</el-button>
-          </div> -->
+          </div>
         </div>
         <div class="imageManagement__classify subSection">
           <div class="title">分类</div>
@@ -437,27 +438,27 @@ const imageList =
     ? ref([
         {
           caption: '正面像',
-          typeName: 'FrontalRepose',
+          typeName: '0',
           fileUrl: placeholderUrl
         },
         {
           caption: '正面微笑像',
-          typeName: 'FrontalSmile',
+          typeName: '1',
           fileUrl: placeholderUrl
         },
         {
           caption: '90度侧面像',
-          typeName: 'LeftProfile',
+          typeName: '4',
           fileUrl: placeholderUrl
         },
         {
           caption: '90度侧面微笑像',
-          typeName: 'RightProfile',
+          typeName: '5',
           fileUrl: placeholderUrl
         },
         {
           caption: '45度侧面像',
-          typeName: 'LeftSideProfile',
+          typeName: '2',
           fileUrl: placeholderUrl
         },
         {
@@ -466,12 +467,12 @@ const imageList =
           fileUrl: placeholderUrl
         },
         {
-          caption: '口内照（左侧）',
-          typeName: '',
+          caption: '左侧咬合像',
+          typeName: '7',
           fileUrl: placeholderUrl
         },
         {
-          caption: '口内照（右侧）',
+          caption: '右侧咬合像',
           typeName: '',
           fileUrl: placeholderUrl
         },
@@ -486,23 +487,23 @@ const imageList =
           fileUrl: placeholderUrl
         },
         {
-          caption: '正面咬合',
-          typeName: 'Anterior',
+          caption: '正面咬合像',
+          typeName: '6',
           fileUrl: placeholderUrl
         },
         {
-          caption: '前牙覆盖',
-          typeName: 'Cover',
+          caption: '覆合覆盖像',
+          typeName: '9',
           fileUrl: placeholderUrl
         },
         {
-          caption: '上颌',
-          typeName: 'Upper',
+          caption: '上颌颌像',
+          typeName: '10',
           fileUrl: placeholderUrl
         },
         {
-          caption: '下颌',
-          typeName: 'Lower',
+          caption: '下颌颌像',
+          typeName: '11',
           fileUrl: placeholderUrl
         },
         {
@@ -602,26 +603,27 @@ async function handleClassifyPics() {
       })
     } else {
       const formData = new FormData()
-      let orthImageString, orthImageList
+      let tImageString, tImageList
       imageArr.value
         .filter((i) => i.file === undefined)
         .forEach((c) => {
-          orthImageList = c.imageList
+          tImageList = c.imageList
             .filter((b) => b.choose === true)
             .map((a) => {
               if (a.choose) {
                 return {
-                  ljUrl: a.imgUrl,
-                  ljId: a.ljImageId,
-                  LJCreateDatetime: a.timestamp
+                  ossImagePath: a.ossImagePath,
+                  id: a.id,
+                  LJCreateDatetime: a.timestamp,
+                  thumbnailOssPath: a.thumbnailOssPath
                 }
               }
             })
         })
-      orthImageString = JSON.stringify({
+      tImageString = JSON.stringify({
         patientId: props.patientId,
-        apmtId: props.appId,
-        orthImageList
+        aptmId: props.appId,
+        tImageList
       })
       if (imageArr.value.filter((i) => i.file === true).length > 0) {
         imageArr.value
@@ -633,8 +635,8 @@ async function handleClassifyPics() {
       } else {
         formData.append('files', null)
       }
-      formData.append('orthImageString', orthImageString)
-      const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+      formData.append('tImageString', tImageString)
+      const res = await Post('/prod-api/emr/orthCommon/autoImageClassification', formData, true)
       loading.close()
       if (res.code === 200) {
         imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
@@ -645,6 +647,10 @@ async function handleClassifyPics() {
               i.imageId = d.fileId
             }
           })
+        })
+        ElMessage({
+          message: '分类成功',
+          type: 'success'
         })
       } else {
         ElMessage({
@@ -727,13 +733,13 @@ const chooseImgNum = computed(() => {
   return num
 })
 // 反选
-// const handleToggleChoose = (img) => {
-//   if (chooseImgNum.value >= 16) {
-//     ElMessage.warning('最多只能选择16张图片')
-//     return
-//   }
-//   img.choose = !img.choose
-// }
+const handleToggleChoose = (img) => {
+  if (chooseImgNum.value >= 16) {
+    ElMessage.warning('最多只能选择16张图片')
+    return
+  }
+  img.choose = !img.choose
+}
 
 // 图片拖拽
 const dragFile = ref(null)
@@ -849,11 +855,11 @@ async function handleSingleImage(file, image) {
   }
   // else {
   //   formData.append(
-  //     'orthImageString',
+  //     'tImageString',
   //     JSON.stringify({
   //       patientId: props.patientId,
   //       apmtId: props.appId,
-  //       orthImageList: [
+  //       tImageList: [
   //         {
   //           ljUrl: file.imgUrl,
   //           ljId: file.ljImageId,
@@ -889,15 +895,15 @@ const imageUrlChanged = ref(false)
 // 保存图片
 async function handleSavePics() {
   imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  const arr = orthImageList.map((item) => ({
+  const tImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
+  const arr = tImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
     imageId: item.fileId || null,
     startTime: item.startTime
   }))
   const res = await Post('/prod-api/business/orthImage', {
-    apmtId: props.appId,
+    aptmId: props.appId,
     orthImageList: arr
   })
   if (res.code == 200) {

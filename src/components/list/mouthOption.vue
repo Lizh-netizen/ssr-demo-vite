@@ -482,6 +482,7 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
       }
     }
   }
+  console.log(333)
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
     handleExclusiveOptions(title, 10)

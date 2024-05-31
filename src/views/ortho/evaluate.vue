@@ -673,16 +673,21 @@ async function checkImageOptions() {
   // 包含前牙覆盖选项的
   checkFugaiOptions(mouthData.value)
   checkOptions(panoramicData.value)
-  console.log(
-    checkOrthOptions(faceAccessData.value),
-    checkFugaiOptions(mouthData.value),
-    checkOptions(panoramicData.value)
-  )
-  return (
-    checkOrthOptions(faceAccessData.value) &&
-    checkFugaiOptions(mouthData.value) &&
-    checkOptions(panoramicData.value)
-  )
+  if (
+    checkOrthOptions(faceAccessData.value) === '0' &&
+    checkFugaiOptions(mouthData.value) == '0' &&
+    checkOptions(cepha.value) === 0
+  ) {
+    return '0'
+  } else if (
+    checkOrthOptions(faceAccessData.value) === '1' &&
+    checkFugaiOptions(mouthData.value) == '1' &&
+    checkOptions(cepha.value) === 1
+  ) {
+    return '1'
+  } else {
+    return '9'
+  }
 }
 
 async function checkCompletion() {
@@ -691,14 +696,13 @@ async function checkCompletion() {
   await getPanoramicList()
   const checkData = await getCheckList()
   // 临床检查
-  const isCheck = checkOrthOptions(checkData)
-  clinicalExamination.value = isCheck ? '1' : '0'
+  clinicalExamination.value = checkOrthOptions(checkData)
   // 图片上传
-  const isImageUpload = await checkImageUpload(classifiedImageList)
-  imageUpload.value = isImageUpload ? '1' : '0'
+
+  imageUpload.value = await checkImageUpload(classifiedImageList)
   // 图像分析的选项
-  const isImageAnalysis = await checkImageOptions()
-  imageAnalysis.value = isImageAnalysis ? '1' : '0'
+
+  imageAnalysis.value = await checkImageOptions()
 
   const res = await Post('/prod-api/emr/facialAssessment/addFacialCompletionInfo', {
     id: +sessionStorage.facialCompletionId || '',

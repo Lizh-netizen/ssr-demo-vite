@@ -462,29 +462,51 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-  console.log(345)
-  const result =
-    checkOrthFace(faceAccessData.value) &&
-    checkFugaiOptions(mouthData.value) &&
-    checkPanoOptions(panoramicData.value) &&
+  console.log(
+    checkOrthFace(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkPanoOptions(panoramicData.value),
     checkOptions(cepha.value)
-  console.log(checkPanoOptions(panoramicData.value))
-  return result
+  )
+  if (
+    checkOrthFace(faceAccessData.value) === '0' &&
+    checkFugaiOptions(mouthData.value) == '0' &&
+    checkPanoOptions(panoramicData.value) === '0' &&
+    checkOptions(cepha.value) === 0
+  ) {
+    return '0'
+  } else if (
+    checkOrthFace(faceAccessData.value) === '1' &&
+    checkFugaiOptions(mouthData.value) == '1' &&
+    checkPanoOptions(panoramicData.value) === '1' &&
+    checkOptions(cepha.value) === 1
+  ) {
+    return '1'
+  } else {
+    return '9'
+  }
 }
 
 const checkCompletion = async () => {
   if (active.value == 1) {
     await getOrthInquiryList()
     await getOrthCheckList()
-
-    clinicalExamination.value =
-      checkInquiry(inquiryData.value) && checkOrthoCheck(checkData.value) ? '1' : '0'
+    if (checkInquiry(inquiryData.value) === '0' && checkOrthoCheck(checkData.value) === '0') {
+      clinicalExamination.value = '0'
+    } else if (
+      checkInquiry(inquiryData.value) === '1' &&
+      checkOrthoCheck(checkData.value) === '1'
+    ) {
+      clinicalExamination.value = '1'
+    } else {
+      clinicalExamination.value = '9'
+    }
   }
 
   if (active.value == 2) {
     await getClassifiedImgList()
-    imageUpload.value = checkOrthImageUpload(classifiedImageList) ? '1' : '0'
-    imageAnalysis.value = (await checkOrthImageAnalysis()) ? '1' : '0'
+    imageUpload.value = checkOrthImageUpload(classifiedImageList)
+    imageAnalysis.value = await checkOrthImageAnalysis()
   }
   if (active.value == 3) {
     await getOrthModelList()
