@@ -1,0 +1,25 @@
+/* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+@font-face {
+  font-family: 'iconfont'; /* Project id 4569152 */
+  src: url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.eot?t=1717135408051'); /* IE9 */
+  src:
+    url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.eot?t=1717135408051#iefix')
+      format('embedded-opentype'),
+    /* IE6-IE8 */ url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.woff2?t=1717135408051')
+      format('woff2'),
+    url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.woff?t=1717135408051') format('woff'),
+    url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.ttf?t=1717135408051') format('truetype'),
+    url('//at.alicdn.com/t/c/font_4569152_hr7uehifqld.svg?t=1717135408051#iconfont') format('svg');
+}
+
+.iconfont {
+  font-family: 'iconfont' !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-warning:before {
+  content: '\e61a';
+}
