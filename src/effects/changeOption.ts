@@ -71,6 +71,7 @@ const useChangeOption = (
     handleExclusiveOptions(title, 44)
     handleExclusiveOptions(title, 311)
     handleExclusiveOptions(title, 321)
+    handleExclusiveOptions(title, 299)
     // 正常和别的选项互斥逻辑
 
     title.orthOptionsList.forEach((option: any) => {

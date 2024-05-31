@@ -462,12 +462,7 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-  console.log(
-    checkOrthFace(faceAccessData.value),
-    checkFugaiOptions(mouthData.value),
-    checkPanoOptions(panoramicData.value),
-    checkOptions(cepha.value)
-  )
+
   if (
     checkOrthFace(faceAccessData.value) === '0' &&
     checkFugaiOptions(mouthData.value) == '0' &&
@@ -510,7 +505,7 @@ const checkCompletion = async () => {
   }
   if (active.value == 3) {
     await getOrthModelList()
-    modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
+    modelAnalysis.value = checkModelOptions(modelData.value)
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
     id: +sessionStorage.getItem(`planCompletionId`) || '',

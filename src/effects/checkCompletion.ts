@@ -152,19 +152,19 @@ export function checkOrthoCheck(data: any) {
 
           if (choosen) {
             allChoosen++
-          }
-          if (choosen.optionName == '弹响') {
-            const title = data[0].orthTitleList.find((item: any) => item.titleName == '侧关节')
+            if (choosen.optionName == '弹响') {
+              const title = data[0].orthTitleList.find((item: any) => item.titleName == '侧关节')
 
-            if (
-              title.orthOptionsList &&
-              title.orthOptionsList.length > 0 &&
-              title.orthOptionsList.some((option: any) => option.choosen)
-            ) {
+              if (
+                title.orthOptionsList &&
+                title.orthOptionsList.length > 0 &&
+                title.orthOptionsList.some((option: any) => option.choosen)
+              ) {
+                allChoosen++
+              }
+            } else {
               allChoosen++
             }
-          } else {
-            allChoosen++
           }
         }
       }
@@ -215,7 +215,7 @@ export function checkOrthImageUpload(classifiedImageList: any) {
 export function checkOrthFace(data: any) {
   let allChoosen = 0
   let count = 0
-  let chooseItem
+  let chooseItem = false
   data.forEach((item: any) => {
     if (item.className !== '90度侧面像') {
       item.orthTitleList.forEach((title: any) => {
@@ -232,9 +232,12 @@ export function checkOrthFace(data: any) {
       item.orthTitleList.forEach((title: any) => {
         if (title.titleName == '侧貌') {
           const choosen = title.orthOptionsList.find((option: any) => option.choosen)
-          chooseItem = choosen
+
           if (choosen) {
             allChoosen++
+            if (choosen.optionName == '凸面型' || choosen.optionName == '凹面型') {
+              chooseItem = true
+            }
             if (choosen.optionName == '凸面型') {
               // 看凸面型表现是否被选中
               const title1 = item.orthTitleList.find(
@@ -269,10 +272,7 @@ export function checkOrthFace(data: any) {
       })
     }
   })
-  if (
-    (chooseItem !== null && chooseItem.optionName == '凸面型') ||
-    chooseItem.optionName == '凹面型'
-  ) {
+  if (chooseItem) {
     return allChoosen == 0 ? '0' : allChoosen == 14 ? '1' : '9'
   } else {
     return allChoosen == 0 ? '0' : allChoosen == 13 ? '1' : '9'
@@ -292,6 +292,6 @@ export function checkModelOptions(data: any) {
     }
     count++
   })
-
+  console.log(count, allChoosen)
   return allChoosen === 0 ? '0' : allChoosen === count ? '1' : '9'
 }

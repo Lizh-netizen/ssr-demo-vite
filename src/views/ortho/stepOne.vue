@@ -540,7 +540,6 @@ async function handleChangeOption(optionId, title, classId, owningModule) {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
-
   useChangeOption(optionId, title, appId, classId, owningModule, isShow, checkData)
   const res = await useUpdateOption(title.optionId, title, appId, classId, owningModule)
   if (

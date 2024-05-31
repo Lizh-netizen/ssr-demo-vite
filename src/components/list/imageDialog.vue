@@ -467,12 +467,12 @@ const imageList =
           fileUrl: placeholderUrl
         },
         {
-          caption: '左侧咬合像',
+          caption: '口内照（左侧）',
           typeName: '7',
           fileUrl: placeholderUrl
         },
         {
-          caption: '右侧咬合像',
+          caption: '口内照（右侧）',
           typeName: '',
           fileUrl: placeholderUrl
         },
@@ -487,33 +487,33 @@ const imageList =
           fileUrl: placeholderUrl
         },
         {
-          caption: '正面咬合像',
+          caption: '正面咬合',
           typeName: '6',
           fileUrl: placeholderUrl
         },
         {
-          caption: '覆合覆盖像',
+          caption: '前牙覆盖',
           typeName: '9',
           fileUrl: placeholderUrl
         },
         {
-          caption: '上颌颌像',
+          caption: '上颌',
           typeName: '10',
           fileUrl: placeholderUrl
         },
         {
-          caption: '下颌颌像',
+          caption: '下颌',
           typeName: '11',
           fileUrl: placeholderUrl
         },
         {
           caption: '全景片',
-          typeName: 'Panoramic',
+          typeName: '',
           fileUrl: placeholderUrl
         },
         {
           caption: '侧位片',
-          typeName: 'Cephalometric',
+          typeName: '',
           fileUrl: placeholderUrl
         }
       ])
@@ -588,6 +588,7 @@ const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
 async function handleClassifyPics() {
+  const startTime = JSON.parse(sessionStorage.getItem('patientInfo')).startTime
   const loading = ElLoading.service({
     lock: true,
     text: '正在分类中',
@@ -623,7 +624,8 @@ async function handleClassifyPics() {
       tImageString = JSON.stringify({
         patientId: props.patientId,
         aptmId: props.appId,
-        tImageList
+        tImageList,
+        startTime: startTime
       })
       if (imageArr.value.filter((i) => i.file === true).length > 0) {
         imageArr.value
@@ -899,7 +901,7 @@ async function handleSavePics() {
   const arr = tImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
-    imageId: item.fileId || null,
+    imageId: item.id || null,
     startTime: item.startTime
   }))
   const res = await Post('/prod-api/business/orthImage', {

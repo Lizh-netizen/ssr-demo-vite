@@ -2650,6 +2650,9 @@ let aspectRatio = ref(0)
 function initCanvas(maxWidth, maxHeight, draw) {
   const image = new Image() // 创建 img 元素
   const canvas = document.getElementById('myCanvas')
+  if (!canvas) {
+    return
+  }
   const ctx = canvas.getContext('2d')
 
   image.onload = function () {
