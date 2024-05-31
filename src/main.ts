@@ -37,6 +37,7 @@ import 'virtual:svg-icons-register'
 // 全局样式
 import './global.scss'
 import './packages-js/index.scss'
+import '@/style/iconfont.css'
 // @ts-expect-error TS(2307): Cannot find module './assets/ortho/lazyImg.png' or... Remove this comment to see the full error message
 import imgPlaceholder from './assets/ortho/lazyImg.png'
 import 'element-plus/dist/index.css'

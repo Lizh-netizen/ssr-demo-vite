@@ -48,7 +48,19 @@
                 :value="option.id"
               >
                 {{ option.optionName }}
-                <svg
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.choosen
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -72,7 +84,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
               </el-radio-button>
             </template>
             <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
@@ -179,8 +191,20 @@
                 @mouseenter="option.hover = true"
                 @mouseleave="option.hover = false"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -204,7 +228,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -233,8 +257,20 @@
                 :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <!-- <svg
                   v-if="option.optionSuffix"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -258,7 +294,7 @@
                       fill-opacity="1"
                     />
                   </g>
-                </svg>
+                </svg> -->
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
