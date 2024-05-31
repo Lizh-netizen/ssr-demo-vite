@@ -13,7 +13,7 @@
             serious: option.serious == '1',
             checked: option.choosen === true
           }"
-          :label="option.id"
+          :value="option.id"
         >
           {{ option.optionName }}
           <img
@@ -42,7 +42,7 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
               >
                 {{ option.optionName
                 }}<svg
@@ -91,7 +91,7 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
                 {{ option.optionName
