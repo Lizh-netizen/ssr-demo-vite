@@ -22,151 +22,144 @@
           :style="{ height: planList?.some((plan) => plan.checked) ? '600px' : '425px' }"
         >
           <div class="content_left_header">
-            <div class="flex" :style="{ 'margin-bottom': ' 0px' }">
-              <img
-                src="../../assets/svg/goalCheck.svg"
-                style="margin-right: 12px"
-                class="object-none"
-              />
+            <div class="flex mb-[10px] gap-[12px]">
+              <img src="../../assets/svg/goalCheck.svg" class="object-none" />
               <div class="title">里程碑</div>
-              <div class="flex mb-[10px] gap-[12px]">
-                <img src="../../assets/svg/goalCheck.svg" class="object-none" />
-                <div class="title">里程碑</div>
-              </div>
-              <draggable
-                class="ORTHTARGET"
-                :unmutable="true"
-                :list="goalList"
-                :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : '380px' }"
-              ></draggable>
-              <template v-if="planList?.some((plan) => plan.checked)">
-                <div class="flex mt-[14px]">
-                  <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
-                  <div class="title">工具</div>
-                </div>
-                <a-space direction="vertical" size="large">
-                  <a-input-search
-                    class="border-rd-[7px]! bg-#E6E8EB! mt-[12px]"
-                    placeholder="请搜索"
-                    v-model="searchValue"
-                    @search="handleSearch(searchValue)"
-                    @press-enter="handleSearch(searchValue)"
-                  />
-                  <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
-                </a-space>
-                <draggableTool class="ORTHTOOL h-[234px]!" :list="toolList"></draggableTool>
-              </template>
             </div>
+            <draggable
+              class="ORTHTARGET"
+              :unmutable="true"
+              :list="goalList"
+              :style="{ height: planList?.some((plan) => plan.checked) ? '250px' : '380px' }"
+            ></draggable>
+            <template v-if="planList?.some((plan) => plan.checked)">
+              <div class="flex mt-[14px]">
+                <img src="../../assets/svg/tool.svg" style="margin-right: 12px" />
+                <div class="title">工具</div>
+              </div>
+              <a-space direction="vertical" size="large">
+                <a-input-search
+                  class="border-rd-[7px]! bg-#E6E8EB! mt-[12px]"
+                  placeholder="请搜索"
+                  v-model="searchValue"
+                  @search="handleSearch(searchValue)"
+                  @press-enter="handleSearch(searchValue)"
+                />
+                <a-empty v-if="toolList.length == 0">未搜索到工具</a-empty>
+              </a-space>
+              <draggableTool class="ORTHTOOL h-[234px]!" :list="toolList"></draggableTool>
+            </template>
           </div>
-          <div class="body-right">
+        </div>
+        <div class="body-right">
+          <div
+            class="content plan"
+            :style="{ padding: '0px', 'padding-right': plan.stageList.length > 4 ? '0' : '12px' }"
+            :class="{ checkeded: plan.checked == true }"
+            v-for="(plan, planIndex) in planList"
+            :key="plan.name"
+          >
             <div
-              class="content plan"
-              :style="{ padding: '0px', 'padding-right': plan.stageList.length > 4 ? '0' : '12px' }"
-              :class="{ checkeded: plan.checked == true }"
-              v-for="(plan, planIndex) in planList"
-              :key="plan.name"
+              class="flex items-center mb-[12px] p-[12px]"
+              style="position: relative; overflow: visible"
             >
+              <div @click.stop="handlePlan(plan)" class="w-[20px] h-[20px]">
+                <template v-if="plan.checked == true">
+                  <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
+                </template>
+                <template v-else>
+                  <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
+                </template>
+              </div>
               <div
-                class="flex items-center mb-[12px] p-[12px]"
-                style="position: relative; overflow: visible"
+                contenteditable
+                :style="{ height: '30px' }"
+                class="title planName"
+                @input="(e) => handleInput(e, plan)"
+                @blur="(e) => handleBlur(e, plan)"
               >
-                <div @click.stop="handlePlan(plan)" class="w-[20px] h-[20px]">
-                  <template v-if="plan.checked == true">
-                    <img src="../../assets/svg/planCheck.svg" :style="{ 'margin-right': ' 8px' }" />
-                  </template>
-                  <template v-else>
-                    <img src="../../assets/svg/Rectangle.svg" :style="{ 'margin-right': ' 8px' }" />
-                  </template>
-                </div>
-                <div
-                  contenteditable
-                  :style="{ height: '30px' }"
-                  class="title planName"
-                  @input="(e) => handleInput(e, plan)"
-                  @blur="(e) => handleBlur(e, plan)"
+                {{ plan.name }}
+              </div>
+              <div class="planTime">
+                预计{{ plan.stageList?.[plan.stageList?.length - 1].stageName }}
+              </div>
+              <div @click.stop="">
+                <a-select
+                  class="difficulty"
+                  v-model="plan.difficultyLevel"
+                  placeholder="选择难度"
+                  @change="handleDifficultyLevel(plan.difficultyLevel, plan)"
+                  :class="{
+                    high: plan.difficultyLevel == '难度高',
+                    middle: plan.difficultyLevel == '难度中等',
+                    low: plan.difficultyLevel == '难度低'
+                  }"
                 >
-                  {{ plan.name }}
-                </div>
-                <div class="planTime">
-                  预计{{ plan.stageList?.[plan.stageList?.length - 1].stageName }}
-                </div>
-                <div @click.stop="">
-                  <a-select
-                    class="difficulty"
-                    v-model="plan.difficultyLevel"
-                    placeholder="选择难度"
-                    @change="handleDifficultyLevel(plan.difficultyLevel, plan)"
-                    :class="{
-                      high: plan.difficultyLevel == '难度高',
-                      middle: plan.difficultyLevel == '难度中等',
-                      low: plan.difficultyLevel == '难度低'
-                    }"
-                  >
-                    <a-option v-for="item in difficultyList" :key="item.label" :value="item.label">
-                      {{ item.label }}
-                    </a-option>
-                  </a-select>
-                  <a-select
-                    class="primaryApplianceId"
-                    v-model="plan.primaryApplianceId"
-                    placeholder="选择主矫正器"
-                    @click.stop=""
-                    @change="handleprimaryApplianceId(plan.primaryApplianceId, plan)"
-                  >
-                    <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
-                      {{ item.name }}
-                    </a-option>
-                  </a-select>
-                  <a-dropdown trigger="click" class="mt-[4px]!">
-                    <span class="el-dropdown-link">
-                      <div class="addFeature" @click="plan.popVisible = true">
-                        <a-button class="addFeatureBtn">
-                          <template #icon> <icon-plus /> </template>添加特点
-                        </a-button>
-                        <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
-                          {{ plan.featureTagIds?.length }}
-                        </span>
-                      </div>
-                    </span>
-                    <template #content>
-                      <div style="padding: 16px" class="flex flex-col">
-                        <a-checkbox-group
-                          :style="'width: 380px'"
-                          v-model="plan.featureTagIds"
-                          @change="handleFeature(plan.featureTagIds, plan)"
+                  <a-option v-for="item in difficultyList" :key="item.label" :value="item.label">
+                    {{ item.label }}
+                  </a-option>
+                </a-select>
+                <a-select
+                  class="primaryApplianceId"
+                  v-model="plan.primaryApplianceId"
+                  placeholder="选择主矫正器"
+                  @click.stop=""
+                  @change="handleprimaryApplianceId(plan.primaryApplianceId, plan)"
+                >
+                  <a-option v-for="item in alignerList" :key="item.name" :value="item.id">
+                    {{ item.name }}
+                  </a-option>
+                </a-select>
+                <a-dropdown trigger="click" class="mt-[4px]!">
+                  <span class="el-dropdown-link">
+                    <div class="addFeature" @click="plan.popVisible = true">
+                      <a-button class="addFeatureBtn">
+                        <template #icon> <icon-plus /> </template>添加特点
+                      </a-button>
+                      <span class="featureNum" v-if="plan.featureTagIds?.length > 0">
+                        {{ plan.featureTagIds?.length }}
+                      </span>
+                    </div>
+                  </span>
+                  <template #content>
+                    <div style="padding: 16px" class="flex flex-col">
+                      <a-checkbox-group
+                        :style="'width: 380px'"
+                        v-model="plan.featureTagIds"
+                        @change="handleFeature(plan.featureTagIds, plan)"
+                      >
+                        <a-checkbox
+                          v-for="item in featureMeritList"
+                          :key="item.name"
+                          :value="item.id"
+                          >{{ item.name }}</a-checkbox
                         >
-                          <a-checkbox
-                            v-for="item in featureMeritList"
-                            :key="item.name"
-                            :value="item.id"
-                            >{{ item.name }}</a-checkbox
-                          >
-                        </a-checkbox-group>
-                        <a-divider style="margin: 0 0 8px 0" />
-                        <a-checkbox-group
-                          :style="'width: 380px'"
-                          v-model="plan.featureTagIds"
-                          @change="handleFeature(plan.featureTagIds, plan)"
+                      </a-checkbox-group>
+                      <a-divider style="margin: 0 0 8px 0" />
+                      <a-checkbox-group
+                        :style="'width: 380px'"
+                        v-model="plan.featureTagIds"
+                        @change="handleFeature(plan.featureTagIds, plan)"
+                      >
+                        <a-checkbox
+                          v-for="item in featureEffectList"
+                          :key="item.name"
+                          :value="item.id"
+                          >{{ item.name }}</a-checkbox
                         >
-                          <a-checkbox
-                            v-for="item in featureEffectList"
-                            :key="item.name"
-                            :value="item.id"
-                            >{{ item.name }}</a-checkbox
-                          >
-                        </a-checkbox-group>
-                      </div>
-                    </template>
-                  </a-dropdown>
-                </div>
-                <div style="position: absolute; right: 12px" class="flex">
-                  <el-tooltip class="box-item" effect="dark" content="复制方案" placement="top"
-                    ><img
-                      src="../../assets/layout/Copy.svg"
-                      style="cursor: pointer"
-                      @click.stop="handleCopyPlan(plan)"
-                      class="mr-[14px]"
-                  /></el-tooltip>
+                      </a-checkbox-group>
+                    </div>
+                  </template>
+                </a-dropdown>
+              </div>
+              <div style="position: absolute; right: 12px" class="flex">
+                <el-tooltip class="box-item" effect="dark" content="复制方案" placement="top"
+                  ><img
+                    src="../../assets/layout/Copy.svg"
+                    style="cursor: pointer"
+                    @click.stop="handleCopyPlan(plan)"
+                    class="mr-[14px]"
+                /></el-tooltip>
 
                   <a-popconfirm
                     :style="{ width: planList.length > 1 ? 'auto' : '260px' }"

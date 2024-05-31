@@ -140,8 +140,8 @@
     @change="handleChangeOption(title.optionId, title, classId, owningModule)"
   >
     <template v-for="option in title.orthOptionsList" :key="option.id">
-      <template v-if="!option.optionSuffix"
-        ><el-checkbox-button
+      <template v-if="!option.optionSuffix">
+        <el-checkbox-button
           :class="{
             serious: option.serious == '1',
             checked: option.choosen === true
