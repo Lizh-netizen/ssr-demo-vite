@@ -463,7 +463,7 @@ const imageList =
         },
         {
           caption: '45度侧面微笑像',
-          typeName: 'RightSideProfile',
+          typeName: '3',
           fileUrl: placeholderUrl
         },
         {
@@ -473,7 +473,7 @@ const imageList =
         },
         {
           caption: '口内照（右侧）',
-          typeName: '',
+          typeName: '8',
           fileUrl: placeholderUrl
         },
         {
