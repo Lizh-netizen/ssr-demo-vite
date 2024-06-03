@@ -680,7 +680,6 @@ const upload = ref(false)
 const date = ref()
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
-
   if (selectedFiles.length > 16) {
     event.preventDefault()
     ElMessage('最多上传16张图片')
