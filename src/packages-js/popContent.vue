@@ -3,7 +3,9 @@
     <div v-for="(item, index) in data" :key="index" class="item flex justify-between">
       <div>{{ item.label }}</div>
       <div>
-        <img :src="complete" v-if="item.finished" /><img :src="incomplete" v-if="!item.finished" />
+        <img :src="complete" v-if="item.finished == '1'" />
+        <img :src="halfComplete" v-else-if="item.finished == '9'" />
+        <img :src="incomplete" v-else />
       </div>
     </div>
   </div>
@@ -13,9 +15,11 @@
 import { defineProps } from 'vue'
 import complete from '@/assets/svg/complete.svg'
 import incomplete from '@/assets/svg/incomplete.svg'
+import halfComplete from '@/assets/svg/halfComplete.svg'
 const props = defineProps({
   data: Array
 })
+console.log(props)
 </script>
 
 <style scoped>

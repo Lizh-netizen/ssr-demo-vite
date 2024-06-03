@@ -1013,7 +1013,9 @@ async function main() {
   // 所有请求完成后执行生成PDF
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
-  pdfContent.style.display = 'block'
+  if (pdfContent) {
+    pdfContent.style.display = 'block'
+  }
   // generatePDF()
 }
 const loading = ref()
@@ -1267,7 +1269,7 @@ body {
         background: #eaf0fc;
         display: flex;
         align-items: center;
-        // margin-left: 12px;
+        margin-left: 10px;
         border-radius: 12px;
 
         &.content {

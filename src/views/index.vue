@@ -400,10 +400,10 @@ async function getEvaluateList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '临床检查', finished: !!+item.clinicalExamination },
-          { label: '图像上传', finished: !!+item.imageUpload },
-          { label: '检查结果', finished: !!+item.imageAnalysis },
-          { label: '面评结论', finished: !!+item.facialConclusion }
+          { label: '临床检查', finished: item.clinicalExamination },
+          { label: '图像上传', finished: item.imageUpload },
+          { label: '检查结果', finished: item.imageAnalysis },
+          { label: '面评结论', finished: item.facialConclusion }
         ]
       }))
       patientList.value = evaluateList.value
@@ -438,13 +438,13 @@ async function getOrthoList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '问诊和检查', finished: !!+item.clinicalExamination },
-          { label: '图像上传', finished: !!+item.imageUpload },
-          { label: '图像分析', finished: !!+item.imageAnalysis },
-          { label: '模型分析', finished: !!+item.modelAnalysis },
-          { label: '诊断', finished: !!+item.diagnosis },
-          { label: '里程碑与工具', finished: !!+item.plansTools },
-          { label: '审批提交', finished: !!+item.approvalSubmitted }
+          { label: '问诊和检查', finished: item.clinicalExamination },
+          { label: '图像上传', finished: item.imageUpload },
+          { label: '图像分析', finished: item.imageAnalysis },
+          { label: '模型分析', finished: item.modelAnalysis },
+          { label: '诊断', finished: item.diagnosis },
+          { label: '里程碑与工具', finished: item.plansTools },
+          { label: '审批提交', finished: item.approvalSubmitted }
         ]
       }))
       patientList.value = orthoList.value
