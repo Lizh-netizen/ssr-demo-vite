@@ -19,7 +19,6 @@ import halfComplete from '@/assets/svg/halfComplete.svg'
 const props = defineProps({
   data: Array
 })
-console.log(props)
 </script>
 
 <style scoped>
