@@ -1360,7 +1360,7 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  console.log(panoramicData.value)
+  // console.log(panoramicData.value)
 }
 
 getCheckList()

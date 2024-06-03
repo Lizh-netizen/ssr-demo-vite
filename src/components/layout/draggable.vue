@@ -403,7 +403,7 @@ onMounted(() => {
           }
           if (!toothFlag.value && popover?.compareDocumentPosition(e.target) == 2) {
             // 选择牙位的弹窗存在，且未选中牙齿时
-            console.log(item.value)
+            // console.log(item.value)
             if (!item.value.item) {
               return
             }

@@ -110,8 +110,8 @@
     </el-radio-group>
 
     <el-checkbox-group
-      v-model="title.optionId"
       v-if="title.type == 2"
+      v-model="title.optionId"
       @change="handleChangeOption(title.optionId, title, classId, owningModule)"
     >
       <template v-if="!option.optionSuffix">
@@ -282,7 +282,7 @@ const props = defineProps({
     default: ''
   }
 })
-console.log(props.title)
+// console.log(props.title)
 const symptomList = ref([])
 symptomList.value = GetSymptom()
 const handleBeforeEnterPopover = (title) => {

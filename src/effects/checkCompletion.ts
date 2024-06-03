@@ -292,6 +292,6 @@ export function checkModelOptions(data: any) {
     }
     count++
   })
-  console.log(count, allChoosen)
+  // console.log(count, allChoosen)
   return allChoosen === 0 ? '0' : allChoosen === count ? '1' : '9'
 }

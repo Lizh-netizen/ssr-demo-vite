@@ -21,12 +21,23 @@
               {{ '可直接拖拽照片到右侧指定位置～' }}
             </div>
             <div class="title__right file-upload flex justify-end items-center">
-              <img src="../../assets/svg/Sync.svg" @click="handleSyncOss" />
+              <img
+                src="../../assets/svg/Sync.svg"
+                class="cursor-pointer"
+                :title="syncImageDec"
+                @click="handleSyncOss"
+              />
               <label for="fileInput" class="position-absolute">
                 <img src="../../assets/svg/Upload.svg" />
               </label>
 
-              <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
+              <input
+                class="file-upload__input cursor-pointer"
+                :title="upLoadImageDec"
+                type="file"
+                @change="handleFileChange"
+                multiple
+              />
             </div>
           </div>
           <div
@@ -75,8 +86,8 @@
                       }"
                     >
                       <img
-                        v-if="!img.file"
                         :style="{ display: 'block' }"
+                        :class="[module == 'ortho' ? 'cursor-pointer' : '']"
                         class="img"
                         :src="img.imgUrl"
                         draggable="true"
@@ -84,7 +95,7 @@
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
                       />
-                      <img
+                      <!-- <img
                         v-if="img.file"
                         :style="{ display: 'block' }"
                         class="img"
@@ -93,9 +104,9 @@
                         @dragstart="handleDragStart(img, $event)"
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
-                      />
+                      /> -->
                       <img
-                        v-if="img.choose"
+                        v-if="img.choose && module == 'ortho'"
                         src="@/assets/svg/imageChecked.svg"
                         :style="{
                           position: 'absolute',
@@ -122,8 +133,8 @@
           </div>
 
           <div class="classifyWrapper" v-if="module == 'ortho'">
-            <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
-            ><el-button @click="handleClassifyPics">自动分类</el-button>
+            <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span>
+            <el-button @click="handleClassifyPics">自动分类</el-button>
           </div>
         </div>
         <div class="imageManagement__classify subSection">
@@ -193,10 +204,10 @@
         <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
       </div>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="handleCancel">取消</el-button>
           <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
-        </span>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -227,7 +238,8 @@ import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
-import { ElMessage } from 'element-plus'
+import compressionFile from '@/utils/compress.ts'
+// import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   module: {
@@ -291,31 +303,47 @@ const filterList = [
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
+
 // 同步影像
-const hasSync = ref(false)
+const syncImageDec = ref('同步领健')
+// const hasSync = ref(false)
 const handleSyncOss = async () => {
-  if (hasSync.value) {
+  // if (hasSync.value) {
+  //   ElMessage({
+  //     message: '正在同步中，请勿重复操作',
+  //     type: 'warning'
+  //   })
+  //   return
+  // }
+  // if (!hasSync.value) {
+  // hasSync.value = true
+  const loading = ElLoading.service({
+    lock: true,
+    text: '图像正在同步中...',
+    background: 'rgba(0, 0, 0, 0.7)',
+    target: loadingTarget2.value
+  })
+  loading.value = true
+  const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
+    patientId: props.patientId
+  })
+  if (res.code == 200) {
+    // hasSync.value = false
     ElMessage({
-      message: '正在同步中，请勿重复操作',
-      type: 'warning'
+      message: res.message,
+      type: 'success'
     })
-    return
-  }
-  if (!hasSync.value) {
-    hasSync.value = true
-    const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
-      patientId: props.patientId
+    handleChangeFilterBtn('全部')
+  } else {
+    ElMessage({
+      message: '图像同步中断，请重新点击同步按钮',
+      type: 'error'
     })
-    if (res.code == 200) {
-      hasSync.value = false
-      ElMessage({
-        message: res.message,
-        type: 'success'
-      })
-      handleChangeFilterBtn('全部')
-    }
   }
+  loading.close()
+  // }
 }
+
 const handleChangeFilterBtn = async (label) => {
   currentBtn.value = label
   let path
@@ -673,14 +701,12 @@ async function handleClassifyPics() {
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
-
-const params = new FormData()
-
+// const params = new FormData()
 const upload = ref(false)
 const date = ref()
+const upLoadImageDec = ref('上传图片')
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
-
   if (selectedFiles.length > 16) {
     event.preventDefault()
     ElMessage('最多上传16张图片')
@@ -691,10 +717,10 @@ const handleFileChange = (event) => {
         img.choose = false
       })
     })
+
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
-      params.append('files', file)
-
+      // params.append('files', file)
       if (file) {
         const reader = new FileReader()
         reader.onload = () => {
@@ -707,6 +733,9 @@ const handleFileChange = (event) => {
           })
         }
         reader.readAsDataURL(file)
+        // compressionFile(file).then((res) => {
+        //   console.log(`output->res`, res)
+        // })
       }
     }
 
