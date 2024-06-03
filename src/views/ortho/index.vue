@@ -211,7 +211,7 @@ const step3 = ref(null)
 const step4 = ref(null)
 const step5 = ref(null)
 const pdfComp = ref(null)
-const handleChangeStep = (num) => {
+const handleChangeStep = async (num) => {
   if (num > editStep.value) {
     ElMessage({
       message: '请点击下一步哦',
@@ -219,6 +219,7 @@ const handleChangeStep = (num) => {
     })
     return
   } else {
+    await checkCompletion()
     active.value = num
   }
 }
@@ -500,6 +501,7 @@ const checkCompletion = async () => {
 
   if (active.value == 2) {
     await getClassifiedImgList()
+    console.log(234)
     imageUpload.value = checkOrthImageUpload(classifiedImageList)
     imageAnalysis.value = await checkOrthImageAnalysis()
   }
