@@ -283,6 +283,7 @@ const props = defineProps({
   }
 })
 // console.log(props.title)
+
 const symptomList = ref([])
 symptomList.value = GetSymptom()
 const handleBeforeEnterPopover = (title) => {

@@ -673,16 +673,11 @@ async function checkImageOptions() {
   // 包含前牙覆盖选项的
   checkFugaiOptions(mouthData.value)
   checkOptions(panoramicData.value)
-  if (
-    checkOrthOptions(faceAccessData.value) === '0' &&
-    checkFugaiOptions(mouthData.value) == '0' &&
-    checkOptions(cepha.value) === 0
-  ) {
+  if (checkOrthOptions(faceAccessData.value) === '0' && checkFugaiOptions(mouthData.value) == '0') {
     return '0'
   } else if (
     checkOrthOptions(faceAccessData.value) === '1' &&
-    checkFugaiOptions(mouthData.value) == '1' &&
-    checkOptions(cepha.value) === 1
+    checkFugaiOptions(mouthData.value) == '1'
   ) {
     return '1'
   } else {

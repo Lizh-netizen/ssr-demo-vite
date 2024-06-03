@@ -18,7 +18,7 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              {{ '可直接拖拽照片到右侧指定位置～' }}
+              {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
             </div>
             <div class="title__right file-upload flex justify-end items-center">
               <img
@@ -491,7 +491,7 @@ const imageList =
         },
         {
           caption: '45度侧面微笑像',
-          typeName: 'RightSideProfile',
+          typeName: '3',
           fileUrl: placeholderUrl
         },
         {
@@ -501,7 +501,7 @@ const imageList =
         },
         {
           caption: '口内照（右侧）',
-          typeName: '',
+          typeName: '8',
           fileUrl: placeholderUrl
         },
         {
@@ -934,7 +934,7 @@ async function handleSavePics() {
     startTime: item.startTime
   }))
   const res = await Post('/prod-api/business/orthImage', {
-    aptmId: props.appId,
+    apmtId: props.appId,
     orthImageList: arr
   })
   if (res.code == 200) {

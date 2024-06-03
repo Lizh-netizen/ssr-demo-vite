@@ -14,7 +14,6 @@ window.addEventListener('message', (event) => {
     if (event.data.startsWith('clear')) {
       sessionStorage.clear()
     }
-    console.log(typeof event.data)
     if (event.data.startsWith('{"createBy')) {
       sessionStorage.setItem('jc_odos_user', event.data)
     }

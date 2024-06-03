@@ -416,7 +416,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 15 && index <= 20">
+                  <template v-if="index >= 15 && index <= 21">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -1484,8 +1484,8 @@ async function getOrthPanoramicList() {
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
           const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
-          codeTitleList.value = res.data.slice(7, 20)
-          const other = res.data.slice(20)
+          codeTitleList.value = res.data.slice(7, 21)
+          const other = res.data.slice(21)
           panoramicData.value[0].orthTitleList = [
             ...nonCodeTitleList,
             ...codeTitleList.value,
