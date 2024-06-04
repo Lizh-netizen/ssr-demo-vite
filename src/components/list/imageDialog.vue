@@ -92,37 +92,17 @@
                       }"
                     >
                       <img
-                        v-if="item.StartTime == '本地上传'"
                         :style="{ display: 'block' }"
                         :class="[module == 'ortho' ? 'cursor-pointer' : '']"
                         class="img"
-                        :src="img.imgUrl"
+                        :src="`${img.imgUrl}${
+                          item.StartTime !== '本地上传' ? '?x-oss-process=style/x0.5' : ''
+                        }`"
                         draggable="true"
                         @dragstart="handleDragStart(img, $event)"
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
                       />
-                      <img
-                        v-else
-                        :style="{ display: 'block' }"
-                        :class="[module == 'ortho' ? 'cursor-pointer' : '']"
-                        class="img"
-                        :src="img.imgUrl + '?x-oss-process=style/x0.5'"
-                        draggable="true"
-                        @dragstart="handleDragStart(img, $event)"
-                        @dragend="handleDragEnd"
-                        @click="handleToggleChoose(img)"
-                      />
-                      <!-- <img
-                        v-if="img.file"
-                        :style="{ display: 'block' }"
-                        class="img"
-                        :src="img.imgUrl"
-                        draggable="true"
-                        @dragstart="handleDragStart(img, $event)"
-                        @dragend="handleDragEnd"
-                        @click="handleToggleChoose(img)"
-                      /> -->
                       <img
                         v-if="img.choose && module == 'ortho'"
                         src="@/assets/svg/imageChecked.svg"
@@ -175,7 +155,6 @@
                 }"
               >
                 <img
-                  v-if="img.fileUrl == placeholderUrl"
                   class="img"
                   :class="{
                     hover: img.reminder === true,
@@ -183,23 +162,9 @@
                     animate__bounce: img.reminder === true
                   }"
                   :style="{ display: 'block' }"
-                  :src="img.fileUrl"
-                  @drop="(e) => handleDrop(e, img)"
-                  @dragover.prevent="handleDragOver"
-                  @dragleave="handleDragLeave"
-                  @dragstart="handleDragStart1(img)"
-                  @dragend="handleDragEnd"
-                />
-                <img
-                  v-else
-                  class="img"
-                  :class="{
-                    hover: img.reminder === true,
-                    animate__animated: img.reminder === true,
-                    animate__bounce: img.reminder === true
-                  }"
-                  :style="{ display: 'block' }"
-                  :src="img.fileUrl + '?x-oss-process=style/x0.5'"
+                  :src="`${img.fileUrl}${
+                    img.fileUrl !== placeholderUrl ? '?x-oss-process=style/x0.5' : ''
+                  }`"
                   @drop="(e) => handleDrop(e, img)"
                   @dragover.prevent="handleDragOver"
                   @dragleave="handleDragLeave"
