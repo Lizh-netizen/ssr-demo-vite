@@ -18,7 +18,9 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
+              <span class="text-[#EB8C25]">{{
+                '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧'
+              }}</span>
             </div>
             <div class="title__right file-upload flex justify-end items-center">
               <img
@@ -710,9 +712,9 @@ const date = ref()
 const upLoadImageDec = ref('上传图片')
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
-  if (selectedFiles.length > 16) {
+  if (selectedFiles.length > 12) {
     event.preventDefault()
-    ElMessage('最多上传16张图片')
+    ElMessage('最多上传12张图片')
     return
   } else {
     imageArr.value.forEach((item) => {
