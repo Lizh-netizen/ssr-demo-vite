@@ -1,6 +1,6 @@
 <template>
   <div class="stepTwo">
-    <div class="button" @click="openImgDialog"><img src="@/assets/svg/arrange.svg" />影像管理</div>
+    <div class="button" @click="openImgDialog"><img src="@/assets/svg/arrange.svg" />图像管理</div>
     <Header text="面型评估" backgroundColor="#f4f7fd" />
     <div class="content" :style="{ 'min-height': '700px' }">
       <template v-for="(item, index) in faceAccessData" :key="item.id">
@@ -627,7 +627,7 @@
     </div>
   </div>
   <!-- <ImgDialog v-if="imgDialogVisible" :dialogVisible="imgDialogVisible" :imgUrl="imgUrl"></ImgDialog> -->
-  <!-- 影像管理弹窗 -->
+  <!-- 图像管理弹窗 -->
   <ImageDialog
     module="ortho"
     :appId="appId"
