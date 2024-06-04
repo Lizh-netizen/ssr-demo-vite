@@ -1473,29 +1473,29 @@ async function getOrthPanoramicList() {
       panoImageUrl.value = item.imageUrl
     }
     // flag为false再请求一次接口
-    if (!item.flag) {
-      requestMouth.value = true
-      const obj = {
-        sourceApmtId: sourceApmtId.value,
-        apmtId: appId,
-        classId: classId.value,
-        location: '2'
-      }
-      Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
-        if (res.code == 200) {
-          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
-          codeTitleList.value = res.data.slice(7, 21)
-          const other = res.data.slice(21)
-          panoramicData.value[0].orthTitleList = [
-            ...nonCodeTitleList,
-            ...codeTitleList.value,
-            ...other
-          ]
-          // 获取牙位数据是异步操作，需要分情况处理全景片数据
-          handlePanoData(panoramicData)
-        }
-      })
-    }
+    // if (!item.flag) {
+    //   requestMouth.value = true
+    //   const obj = {
+    //     sourceApmtId: sourceApmtId.value,
+    //     apmtId: appId,
+    //     classId: classId.value,
+    //     location: '2'
+    //   }
+    //   Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
+    //     if (res.code == 200) {
+    //       const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
+    //       codeTitleList.value = res.data.slice(7, 21)
+    //       const other = res.data.slice(21)
+    //       panoramicData.value[0].orthTitleList = [
+    //         ...nonCodeTitleList,
+    //         ...codeTitleList.value,
+    //         ...other
+    //       ]
+    //       // 获取牙位数据是异步操作，需要分情况处理全景片数据
+    //       handlePanoData(panoramicData)
+    //     }
+    //   })
+    // }
   })
 
   if (!requestMouth.value) {
