@@ -1,6 +1,5 @@
 <template>
   <div class="contain">
-    <div>我是测试测试测试</div>
     <div class="taskCard">
       <task-card :default="currentTab" @changeTab="changeTab">
         <task-card-item

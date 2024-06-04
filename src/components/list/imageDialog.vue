@@ -16,10 +16,14 @@
         <div class="imageManagement__images subSection">
           <div class="title left">
             <div class="title__left">图库</div>
-            <div class="title__middle" v-show="module == 'ortho'">
+            <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
               <span class="text-[#EB8C25]">
-                {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
+                {{
+                  module == 'ortho'
+                    ? '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧'
+                    : '可直接拖拽图像到指定位置～ '
+                }}
               </span>
             </div>
             <div class="title__right file-upload flex justify-end items-center">
@@ -818,11 +822,17 @@ const chooseImgNum = computed(() => {
 })
 // 反选
 const handleToggleChoose = (img) => {
-  if (chooseImgNum.value >= 16) {
-    ElMessage.warning('最多只能选择16张图片')
+  if (chooseImgNum.value <= 12) {
+    img.choose = !img.choose
+  }
+
+  if (chooseImgNum.value > 12) {
+    ElMessage.warning('最多只能选择12张图片')
+    if (img.choose) {
+      img.choose = false
+    }
     return
   }
-  img.choose = !img.choose
 }
 
 // 图片拖拽
