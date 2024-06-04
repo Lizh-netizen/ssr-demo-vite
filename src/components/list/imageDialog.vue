@@ -88,10 +88,22 @@
                       }"
                     >
                       <img
+                        v-if="item.StartTime == '本地上传'"
                         :style="{ display: 'block' }"
                         :class="[module == 'ortho' ? 'cursor-pointer' : '']"
                         class="img"
                         :src="img.imgUrl"
+                        draggable="true"
+                        @dragstart="handleDragStart(img, $event)"
+                        @dragend="handleDragEnd"
+                        @click="handleToggleChoose(img)"
+                      />
+                      <img
+                        v-else
+                        :style="{ display: 'block' }"
+                        :class="[module == 'ortho' ? 'cursor-pointer' : '']"
+                        class="img"
+                        :src="img.imgUrl + '?x-oss-process=style/x0.5'"
                         draggable="true"
                         @dragstart="handleDragStart(img, $event)"
                         @dragend="handleDragEnd"
@@ -166,7 +178,7 @@
                     animate__bounce: img.reminder === true
                   }"
                   :style="{ display: 'block' }"
-                  :src="img.fileUrl"
+                  :src="img.fileUrl + '?x-oss-process=style/x0.5'"
                   @drop="(e) => handleDrop(e, img)"
                   @dragover.prevent="handleDragOver"
                   @dragleave="handleDragLeave"
@@ -277,11 +289,12 @@ const props = defineProps({
     default: ''
   }
 })
+const firstEnter = ref(false)
+const showGif = ref(true)
+
 onBeforeMount(() => {
   showGif.value = true
 })
-const firstEnter = ref(false)
-const showGif = ref(true)
 onMounted(() => {
   firstEnter.value = true
   imageList.value.forEach((a) => {
@@ -294,10 +307,10 @@ onMounted(() => {
   }, 1000)
   handleChangeFilterBtn('全部')
 })
-
 onBeforeMount(() => {
   getClassifiedImgList()
 })
+
 const currentBtn = ref('全部')
 const gif = ref(null)
 const filterList = [
@@ -361,8 +374,7 @@ const handleChangeFilterBtn = async (label) => {
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value.forEach((item) =>
       item.imageList.forEach((img) => {
-        // img.imgUrl = img.ossImagePath
-        img.imgUrl = img.thumbnailOssPath
+        img.imgUrl = img.ossImagePath
       })
     )
   } else {
@@ -441,8 +453,7 @@ async function getClassifiedImgList() {
 const handleLoadPic = () => {
   if (imageArr.value.length < totalArr.value.length) {
     totalArr.value[imageArr.value.length].imageList.forEach((img) => {
-      // img.imgUrl = img.ossImagePath
-      img.imgUrl = img.thumbnailOssPath
+      img.imgUrl = img.ossImagePath
     })
     const itemWithImage = totalArr.value
       .slice(index.value + 1)
@@ -454,8 +465,7 @@ const handleLoadPic = () => {
         (item) => item == imageArr.value[imageArr.value.length - 1]
       )
       imageArr.value[imageArr.value.length - 1].imageList.forEach((img) => {
-        // img.imgUrl = img.ossImagePath
-        img.imgUrl = img.thumbnailOssPath
+        img.imgUrl = img.ossImagePath
       })
     } else {
       ElMessage('没有更多图像了哦')
@@ -646,7 +656,6 @@ async function handleClassifyPics() {
             .map((a) => {
               if (a.choose) {
                 return {
-                  thumbnailOssPath: a.thumbnailOssPath,
                   ossImagePath: a.ossImagePath,
                   id: a.id,
                   LJCreateDatetime: a.timestamp,
@@ -722,6 +731,14 @@ const handleFileChange = (event) => {
         img.choose = false
       })
     })
+    // 开启loading，压缩图片
+    const loading = ElLoading.service({
+      lock: true,
+      text: '本地上传中',
+      background: 'rgba(0, 0, 0, 0.7)',
+      target: loadingTarget2.value
+    })
+    loading.value = true
     // 遍历图片列表，超过 1M 压缩图片，压缩质量 0.5
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
@@ -755,7 +772,6 @@ const handleFileChange = (event) => {
         }
       }
     }
-
     if (!upload.value) {
       date.value = formatTime().formattedToday
       imageArr.value.unshift({
@@ -767,6 +783,9 @@ const handleFileChange = (event) => {
     } else {
       imageArr.value[0].imageList = fileListWithFlag.value
     }
+    setTimeout(() => {
+      loading.close()
+    }, 2000)
   }
 }
 const chooseImgNum = computed(() => {
@@ -843,8 +862,7 @@ const handleDragEnd = () => {
 const handleSingleImage1 = (file, image) => {
   image.imageId = file.id
   image.startTime = file.startTime
-  // image.fileUrl = file.ossImagePath
-  image.fileUrl = file.thumbnailOssPath
+  image.fileUrl = file.ossImagePath
 }
 const handleDrop = (e, image) => {
   const image2 = document.getElementById('img')
@@ -921,8 +939,7 @@ async function handleSingleImage(file, image) {
   // }
   const res = await Post('/prod-api/emr/orthCommon/handleSingleImage', formData, true)
   if (res.code == 200 && res.data.length > 0) {
-    // image.fileUrl = res.data[0].ossImagePath
-    image.fileUrl = res.data[0].thumbnailOssPath
+    image.fileUrl = res.data[0].ossImagePath
     image.imageId = res.data[0].id
     image.startTime = res.data[0].startTime
   } else {
@@ -963,20 +980,30 @@ async function handleSavePics() {
   emit('savePics', imageUrlChanged.value)
 }
 const handleDragOver = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
+  if (
+    !e.target.src.endsWith('jpeg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('jpg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('png?x-oss-process=style/x0.5')
+  ) {
     e.target.src = blueBgUrl
     e.target.classList.add('hover')
   }
 }
 const handleDragLeave = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
+  if (
+    !e.target.src.endsWith('jpeg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('jpg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('png?x-oss-process=style/x0.5')
+  ) {
     e.target.src = placeholderUrl
   }
   e.target.classList.remove('hover')
 }
 const handleCloseImgDialog = () => {
   emit('cancel')
-  imageList.value.forEach((image) => (image.reminder = false))
+  imageList.value.forEach((image) => {
+    image.reminder = false
+  })
 }
 </script>
 
