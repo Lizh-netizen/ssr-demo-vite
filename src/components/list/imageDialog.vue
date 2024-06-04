@@ -359,7 +359,8 @@ const handleChangeFilterBtn = async (label) => {
     index.value = res.data.findIndex((a) => a.imageList.length !== 0)
     imageArr.value.forEach((item) =>
       item.imageList.forEach((img) => {
-        img.imgUrl = img.ossImagePath
+        // img.imgUrl = img.ossImagePath
+        img.imgUrl = img.thumbnailOssPath
       })
     )
   } else {
@@ -438,7 +439,8 @@ async function getClassifiedImgList() {
 const handleLoadPic = () => {
   if (imageArr.value.length < totalArr.value.length) {
     totalArr.value[imageArr.value.length].imageList.forEach((img) => {
-      img.imgUrl = img.ossImagePath
+      // img.imgUrl = img.ossImagePath
+      img.imgUrl = img.thumbnailOssPath
     })
     const itemWithImage = totalArr.value
       .slice(index.value + 1)
@@ -450,7 +452,8 @@ const handleLoadPic = () => {
         (item) => item == imageArr.value[imageArr.value.length - 1]
       )
       imageArr.value[imageArr.value.length - 1].imageList.forEach((img) => {
-        img.imgUrl = img.ossImagePath
+        // img.imgUrl = img.ossImagePath
+        img.imgUrl = img.thumbnailOssPath
       })
     } else {
       ElMessage('没有更多图像了哦')
@@ -641,6 +644,7 @@ async function handleClassifyPics() {
             .map((a) => {
               if (a.choose) {
                 return {
+                  thumbnailOssPath: a.thumbnailOssPath,
                   ossImagePath: a.ossImagePath,
                   id: a.id,
                   LJCreateDatetime: a.timestamp,
@@ -701,7 +705,6 @@ async function handleClassifyPics() {
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
-// const params = new FormData()
 const upload = ref(false)
 const date = ref()
 const upLoadImageDec = ref('上传图片')
@@ -717,25 +720,37 @@ const handleFileChange = (event) => {
         img.choose = false
       })
     })
-
+    // 遍历图片列表，超过 1M 压缩图片，压缩质量 0.5
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
-      // params.append('files', file)
       if (file) {
         const reader = new FileReader()
-        reader.onload = () => {
-          fileList.value.push(reader.result)
-          fileListWithFlag.value.push({
-            imgUrl: reader.result,
-            showFlag: false,
-            choose: true,
-            file: file
+        const isLt2M = file.size / 1024 / 1024 < 1
+        if (!isLt2M) {
+          compressionFile(file).then((res) => {
+            reader.onload = () => {
+              fileList.value.push(reader.result)
+              fileListWithFlag.value.push({
+                imgUrl: reader.result,
+                showFlag: false,
+                choose: true,
+                file: res
+              })
+            }
+            reader.readAsDataURL(res)
           })
+        } else {
+          reader.onload = () => {
+            fileList.value.push(reader.result)
+            fileListWithFlag.value.push({
+              imgUrl: reader.result,
+              showFlag: false,
+              choose: true,
+              file: file
+            })
+          }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
-        // compressionFile(file).then((res) => {
-        //   console.log(`output->res`, res)
-        // })
       }
     }
 
@@ -826,7 +841,8 @@ const handleDragEnd = () => {
 const handleSingleImage1 = (file, image) => {
   image.imageId = file.id
   image.startTime = file.startTime
-  image.fileUrl = file.ossImagePath
+  // image.fileUrl = file.ossImagePath
+  image.fileUrl = file.thumbnailOssPath
 }
 const handleDrop = (e, image) => {
   const image2 = document.getElementById('img')
@@ -903,7 +919,8 @@ async function handleSingleImage(file, image) {
   // }
   const res = await Post('/prod-api/emr/orthCommon/handleSingleImage', formData, true)
   if (res.code == 200 && res.data.length > 0) {
-    image.fileUrl = res.data[0].ossImagePath
+    // image.fileUrl = res.data[0].ossImagePath
+    image.fileUrl = res.data[0].thumbnailOssPath
     image.imageId = res.data[0].id
     image.startTime = res.data[0].startTime
   } else {
