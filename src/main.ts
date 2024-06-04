@@ -1,7 +1,7 @@
-// sessionStorage.setItem(
-//   'jc_odos_user',
-//   '{"createBy":"平台端添加","createTime":"2023-12-06 12:20:10","updateBy":"lizhanghua","updateTime":"2024-01-17 18:28:28","remark":null,"id":289,"name":"lizhanghua","birth":"2023-12-27","sex":0,"title":null,"email":null,"mobile":"17839228268","isRoot":false,"userId":290,"officeId":231,"officeIdGroup":"230,231,232,233,234,235,236,254,256,265,267,268,269,310,311,319,322,328,330,331","lastOfficeId":231,"status":"0","delFlag":"0","tenantId":"97ad2024-77b9-11ee-9618-b8599f2a8c40","roleIds":null,"password":null,"account":null,"firstLogin":0,"code":null,"userName":"liu","ljProviderId":4724,"ddUserId":"680631305126411068","detailInformation":null,"speciality":null,"ljOfficeId":171}'
-// )
+sessionStorage.setItem(
+  'jc_odos_user',
+  '{"createBy":"平台端添加","createTime":"2023-12-06 12:20:10","updateBy":"lizhanghua","updateTime":"2024-01-17 18:28:28","remark":null,"id":289,"name":"lizhanghua","birth":"2023-12-27","sex":0,"title":null,"email":null,"mobile":"17839228268","isRoot":false,"userId":290,"officeId":231,"officeIdGroup":"230,231,232,233,234,235,236,254,256,265,267,268,269,310,311,319,322,328,330,331","lastOfficeId":231,"status":"0","delFlag":"0","tenantId":"97ad2024-77b9-11ee-9618-b8599f2a8c40","roleIds":null,"password":null,"account":null,"firstLogin":0,"code":null,"userName":"liu","ljProviderId":4724,"ddUserId":"680631305126411068","detailInformation":null,"speciality":null,"ljOfficeId":171}'
+)
 window.parent.postMessage('done', '*')
 
 // // src跳转
@@ -11,10 +11,9 @@ window.addEventListener('message', (event) => {
     event.origin == 'https://orangedev.aiorange.com' ||
     event.origin == 'https://odos.aiorange.com'
   ) {
-    // if (event.data.startsWith('clear')) {
-    //   sessionStorage.clear()
-    // }
-    console.log(typeof event.data)
+    if (event.data.startsWith('clear')) {
+      sessionStorage.clear()
+    }
     if (event.data.startsWith('{"createBy')) {
       sessionStorage.setItem('jc_odos_user', event.data)
     }
@@ -37,6 +36,7 @@ import 'virtual:svg-icons-register'
 // 全局样式
 import './global.scss'
 import './packages-js/index.scss'
+import '@/style/iconfont.css'
 // @ts-expect-error TS(2307): Cannot find module './assets/ortho/lazyImg.png' or... Remove this comment to see the full error message
 import imgPlaceholder from './assets/ortho/lazyImg.png'
 import 'element-plus/dist/index.css'

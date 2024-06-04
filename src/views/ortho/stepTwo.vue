@@ -19,7 +19,7 @@
                 @click="handlePreviewImage(item)"
                 :style="{
                   height: '240px',
-                  'object-fit': 'cover',
+                  'object-fit': 'contain',
                   'max-width': '320px'
                 }"
               /> </template
@@ -52,7 +52,7 @@
                         :class="{
                           serious: option.serious == '1'
                         }"
-                        :label="option.id"
+                        :value="option.id"
                       >
                         {{ option.optionName }}
                         <img
@@ -62,8 +62,31 @@
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
                       </el-radio-button>
-                    </template> </el-radio-group
-                ></form-item>
+                    </template>
+                  </el-radio-group>
+                  <el-checkbox-group
+                    v-model="title.optionId"
+                    v-if="title.type == 2"
+                    @change="handleChangeOption(title.optionId, title, item.id, item.owningModule)"
+                  >
+                    <el-checkbox-button
+                      :class="{
+                        serious: option.serious == '1',
+                        checked: option.choosen === true
+                      }"
+                      v-for="option in title.orthOptionsList"
+                      :key="option.id"
+                      :value="option.id"
+                      :disabled="disabled"
+                    >
+                      {{ option.optionName }}
+                      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                        src="../../assets/svg/abnormalChecked.svg"
+                        v-else
+                      />
+                    </el-checkbox-button>
+                  </el-checkbox-group>
+                </form-item>
               </template>
               <template v-else>
                 <form-item :label="title.titleName" width="120px">
@@ -102,7 +125,7 @@
                 :style="{
                   height: '240px',
                   width: '320px',
-                  'object-fit': 'cover'
+                  'object-fit': 'contain'
                 }" /></template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
@@ -118,7 +141,7 @@
                     :style="{
                       height: '240px',
                       width: '320px',
-                      'object-fit': 'cover'
+                      'object-fit': 'contain'
                     }" /></template
                 ><template v-else>
                   <div class="imageItem__placeholder" @click="handleOpenImageDialogue('前牙覆盖')">
@@ -207,7 +230,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -233,7 +256,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                           <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -273,7 +296,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -299,7 +322,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                           <img src="@/assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -338,7 +361,7 @@
                           }"
                           v-for="option in title.orthOptionsList"
                           :key="option.id"
-                          :label="option.id"
+                          :value="option.id"
                         >
                           {{ option.optionName }}
                         </el-radio-button>
@@ -393,7 +416,7 @@
               </div>
               <div class="leftLower-column">
                 <template v-for="(title, index) in panoramicData[0].orthTitleList" :key="title.id">
-                  <template v-if="index >= 15 && index <= 20">
+                  <template v-if="index >= 15 && index <= 21">
                     <form-item :label="title.titleName" width="120px">
                       <Tooth
                         :step="2"
@@ -542,7 +565,7 @@
                   >
                     <el-radio-button
                       :disabled="!cephaImage"
-                      :label="option.id"
+                      :value="option.id"
                       :class="{
                         serious: option.serious == '1',
                         checked: option.choosen === true,
@@ -585,7 +608,7 @@
                     @dblclick="handleEmptyRadio(title.optionId, title, cephaClassId, '侧位片')"
                     ><el-radio-button
                       :disabled="!cephaImage"
-                      :label="option.id"
+                      :value="option.id"
                       :class="{
                         serious: option.serious == '1',
                         checked: option.choosen === true
@@ -1197,13 +1220,10 @@ async function getOrthFaceAccessList() {
         item.orthTitleList.splice(1, 1)
         item.orthTitleList.splice(1, 1)
       }
-      // if (choosen1) {
-      //   item.orthTitleList.splice(1, 1)
-      // } else if (choosen2) {
-      //   item.orthTitleList.splice(2, 1)
-      // } else if (choosen1) {
-      //   item.orthTitleList.splice(1, 1)
-      // }
+      if (option.length == 0) {
+        item.orthTitleList.splice(1, 1)
+        item.orthTitleList.splice(1, 1)
+      }
     }
     item.orthTitleList.forEach((title) => {
       if (title.type == 1) {
@@ -1230,23 +1250,6 @@ async function getOrthFaceAccessList() {
   loadingTarget.value.style.display = 'block'
 }
 
-function getRatio(imgWidth, imgHeight, maxWidth, maxHeight) {
-  let ratio = 0
-  let width = imgWidth
-  let height = imgHeight
-  ratio = imgWidth / imgHeight
-  // 等比例缩放计算
-  if (width > maxWidth) {
-    width = maxWidth
-    height = width / ratio
-  }
-
-  if (height > maxHeight) {
-    height = maxHeight
-    width = height * ratio
-  }
-  return { width, height, ratio }
-}
 const frontCoverItem = ref()
 const mouthData = ref([])
 const frontCover = ref()
@@ -1481,8 +1484,8 @@ async function getOrthPanoramicList() {
       Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
         if (res.code == 200) {
           const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 7)
-          codeTitleList.value = res.data.slice(7, 20)
-          const other = res.data.slice(20)
+          codeTitleList.value = res.data.slice(7, 21)
+          const other = res.data.slice(21)
           panoramicData.value[0].orthTitleList = [
             ...nonCodeTitleList,
             ...codeTitleList.value,
@@ -2647,6 +2650,9 @@ let aspectRatio = ref(0)
 function initCanvas(maxWidth, maxHeight, draw) {
   const image = new Image() // 创建 img 元素
   const canvas = document.getElementById('myCanvas')
+  if (!canvas) {
+    return
+  }
   const ctx = canvas.getContext('2d')
 
   image.onload = function () {
@@ -3056,121 +3062,7 @@ img {
 .dragging {
   opacity: 0.5;
 }
-.diagramWrapper {
-  width: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .diagram {
-    position: relative;
-    .diagramBox {
-      width: 122px;
-      height: 30px;
-      display: flex;
-      div {
-        height: 30px;
-        width: 61px;
-        display: flex;
-        align-items: center;
-        padding: 4px;
-        box-sizing: border-box;
-      }
-      &:nth-child(1) {
-        border-bottom: 1px solid #d8d8d8;
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-      &:nth-child(2) {
-        > div:nth-child(1) {
-          border-right: 1px solid #d8d8d8;
-          justify-content: end;
-        }
-      }
-    }
-  }
-}
-.selectContainer {
-  .container {
-    display: grid;
-    grid-template-columns: auto auto;
-    .symptomBox {
-      display: flex;
-      .symptomItem {
-        width: 24px;
-        height: 24px;
-        /* border: solid 1px #ccc; */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 2px 2px;
-        cursor: pointer;
-        border: 0.5px solid #e9e9eb;
-        box-sizing: border-box;
-        &.selected {
-          background-color: #0081cc;
-          border-color: #0081cc;
-          color: #fff;
-        }
-      }
 
-      &.marginTop {
-        margin-top: 16px;
-      }
-      &.marginBottom {
-        margin-bottom: 16px;
-      }
-      &.marginRight {
-        margin-right: 12px;
-      }
-      &.marginLeft {
-        margin-left: 12px;
-      }
-      &.itemAlignRight {
-        justify-content: end;
-      }
-    }
-  }
-  &:after {
-    content: '';
-    position: absolute;
-    width: 1px;
-    height: 138px;
-    left: 247px;
-    top: 16px;
-    background: #d8d8d8;
-  }
-  &:before {
-    content: '';
-    position: absolute;
-    width: 465px;
-    height: 1px;
-    left: 20px;
-    top: 82px;
-    background: #d8d8d8;
-  }
-  .left {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    left: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-  .right {
-    position: absolute;
-    width: 26px;
-    height: 20px;
-    z-index: 6;
-    right: 120px;
-    background: #ffffff;
-    top: 72px;
-    text-align: center;
-  }
-}
 .imageManagement {
   /* padding: 24px; */
 

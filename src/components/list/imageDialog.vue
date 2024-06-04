@@ -18,15 +18,26 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              {{ '可直接拖拽照片到右侧指定位置～' }}
+              {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
             </div>
             <div class="title__right file-upload flex justify-end items-center">
-              <img src="../../assets/svg/Sync.svg" @click="handleSyncOss" />
+              <img
+                src="../../assets/svg/Sync.svg"
+                class="cursor-pointer"
+                :title="syncImageDec"
+                @click="handleSyncOss"
+              />
               <label for="fileInput" class="position-absolute">
                 <img src="../../assets/svg/Upload.svg" />
               </label>
 
-              <input class="file-upload__input" type="file" @change="handleFileChange" multiple />
+              <input
+                class="file-upload__input cursor-pointer"
+                :title="upLoadImageDec"
+                type="file"
+                @change="handleFileChange"
+                multiple
+              />
             </div>
           </div>
           <div
@@ -75,18 +86,8 @@
                       }"
                     >
                       <img
-                        v-if="!img.file"
                         :style="{ display: 'block' }"
-                        class="img"
-                        :src="img.imgUrl"
-                        draggable="true"
-                        @dragstart="handleDragStart(img, $event)"
-                        @dragend="handleDragEnd"
-                        @click="handleToggleChoose(img)"
-                      />
-                      <img
-                        v-if="img.file"
-                        :style="{ display: 'block' }"
+                        :class="[module == 'ortho' ? 'cursor-pointer' : '']"
                         class="img"
                         :src="img.imgUrl"
                         draggable="true"
@@ -95,13 +96,24 @@
                         @click="handleToggleChoose(img)"
                       />
                       <!-- <img
+                        v-if="img.file"
+                        :style="{ display: 'block' }"
+                        class="img"
+                        :src="img.imgUrl"
+                        draggable="true"
+                        @dragstart="handleDragStart(img, $event)"
+                        @dragend="handleDragEnd"
+                        @click="handleToggleChoose(img)"
+                      /> -->
+                      <img
+                        v-if="img.choose && module == 'ortho'"
                         src="@/assets/svg/imageChecked.svg"
                         :style="{
                           position: 'absolute',
                           right: '6px',
                           bottom: '6px'
                         }"
-                      /> -->
+                      />
                     </div>
                   </div>
                 </div>
@@ -120,10 +132,10 @@
             </template>
           </div>
 
-          <!-- <div class="classifyWrapper" v-if="module == 'ortho'">
-            <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span
-            ><el-button @click="handleClassifyPics">自动分类</el-button>
-          </div> -->
+          <div class="classifyWrapper" v-if="module == 'ortho'">
+            <span :style="{ 'margin-right': '6px' }">已选中{{ chooseImgNum }}张</span>
+            <el-button @click="handleClassifyPics">自动分类</el-button>
+          </div>
         </div>
         <div class="imageManagement__classify subSection">
           <div class="title">分类</div>
@@ -192,10 +204,10 @@
         <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
       </div>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="handleCancel">取消</el-button>
           <el-button type="primary" @click="handleSavePics"> 确定 </el-button>
-        </span>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -226,7 +238,8 @@ import { Post, Get, Put, Delete } from '@/utils/request'
 import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
-import { ElMessage } from 'element-plus'
+import compressionFile from '@/utils/compress.ts'
+// import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   module: {
@@ -290,31 +303,47 @@ const filterList = [
   { label: '全景片', value: 'panorama' },
   { label: '侧位片', value: 'cepha' }
 ]
+
 // 同步影像
-const hasSync = ref(false)
+const syncImageDec = ref('同步领健')
+// const hasSync = ref(false)
 const handleSyncOss = async () => {
-  if (hasSync.value) {
+  // if (hasSync.value) {
+  //   ElMessage({
+  //     message: '正在同步中，请勿重复操作',
+  //     type: 'warning'
+  //   })
+  //   return
+  // }
+  // if (!hasSync.value) {
+  // hasSync.value = true
+  const loading = ElLoading.service({
+    lock: true,
+    text: '图像正在同步中...',
+    background: 'rgba(0, 0, 0, 0.7)',
+    target: loadingTarget2.value
+  })
+  loading.value = true
+  const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
+    patientId: props.patientId
+  })
+  if (res.code == 200) {
+    // hasSync.value = false
     ElMessage({
-      message: '正在同步中，请勿重复操作',
-      type: 'warning'
+      message: res.message,
+      type: 'success'
     })
-    return
-  }
-  if (!hasSync.value) {
-    hasSync.value = true
-    const res = await Post('/prod-api/emr/public/api/v1/tooth/syncToOss', {
-      patientId: props.patientId
+    handleChangeFilterBtn('全部')
+  } else {
+    ElMessage({
+      message: '图像同步中断，请重新点击同步按钮',
+      type: 'error'
     })
-    if (res.code == 200) {
-      hasSync.value = false
-      ElMessage({
-        message: res.message,
-        type: 'success'
-      })
-      handleChangeFilterBtn('全部')
-    }
   }
+  loading.close()
+  // }
 }
+
 const handleChangeFilterBtn = async (label) => {
   currentBtn.value = label
   let path
@@ -437,42 +466,42 @@ const imageList =
     ? ref([
         {
           caption: '正面像',
-          typeName: 'FrontalRepose',
+          typeName: '0',
           fileUrl: placeholderUrl
         },
         {
           caption: '正面微笑像',
-          typeName: 'FrontalSmile',
+          typeName: '1',
           fileUrl: placeholderUrl
         },
         {
           caption: '90度侧面像',
-          typeName: 'LeftProfile',
+          typeName: '4',
           fileUrl: placeholderUrl
         },
         {
           caption: '90度侧面微笑像',
-          typeName: 'RightProfile',
+          typeName: '5',
           fileUrl: placeholderUrl
         },
         {
           caption: '45度侧面像',
-          typeName: 'LeftSideProfile',
+          typeName: '2',
           fileUrl: placeholderUrl
         },
         {
           caption: '45度侧面微笑像',
-          typeName: 'RightSideProfile',
+          typeName: '3',
           fileUrl: placeholderUrl
         },
         {
           caption: '口内照（左侧）',
-          typeName: '',
+          typeName: '7',
           fileUrl: placeholderUrl
         },
         {
           caption: '口内照（右侧）',
-          typeName: '',
+          typeName: '8',
           fileUrl: placeholderUrl
         },
         {
@@ -487,32 +516,32 @@ const imageList =
         },
         {
           caption: '正面咬合',
-          typeName: 'Anterior',
+          typeName: '6',
           fileUrl: placeholderUrl
         },
         {
           caption: '前牙覆盖',
-          typeName: 'Cover',
+          typeName: '9',
           fileUrl: placeholderUrl
         },
         {
           caption: '上颌',
-          typeName: 'Upper',
+          typeName: '10',
           fileUrl: placeholderUrl
         },
         {
           caption: '下颌',
-          typeName: 'Lower',
+          typeName: '11',
           fileUrl: placeholderUrl
         },
         {
           caption: '全景片',
-          typeName: 'Panoramic',
+          typeName: '',
           fileUrl: placeholderUrl
         },
         {
           caption: '侧位片',
-          typeName: 'Cephalometric',
+          typeName: '',
           fileUrl: placeholderUrl
         }
       ])
@@ -587,6 +616,7 @@ const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
 async function handleClassifyPics() {
+  const startTime = JSON.parse(sessionStorage.getItem('patientInfo')).startTime
   const loading = ElLoading.service({
     lock: true,
     text: '正在分类中',
@@ -602,26 +632,28 @@ async function handleClassifyPics() {
       })
     } else {
       const formData = new FormData()
-      let orthImageString, orthImageList
+      let tImageString, tImageList
       imageArr.value
         .filter((i) => i.file === undefined)
         .forEach((c) => {
-          orthImageList = c.imageList
+          tImageList = c.imageList
             .filter((b) => b.choose === true)
             .map((a) => {
               if (a.choose) {
                 return {
-                  ljUrl: a.imgUrl,
-                  ljId: a.ljImageId,
-                  LJCreateDatetime: a.timestamp
+                  ossImagePath: a.ossImagePath,
+                  id: a.id,
+                  LJCreateDatetime: a.timestamp,
+                  thumbnailOssPath: a.thumbnailOssPath
                 }
               }
             })
         })
-      orthImageString = JSON.stringify({
+      tImageString = JSON.stringify({
         patientId: props.patientId,
-        apmtId: props.appId,
-        orthImageList
+        aptmId: props.appId,
+        tImageList,
+        startTime: startTime
       })
       if (imageArr.value.filter((i) => i.file === true).length > 0) {
         imageArr.value
@@ -633,8 +665,8 @@ async function handleClassifyPics() {
       } else {
         formData.append('files', null)
       }
-      formData.append('orthImageString', orthImageString)
-      const res = await Post('/prod-api/business/orthImage/handleMultiImage', formData, true)
+      formData.append('tImageString', tImageString)
+      const res = await Post('/prod-api/emr/orthCommon/autoImageClassification', formData, true)
       loading.close()
       if (res.code === 200) {
         imageArr.value.forEach((a) => a.imageList.forEach((b) => (b.choose = false)))
@@ -645,6 +677,10 @@ async function handleClassifyPics() {
               i.imageId = d.fileId
             }
           })
+        })
+        ElMessage({
+          message: '分类成功',
+          type: 'success'
         })
       } else {
         ElMessage({
@@ -665,14 +701,12 @@ async function handleClassifyPics() {
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
-
-const params = new FormData()
-
+// const params = new FormData()
 const upload = ref(false)
 const date = ref()
+const upLoadImageDec = ref('上传图片')
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
-
   if (selectedFiles.length > 16) {
     event.preventDefault()
     ElMessage('最多上传16张图片')
@@ -683,10 +717,10 @@ const handleFileChange = (event) => {
         img.choose = false
       })
     })
+
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
-      params.append('files', file)
-
+      // params.append('files', file)
       if (file) {
         const reader = new FileReader()
         reader.onload = () => {
@@ -699,6 +733,9 @@ const handleFileChange = (event) => {
           })
         }
         reader.readAsDataURL(file)
+        // compressionFile(file).then((res) => {
+        //   console.log(`output->res`, res)
+        // })
       }
     }
 
@@ -706,7 +743,7 @@ const handleFileChange = (event) => {
       date.value = formatTime().formattedToday
       imageArr.value.unshift({
         file: true,
-        StartTime: date.value,
+        StartTime: '本地上传',
         imageList: fileListWithFlag.value
       })
       upload.value = true
@@ -727,13 +764,13 @@ const chooseImgNum = computed(() => {
   return num
 })
 // 反选
-// const handleToggleChoose = (img) => {
-//   if (chooseImgNum.value >= 16) {
-//     ElMessage.warning('最多只能选择16张图片')
-//     return
-//   }
-//   img.choose = !img.choose
-// }
+const handleToggleChoose = (img) => {
+  if (chooseImgNum.value >= 16) {
+    ElMessage.warning('最多只能选择16张图片')
+    return
+  }
+  img.choose = !img.choose
+}
 
 // 图片拖拽
 const dragFile = ref(null)
@@ -849,11 +886,11 @@ async function handleSingleImage(file, image) {
   }
   // else {
   //   formData.append(
-  //     'orthImageString',
+  //     'tImageString',
   //     JSON.stringify({
   //       patientId: props.patientId,
   //       apmtId: props.appId,
-  //       orthImageList: [
+  //       tImageList: [
   //         {
   //           ljUrl: file.imgUrl,
   //           ljId: file.ljImageId,
@@ -889,11 +926,11 @@ const imageUrlChanged = ref(false)
 // 保存图片
 async function handleSavePics() {
   imageList.value.forEach((item) => (item.reminder = false))
-  const orthImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
-  const arr = orthImageList.map((item) => ({
+  const tImageList = imageList.value.filter((item) => item.fileUrl.startsWith('https'))
+  const arr = tImageList.map((item) => ({
     imageType: item.caption,
     imageUrl: item.fileUrl,
-    imageId: item.fileId || null,
+    imageId: item.id || null,
     startTime: item.startTime
   }))
   const res = await Post('/prod-api/business/orthImage', {

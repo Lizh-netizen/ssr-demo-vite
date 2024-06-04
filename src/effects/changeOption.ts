@@ -71,6 +71,7 @@ const useChangeOption = (
     handleExclusiveOptions(title, 44)
     handleExclusiveOptions(title, 311)
     handleExclusiveOptions(title, 321)
+    handleExclusiveOptions(title, 299)
     // 正常和别的选项互斥逻辑
 
     title.orthOptionsList.forEach((option: any) => {
@@ -112,7 +113,7 @@ const useChangeOption = (
     }
   }
 }
-function handleExclusiveOptions(title: any, optionId: number) {
+export function handleExclusiveOptions(title: any, optionId: number) {
   if (title.optionId1.includes(optionId) && title.optionId1.length < title.optionId.length) {
     title.optionId1 = title.optionId.filter((o: any) => o !== optionId)
     title.optionId = title.optionId1
