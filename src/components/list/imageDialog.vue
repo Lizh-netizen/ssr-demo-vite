@@ -2,7 +2,7 @@
   <div class="imageDialog">
     <el-dialog
       v-model="imgDialogVisible"
-      title="影像管理"
+      title="图像管理"
       width="1183px"
       align-center
       @close="handleCloseImgDialog"
@@ -16,11 +16,11 @@
         <div class="imageManagement__images subSection">
           <div class="title left">
             <div class="title__left">图库</div>
-            <div class="title__middle">
+            <div class="title__middle" v-show="module == 'ortho'">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              <span class="text-[#EB8C25]">{{
-                '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧'
-              }}</span>
+              <span class="text-[#EB8C25]">
+                {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
+              </span>
             </div>
             <div class="title__right file-upload flex justify-end items-center">
               <img
@@ -171,6 +171,23 @@
                 }"
               >
                 <img
+                  v-if="img.fileUrl == placeholderUrl"
+                  class="img"
+                  :class="{
+                    hover: img.reminder === true,
+                    animate__animated: img.reminder === true,
+                    animate__bounce: img.reminder === true
+                  }"
+                  :style="{ display: 'block' }"
+                  :src="img.fileUrl"
+                  @drop="(e) => handleDrop(e, img)"
+                  @dragover.prevent="handleDragOver"
+                  @dragleave="handleDragLeave"
+                  @dragstart="handleDragStart1(img)"
+                  @dragend="handleDragEnd"
+                />
+                <img
+                  v-else
                   class="img"
                   :class="{
                     hover: img.reminder === true,
@@ -400,7 +417,7 @@ watch(
   },
   { deep: true }
 )
-// 每次点开影像管理都要重新请求右边的列表，因为外边可能会做改动
+// 每次点开图像管理都要重新请求右边的列表，因为外边可能会做改动
 watch(imgDialogVisible, (newVal) => {
   if (newVal) {
     getClassifiedImgList()
@@ -425,7 +442,7 @@ const handleDeleteImage1 = (img) => {
     img.fileUrl = placeholderUrl
   }
 }
-// 影像管理逻辑
+// 图像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
@@ -1094,8 +1111,6 @@ const handleCloseImgDialog = () => {
       text-align: right;
       margin-right: 8px;
     }
-  }
-  .file-upload {
   }
 
   .file-upload__label {
