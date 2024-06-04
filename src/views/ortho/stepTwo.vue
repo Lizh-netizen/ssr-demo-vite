@@ -1497,7 +1497,6 @@ async function getOrthPanoramicList() {
     //   })
     // }
   })
-
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
   }
