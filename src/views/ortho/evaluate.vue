@@ -242,7 +242,7 @@
                 </div>
                 <div class="leftLower-column">
                   <template
-                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(3, 8)"
+                    v-for="(title, index) in panoramicData[0].orthTitleList.slice(3, 9)"
                     :key="title.id"
                   >
                     <!-- <template v-if="index >= 2"> -->

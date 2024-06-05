@@ -2,7 +2,7 @@
   <div class="imageDialog">
     <el-dialog
       v-model="imgDialogVisible"
-      title="影像管理"
+      title="图像管理"
       width="1183px"
       align-center
       @close="handleCloseImgDialog"
@@ -18,7 +18,13 @@
             <div class="title__left">图库</div>
             <div class="title__middle">
               <img src="@/assets/svg/reminder.svg" :style="{ 'margin-right': '4px' }" />
-              {{ '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧' }}
+              <span class="text-[#EB8C25]">
+                {{
+                  module == 'ortho'
+                    ? '选择单反拍摄的12类正畸图像后点击”自动分类“或手动拖动至右侧'
+                    : '可直接拖拽图像到指定位置～ '
+                }}
+              </span>
             </div>
             <div class="title__right file-upload flex justify-end items-center">
               <img
@@ -89,22 +95,14 @@
                         :style="{ display: 'block' }"
                         :class="[module == 'ortho' ? 'cursor-pointer' : '']"
                         class="img"
-                        :src="img.imgUrl"
+                        :src="`${img.imgUrl}${
+                          item.StartTime !== '本地上传' ? '?x-oss-process=style/x0.5' : ''
+                        }`"
                         draggable="true"
                         @dragstart="handleDragStart(img, $event)"
                         @dragend="handleDragEnd"
                         @click="handleToggleChoose(img)"
                       />
-                      <!-- <img
-                        v-if="img.file"
-                        :style="{ display: 'block' }"
-                        class="img"
-                        :src="img.imgUrl"
-                        draggable="true"
-                        @dragstart="handleDragStart(img, $event)"
-                        @dragend="handleDragEnd"
-                        @click="handleToggleChoose(img)"
-                      /> -->
                       <img
                         v-if="img.choose && module == 'ortho'"
                         src="@/assets/svg/imageChecked.svg"
@@ -164,7 +162,9 @@
                     animate__bounce: img.reminder === true
                   }"
                   :style="{ display: 'block' }"
-                  :src="img.fileUrl"
+                  :src="`${img.fileUrl}${
+                    img.fileUrl !== placeholderUrl ? '?x-oss-process=style/x0.5' : ''
+                  }`"
                   @drop="(e) => handleDrop(e, img)"
                   @dragover.prevent="handleDragOver"
                   @dragleave="handleDragLeave"
@@ -275,11 +275,12 @@ const props = defineProps({
     default: ''
   }
 })
+const firstEnter = ref(false)
+const showGif = ref(true)
+
 onBeforeMount(() => {
   showGif.value = true
 })
-const firstEnter = ref(false)
-const showGif = ref(true)
 onMounted(() => {
   firstEnter.value = true
   imageList.value.forEach((a) => {
@@ -292,10 +293,10 @@ onMounted(() => {
   }, 1000)
   handleChangeFilterBtn('全部')
 })
-
 onBeforeMount(() => {
   getClassifiedImgList()
 })
+
 const currentBtn = ref('全部')
 const gif = ref(null)
 const filterList = [
@@ -385,7 +386,7 @@ watch(
   },
   { deep: true }
 )
-// 每次点开影像管理都要重新请求右边的列表，因为外边可能会做改动
+// 每次点开图像管理都要重新请求右边的列表，因为外边可能会做改动
 watch(imgDialogVisible, (newVal) => {
   if (newVal) {
     getClassifiedImgList()
@@ -410,7 +411,7 @@ const handleDeleteImage1 = (img) => {
     img.fileUrl = placeholderUrl
   }
 }
-// 影像管理逻辑
+// 图像管理逻辑
 const index = ref(0)
 const imageArr = ref([])
 const totalArr = ref([])
@@ -701,15 +702,14 @@ async function handleClassifyPics() {
 // 上传图片逻辑
 const fileList = ref([])
 const fileListWithFlag = ref([])
-// const params = new FormData()
 const upload = ref(false)
 const date = ref()
 const upLoadImageDec = ref('上传图片')
 const handleFileChange = (event) => {
   const selectedFiles = event.target.files
-  if (selectedFiles.length > 16) {
+  if (selectedFiles.length > 12) {
     event.preventDefault()
-    ElMessage('最多上传16张图片')
+    ElMessage('最多上传12张图片')
     return
   } else {
     imageArr.value.forEach((item) => {
@@ -717,28 +717,47 @@ const handleFileChange = (event) => {
         img.choose = false
       })
     })
-
+    // 开启loading，压缩图片
+    const loading = ElLoading.service({
+      lock: true,
+      text: '本地上传中',
+      background: 'rgba(0, 0, 0, 0.7)',
+      target: loadingTarget2.value
+    })
+    loading.value = true
+    // 遍历图片列表，超过 1M 压缩图片，压缩质量 0.5
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i]
-      // params.append('files', file)
       if (file) {
         const reader = new FileReader()
-        reader.onload = () => {
-          fileList.value.push(reader.result)
-          fileListWithFlag.value.push({
-            imgUrl: reader.result,
-            showFlag: false,
-            choose: true,
-            file: file
+        const isLt2M = file.size / 1024 / 1024 < 1
+        if (!isLt2M) {
+          compressionFile(file).then((res) => {
+            reader.onload = () => {
+              fileList.value.push(reader.result)
+              fileListWithFlag.value.push({
+                imgUrl: reader.result,
+                showFlag: false,
+                choose: true,
+                file: res
+              })
+            }
+            reader.readAsDataURL(res)
           })
+        } else {
+          reader.onload = () => {
+            fileList.value.push(reader.result)
+            fileListWithFlag.value.push({
+              imgUrl: reader.result,
+              showFlag: false,
+              choose: true,
+              file: file
+            })
+          }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
-        // compressionFile(file).then((res) => {
-        //   console.log(`output->res`, res)
-        // })
       }
     }
-
     if (!upload.value) {
       date.value = formatTime().formattedToday
       imageArr.value.unshift({
@@ -750,6 +769,9 @@ const handleFileChange = (event) => {
     } else {
       imageArr.value[0].imageList = fileListWithFlag.value
     }
+    setTimeout(() => {
+      loading.close()
+    }, 2000)
   }
 }
 const chooseImgNum = computed(() => {
@@ -765,11 +787,17 @@ const chooseImgNum = computed(() => {
 })
 // 反选
 const handleToggleChoose = (img) => {
-  if (chooseImgNum.value >= 16) {
-    ElMessage.warning('最多只能选择16张图片')
+  if (chooseImgNum.value <= 12) {
+    img.choose = !img.choose
+  }
+
+  if (chooseImgNum.value > 12) {
+    ElMessage.warning('最多只能选择12张图片')
+    if (img.choose) {
+      img.choose = false
+    }
     return
   }
-  img.choose = !img.choose
 }
 
 // 图片拖拽
@@ -944,20 +972,30 @@ async function handleSavePics() {
   emit('savePics', imageUrlChanged.value)
 }
 const handleDragOver = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
+  if (
+    !e.target.src.endsWith('jpeg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('jpg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('png?x-oss-process=style/x0.5')
+  ) {
     e.target.src = blueBgUrl
     e.target.classList.add('hover')
   }
 }
 const handleDragLeave = (e) => {
-  if (!e.target.src.endsWith('jpeg') && !e.target.src.endsWith('jpg')) {
+  if (
+    !e.target.src.endsWith('jpeg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('jpg?x-oss-process=style/x0.5') &&
+    !e.target.src.endsWith('png?x-oss-process=style/x0.5')
+  ) {
     e.target.src = placeholderUrl
   }
   e.target.classList.remove('hover')
 }
 const handleCloseImgDialog = () => {
   emit('cancel')
-  imageList.value.forEach((image) => (image.reminder = false))
+  imageList.value.forEach((image) => {
+    image.reminder = false
+  })
 }
 </script>
 
@@ -1048,8 +1086,6 @@ const handleCloseImgDialog = () => {
       text-align: right;
       margin-right: 8px;
     }
-  }
-  .file-upload {
   }
 
   .file-upload__label {
