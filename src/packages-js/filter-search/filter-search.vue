@@ -401,11 +401,11 @@ const shortcuts = [
 const reset = () => {
   // 数据恢复初始化 全部null
   modelVal.value = list.reduce((sum, item) => {
+    console.log(sum, item)
     // 过滤掉officeId
     if (item.type === 'date' && item.defaultDate) {
       sum[item.prop] = item.defaultDate
-    }
-    {
+    } else {
       sum[item.prop] = null
     }
     return sum
