@@ -314,9 +314,9 @@
             </div>
 
             <el-table :data="cephaData" border style="width: 100%">
-              <el-table-column prop="titleName" label="测量项" width="120" />
-              <el-table-column prop="standardValue" label="标准值" width="130" />
-              <el-table-column prop="cephalotricsContent" label="实际值" width="140"
+              <el-table-column prop="titleName" label="测量项" width="70" />
+              <el-table-column prop="standardValue" label="标准值" width="70" />
+              <el-table-column prop="cephalotricsContent" label="实际值" width="70"
                 ><template #default="scope"
                   ><div class="flex items-center">
                     <div

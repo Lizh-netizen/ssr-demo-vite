@@ -463,19 +463,24 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-
+  console.log(
+    checkOrthFace(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkPanoOptions(panoramicData.value),
+    checkOptions(cepha.value)
+  )
   if (
     checkOrthFace(faceAccessData.value) === '0' &&
     checkFugaiOptions(mouthData.value) == '0' &&
     checkPanoOptions(panoramicData.value) === '0' &&
-    checkOptions(cepha.value) === 0
+    checkOptions(cepha.value) === '0'
   ) {
     return '0'
   } else if (
     checkOrthFace(faceAccessData.value) === '1' &&
     checkFugaiOptions(mouthData.value) == '1' &&
     checkPanoOptions(panoramicData.value) === '1' &&
-    checkOptions(cepha.value) === 1
+    checkOptions(cepha.value) === '1'
   ) {
     return '1'
   } else {
