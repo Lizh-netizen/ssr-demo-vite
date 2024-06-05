@@ -112,8 +112,9 @@ export function checkPanoOptions(data: any) {
       allChoosen++
     }
     count++
+    console.log(count, allChoosen)
   })
-  return allChoosen === 0 ? '0' : allChoosen === count ? '1' : '9'
+  return allChoosen === 0 ? '0' : allChoosen === 8 ? '1' : '9'
 }
 
 export function checkInquiry(inquiryData: any) {
