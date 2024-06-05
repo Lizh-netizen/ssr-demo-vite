@@ -397,12 +397,15 @@ const shortcuts = [
 ]
 
 // 重置
+
 const reset = () => {
   // 数据恢复初始化 全部null
   modelVal.value = list.reduce((sum, item) => {
+    // 过滤掉officeId
     if (item.type === 'date' && item.defaultDate) {
       sum[item.prop] = item.defaultDate
-    } else {
+    }
+    {
       sum[item.prop] = null
     }
     return sum
@@ -419,7 +422,6 @@ const filter = () => {
       delete filterData.value[key]
     }
   }
-  sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
   emit('filter', filterData.value)
 }
 

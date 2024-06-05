@@ -28,7 +28,6 @@
               options: options,
               allowSearch: true
             },
-
             {
               name: '风险等级',
               type: currentTab == '面评矫正预约率' ? 'select' : undefined,
@@ -327,6 +326,7 @@ const changeTab = async (val) => {
   const args = getCache(currentTab)
   strategy[val].request(args)
   // }
+  console.log(333)
   isChangeTab.value = await Promise.resolve(true)
 }
 
@@ -387,7 +387,7 @@ async function getEvaluateList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId,
+      officeId: officeId.value,
       doctorId: val?.doctorId,
       location: '1'
     })
@@ -425,7 +425,7 @@ async function getOrthoList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId,
+      officeId: officeId.value,
       doctorId: val?.doctorId,
       location: '2'
     })
@@ -706,6 +706,7 @@ const filter = (val) => {
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)
 }
+
 const pagesStorage = ref('evaluatePage')
 const changePage = (page) => {
   const pages = sessionStorage.getItem(strategy[currentTab.value].page)
@@ -732,12 +733,12 @@ watch(
   },
   { immediate: true }
 )
-
+const officeId = ref()
 onBeforeMount(() => {
   // 初始化
   pagesStorage.value = strategy[currentTab.value].page
   const val = sessionStorage.getItem('currentTab')
-  const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+  officeId.value = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
 
   const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
   for (let key in strategy) {
@@ -791,10 +792,10 @@ onBeforeMount(() => {
       [element],
       JSON.stringify({
         doctorId: jc_odos_user?.ljProviderId,
-        officeId: jc_odos_user?.ljOfficeId,
         date: date.value
       })
     )
+    sessionStorage.setItem('officeId', jc_odos_user?.ljOfficeId)
   })
   verifyPermission()
 })
@@ -804,7 +805,7 @@ const facialCount = ref({})
 async function getFacialCount(val) {
   const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
-    officeId: val?.officeId,
+    officeId: officeId.value,
     doctorId: val?.doctorId,
     location: '1'
   })
@@ -817,7 +818,7 @@ const orthCount = ref({})
 async function getOrthCount(val) {
   const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
-    officeId: val?.officeId,
+    officeId: officeId.value,
     doctorId: val?.doctorId,
     location: '2'
   })
