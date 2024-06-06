@@ -72,7 +72,7 @@
             </el-row>
 
             <div class="subTitle">主诉&既往史</div>
-            <template v-if="item.owningModule === '问诊'">
+            <template v-if="item.owningModule === '问诊' && item.list">
               <div class="content">
                 <div class="list">
                   <template v-for="i in item.list">
@@ -281,7 +281,7 @@
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
             </div>
             <div class="content blueBackground" v-show="item.list.length > 0">
               <list :list="item.list" />
@@ -791,6 +791,8 @@ async function getDataList() {
   const found = data.value.find((item) => item.owningModule == '问诊')
   if (found) {
     found.list = found?.list.filter((item) => item.title_name !== '家长矫正意愿')
+  } else {
+    data.value.unshift({ owningModule: '问诊' })
   }
 }
 const cephaData = ref([])
@@ -1236,7 +1238,7 @@ body {
     height: 297mm; /* 页面高度 */
     .imgBox {
       width: 100%;
-      height: 500px;
+      // height: 500px;
       display: flex;
       justify-content: center;
       align-items: center;

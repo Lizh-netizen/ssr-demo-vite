@@ -123,6 +123,7 @@
             checked: option.choosen === true
           }"
           :value="option.id"
+          :disabled="disabled"
         >
           {{ option.optionName }}
           <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -151,6 +152,7 @@
                 :value="option.id"
                 @mouseenter="option.hover = true"
                 @mouseleave="option.hover = false"
+                :disabled="disabled"
               >
                 {{ option.optionName }}
                 <span
@@ -243,6 +245,7 @@ import { Post } from '../../utils/request'
 import updateOption from '@/effects/mouthOption.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { handleExclusiveOptions } from '@/effects/changeOption.ts'
+import { onMounted } from 'vue'
 const props = defineProps({
   title: {
     type: Object,
@@ -298,6 +301,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
+
 const emit = defineEmits(['refreshList', 'syncOption'])
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
@@ -431,7 +435,6 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
       }
     }
   }
-  console.log(333)
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
     handleExclusiveOptions(title, 10)
@@ -447,8 +450,10 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     })
   }
   if (title.titleName == '右侧后牙' || title.titleName == '左侧后牙') {
+    console.log(1)
     updateOption(title.optionId, title, props.appId, classId, owningModule, null, props.mouthData)
   } else {
+    console.log(2)
     updateOption(title.optionId, title, props.appId, classId, owningModule)
   }
 
@@ -461,11 +466,12 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
+  console.log(option, title, classId, owningModule)
   // console.log('🚀 ~ handleSubmitTooth ~ option:', option, props.mouthData)
   let obj
   if (option) {
     option.visible = false
-    if (!option.toothClicked && option.toothCode.length > 0) {
+    if ((!option.toothClicked && option.toothCode.length > 0) || !option.clicked) {
       return
     }
   }
