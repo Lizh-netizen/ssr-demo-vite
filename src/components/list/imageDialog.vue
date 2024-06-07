@@ -183,7 +183,7 @@
               >
                 <template #reference>
                   <img
-                    v-if="img.showFlag && !img.fileUrl.startsWith('data:image')"
+                    v-show="img.showFlag && !img.fileUrl.startsWith('data:image')"
                     :style="{ cursor: 'pointer' }"
                     class="deleteImage"
                     src="@/assets/svg/deleteImage.svg"
@@ -195,14 +195,13 @@
           </div>
         </div>
       </div>
-      <img
-        src="../../assets/svg/message.svg"
-        v-if="showGif && module !== 'ortho'"
-        class="message z-2"
-      />
-      <div class="gif-container" id="gif-container" ref="gif" v-if="showGif && module !== 'ortho'">
-        <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
+      <div v-if="showGif && module !== 'ortho'">
+        <img src="../../assets/svg/message.svg" class="message z-2" />
+        <div class="gif-container" id="gif-container" ref="gif">
+          <img src="../../assets/gif/gif.gif" alt="GIF 示例" id="gif-img" class="h-full w-full" />
+        </div>
       </div>
+
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="handleCancel">取消</el-button>
@@ -836,7 +835,7 @@ const handleDragStart = (file, event) => {
     dragFile.value = file
   }
   const image2 = document.getElementById('img')
-  image2.src = file.imgUrl
+  image2.src = file.imgUrl + '?x-oss-process=style/x0.5'
   image2.style.opacity = 1
   image2.width = 120
   image2.height = 80
