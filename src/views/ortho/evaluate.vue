@@ -581,6 +581,7 @@ import {
   checkOptions
 } from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
+
 const store = useStore()
 const router = useRouter()
 const route = useRoute()
