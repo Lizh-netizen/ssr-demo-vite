@@ -2861,6 +2861,12 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
 :deep(.arco-select-dropdown) {
   height: 180px !important;
 }
