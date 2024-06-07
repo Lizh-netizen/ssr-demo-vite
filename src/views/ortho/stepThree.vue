@@ -188,53 +188,49 @@ async function handleEmptyRadio(optionId, title) {
 </script>
 
 <style lang="scss" scoped>
-.content {
-  padding: 20px;
-  padding-bottom: 0;
-
-  :deep .el-checkbox-button__inner {
-    height: 32px;
-    img {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-    }
+:deep .el-checkbox-button__inner {
+  height: 32px;
+  img {
+    position: absolute;
+    right: 0;
+    bottom: 0;
   }
-  :deep .el-checkbox-button__inner {
-    img {
-      display: none;
-    }
+}
+:deep .el-checkbox-button__inner {
+  img {
+    display: none;
   }
-  :deep .el-checkbox-button.checked {
-    background: #ffffff;
-    --el-checkbox-button-checked-bg-color: none;
-    --el-checkbox-button-checked-border-color: none;
-    --el-checkbox-button-checked-text-color: none;
+}
+:deep .el-checkbox-button.checked {
+  background: #ffffff;
+  --el-checkbox-button-checked-bg-color: none;
+  --el-checkbox-button-checked-border-color: none;
+  --el-checkbox-button-checked-text-color: none;
+  box-shadow: none;
+  img {
+    display: block;
+  }
+  .el-checkbox-button__inner {
+    border: 1px solid #2e6ce4;
+    --el-border: none;
+    color: #2e6ce4;
     box-shadow: none;
-    img {
-      display: block;
+  }
+  .el-checkbox-button {
+    // border: 1px solid #2e6ce4;
+    &.is-focus {
+      border: none;
     }
+  }
+  &.serious {
     .el-checkbox-button__inner {
-      border: 1px solid #2e6ce4;
+      border: 1px solid #f44c4c;
       --el-border: none;
-      color: #2e6ce4;
-      box-shadow: none;
-    }
-    .el-checkbox-button {
-      // border: 1px solid #2e6ce4;
-      &.is-focus {
-        border: none;
-      }
-    }
-    &.serious {
-      .el-checkbox-button__inner {
-        border: 1px solid #f44c4c;
-        --el-border: none;
-        color: #f44c4c;
-      }
+      color: #f44c4c;
     }
   }
 }
+
 :deep .el-input {
   width: auto;
   --el-border-radius-base: 8px;
