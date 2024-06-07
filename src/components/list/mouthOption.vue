@@ -466,7 +466,6 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
-  console.log(option, title, classId, owningModule)
   // console.log('🚀 ~ handleSubmitTooth ~ option:', option, props.mouthData)
   let obj
   if (option) {
@@ -686,12 +685,94 @@ const handleMouseLeave = (option) => {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 :deep .el-radio-button {
   .aiFlagImg {
     position: absolute;
     right: -6px;
     top: -4px;
   }
+}
+:deep .el-checkbox-button__inner {
+  height: 32px !important;
+  img {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
+:deep .el-checkbox-button__inner {
+  img {
+    display: none;
+  }
+}
+:deep .el-checkbox-button.checked {
+  background: #ffffff;
+  --el-checkbox-button-checked-bg-color: none;
+  --el-checkbox-button-checked-border-color: none;
+  --el-checkbox-button-checked-text-color: none;
+  box-shadow: none;
+  img {
+    display: block;
+  }
+  .el-checkbox-button__inner {
+    border: 1px solid #2e6ce4;
+    --el-border: none;
+    color: #2e6ce4;
+    box-shadow: none;
+  }
+  .el-checkbox-button {
+    &.is-focus {
+      border: none !important;
+    }
+  }
+  &.serious {
+    .el-checkbox-button__inner {
+      border: 1px solid #f44c4c;
+      --el-border: none;
+      color: #f44c4c;
+    }
+  }
+}
+
+:deep .el-input {
+  width: auto;
+  --el-border-radius-base: 8px;
+  margin-left: 4px;
+}
+:deep .el-checkbox-button.is-checked .el-checkbox-button__inner {
+  border-color: #dcdfe6;
+  background-color: #fff;
+  box-shadow: none;
+  color: #606266;
+}
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
+:deep .el-radio-button.serious .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: red;
+  background-color: #fff;
+  border-color: red;
+  --el-radio-button-checked-border-color: red;
+}
+:deep .el-checkbox-button .el-checkbox-button__inner {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+:deep .el-checkbox-button .el-checkbox-button__inner {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+:deep .el-checkbox-button:not(:first-child) .el-checkbox-button__inner {
+  border-left-color: #fff !important;
+}
+:deep(.el-radio-button .el-radio-button__inner) {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 </style>
