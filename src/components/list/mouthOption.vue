@@ -1,11 +1,11 @@
 <template>
-  <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
-    <el-radio-group
-      v-if="title.type == 1"
-      v-model="title.optionId"
-      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-      @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
-    >
+  <el-radio-group
+    v-if="title.type == 1"
+    v-model="title.optionId"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+    @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+  >
+    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <!-- 没有optionSuffix的情况 -->
       <template v-if="!option.optionSuffix">
         <el-radio-button
@@ -107,15 +107,16 @@
               @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
-        </template>
-      </template>
-    </el-radio-group>
+        </template> </template
+    ></template>
+  </el-radio-group>
 
-    <el-checkbox-group
-      v-if="title.type == 2"
-      v-model="title.optionId"
-      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-    >
+  <el-checkbox-group
+    v-if="title.type == 2"
+    v-model="title.optionId"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+  >
+    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <template v-if="!option.optionSuffix">
         <el-checkbox-button
           :class="{
@@ -225,8 +226,8 @@
           </el-popover>
         </template>
       </template>
-    </el-checkbox-group>
-  </template>
+    </template>
+  </el-checkbox-group>
 
   <el-input
     v-if="
@@ -692,87 +693,5 @@ const handleMouseLeave = (option) => {
     right: -6px;
     top: -4px;
   }
-}
-:deep .el-checkbox-button__inner {
-  height: 32px !important;
-  img {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-  }
-}
-:deep .el-checkbox-button__inner {
-  img {
-    display: none;
-  }
-}
-:deep .el-checkbox-button.checked {
-  background: #ffffff;
-  --el-checkbox-button-checked-bg-color: none;
-  --el-checkbox-button-checked-border-color: none;
-  --el-checkbox-button-checked-text-color: none;
-  box-shadow: none;
-  img {
-    display: block;
-  }
-  .el-checkbox-button__inner {
-    border: 1px solid #2e6ce4;
-    --el-border: none;
-    color: #2e6ce4;
-    box-shadow: none;
-  }
-  .el-checkbox-button {
-    &.is-focus {
-      border: none !important;
-    }
-  }
-  &.serious {
-    .el-checkbox-button__inner {
-      border: 1px solid #f44c4c;
-      --el-border: none;
-      color: #f44c4c;
-    }
-  }
-}
-
-:deep .el-input {
-  width: auto;
-  --el-border-radius-base: 8px;
-  margin-left: 4px;
-}
-:deep .el-checkbox-button.is-checked .el-checkbox-button__inner {
-  border-color: #dcdfe6;
-  background-color: #fff;
-  box-shadow: none;
-  color: #606266;
-}
-:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
-  color: #2e6ce4;
-  background-color: #fff;
-  border-color: #2e6ce4;
-  --el-radio-button-checked-border-color: #2e6ce4;
-}
-:deep .el-radio-button.serious .el-radio-button__original-radio:checked + .el-radio-button__inner {
-  color: red;
-  background-color: #fff;
-  border-color: red;
-  --el-radio-button-checked-border-color: red;
-}
-:deep .el-checkbox-button .el-checkbox-button__inner {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-:deep .el-checkbox-button .el-checkbox-button__inner {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-:deep .el-checkbox-button:not(:first-child) .el-checkbox-button__inner {
-  border-left-color: #fff !important;
-}
-:deep(.el-radio-button .el-radio-button__inner) {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
 }
 </style>

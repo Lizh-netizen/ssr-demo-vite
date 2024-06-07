@@ -293,7 +293,7 @@
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
             <div
-              class="imgBox imageBox"
+              class="imgBox imageBox h-[350px]!"
               :class="{
                 cepha: item.owningModule === '侧位片',
                 pano: item.owningModule === '全景片',
@@ -306,19 +306,19 @@
               <img
                 :src="item.imageUrl + `?random=${Math.random()}`"
                 crossOrigin="anonymous"
-                class="avator"
+                class="h-full object-cover"
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
               <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
             </div>
 
-            <el-table :data="cephaData" border style="width: 100%">
+            <el-table :data="cephaData" style="width: 100%" :cell-style="{ border: 'none' }">
               <el-table-column prop="titleName" label="测量项" width="70" />
               <el-table-column prop="standardValue" label="标准值" width="70" />
-              <el-table-column prop="cephalotricsContent" label="实际值" width="70"
-                ><template #default="scope"
-                  ><div class="flex items-center">
+              <el-table-column prop="cephalotricsContent" label="实际值" width="70">
+                <template #default="scope">
+                  <div class="flex items-center">
                     <div
                       :class="
                         scope.row.measurementBias === 'ABOVE'
@@ -339,11 +339,13 @@
                       src="@/assets/svg/downwards.svg"
                       class="position-absolute right-[20px]"
                       v-show="scope.row.measurementBias === 'BELOW'"
-                    /></div></template
-              ></el-table-column>
+                    />
+                  </div>
+                </template>
+              </el-table-column>
               <el-table-column prop="optionName" label="含义">
-                <template #default="scope"
-                  ><div class="flex items-center">
+                <template #default="scope">
+                  <div class="flex items-center">
                     <div
                       :class="
                         scope.row.measurementBias === 'ABOVE'
@@ -355,8 +357,8 @@
                     >
                       {{ scope.row.optionName }}
                     </div>
-                  </div></template
-                >
+                  </div>
+                </template>
               </el-table-column>
             </el-table>
             <list :list="extractedData" class="cephaList bg-#F4F7FD; text-[12px]" :noMB="true" />
@@ -1609,9 +1611,9 @@ body {
     }
   }
 
-  .content {
-    z-index: 10;
-  }
+  // .content {
+  //   z-index: 10;
+  // }
   .imgList {
     .imgItem {
       display: flex;
