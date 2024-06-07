@@ -1269,24 +1269,24 @@ async function getPanoramicList() {
       panoImageUrl.value = item.imageUrl
     }
     // flag为false再请求一次接口
-    // if (!item.flag) {
-    //   requestMouth.value = true
-    //   const obj = {
-    //     sourceApmtId: sourceApmtId.value,
-    //     apmtId: appId,
-    //     classId: classId.value,
-    //     location: '1'
-    //   }
-    //   Post('/prod-api/business/orthClass/mouthCheck', obj).then((res) => {
-    //     if (res.code == 200) {
-    //       const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 3)
-    //       codeTitleList.value = res.data.slice(3)
-    //       panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
-    //       // 获取牙位数据是异步操作，需要分情况处理全景片数据
-    //       handlePanoData(panoramicData)
-    //     }
-    //   })
-    // }
+    if (!item.flag) {
+      requestMouth.value = true
+      const obj = {
+        sourceAptmId: sourceApmtId.value,
+        aptmId: appId,
+        classId: classId.value,
+        location: '1'
+      }
+      Post('/prod-api/emr/orthCommon/selectOralCheckToothCode', obj).then((res) => {
+        if (res.code == 200) {
+          const nonCodeTitleList = panoramicData.value[0].orthTitleList.slice(0, 3)
+          codeTitleList.value = res.data.slice(3)
+          panoramicData.value[0].orthTitleList = [...nonCodeTitleList, ...codeTitleList.value]
+          // 获取牙位数据是异步操作，需要分情况处理全景片数据
+          handlePanoData(panoramicData)
+        }
+      })
+    }
   })
   if (!requestMouth.value) {
     handlePanoData(panoramicData)
