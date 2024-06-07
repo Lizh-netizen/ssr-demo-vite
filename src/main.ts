@@ -11,9 +11,9 @@ window.addEventListener('message', (event) => {
     event.origin == 'https://orangedev.aiorange.com' ||
     event.origin == 'https://odos.aiorange.com'
   ) {
-    if (event.data.startsWith('clear')) {
-      sessionStorage.clear()
-    }
+    // if (event.data.startsWith('clear')) {
+    //   sessionStorage.clear()
+    // }
     if (event.data.startsWith('{"createBy')) {
       sessionStorage.setItem('jc_odos_user', event.data)
     }
