@@ -1516,7 +1516,7 @@ body {
       }
     }
     .personalInfo {
-      width: 182px;
+      // width: 182px;
       height: 116px;
       display: flex;
       flex-direction: column;

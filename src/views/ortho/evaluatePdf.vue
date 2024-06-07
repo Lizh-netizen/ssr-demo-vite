@@ -270,8 +270,6 @@ onMounted(() => {
     .borderBox {
       box-sizing: border-box;
       border: 2px solid #216fb0;
-      .mouthImage {
-      }
     }
   }
 }
