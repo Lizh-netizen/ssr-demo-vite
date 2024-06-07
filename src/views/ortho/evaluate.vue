@@ -1309,8 +1309,12 @@ function handlePanoData(panoramicData) {
       a.topRight = []
       a.bottomLeft = []
       a.bottomRight = []
+      if (a.titleName == '多生牙') {
+        if (a.fdiToothCode && !a.showPosition) {
+          a.fdiToothCode = ''
+        }
+      }
       const arr = JSON.parse(a.showPosition == null || a.showPosition == '' ? '[]' : a.showPosition)
-
       if (a.fdiToothCode) {
         a.toothCode = a.fdiToothCode?.split(',')
         a.fdiToothCode?.split(',').forEach((code, index) => {
@@ -1355,7 +1359,6 @@ function handlePanoData(panoramicData) {
       }
     })
   })
-  // console.log(panoramicData.value)
 }
 
 getCheckList()
