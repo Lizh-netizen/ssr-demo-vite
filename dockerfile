@@ -1,5 +1,5 @@
 # 基础镜像
-FROM nginx
+FROM odos-registry.cn-shanghai.cr.aliyuncs.com/orange/nginx:latest
 # author
 MAINTAINER 极橙
 
