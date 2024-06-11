@@ -712,11 +712,6 @@ async function confirmApproval() {
         type: 'success',
         message: res.msg
       })
-    } else {
-      ElMessage({
-        type: 'warning',
-        message: res.msg
-      })
     }
   } catch (err) {
     loading.close()
