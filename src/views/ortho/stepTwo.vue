@@ -58,7 +58,7 @@
                         <img
                           class="aiFlagImg highZIndex"
                           :class="{ highZIndex: !showViewer }"
-                          src="@/assets/svg/AIFlagForFront.svg"
+                          src="@/assets/svg/AIFlagForFront.png"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
                       </el-radio-button>
@@ -1399,7 +1399,9 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
+      console.log(a)
       if (a.titleName !== '多生牙') {
+
         useFdiToothCodeEffect(a)
         a.showInput = false
         a.popVisible = false
@@ -1495,11 +1497,11 @@ async function getOrthPanoramicList() {
           handlePanoData(panoramicData)
         }
       })
+    } else {
+       handlePanoData(panoramicData)
     }
   })
-  if (!requestMouth.value) {
-    handlePanoData(panoramicData)
-  }
+  
 }
 
 // 多生牙逻辑

@@ -274,6 +274,7 @@ async function handleEmptyRadio(optionId, title) {
             .item {
               width: 25%;
               margin-bottom: 16px;
+              overflow-wrap: break-word;
             }
           }
           &:last-child {
