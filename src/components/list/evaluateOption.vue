@@ -617,7 +617,7 @@ const handleMouseLeave = (option) => {
   option.hover = false
   setTimeout(() => {
     optionData.value.visible = false
-  }, 1000)
+  }, 3000)
 }
 const handleClickTooth = () => {
   optionData.value.visible = false
