@@ -722,7 +722,7 @@ const handleFileChange = (event) => {
     const loading = ElLoading.service({
       lock: true,
       text: '本地上传中',
-      background: 'rgba(0, 0, 0, 0.7)',
+      background: 'rgba(255, 255, 255, 0.66);',
       target: loadingTarget2.value
     })
     loading.value = true
