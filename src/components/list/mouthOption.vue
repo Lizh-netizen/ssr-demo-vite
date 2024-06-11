@@ -126,10 +126,8 @@
           :disabled="disabled"
         >
           {{ option.optionName }}
-          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-            src="../../assets/svg/abnormalChecked.svg"
-            v-else
-          />
+          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" />
+          <img src="../../assets/svg/abnormalChecked.svg" v-else />
         </el-checkbox-button>
       </template>
       <template v-else>
