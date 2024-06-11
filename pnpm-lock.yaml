@@ -60,8 +60,8 @@ dependencies:
     specifier: ^4.1.0
     version: 4.1.0(vue@3.4.21)
   vuex:
-    specifier: ^4.1.0
-    version: 4.1.0(vue@3.4.21)
+    specifier: ^4.0.2
+    version: 4.0.2(vue@3.4.21)
 
 devDependencies:
   '@arco-plugins/vite-vue':
@@ -7542,10 +7542,10 @@ packages:
       vue: 3.4.21(typescript@5.4.3)
     dev: false
 
-  /vuex@4.1.0(vue@3.4.21):
-    resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}
+  /vuex@4.0.2(vue@3.4.21):
+    resolution: {integrity: sha512-M6r8uxELjZIK8kTKDGgZTYX/ahzblnzC4isU1tpmEuOIIKmV+TRdc+H4s8ds2NuZ7wpUTdGRzJRtoj+lI+pc0Q==}
     peerDependencies:
-      vue: ^3.2.0
+      vue: ^3.0.2
     dependencies:
       '@vue/devtools-api': 6.6.1
       vue: 3.4.21(typescript@5.4.3)

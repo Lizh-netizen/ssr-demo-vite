@@ -41,11 +41,11 @@ const symptomList = ref([])
 symptomList.value = GetSymptom()
 // 传过来的可能是option,也可能是title
 const handleSelectTooth = (item, title) => {
-  emit('toothClicked', title)
   useSelectTooth(item, title)
   if (props.arrange) {
     handleArrangeTooth(item, title)
   }
+  emit('toothClicked', title)
 }
 const handleArrangeTooth = (item, title) => {
   const hasNumber = /\d/.test(title.name)
@@ -62,6 +62,28 @@ const handleArrangeTooth = (item, title) => {
     title.name = title.name.replace(';' + String(item.value), '')
   }
 }
+
+const handleBeforeEnterPopover = (title) => {
+  symptomList.value.forEach((row) => {
+    row.forEach((a) => {
+      a.active = false
+      if (title.toothCode?.includes(a.value + '')) {
+        a.active = true
+      }
+    })
+  })
+}
+
+watch(
+  () => props.option,
+  (val) => {
+    if (val.fdiToothCode) {
+      handleBeforeEnterPopover(val)
+    } else {
+      symptomList.value = GetSymptom()
+    }
+  }
+)
 </script>
 
 <style lang="scss" scoped>
