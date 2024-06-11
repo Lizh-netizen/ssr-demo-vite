@@ -31,7 +31,7 @@
     "vue-smooth-dnd": "^0.8.1",
     "vue3-lazy": "^1.0.0-alpha.1",
     "vuedraggable": "^4.1.0",
-    "vuex": "^4.0.2"
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@arco-plugins/vite-vue": "^1.4.5",
