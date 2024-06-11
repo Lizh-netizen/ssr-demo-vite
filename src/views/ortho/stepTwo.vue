@@ -58,7 +58,7 @@
                         <img
                           class="aiFlagImg highZIndex"
                           :class="{ highZIndex: !showViewer }"
-                          src="@/assets/svg/AIFlagForFront.svg"
+                          src="@/assets/svg/AIFlagForFront.png"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
                       </el-radio-button>
@@ -1399,7 +1399,9 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
+      console.log(a)
       if (a.titleName !== '多生牙') {
+
         useFdiToothCodeEffect(a)
         a.showInput = false
         a.popVisible = false
@@ -1495,11 +1497,11 @@ async function getOrthPanoramicList() {
           handlePanoData(panoramicData)
         }
       })
+    } else {
+       handlePanoData(panoramicData)
     }
   })
-  if (!requestMouth.value) {
-    handlePanoData(panoramicData)
-  }
+  
 }
 
 // 多生牙逻辑
@@ -2861,12 +2863,6 @@ div.el-input__wrapper {
 }
 </style>
 <style lang="scss" scoped>
-:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
-  color: #2e6ce4;
-  background-color: #fff;
-  border-color: #2e6ce4;
-  --el-radio-button-checked-border-color: #2e6ce4;
-}
 :deep(.arco-select-dropdown) {
   height: 180px !important;
 }
@@ -3521,7 +3517,40 @@ img {
   --el-border-radius-base: 8px;
   margin-left: 4px;
 }
+:deep .el-checkbox-button.is-checked .el-checkbox-button__inner {
+  border-color: #dcdfe6;
+  background-color: #fff;
+  box-shadow: none;
+  color: #606266;
+}
+:deep .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: #2e6ce4;
+  background-color: #fff;
+  border-color: #2e6ce4;
+  --el-radio-button-checked-border-color: #2e6ce4;
+}
+:deep .el-radio-button.serious .el-radio-button__original-radio:checked + .el-radio-button__inner {
+  color: red;
+  background-color: #fff;
+  border-color: red;
+  --el-radio-button-checked-border-color: red;
+}
+:deep .el-radio-group.cephaRadio {
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    box-shadow: none;
+    border: none;
+    background: #eaf0fc;
+  }
 
+  .el-radio-button:first-child .el-radio-button__inner {
+    border-left: none;
+  }
+  .el-radio-button__inner {
+    border: none;
+    background: #f2f3f5;
+    margin-right: 2px;
+  }
+}
 :deep .el-radio-group.cephaRadio .el-radio-button.serious {
   .el-radio-button__original-radio:checked + .el-radio-button__inner {
     box-shadow: none;

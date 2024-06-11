@@ -10,8 +10,7 @@
       <template v-if="!option.optionSuffix">
         <el-radio-button
           :class="{
-            serious: option.serious == '1',
-            checked: option.choosen === true
+            serious: option.serious == '1'
           }"
           :value="option.id"
           :disabled="disabled"
@@ -19,7 +18,7 @@
           {{ option.optionName }}
           <img
             class="aiFlagImg"
-            src="@/assets/svg/AIFlagForFront.svg"
+            src="@/assets/svg/AIFlagForFront.png"
             v-show="title.aiFlag == '1' && option.choosen"
           />
         </el-radio-button>
@@ -127,10 +126,8 @@
           :disabled="disabled"
         >
           {{ option.optionName }}
-          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-            src="../../assets/svg/abnormalChecked.svg"
-            v-else
-          />
+          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" />
+          <img src="../../assets/svg/abnormalChecked.svg" v-else />
         </el-checkbox-button>
       </template>
       <template v-else>
@@ -686,7 +683,7 @@ const handleMouseLeave = (option) => {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 :deep .el-radio-button {
   .aiFlagImg {
     position: absolute;

@@ -17,7 +17,7 @@
         {{ option.optionName }}
         <img
           class="aiFlagImg"
-          src="@/assets/svg/AIFlagForFront.svg"
+          src="@/assets/svg/AIFlagForFront.png"
           v-show="title.aiFlag == '1' && option.choosen"
           :class="{ 'z-2': !showViewer }"
         />
