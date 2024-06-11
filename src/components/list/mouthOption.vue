@@ -1,11 +1,11 @@
 <template>
-  <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
-    <el-radio-group
-      v-if="title.type == 1"
-      v-model="title.optionId"
-      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-      @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
-    >
+  <el-radio-group
+    v-if="title.type == 1"
+    v-model="title.optionId"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+    @dblclick="handleEmptyRadio(title.optionId, title, owningModule)"
+  >
+    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <!-- 没有optionSuffix的情况 -->
       <template v-if="!option.optionSuffix">
         <el-radio-button
@@ -106,15 +106,16 @@
               @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
-        </template>
-      </template>
-    </el-radio-group>
+        </template> </template
+    ></template>
+  </el-radio-group>
 
-    <el-checkbox-group
-      v-if="title.type == 2"
-      v-model="title.optionId"
-      @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-    >
+  <el-checkbox-group
+    v-if="title.type == 2"
+    v-model="title.optionId"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+  >
+    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
       <template v-if="!option.optionSuffix">
         <el-checkbox-button
           :class="{
@@ -224,8 +225,8 @@
           </el-popover>
         </template>
       </template>
-    </el-checkbox-group>
-  </template>
+    </template>
+  </el-checkbox-group>
 
   <el-input
     v-if="
