@@ -238,6 +238,7 @@ import 'animate.css'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import formatTime from '../../utils/formatTime.ts'
 import compressionFile from '@/utils/compress.ts'
+import { ElMessage } from 'element-plus'
 // import { ElMessage } from 'element-plus'
 
 const props = defineProps({
@@ -615,22 +616,23 @@ const imageList =
 const loading = ref(false)
 const loadingTarget2 = ref()
 // 自动分类
-async function handleClassifyPics() {
+async function handleClassifyPics () {
   const startTime = JSON.parse(sessionStorage.getItem('patientInfo')).startTime
-  const loading = ElLoading.service({
+  try {
+    if (chooseImgNum.value == 0) {
+      ElMessage({
+        message: '还未选中图片哦',
+        type: 'error'
+      })
+      return
+    } else {
+      const loading = ElLoading.service({
     lock: true,
     text: '正在分类中',
     background: 'rgba(255, 255, 255, 0.66);',
     target: loadingTarget2.value
   })
   loading.value = true
-  try {
-    if (chooseImgNum.value == 0) {
-      ElMessage({
-        message: '未选中图片',
-        type: 'error'
-      })
-    } else {
       const formData = new FormData()
       let tImageString, tImageList
       imageArr.value

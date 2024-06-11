@@ -1045,7 +1045,7 @@ async function main() {
   if (pdfContent) {
     pdfContent.style.display = 'block'
   }
-  generatePDF()
+   generatePDF()
 }
 const loading = ref()
 
