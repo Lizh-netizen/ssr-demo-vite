@@ -1,4 +1,5 @@
 <template>
+  <!-- 单选 -->
   <el-radio-group
     v-if="title.type == 1"
     v-model="title.optionId"
@@ -18,97 +19,41 @@
           {{ option.optionName }}
           <img
             class="aiFlagImg"
-            src="@/assets/svg/AIFlagForFront.svg"
+            src="@/assets/svg/AIFlagForFront.png"
             v-show="title.aiFlag == '1' && option.choosen"
           />
         </el-radio-button>
       </template>
       <template v-else>
-        <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
-        <template v-if="!option.fdiToothCode">
-          <el-popover
-            placement="right"
-            :width="490"
-            trigger="click"
-            @show="handleBeforeEnterPopover(option)"
-            @after-leave="handleSubmitTooth(option, title, classId, owningModule)"
-          >
-            <template #reference>
-              <!-- 这里是浮上去的时候改变图标的颜色 -->
-              <el-radio-button
-                @mouseenter="handleMouseEnter(option)"
-                @mouseleave="handleMouseLeave(option)"
-                @click="handleClickOption(option)"
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                :value="option.id"
-              >
-                {{ option.optionName }}
-                <span
-                  v-if="option.optionSuffix"
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.choosen
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-              </el-radio-button>
-            </template>
-            <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
-          </el-popover>
-        </template>
-        <template v-else>
-          <el-popover
-            popper-class="myPopper"
-            :popper-style="{ width: 'auto', 'min-width': '100px' }"
-            placement="top-start"
-            :width="200"
-            :visible="option.visible"
-          >
-            <!-- 有牙齿的情况下悬浮显示选中牙位 -->
-            <template #reference>
-              <el-radio-button
-                @mouseenter="handleMouseEnterBtn(option)"
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                :value="option.id"
-                @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
-              >
-                {{ option.optionName }}
-                <span
-                  v-if="option.optionSuffix"
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.choosen
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-              </el-radio-button>
-            </template>
-            <Tooth
-              :step="5"
-              :title="option"
-              :appId="appId"
-              @submitTooth="(val) => handleSubmitTooth(val, title, classId, owningModule)"
-              @toothClicked="handleToothClicked(option)"
-            />
-          </el-popover>
-        </template> </template
-    ></template>
+        <!-- 这里是浮上去的时候改变图标的颜色 -->
+        <el-radio-button
+          @mouseenter="(e) => handleMouseEnter(e, option, index)"
+          @mouseleave="handleMouseLeave(option)"
+          @click="(e) => handleClickOption(e, option, index)"
+          :class="{
+            serious: option.serious == '1',
+            checked: option.choosen === true
+          }"
+          :value="option.id"
+        >
+          {{ option.optionName }}
+          <span
+            class="iconfont icon-warning"
+            :style="{
+              color: option.choosen
+                ? option.seriousColor
+                : option.hover
+                  ? option.hoverColor
+                  : option.fillColor,
+              fontSize: '14px'
+            }"
+          ></span>
+        </el-radio-button>
+      </template>
+    </template>
   </el-radio-group>
 
+  <!-- 多选 -->
   <el-checkbox-group
     v-if="title.type == 2"
     v-model="title.optionId"
@@ -124,104 +69,90 @@
           :value="option.id"
         >
           {{ option.optionName }}
+          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" />
+          <img src="../../assets/svg/abnormalChecked.svg" v-else />
+        </el-checkbox-button>
+      </template>
+      <template v-else>
+        <el-checkbox-button
+          @mouseenter="(e) => handleMouseEnter(e, option, index)"
+          @mouseleave="handleMouseLeave(option)"
+          @click="(e) => handleClickOption(e, option, index)"
+          :class="{
+            serious: option.serious == '1',
+            checked: option.choosen === true
+          }"
+          :value="option.id"
+        >
+          {{ option.optionName }}
+          <span
+            class="iconfont icon-warning"
+            :style="{
+              color: option.clicked
+                ? option.seriousColor
+                : option.hover
+                  ? option.hoverColor
+                  : option.fillColor,
+              fontSize: '14px'
+            }"
+          ></span>
+
           <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
             src="../../assets/svg/abnormalChecked.svg"
             v-else
           />
         </el-checkbox-button>
       </template>
-      <template v-else>
-        <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
-        <template v-if="!option.fdiToothCode">
-          <el-popover
-            placement="right"
-            :width="490"
-            trigger="click"
-            @show="handleBeforeEnterPopover(option)"
-            @after-leave="handleSubmitTooth(option, title, classId, owningModule)"
-          >
-            <template #reference>
-              <el-checkbox-button
-                @click="option.visible = true"
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                :value="option.id"
-                @mouseenter="option.hover = true"
-                @mouseleave="option.hover = false"
-              >
-                {{ option.optionName }}
-                <span
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.clicked
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-
-                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                  src="../../assets/svg/abnormalChecked.svg"
-                  v-else
-                />
-              </el-checkbox-button>
-            </template>
-            <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
-          </el-popover>
-        </template>
-        <template v-else>
-          <el-popover
-            popper-class="myPopper"
-            :popper-style="{ width: 'auto', 'min-width': '100px' }"
-            placement="top-start"
-            :width="200"
-            :visible="option.visible"
-            @mouseleave="option.visible = false"
-          >
-            <template #reference>
-              <el-checkbox-button
-                @mouseenter="handleMouseEnterBtn(option)"
-                :class="{
-                  serious: option.serious == '1',
-                  checked: option.choosen === true
-                }"
-                :value="option.id"
-                @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
-              >
-                {{ option.optionName }}
-                <span
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.clicked
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-
-                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-                  src="../../assets/svg/abnormalChecked.svg"
-                  v-else
-                />
-              </el-checkbox-button>
-            </template>
-            <Tooth
-              :step="5"
-              :title="option"
-              :appId="appId"
-              @submitTooth="(val) => handleSubmitTooth(val, title, classId, owningModule)"
-              @toothClicked="handleToothClicked(option)"
-            />
-          </el-popover>
-        </template> </template
-    ></template>
+    </template>
   </el-checkbox-group>
+
+  <!-- 选择牙位 -->
+  <el-popover
+    :width="490"
+    placement="right"
+    trigger="click"
+    @after-leave="handleSubmitTooth(optionData, title, classId, owningModule)"
+    ref="virtualRef"
+    :visible="optionData.selected"
+    :virtual-ref="buttonRef"
+    virtual-triggering
+  >
+    <div v-click-outside="onClickOutside">
+      <ChooseTooth :option="optionData" @toothClicked="handleToothClicked"></ChooseTooth>
+    </div>
+  </el-popover>
+
+  <!--  有牙齿的情况下悬浮显示选中牙位 -->
+  <el-popover
+    popper-class="myPopper"
+    :popper-style="{ width: 'auto', 'min-width': '100px' }"
+    placement="top-start"
+    ref="popoverRef"
+    :visible="optionData.visible"
+    :virtual-ref="buttonRef"
+    virtual-triggering
+  >
+    <div class="diagramWrapper" @click="handleClickTooth">
+      <div class="diagram">
+        <div class="diagramBox">
+          <div class="toothItem1">
+            {{ sortTooth(optionData.topLeft) }}
+          </div>
+          <div class="toothItem2">
+            {{ sortTooth(optionData.topRight) }}
+          </div>
+        </div>
+        <div class="diagramBox">
+          <div class="toothItem3">
+            {{ sortTooth(optionData.bottomLeft) }}
+          </div>
+          <div class="toothItem4">
+            {{ sortTooth(optionData.bottomRight) }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </el-popover>
 
   <el-input
     v-if="
@@ -240,6 +171,10 @@ import { Post } from '../../utils/request.ts'
 import updateOption from '@/effects/evaluateUpdateOption.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { handleExclusiveOptions } from '@/effects/changeOption.ts'
+import { ClickOutside as vClickOutside } from 'element-plus'
+import { useStore } from 'vuex'
+
+const store = useStore()
 const props = defineProps({
   title: {
     type: Object,
@@ -282,21 +217,8 @@ const props = defineProps({
     default: ''
   }
 })
-// console.log(props.title)
-
-const symptomList = ref([])
-symptomList.value = GetSymptom()
-const handleBeforeEnterPopover = (title) => {
-  symptomList.value.forEach((row) => {
-    row.forEach((a) => {
-      a.active = false
-      if (title.toothCode?.includes(a.value + '')) {
-        a.active = true
-      }
-    })
-  })
-}
 const emit = defineEmits(['refreshList', 'syncOption'])
+
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
     title.orthOptionsList.some((option) => option.choosen == true) &&
@@ -468,20 +390,26 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     emit('refreshList', props.owningModule)
   }
 }
-const handleToothClicked = (option) => {
-  option.toothClicked = true
+const handleToothClicked = (val) => {
+  // props.title.orthOptionsList.forEach((item) => {
+  //   if (item.id == val.id) {
+  //     item.toothClicked = true
+  //   }
+  // })
+  optionData.value = val
+  optionData.value.toothClicked = true
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
   let obj
   if (option) {
-    option.visible = false
+    option.selected = false
     if (!option.toothClicked && option.toothCode.length > 0) {
       return
     }
   }
   if (title) {
-    title.visible = false
+    title.selected = false
   }
   if (!option && !title.submitAble) {
     return
@@ -621,6 +549,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   ) {
     emit('syncOption', { option: option, titleName: title.titleName })
   }
+
   updateOption(
     title.optionId,
     title,
@@ -628,7 +557,8 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     classId,
     owningModule,
     option,
-    props.mouthData
+    props.mouthData,
+    store
   ).then(() => {
     if (option) {
       option.submitAble = false
@@ -643,49 +573,111 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
 const handleSubmit = (optionId, title, classId, owningModule) => {
   updateOption(optionId, title, props.appId, classId, owningModule)
 }
-const handleClickOption = (option) => {
-  option.visible = true
-  option.clicked = true
+
+// 展示牙位处理
+const sortTooth = (val) => {
+  if (val) {
+    const obj = val
+      .sort((a, b) => a.sort - b.sort)
+      .map((a) => a.value)
+      .join('')
+    return obj
+  }
 }
-const handleMouseEnterBtn = (option) => {
-  option.visible = true
-  option.hover = true
+
+const popoverRef = ref()
+const virtualRef = ref()
+const buttonRef = ref() // popover虚拟触发绑定的ref参数
+const optionData = ref({
+  visible: false,
+  selected: false
+})
+
+const handleClickOption = (e, option, index) => {
+  // 使用索引直接引用原始数组中的对象
+  optionData.value = props.title.orthOptionsList[index]
+
+  if (!option.fdiToothCode) {
+    buttonRef.value = e.target
+    optionData.value.selected = true // 注意这里修改的是原始数组中的对象
+  }
 }
-const closePopper = (option) => {
-  const poppers = document.querySelectorAll('.myPopper')
-  option.visible = false
-}
-const handleMouseLeaveBtn = (e, option) => {
-  option.hover = false
-  timeout = setTimeout(() => {
-    option.visible = false
-  }, 300)
-  const poppers = document.querySelectorAll('.myPopper')
-  Array.from(poppers).forEach((popper) => {
-    popper.addEventListener('mouseenter', () => {
-      clearTimeout(timeout)
-    })
-  })
-}
-const handleMouseEnter = (option) => {
-  option.visible = true
+const handleMouseEnter = (e, option, index) => {
+  optionData.value = props.title.orthOptionsList[index]
+
+  if (option.fdiToothCode) {
+    buttonRef.value = e.target
+    optionData.value.visible = true
+  }
   if (!props.disabled) {
     option.hover = true
   }
 }
-let timeout
 const handleMouseLeave = (option) => {
   option.hover = false
-  timeout = setTimeout(() => {
-    option.visible = false
-  }, 300)
-  const poppers = document.querySelectorAll('.myPopper')
-  Array.from(poppers).forEach((popper) => {
-    popper.addEventListener('mouseenter', () => {
-      clearTimeout(timeout)
-    })
-  })
+  setTimeout(() => {
+    optionData.value.visible = false
+  }, 3000)
+}
+const handleClickTooth = () => {
+  optionData.value.visible = false
+  optionData.value.selected = true
+}
+const onClickOutside = () => {
+  optionData.value.visible = false
+  optionData.value.selected = false
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+:deep .el-radio-button {
+  .aiFlagImg {
+    position: absolute;
+    right: -6px;
+    top: -4px;
+  }
+}
+
+.diagramWrapper {
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    cursor: pointer;
+    background: #f7f8fa;
+    border-radius: 6px;
+  }
+
+  .diagram {
+    position: relative;
+    .diagramBox {
+      width: 122px;
+      height: 36px;
+      display: flex;
+      div {
+        height: 36px;
+        width: 61px;
+        display: flex;
+        align-items: center;
+        padding: 4px;
+        box-sizing: border-box;
+      }
+      &:nth-child(1) {
+        border-bottom: 1px solid #d8d8d8;
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+      &:nth-child(2) {
+        > div:nth-child(1) {
+          border-right: 1px solid #d8d8d8;
+          justify-content: end;
+        }
+      }
+    }
+  }
+}
+</style>
