@@ -652,6 +652,14 @@ function processData(data) {
 
 async function initiateApproval() {
   const { targetStr, planStr, correctionPeriod } = await getPlanList()
+  if (!orthContent.value['diagnoseStr'] || orthContent.value['dentitionType'] == '未选择') {
+    ElMessage({
+      type: 'warning',
+      message: '发起审批失败（未填写诊断）'
+    })
+    return
+  
+}
   if (!targetStr) {
     ElMessage.error('还没填写方案中的里程碑哦')
     return
@@ -660,6 +668,7 @@ async function initiateApproval() {
     ElMessage.error('还没填写方案中的工具哦')
     return
   }
+  
   dialogVisible.value = true
   const res = await Post('/prod-api/emr/orthPlan/selectOrthApprovalDetailInfo', {
     patientId: +patientId,
@@ -687,6 +696,7 @@ async function confirmApproval() {
     })
     return
   }
+  
   try {
     const loading = ElLoading.service({
       lock: true,
