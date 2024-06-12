@@ -1,6 +1,6 @@
 <template>
   <template v-if="!src">
-    <div class="pdfContent" :style="{ display: 'none' }">
+    <div class="pdfContent" :style="{display: 'none'}">
       <div class="pdfPage">
         <img class="background" src="@/assets/pdfTemplate/frontCover.png" />
         <div class="title">
@@ -563,11 +563,14 @@ async function getDataList() {
           })
         } else {
           if (cur.titleName == '主诉' || cur.titleName == '现病史') {
-            acc[cur.owningModule].list.push({
+            if (cur.cephalometricsContent) {
+acc[cur.owningModule].list.push({
               title_name: cur.titleName,
               option_names: cur.cephalometricsContent,
               serious: cur.serious
             })
+            }
+            
           } else {
             if (cur.titleName || cur.optionsNames) {
               acc[cur.owningModule].list.push({
@@ -789,9 +792,10 @@ async function getDataList() {
   if (!data.value.find((item) => item.owningModule == '备注')) {
     data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
   }
-
+console.log(data.value)
   const found = data.value.find((item) => item.owningModule == '问诊')
   if (found) {
+    found.className = '既往史'
     found.list = found?.list.filter((item) => item.title_name !== '家长矫正意愿')
   } else {
     data.value.unshift({ owningModule: '问诊' })
@@ -1059,7 +1063,7 @@ onMounted(() => {
     })
     main()
   }
-  // main()
+ // main()
 })
 </script>
 
