@@ -18,11 +18,10 @@
           {{ option.optionName }}
           <img
             class="aiFlagImg"
-            src="@/assets/svg/AIFlagForFront.png"
+            src="@/assets/svg/AIFlagForFront.svg"
             v-show="title.aiFlag == '1' && option.choosen"
-          />
-        </el-radio-button>
-      </template>
+          /> </el-radio-button
+      ></template>
       <template v-else>
         <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
         <template v-if="!option.fdiToothCode">
@@ -45,19 +44,32 @@
                 }"
                 :value="option.id"
               >
-                {{ option.optionName }}
-                <span
+                {{ option.optionName
+                }}<svg
                   v-if="option.optionSuffix"
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.choosen
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  fill="none"
+                  version="1.1"
+                  width="9.999975204467773"
+                  height="9.999975204467773"
+                  viewBox="0 0 9.999975204467773 9.999975204467773"
+                >
+                  <g>
+                    <path
+                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                      fill-rule="evenodd"
+                      :fill="
+                        option.choosen
+                          ? option.seriousColor
+                          : option.hover
+                            ? option.hoverColor
+                            : option.fillColor
+                      "
+                      fill-opacity="1"
+                    />
+                  </g>
+                </svg>
               </el-radio-button>
             </template>
             <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
@@ -82,19 +94,32 @@
                 :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName }}
-                <span
+                {{ option.optionName
+                }}<svg
                   v-if="option.optionSuffix"
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.choosen
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  fill="none"
+                  version="1.1"
+                  width="9.999975204467773"
+                  height="9.999975204467773"
+                  viewBox="0 0 9.999975204467773 9.999975204467773"
+                >
+                  <g>
+                    <path
+                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                      fill-rule="evenodd"
+                      :fill="
+                        option.clicked
+                          ? option.seriousColor
+                          : option.hover
+                            ? option.hoverColor
+                            : option.fillColor
+                      "
+                      fill-opacity="1"
+                    />
+                  </g>
+                </svg>
               </el-radio-button>
             </template>
             <Tooth
@@ -105,23 +130,24 @@
               @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
-        </template> </template
-    ></template>
+        </template>
+      </template>
+    </template>
   </el-radio-group>
-
   <el-checkbox-group
-    v-if="title.type == 2"
     v-model="title.optionId"
+    v-if="title.type == 2"
     @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+    @dblclick="handleEmpty"
   >
-    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
-      <template v-if="!option.optionSuffix">
-        <el-checkbox-button
+    <template v-for="option in title.orthOptionsList" :key="option.id">
+      <template v-if="!option.optionSuffix"
+        ><el-checkbox-button
           :class="{
             serious: option.serious == '1',
             checked: option.choosen === true
           }"
-          :value="option.id"
+          :label="option.id"
         >
           {{ option.optionName }}
           <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -147,23 +173,36 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :value="option.id"
+                :label="option.id"
                 @mouseenter="option.hover = true"
                 @mouseleave="option.hover = false"
               >
-                {{ option.optionName }}
-                <span
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.clicked
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-
+                {{ option.optionName
+                }}<svg
+                  v-if="option.optionSuffix"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  fill="none"
+                  version="1.1"
+                  width="9.999975204467773"
+                  height="9.999975204467773"
+                  viewBox="0 0 9.999975204467773 9.999975204467773"
+                >
+                  <g>
+                    <path
+                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                      fill-rule="evenodd"
+                      :fill="
+                        option.clicked
+                          ? option.seriousColor
+                          : option.hover
+                            ? option.hoverColor
+                            : option.fillColor
+                      "
+                      fill-opacity="1"
+                    />
+                  </g>
+                </svg>
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -189,22 +228,35 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :value="option.id"
+                :label="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName }}
-                <span
-                  class="iconfont icon-warning"
-                  :style="{
-                    color: option.clicked
-                      ? option.seriousColor
-                      : option.hover
-                        ? option.hoverColor
-                        : option.fillColor,
-                    fontSize: '14px'
-                  }"
-                ></span>
-
+                {{ option.optionName
+                }}<svg
+                  v-if="option.optionSuffix"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  fill="none"
+                  version="1.1"
+                  width="9.999975204467773"
+                  height="9.999975204467773"
+                  viewBox="0 0 9.999975204467773 9.999975204467773"
+                >
+                  <g>
+                    <path
+                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
+                      fill-rule="evenodd"
+                      :fill="
+                        option.clicked
+                          ? option.seriousColor
+                          : option.hover
+                            ? option.hoverColor
+                            : option.fillColor
+                      "
+                      fill-opacity="1"
+                    />
+                  </g>
+                </svg>
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -219,8 +271,9 @@
               @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
-        </template> </template
-    ></template>
+        </template>
+      </template>
+    </template>
   </el-checkbox-group>
 
   <el-input
@@ -282,7 +335,6 @@ const props = defineProps({
     default: ''
   }
 })
-// console.log(props.title)
 
 const symptomList = ref([])
 symptomList.value = GetSymptom()
@@ -310,6 +362,7 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
   }
 }
 const requestAgain = ref(false)
+
 const handleChangeOption = (optionId, title, classId, owningModule) => {
   // 这几个选项选过之后重新请求
   if (
@@ -686,6 +739,21 @@ const handleMouseLeave = (option) => {
     })
   })
 }
+
+const handleEmpty = () => {}
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped>
+:deep .el-radio-button {
+  svg {
+    position: relative;
+    left: 3px;
+  }
+
+  .aiFlagImg {
+    position: absolute;
+    right: -6px;
+    top: -4px;
+  }
+}
+</style>
