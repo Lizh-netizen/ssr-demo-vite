@@ -652,14 +652,6 @@ function processData(data) {
 
 async function initiateApproval() {
   const { targetStr, planStr, correctionPeriod } = await getPlanList()
-  if (!orthContent.value['diagnoseStr'] || orthContent.value['dentitionType'] == '未选择') {
-    ElMessage({
-      type: 'warning',
-      message: '发起审批失败（未填写诊断）'
-    })
-    return
-  
-}
   if (!targetStr) {
     ElMessage.error('还没填写方案中的里程碑哦')
     return
@@ -668,7 +660,7 @@ async function initiateApproval() {
     ElMessage.error('还没填写方案中的工具哦')
     return
   }
-  dialogVisible.value = true
+  
   const res = await Post('/prod-api/emr/orthPlan/selectOrthApprovalDetailInfo', {
     patientId: +patientId,
     aptmId: +appId,
@@ -682,6 +674,15 @@ async function initiateApproval() {
   orthContent.value['correctionPeriod'] = res.data['correctionPeriod'] || correctionPeriod
   orthContent.value['explain'] = res.data['explain'] || '无'
   orthContent.value['riskValueSystem'] = res.data['riskValueSystem'].split('')[0]
+  if (!orthContent.value['diagnoseStr'] || orthContent.value['dentitionType'] == '未选择') {
+    ElMessage({
+      type: 'warning',
+      message: '发起审批失败（未填写诊断）'
+    })
+    return 
+  } else {
+    dialogVisible.value = true
+  }
 }
 const corpId = 'ding2b955d63d8846db035c2f4657eb6378f'
 
