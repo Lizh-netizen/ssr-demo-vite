@@ -293,7 +293,7 @@
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
             <div
-              class="imgBox imageBox h-[350px]!"
+              class="imageBox"
               :class="{
                 cepha: item.owningModule === '侧位片',
                 pano: item.owningModule === '全景片',
@@ -306,11 +306,11 @@
               <img
                 :src="item.imageUrl + `?random=${Math.random()}`"
                 crossOrigin="anonymous"
-                class="h-full object-cover"
+                class="avator"
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="avator" />
             </div>
 
             <el-table :data="cephaData" style="width: 100%" :cell-style="{ border: 'none' }">
@@ -1068,8 +1068,6 @@ onMounted(() => {
   background: #f4f7fd;
   .list-item {
     background: #f4f7fd;
-  }
-  .list-item {
   }
 }
 .el-table--border .el-table__cell {
