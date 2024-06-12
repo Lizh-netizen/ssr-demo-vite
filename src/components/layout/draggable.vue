@@ -324,6 +324,7 @@ const onMove = (e, originalEvent) => {
   ) {
     return false
   }
+
   return true
 }
 // 区分拔牙和个别牙
@@ -505,6 +506,15 @@ onMounted(() => {
     opacity: 0;
     z-index: 100;
     cursor: pointer;
+  }
+  &:hover {
+    .deleteBtn {
+      opacity: 1;
+    }
+    .remove,
+    .cancel {
+      opacity: 1;
+    }
   }
   &.question {
     .list-group-item-label {
