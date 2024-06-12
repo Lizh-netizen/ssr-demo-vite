@@ -8,7 +8,6 @@ async function useUpdateOption(
   owningModule: any,
   otherContent: any
 ) {
-  console.log(title)
   let obj
   if (title.type == 1) {
     obj = {

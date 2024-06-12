@@ -1,6 +1,12 @@
 <template>
   <div class="list1">
-    <div class="list__item" v-for="a in list" :key="a.id" :data-serious="a.serious">
+    <div
+      class="list__item"
+      v-for="a in list"
+      :key="a.id"
+      :data-serious="a.serious"
+      :class="{ 'mb-[0px]': noMB == true, 'mb-[16px]': noMB != true }"
+    >
       <div class="list__item__desc">
         {{ a.title_name }}
         <span v-if="a.option_names">: {{ a.option_names }}</span
@@ -20,7 +26,7 @@
 
 <script setup>
 import { defineProps } from 'vue'
-defineProps(['list', 'moduleName'])
+defineProps(['list', 'moduleName', 'noMB'])
 </script>
 
 <style lang="scss" scoped>
@@ -28,7 +34,6 @@ defineProps(['list', 'moduleName'])
   display: flex;
   flex-wrap: wrap;
   .list__item {
-    margin-bottom: 16px;
     width: 50%;
     display: flex;
     // align-items: center;

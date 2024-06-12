@@ -404,7 +404,7 @@ onMounted(() => {
           }
           if (!toothFlag.value && popover?.compareDocumentPosition(e.target) == 2) {
             // 选择牙位的弹窗存在，且未选中牙齿时
-            console.log(item.value)
+            // console.log(item.value)
             if (!item.value.item) {
               return
             }
@@ -447,7 +447,7 @@ onMounted(() => {
   overflow: auto;
 }
 .list-group {
-  margin-top: 16px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 .list-group-item {

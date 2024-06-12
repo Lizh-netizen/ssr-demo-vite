@@ -187,7 +187,8 @@ const generatePDF = () => {
               emit('getPdfResult', src.value)
               ElMessage({
                 type: 'success',
-                message: '报告生成成功'
+                message: '报告生成成功',
+                duration: 0
               })
             } else {
               ElMessage({
@@ -201,6 +202,9 @@ const generatePDF = () => {
           })
           .finally(() => {
             loading.value?.close()
+            setTimeout(() => {
+              ElMessage.closeAll()
+            }, 3000)
           })
       })
   } catch (err) {
@@ -266,8 +270,6 @@ onMounted(() => {
     .borderBox {
       box-sizing: border-box;
       border: 2px solid #216fb0;
-      .mouthImage {
-      }
     }
   }
 }

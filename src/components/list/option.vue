@@ -11,13 +11,13 @@
         :class="{
           serious: option.serious == '1'
         }"
-        :label="option.id"
+        :value="option.id"
         :disabled="disabled"
       >
         {{ option.optionName }}
         <img
           class="aiFlagImg"
-          src="@/assets/svg/AIFlagForFront.svg"
+          src="@/assets/svg/AIFlagForFront.png"
           v-show="title.aiFlag == '1' && option.choosen"
           :class="{ 'z-2': !showViewer }"
         />
@@ -37,7 +37,7 @@
               serious: option.serious == '1',
               checked: option.choosen === true
             }"
-            :label="option.id"
+            :value="option.id"
             @mouseenter="handleMouseEnter(option)"
             @mouseleave="handleMouseLeave(option)"
             :disabled="disabled"
@@ -96,7 +96,7 @@
       }"
       v-for="option in title.orthOptionsList"
       :key="option.id"
-      :label="option.id"
+      :value="option.id"
       :disabled="disabled"
     >
       {{ option.optionName }}

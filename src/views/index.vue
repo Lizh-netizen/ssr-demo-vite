@@ -29,13 +29,6 @@
               allowSearch: true
             },
             {
-              name: '诊所',
-              type: 'select',
-              prop: 'officeId',
-              options: options1,
-              allowSearch: true
-            },
-            {
               name: '风险等级',
               type: currentTab == '面评矫正预约率' ? 'select' : undefined,
               prop: 'difficultyLevel',
@@ -333,6 +326,7 @@ const changeTab = async (val) => {
   const args = getCache(currentTab)
   strategy[val].request(args)
   // }
+  console.log(333)
   isChangeTab.value = await Promise.resolve(true)
 }
 
@@ -393,7 +387,7 @@ async function getEvaluateList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId,
+      officeId: officeId.value,
       doctorId: val?.doctorId,
       location: '1'
     })
@@ -406,10 +400,10 @@ async function getEvaluateList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '临床检查', finished: !!+item.clinicalExamination },
-          { label: '图像上传', finished: !!+item.imageUpload },
-          { label: '检查结果', finished: !!+item.imageAnalysis },
-          { label: '面评结论', finished: !!+item.facialConclusion }
+          { label: '临床检查', finished: item.clinicalExamination },
+          { label: '图像上传', finished: item.imageUpload },
+          { label: '检查结果', finished: item.imageAnalysis },
+          { label: '面评结论', finished: item.facialConclusion }
         ]
       }))
       patientList.value = evaluateList.value
@@ -431,7 +425,7 @@ async function getOrthoList(val) {
       startTime: val?.date || date.value, //预约日期
       pageSize: val?.pageSize || pageSize.value,
       pageNum: val?.page || page.value,
-      officeId: val?.officeId,
+      officeId: officeId.value,
       doctorId: val?.doctorId,
       location: '2'
     })
@@ -444,13 +438,13 @@ async function getOrthoList(val) {
         age: item.age,
         facialAdvise: item.facialAdvise ? item.facialAdvise : '未评估',
         list: [
-          { label: '问诊和检查', finished: !!+item.clinicalExamination },
-          { label: '图像上传', finished: !!+item.imageUpload },
-          { label: '图像分析', finished: !!+item.imageAnalysis },
-          { label: '模型分析', finished: !!+item.modelAnalysis },
-          { label: '诊断', finished: !!+item.diagnosis },
-          { label: '目标和工具', finished: !!+item.plansTools },
-          { label: '审批提交', finished: !!+item.approvalSubmitted }
+          { label: '问诊和检查', finished: item.clinicalExamination },
+          { label: '图像上传', finished: item.imageUpload },
+          { label: '图像分析', finished: item.imageAnalysis },
+          { label: '模型分析', finished: item.modelAnalysis },
+          { label: '诊断', finished: item.diagnosis },
+          { label: '里程碑与工具', finished: item.plansTools },
+          { label: '审批提交', finished: item.approvalSubmitted }
         ]
       }))
       patientList.value = orthoList.value
@@ -712,6 +706,7 @@ const filter = (val) => {
   strategy[currentTab.value].request(v)
   strategy[currentTab.value].stasCountRequest(v)
 }
+
 const pagesStorage = ref('evaluatePage')
 const changePage = (page) => {
   const pages = sessionStorage.getItem(strategy[currentTab.value].page)
@@ -738,8 +733,54 @@ watch(
   },
   { immediate: true }
 )
-
+const officeId = ref()
 onBeforeMount(() => {
+  // 初始化
+  pagesStorage.value = strategy[currentTab.value].page
+  const val = sessionStorage.getItem('currentTab')
+  officeId.value = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
+
+  const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
+  for (let key in strategy) {
+    if (key == '面评') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.officeId = officeId
+        val.doctorId = doctorId
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '矫正方案') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.doctorId = doctorId
+        val.officeId = officeId
+        val.date = date.value
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+    if (key == '面评矫正预约率') {
+      const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
+      if (!args) {
+        const val = {}
+        val.doctorId = doctorId
+        val.officeId = officeId
+        val.date = [firstDate.value, date.value]
+        strategy[key].stasCountRequest(val)
+      } else {
+        strategy[key].stasCountRequest(args)
+      }
+    }
+  }
+  storageName.value = strategy[val].storage
+  pagesStorage.value = strategy[val].page
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
   const list = ['ortho', 'evaluate']
@@ -751,68 +792,20 @@ onBeforeMount(() => {
       [element],
       JSON.stringify({
         doctorId: jc_odos_user?.ljProviderId,
-        officeId: jc_odos_user?.ljOfficeId,
         date: date.value
       })
     )
+    sessionStorage.setItem('officeId', jc_odos_user?.ljOfficeId)
   })
-}),
-  onMounted(() => {
-    // 初始化
-    pagesStorage.value = strategy[currentTab.value].page
-    const val = sessionStorage.getItem('currentTab')
-    const officeId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljOfficeId
-
-    const doctorId = JSON.parse(sessionStorage.getItem('jc_odos_user'))?.ljProviderId
-    for (let key in strategy) {
-      if (key == '面评') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.officeId = officeId
-          val.doctorId = doctorId
-          val.date = date.value
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-      if (key == '矫正方案') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.doctorId = doctorId
-          val.officeId = officeId
-          val.date = date.value
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-      if (key == '面评矫正预约率') {
-        const args = JSON.parse(sessionStorage.getItem(strategy[key].storage))
-        if (!args) {
-          const val = {}
-          val.doctorId = doctorId
-          val.officeId = officeId
-          val.date = [firstDate.value, date.value]
-          strategy[key].stasCountRequest(val)
-        } else {
-          strategy[key].stasCountRequest(args)
-        }
-      }
-    }
-    storageName.value = strategy[val].storage
-    pagesStorage.value = strategy[val].page
-    verifyPermission()
-  })
+  verifyPermission()
+})
 
 // 看板数据
 const facialCount = ref({})
 async function getFacialCount(val) {
   const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
-    officeId: val?.officeId,
+    officeId: officeId.value,
     doctorId: val?.doctorId,
     location: '1'
   })
@@ -825,7 +818,7 @@ const orthCount = ref({})
 async function getOrthCount(val) {
   const res = await Post('/prod-api/emr/orthCommon/orthBoardCount', {
     startTime: val?.date || date.value, //预约日期
-    officeId: val?.officeId,
+    officeId: officeId.value,
     doctorId: val?.doctorId,
     location: '2'
   })

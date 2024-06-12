@@ -397,9 +397,11 @@ const shortcuts = [
 ]
 
 // 重置
+
 const reset = () => {
   // 数据恢复初始化 全部null
   modelVal.value = list.reduce((sum, item) => {
+    // 过滤掉officeId
     if (item.type === 'date' && item.defaultDate) {
       sum[item.prop] = item.defaultDate
     } else {
@@ -419,37 +421,12 @@ const filter = () => {
       delete filterData.value[key]
     }
   }
-  sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
   emit('filter', filterData.value)
 }
-// 数据改变的事件
-// watch(
-//   () => modelVal.value,
-//   (val) => {
-//     for (const key in val) {
-//       if (val[key]) {
-//         filterData.value[key] = val[key]
-//       } else {
-//         delete filterData.value[key]
-//       }
-//     }
-//     if (val) {
-//       sessionStorage.setItem(storageName, JSON.stringify(filterData.value))
-//     }
-//     emit('changeData', filterData.value)
-//   },
-//   { deep: true, immediate: true }
-// )
+
 watch(
   () => modelVal.value,
   (val) => {
-    // for (const key in val) {
-    //   if (val[key]) {
-    //     filterData.value[key] = val[key]
-    //   } else {
-    //     delete filterData.value[key]
-    //   }
-    // }
     if (val) {
       sessionStorage.setItem(storageName, JSON.stringify(modelVal.value))
     }

@@ -200,7 +200,7 @@ const steps = [
   { num: 2, desc: '图像分析' },
   { num: 3, desc: '模型分析' },
   { num: 4, desc: '诊断' },
-  { num: 5, desc: '目标和工具' },
+  { num: 5, desc: '里程碑与工具' },
   { num: 6, desc: '报告预览' }
 ]
 const editStep = ref(0)
@@ -211,7 +211,7 @@ const step3 = ref(null)
 const step4 = ref(null)
 const step5 = ref(null)
 const pdfComp = ref(null)
-const handleChangeStep = (num) => {
+const handleChangeStep = async (num) => {
   if (num > editStep.value) {
     ElMessage({
       message: '请点击下一步哦',
@@ -219,6 +219,7 @@ const handleChangeStep = (num) => {
     })
     return
   } else {
+    await checkCompletion()
     active.value = num
   }
 }
@@ -462,33 +463,56 @@ async function checkOrthImageAnalysis() {
   await getOrthMouthList()
   await getOrthPanoList()
   await getOrthCephaList()
-  console.log(345)
-  const result =
-    checkOrthFace(faceAccessData.value) &&
-    checkFugaiOptions(mouthData.value) &&
-    checkPanoOptions(panoramicData.value) &&
+  console.log(
+    checkOrthFace(faceAccessData.value),
+    checkFugaiOptions(mouthData.value),
+    checkPanoOptions(panoramicData.value),
     checkOptions(cepha.value)
-  console.log(checkPanoOptions(panoramicData.value))
-  return result
+  )
+  if (
+    checkOrthFace(faceAccessData.value) === '0' &&
+    checkFugaiOptions(mouthData.value) == '0' &&
+    checkPanoOptions(panoramicData.value) === '0' &&
+    checkOptions(cepha.value) === '0'
+  ) {
+    return '0'
+  } else if (
+    checkOrthFace(faceAccessData.value) === '1' &&
+    checkFugaiOptions(mouthData.value) == '1' &&
+    checkPanoOptions(panoramicData.value) === '1' &&
+    checkOptions(cepha.value) === '1'
+  ) {
+    return '1'
+  } else {
+    return '9'
+  }
 }
 
 const checkCompletion = async () => {
   if (active.value == 1) {
     await getOrthInquiryList()
     await getOrthCheckList()
-
-    clinicalExamination.value =
-      checkInquiry(inquiryData.value) && checkOrthoCheck(checkData.value) ? '1' : '0'
+    if (checkInquiry(inquiryData.value) === '0' && checkOrthoCheck(checkData.value) === '0') {
+      clinicalExamination.value = '0'
+    } else if (
+      checkInquiry(inquiryData.value) === '1' &&
+      checkOrthoCheck(checkData.value) === '1'
+    ) {
+      clinicalExamination.value = '1'
+    } else {
+      clinicalExamination.value = '9'
+    }
   }
 
   if (active.value == 2) {
     await getClassifiedImgList()
-    imageUpload.value = checkOrthImageUpload(classifiedImageList) ? '1' : '0'
-    imageAnalysis.value = (await checkOrthImageAnalysis()) ? '1' : '0'
+    console.log(234)
+    imageUpload.value = checkOrthImageUpload(classifiedImageList)
+    imageAnalysis.value = await checkOrthImageAnalysis()
   }
   if (active.value == 3) {
     await getOrthModelList()
-    modelAnalysis.value = checkModelOptions(modelData.value) ? '1' : '0'
+    modelAnalysis.value = checkModelOptions(modelData.value)
   }
   const res = await Post('/prod-api/emr/orthPlan/addOrthPlanCompletionInfo', {
     id: +sessionStorage.getItem(`planCompletionId`) || '',
@@ -629,11 +653,11 @@ function processData(data) {
 async function initiateApproval() {
   const { targetStr, planStr, correctionPeriod } = await getPlanList()
   if (!targetStr) {
-    ElMessage.error('还没填写方案中的治疗目标哦')
+    ElMessage.error('还没填写方案中的里程碑哦')
     return
   }
   if (!planStr) {
-    ElMessage.error('还没填写方案中的治疗工具哦')
+    ElMessage.error('还没填写方案中的工具哦')
     return
   }
   dialogVisible.value = true
