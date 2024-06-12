@@ -1,6 +1,6 @@
 <template>
   <template v-if="!src">
-    <div class="pdfContent" :style="{display: 'none'}">
+    <div class="pdfContent" :style="{ display: 'none' }">
       <div class="pdfPage">
         <img class="background" src="@/assets/pdfTemplate/frontCover.png" />
         <div class="title">
@@ -303,14 +303,15 @@
               <div class="imageCaption">
                 {{ item.className }}
               </div>
-              <img
-                :src="item.imageUrl + `?random=${Math.random()}`"
-                crossOrigin="anonymous"
-                class="avator"
-                :class="{ cephaImg: item.owningModule === '侧位片' }"
-                v-if="item.imageUrl"
-              />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="avator" />
+              <div class="max-h-350px flex justify-center">
+                <img
+                  :src="item.imageUrl + `?random=${Math.random()}`"
+                  crossOrigin="anonymous"
+                  :class="{ cephaImg: item.owningModule === '侧位片' }"
+                  v-if="item.imageUrl"
+                />
+                <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
+              </div>
             </div>
 
             <el-table :data="cephaData" style="width: 100%" :cell-style="{ border: 'none' }">
@@ -564,13 +565,12 @@ async function getDataList() {
         } else {
           if (cur.titleName == '主诉' || cur.titleName == '现病史') {
             if (cur.cephalometricsContent) {
-acc[cur.owningModule].list.push({
-              title_name: cur.titleName,
-              option_names: cur.cephalometricsContent,
-              serious: cur.serious
-            })
+              acc[cur.owningModule].list.push({
+                title_name: cur.titleName,
+                option_names: cur.cephalometricsContent,
+                serious: cur.serious
+              })
             }
-            
           } else {
             if (cur.titleName || cur.optionsNames) {
               acc[cur.owningModule].list.push({
@@ -792,7 +792,7 @@ acc[cur.owningModule].list.push({
   if (!data.value.find((item) => item.owningModule == '备注')) {
     data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
   }
-console.log(data.value)
+  console.log(data.value)
   const found = data.value.find((item) => item.owningModule == '问诊')
   if (found) {
     found.className = '既往史'
@@ -1063,7 +1063,7 @@ onMounted(() => {
     })
     main()
   }
- // main()
+  // main()
 })
 </script>
 
