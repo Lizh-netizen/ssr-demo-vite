@@ -6,9 +6,31 @@ async function updateOption(
   appId: number,
   classId: number,
   owningModule: string,
-  option?: any
+  option?: any,
+  mouthData?: any
 ) {
   // 区分了一下 选项和标题
+  let toothCodeInfo: any = {}
+  if (title.type == 2 && mouthData) {
+    const optionId = title.optionId
+    optionId.forEach((id: any) => {
+      const filtered = mouthData.filter(
+        (item: any) => item.className == '磨牙关系（左侧）' || item.className == '磨牙关系（右侧）'
+      )
+      filtered.forEach((item: any) =>
+        item.orthTitleList.forEach((t: any) => {
+          t.orthOptionsList.forEach((option: any) => {
+            if (option.id == id && t.id == title.id) {
+              toothCodeInfo[option.id] = {
+                fdiToothCode: option.toothCode?.join(),
+                showPosition: JSON.stringify(option.position)
+              }
+            }
+          })
+        })
+      )
+    })
+  }
   let obj = {
     aptmId: appId,
     titleId: title.id,
@@ -24,7 +46,8 @@ async function updateOption(
         : '',
     optionSuffix: option?.optionSuffix,
     classId: classId,
-    owningModule: owningModule
+    owningModule: owningModule,
+    toothCodeInfo: toothCodeInfo
   }
 
   await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)

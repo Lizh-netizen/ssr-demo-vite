@@ -10,19 +10,19 @@
       <template v-if="!option.optionSuffix">
         <el-radio-button
           :class="{
-            serious: option.serious == '1',
-            checked: option.choosen === true
+            serious: option.serious == '1'
           }"
-          :label="option.id"
+          :value="option.id"
           :disabled="disabled"
         >
           {{ option.optionName }}
           <img
             class="aiFlagImg"
-            src="@/assets/svg/AIFlagForFront.svg"
+            src="@/assets/svg/AIFlagForFront.png"
             v-show="title.aiFlag == '1' && option.choosen"
-          /> </el-radio-button
-      ></template>
+          />
+        </el-radio-button>
+      </template>
       <template v-else>
         <!-- 刚开始没有牙齿，点击之后悬浮，这里的trigger:click是点击选项的时候才显示 -->
         <template v-if="!option.fdiToothCode">
@@ -44,34 +44,21 @@
                   checked: option.choosen === true
                 }"
                 :disabled="disabled"
-                :label="option.id"
+                :value="option.id"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
                   v-if="option.optionSuffix"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                  fill="none"
-                  version="1.1"
-                  width="9.999975204467773"
-                  height="9.999975204467773"
-                  viewBox="0 0 9.999975204467773 9.999975204467773"
-                >
-                  <g>
-                    <path
-                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                      fill-rule="evenodd"
-                      :fill="
-                        option.choosen
-                          ? option.seriousColor
-                          : option.hover
-                            ? option.hoverColor
-                            : option.fillColor
-                      "
-                      fill-opacity="1"
-                    />
-                  </g>
-                </svg>
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.choosen
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
               </el-radio-button>
             </template>
             <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
@@ -93,36 +80,140 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :label="option.id"
+                :value="option.id"
                 @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
               >
-                {{ option.optionName
-                }}<svg
+                {{ option.optionName }}
+                <span
                   v-if="option.optionSuffix"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlns:xlink="http://www.w3.org/1999/xlink"
-                  fill="none"
-                  version="1.1"
-                  width="9.999975204467773"
-                  height="9.999975204467773"
-                  viewBox="0 0 9.999975204467773 9.999975204467773"
-                >
-                  <g>
-                    <path
-                      d="M0,4.99999C0,2.23857,2.23857,0,4.99999,0C7.76141,0,9.99998,2.23857,9.99998,4.99999C9.99998,7.76141,7.76141,9.99998,4.99999,9.99998C2.23857,9.99998,0,7.76141,0,4.99999C0,4.99999,0,4.99999,0,4.99999ZM5.49999,3.49999C5.49999,3.49999,5.49999,2.49999,5.49999,2.49999C5.49999,2.49999,4.49999,2.49999,4.49999,2.49999C4.49999,2.49999,4.49999,3.49999,4.49999,3.49999C4.49999,3.49999,5.49999,3.49999,5.49999,3.49999C5.49999,3.49999,5.49999,3.49999,5.49999,3.49999ZM4.49999,3.99999C4.49999,3.99999,4.49999,7.49998,4.49999,7.49998C4.49999,7.49998,5.49999,7.49998,5.49999,7.49998C5.49999,7.49998,5.49999,3.99999,5.49999,3.99999C5.49999,3.99999,4.49999,3.99999,4.49999,3.99999C4.49999,3.99999,4.49999,3.99999,4.49999,3.99999Z"
-                      fill-rule="evenodd"
-                      :fill="
-                        option.clicked
-                          ? option.seriousColor
-                          : option.hover
-                            ? option.hoverColor
-                            : option.fillColor
-                      "
-                      fill-opacity="1"
-                    />
-                  </g>
-                </svg>
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
               </el-radio-button>
+            </template>
+            <Tooth
+              :step="5"
+              :title="option"
+              :appId="appId"
+              @submitTooth="(val) => handleSubmitTooth(val, title, classId, owningModule)"
+              @toothClicked="handleToothClicked(option)"
+            />
+          </el-popover>
+        </template> </template
+    ></template>
+  </el-radio-group>
+
+  <el-checkbox-group
+    v-if="title.type == 2"
+    v-model="title.optionId"
+    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
+  >
+    <template v-for="(option, index) in title.orthOptionsList" :key="option.id">
+      <template v-if="!option.optionSuffix">
+        <el-checkbox-button
+          :class="{
+            serious: option.serious == '1',
+            checked: option.choosen === true
+          }"
+          :value="option.id"
+          :disabled="disabled"
+        >
+          {{ option.optionName }}
+          <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+            src="../../assets/svg/abnormalChecked.svg"
+            v-else
+          />
+        </el-checkbox-button>
+      </template>
+      <template v-else>
+        <!-- 没有选中牙齿直接显示十字牙位图，否则先显示牙位，点击再显示十字牙位 -->
+        <template v-if="!option.fdiToothCode">
+          <el-popover
+            placement="right"
+            :width="490"
+            trigger="click"
+            @show="handleBeforeEnterPopover(option)"
+            @after-leave="handleSubmitTooth(option, title, classId, owningModule)"
+          >
+            <template #reference>
+              <el-checkbox-button
+                @click="option.visible = true"
+                :class="{
+                  serious: option.serious == '1',
+                  checked: option.choosen === true
+                }"
+                :value="option.id"
+                @mouseenter="option.hover = true"
+                @mouseleave="option.hover = false"
+                :disabled="disabled"
+              >
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+
+                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                  src="../../assets/svg/abnormalChecked.svg"
+                  v-else
+                />
+              </el-checkbox-button>
+            </template>
+            <ChooseTooth :option="option" @toothClicked="handleToothClicked(option)"></ChooseTooth>
+          </el-popover>
+        </template>
+        <template v-else>
+          <el-popover
+            popper-class="myPopper"
+            :popper-style="{ width: 'auto', 'min-width': '100px' }"
+            placement="top-start"
+            :width="200"
+            :visible="option.visible"
+            @mouseleave="option.visible = false"
+          >
+            <template #reference>
+              <el-checkbox-button
+                @mouseenter="handleMouseEnterBtn(option)"
+                :class="{
+                  serious: option.serious == '1',
+                  checked: option.choosen === true
+                }"
+                :value="option.id"
+                @mouseleave="(e) => handleMouseLeaveBtn(e, option)"
+              >
+                {{ option.optionName }}
+                <span
+                  v-if="option.optionSuffix"
+                  class="iconfont icon-warning"
+                  :style="{
+                    color: option.clicked
+                      ? option.seriousColor
+                      : option.hover
+                        ? option.hoverColor
+                        : option.fillColor,
+                    fontSize: '14px'
+                  }"
+                ></span>
+                <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
+                  src="../../assets/svg/abnormalChecked.svg"
+                  v-else
+                />
+              </el-checkbox-button>
             </template>
             <Tooth
               :step="5"
@@ -135,27 +226,6 @@
         </template>
       </template>
     </template>
-  </el-radio-group>
-  <el-checkbox-group
-    v-model="title.optionId"
-    v-if="title.type == 2"
-    @change="handleChangeOption(title.optionId, title, classId, owningModule)"
-  >
-    <el-checkbox-button
-      :class="{
-        serious: option.serious == '1',
-        checked: option.choosen === true
-      }"
-      v-for="option in title.orthOptionsList"
-      :key="option.id"
-      :label="option.id"
-    >
-      {{ option.optionName }}
-      <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
-        src="../../assets/svg/abnormalChecked.svg"
-        v-else
-      />
-    </el-checkbox-button>
   </el-checkbox-group>
 
   <el-input
@@ -174,6 +244,8 @@ import emptyRadio from '@/effects/emptyRadio.ts'
 import { Post } from '../../utils/request'
 import updateOption from '@/effects/mouthOption.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
+import { handleExclusiveOptions } from '@/effects/changeOption.ts'
+import { onMounted } from 'vue'
 const props = defineProps({
   title: {
     type: Object,
@@ -229,6 +301,7 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
+
 const emit = defineEmits(['refreshList', 'syncOption'])
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
@@ -250,7 +323,9 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     title.titleName == '前牙覆盖' ||
     title.titleName == '反覆合程度' ||
     title.titleName == '反覆盖程度' ||
-    title.titleName == '凹面型表现'
+    title.titleName == '凹面型表现' ||
+    title.titleName == '右侧后牙' ||
+    title.titleName == '左侧后牙'
   ) {
     requestAgain.value = true
   }
@@ -362,63 +437,10 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
   }
   if (title.type == 2) {
     // 无和别的选项互斥逻辑
-    if (title.optionId1.includes(10) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 10)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(10) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(10)
-    ) {
-      title.optionId1 = [10]
-      title.optionId = [10]
-      title.otherContent = ''
-    }
-    title.orthOptionsList.forEach((option) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
-    if (title.optionId1.includes(321) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 321)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(321) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(321)
-    ) {
-      title.optionId1 = [321]
-      title.optionId = [321]
-      title.otherContent = ''
-    }
-    title.orthOptionsList.forEach((option) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
-    if (title.optionId1.includes(299) && title.optionId1.length < title.optionId.length) {
-      title.optionId1 = title.optionId.filter((o) => o !== 299)
-      title.optionId = title.optionId1
-    } else if (
-      !title.optionId1.includes(299) &&
-      title.optionId1.length < title.optionId.length &&
-      title.optionId.includes(299)
-    ) {
-      title.optionId1 = [299]
-      title.optionId = [299]
-      title.otherContent = ''
-    }
-    title.orthOptionsList.forEach((option) => {
-      if (!title.optionId.includes(option.id)) {
-        option.choosen = false
-      } else {
-        option.choosen = true
-      }
-    })
+    handleExclusiveOptions(title, 10)
+    handleExclusiveOptions(title, 44)
+    handleExclusiveOptions(title, 299)
+    handleExclusiveOptions(title, 321)
   }
   if (title.type == 1) {
     title.orthOptionsList.forEach((option) => {
@@ -427,7 +449,14 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
       }
     })
   }
-  updateOption(title.optionId, title, props.appId, classId, owningModule)
+  if (title.titleName == '右侧后牙' || title.titleName == '左侧后牙') {
+    console.log(1)
+    updateOption(title.optionId, title, props.appId, classId, owningModule, null, props.mouthData)
+  } else {
+    console.log(2)
+    updateOption(title.optionId, title, props.appId, classId, owningModule)
+  }
+
   if (requestAgain.value) {
     emit('refreshList', props.owningModule)
   }
@@ -437,10 +466,11 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
+  // console.log('🚀 ~ handleSubmitTooth ~ option:', option, props.mouthData)
   let obj
   if (option) {
     option.visible = false
-    if (!option.toothClicked && option.toothCode.length > 0) {
+    if ((!option.toothClicked && option.toothCode.length > 0) || !option.clicked) {
       return
     }
   }
@@ -588,7 +618,15 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     emit('syncOption', { option: option, titleName: title.titleName, classId: classId })
   }
 
-  updateOption(title.optionId, title, props.appId, classId, owningModule, option).then(() => {
+  updateOption(
+    title.optionId,
+    title,
+    props.appId,
+    classId,
+    owningModule,
+    option,
+    props.mouthData
+  ).then(() => {
     if (option) {
       option.submitAble = false
     }
@@ -647,13 +685,8 @@ const handleMouseLeave = (option) => {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
 :deep .el-radio-button {
-  svg {
-    position: relative;
-    left: 3px;
-  }
-
   .aiFlagImg {
     position: absolute;
     right: -6px;

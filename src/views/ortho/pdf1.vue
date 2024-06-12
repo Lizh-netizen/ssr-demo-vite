@@ -1,6 +1,6 @@
 <template>
   <template v-if="!src">
-    <div class="pdfContent" :style="{ display: 'none' }">
+    <div class="pdfContent" :style="{display: 'none'}">
       <div class="pdfPage">
         <img class="background" src="@/assets/pdfTemplate/frontCover.png" />
         <div class="title">
@@ -72,7 +72,7 @@
             </el-row>
 
             <div class="subTitle">主诉&既往史</div>
-            <template v-if="item.owningModule === '问诊'">
+            <template v-if="item.owningModule === '问诊' && item.list">
               <div class="content">
                 <div class="list">
                   <template v-for="i in item.list">
@@ -259,7 +259,7 @@
             </div>
           </div>
         </template>
-        <template v-if="item.owningModule === '全景片' || item.owningModule === '侧位片'">
+        <template v-if="item.owningModule === '全景片'">
           <div class="pdfPage flexPdfPage">
             <img class="background" src="../../assets/pdfTemplate/pano.png" />
             <Header text="影像分析" />
@@ -281,11 +281,87 @@
                 :class="{ cephaImg: item.owningModule === '侧位片' }"
                 v-if="item.imageUrl"
               />
-              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else />
             </div>
             <div class="content blueBackground" v-show="item.list.length > 0">
               <list :list="item.list" />
             </div>
+          </div>
+        </template>
+        <template v-if="item.owningModule === '侧位片'">
+          <div class="pdfPage flexPdfPage">
+            <img class="background" src="../../assets/pdfTemplate/pano.png" />
+            <Header text="影像分析" />
+            <div
+              class="imgBox imageBox h-[350px]!"
+              :class="{
+                cepha: item.owningModule === '侧位片',
+                pano: item.owningModule === '全景片',
+                hasBackGround: item.imageUrl
+              }"
+            >
+              <div class="imageCaption">
+                {{ item.className }}
+              </div>
+              <img
+                :src="item.imageUrl + `?random=${Math.random()}`"
+                crossOrigin="anonymous"
+                class="h-full object-cover"
+                :class="{ cephaImg: item.owningModule === '侧位片' }"
+                v-if="item.imageUrl"
+              />
+              <img src="@/assets/imgs/placeholder-horizontal.png" v-else class="h-full" />
+            </div>
+
+            <el-table :data="cephaData" style="width: 100%" :cell-style="{ border: 'none' }">
+              <el-table-column prop="titleName" label="测量项" width="70" />
+              <el-table-column prop="standardValue" label="标准值" width="70" />
+              <el-table-column prop="cephalotricsContent" label="实际值" width="70">
+                <template #default="scope">
+                  <div class="flex items-center">
+                    <div
+                      :class="
+                        scope.row.measurementBias === 'ABOVE'
+                          ? 'text-[#F65B56]'
+                          : scope.row.measurementBias === 'BELOW'
+                            ? 'text-[#2E6CE4]'
+                            : ''
+                      "
+                    >
+                      {{ scope.row.cephalotricsContent }}
+                    </div>
+                    <img
+                      class="position-absolute right-[20px]"
+                      src="@/assets/svg/upwards.svg"
+                      v-show="scope.row.measurementBias === 'ABOVE'"
+                    />
+                    <img
+                      src="@/assets/svg/downwards.svg"
+                      class="position-absolute right-[20px]"
+                      v-show="scope.row.measurementBias === 'BELOW'"
+                    />
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column prop="optionName" label="含义">
+                <template #default="scope">
+                  <div class="flex items-center">
+                    <div
+                      :class="
+                        scope.row.measurementBias === 'ABOVE'
+                          ? 'text-[#F65B56]'
+                          : scope.row.measurementBias === 'BELOW'
+                            ? 'text-[#2E6CE4]'
+                            : ''
+                      "
+                    >
+                      {{ scope.row.optionName }}
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <list :list="extractedData" class="cephaList bg-#F4F7FD; text-[12px]" :noMB="true" />
           </div>
         </template>
         <template v-if="item.owningModule === '问题列表'">
@@ -310,7 +386,7 @@
         <template v-if="item.owningModule === '方案'">
           <div class="pdfPage">
             <img class="background" src="../../assets/pdfTemplate/template1.png" />
-            <Header text="目标&方法&风险" />
+            <Header text="方案&风险" />
             <div class="subTitle">方案</div>
             <div class="content">
               <div
@@ -431,7 +507,7 @@ const order = [
   '口内照',
   '全景片',
   '侧位片',
-  '目标',
+  '里程碑',
   '方法'
 ]
 function sort(a, b) {
@@ -465,6 +541,13 @@ async function getDataList() {
   const result = await Get(
     `/prod-api/emr/orthPlan/getOrthPlanIssuesList?aptmId=${appId}&location=2`
   )
+  extractedData.value = result.data
+    .filter((item) => titlesToExtract.includes(item.titleName) && item.owningModule == '侧位片')
+    .map((item) => ({
+      title_name: item.titleName,
+      option_names: item.optionsNames,
+      serious: item.serious
+    }))
   if (result.data?.length > 0) {
     const acc = result.data.reduce((acc, cur) => {
       if (
@@ -480,11 +563,14 @@ async function getDataList() {
           })
         } else {
           if (cur.titleName == '主诉' || cur.titleName == '现病史') {
-            acc[cur.owningModule].list.push({
+            if (cur.cephalometricsContent) {
+acc[cur.owningModule].list.push({
               title_name: cur.titleName,
               option_names: cur.cephalometricsContent,
               serious: cur.serious
             })
+            }
+            
           } else {
             if (cur.titleName || cur.optionsNames) {
               acc[cur.owningModule].list.push({
@@ -691,7 +777,7 @@ async function getDataList() {
     }, {})
     data.value = Object.values(reduced)
 
-    const objective = data.value.find((item) => item.owningModule == '目标')
+    const objective = data.value.find((item) => item.owningModule == '里程碑')
     const method = data.value.find((item) => item.owningModule == '方法')
     if (objective && method) {
       objective.method = method
@@ -706,12 +792,49 @@ async function getDataList() {
   if (!data.value.find((item) => item.owningModule == '备注')) {
     data.value.push({ owningModule: '备注', list: [{ title_name: '备注', option_names: '无' }] })
   }
-
+console.log(data.value)
   const found = data.value.find((item) => item.owningModule == '问诊')
   if (found) {
+    found.className = '既往史'
     found.list = found?.list.filter((item) => item.title_name !== '家长矫正意愿')
+  } else {
+    data.value.unshift({ owningModule: '问诊' })
   }
 }
+const cephaData = ref([])
+// 侧位片逻辑
+const getCephaData = async () => {
+  const res = await Get(`/prod-api/emr/orthPlan/selectOrthPlanLatResult?aptmId=${appId}`)
+  cephaData.value = res.data
+}
+const titlesToExtract = ['腺样体', '扁桃体', '颈椎分期']
+const extractedData = ref()
+const getClassName = (row) => {
+  // console.log(r)
+  // return row.measurementBias === 'ABOVE' ? 'red' : ''
+}
+const tableData = ref([
+  {
+    date: '2016-05-03',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles'
+  },
+  {
+    date: '2016-05-02',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles'
+  },
+  {
+    date: '2016-05-04',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles'
+  },
+  {
+    date: '2016-05-01',
+    name: 'Tom',
+    address: 'No. 189, Grove St, Los Angeles'
+  }
+])
 const schemeData = ref([])
 const getSchemeList = async () => {
   const res = await Get(`/prod-api/emr/public/api/v1/scheme/list?aptmId=${appId}`)
@@ -761,8 +884,8 @@ function transformData(data) {
     // 在 stageList 的第一项前加入指定的数据
     stageList.unshift({
       stageName: '阶段',
-      goalList: ['目标'],
-      toolList: '配件'
+      goalList: ['里程碑'],
+      toolList: '工具'
     })
 
     return {
@@ -875,7 +998,8 @@ const generatePDF = () => {
               emit('getPdfResult', src.value)
               ElMessage({
                 type: 'success',
-                message: '报告生成成功'
+                message: '报告生成成功',
+                duration: 0
               })
             } else {
               ElMessage({
@@ -889,6 +1013,9 @@ const generatePDF = () => {
           })
           .finally(() => {
             loading.value?.close()
+            setTimeout(() => {
+              ElMessage.closeAll()
+            }, 3000)
           })
       })
   } catch (err) {
@@ -911,6 +1038,7 @@ async function main() {
   await getAlignerList()
   await getSchemeList()
   await getDataList()
+  await getCephaData()
   await getClassifiedImgList()
   await getIssuesList()
   await getPatientInfo()
@@ -918,7 +1046,9 @@ async function main() {
   // 所有请求完成后执行生成PDF
   // 刚开始不可见，要生成之前可见就可以，
   const pdfContent = document.querySelector('.pdfContent')
-  pdfContent.style.display = 'block'
+  if (pdfContent) {
+    pdfContent.style.display = 'block'
+  }
   generatePDF()
 }
 const loading = ref()
@@ -933,13 +1063,53 @@ onMounted(() => {
     })
     main()
   }
-  // main()
+ // main()
 })
 </script>
 
 <style lang="scss" scoped>
+.cephaList {
+  background: #f4f7fd;
+  .list-item {
+    background: #f4f7fd;
+  }
+  .list-item {
+  }
+}
+.el-table--border .el-table__cell {
+  border-right: none !important;
+  border-bottom: none !important;
+}
+:deep(.el-table__body, .el-table__footer, .el-table__header) {
+  border-spacing: 2px !important;
+}
+table {
+  border-collapse: separate !important;
+  border-spacing: 5px !important;
+}
+:deep(.el-table .el-table__cell) {
+  padding: 4px 0;
+}
+:deep(.el-table) {
+  margin-top: 20px;
+  thead {
+    color: #404682;
+    font-size: 14px;
+    font-weight: 500;
+    .el-table__cell {
+      background: #dee9ff;
+    }
+  }
+  .el-table__body {
+    color: #404682;
+    font-size: 12px;
+  }
+}
+:deep(.el-table__body .el-table__cell) {
+  padding: 0 !important;
+}
 .cephaImg {
-  width: 60% !important;
+  width: 50% !important;
 }
 .planBox {
   display: flex;
@@ -1078,10 +1248,13 @@ body {
     height: 297mm; /* 页面高度 */
     .imgBox {
       width: 100%;
-      height: 500px;
+      // height: 500px;
       display: flex;
       justify-content: center;
       align-items: center;
+      &.cepha {
+        height: 400px;
+      }
     }
     page-break-inside: avoid;
     padding: 50px 30px;
@@ -1137,7 +1310,7 @@ body {
         background: #eaf0fc;
         display: flex;
         align-items: center;
-        // margin-left: 12px;
+        margin-left: 10px;
         border-radius: 12px;
 
         &.content {
@@ -1349,7 +1522,7 @@ body {
       }
     }
     .personalInfo {
-      width: 182px;
+      // width: 182px;
       height: 116px;
       display: flex;
       flex-direction: column;
@@ -1442,9 +1615,9 @@ body {
     }
   }
 
-  .content {
-    z-index: 10;
-  }
+  // .content {
+  //   z-index: 10;
+  // }
   .imgList {
     .imgItem {
       display: flex;
@@ -1476,6 +1649,19 @@ body {
   .imgList {
     .imgItem {
       height: 360px;
+    }
+  }
+}
+:deep(.list1.cephaList) {
+  .list__item {
+    width: 33% !important;
+    /* margin-bottom: 16px; */
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &::before {
+      top: 0 !important;
     }
   }
 }

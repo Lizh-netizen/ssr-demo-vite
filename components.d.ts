@@ -50,6 +50,8 @@ declare module 'vue' {
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
+    ElTable: typeof import('element-plus/es')['ElTable']
+    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     EvaluateList: typeof import('./src/components/evaluatePdf/evaluateList.vue')['default']
     EvaluateOption: typeof import('./src/components/list/evaluateOption.vue')['default']

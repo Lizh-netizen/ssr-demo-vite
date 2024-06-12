@@ -108,7 +108,7 @@
                   :class="{
                     serious: option.serious == '1'
                   }"
-                  :label="option.id"
+                  :value="option.id"
                 >
                   {{ option.optionName }}
                 </el-radio-button>
@@ -128,7 +128,7 @@
                         serious: option.serious == '1',
                         checked: option.choosen === true
                       }"
-                      :label="option.id"
+                      :value="option.id"
                       @mouseenter="handleMouseEnter(option)"
                       @mouseleave="handleMouseLeave(option)"
                     >
@@ -196,7 +196,7 @@
                 }"
                 v-for="option in title.orthOptionsList"
                 :key="option.id"
-                :label="option.id"
+                :value="option.id"
               >
                 {{ option.optionName }}
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -239,7 +239,7 @@
                 }"
                 v-for="option in title.orthOptionsList"
                 :key="option.id"
-                :label="option.id"
+                :value="option.id"
               >
                 {{ option.optionName }}
               </el-radio-button>
@@ -540,7 +540,6 @@ async function handleChangeOption(optionId, title, classId, owningModule) {
   if (props.pdfId) {
     sessionStorage.removeItem(props.pdfId)
   }
-
   useChangeOption(optionId, title, appId, classId, owningModule, isShow, checkData)
   const res = await useUpdateOption(title.optionId, title, appId, classId, owningModule)
   if (
