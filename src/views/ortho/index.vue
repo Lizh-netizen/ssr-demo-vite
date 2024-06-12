@@ -668,7 +668,6 @@ async function initiateApproval() {
     ElMessage.error('还没填写方案中的工具哦')
     return
   }
-  
   dialogVisible.value = true
   const res = await Post('/prod-api/emr/orthPlan/selectOrthApprovalDetailInfo', {
     patientId: +patientId,
@@ -696,7 +695,6 @@ async function confirmApproval() {
     })
     return
   }
-  
   try {
     const loading = ElLoading.service({
       lock: true,
@@ -720,11 +718,6 @@ async function confirmApproval() {
       checkCompletion()
       ElMessage({
         type: 'success',
-        message: res.msg
-      })
-    } else {
-      ElMessage({
-        type: 'warning',
         message: res.msg
       })
     }
