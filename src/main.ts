@@ -27,7 +27,6 @@ import router from './router'
 import store from './store'
 import './assets/main.css'
 // import '@unocss/reset/tailwind.css'
-import { ElMessage } from 'element-plus'
 // main.ts
 import 'virtual:uno.css'
 import lazyPlugin from 'vue3-lazy'
