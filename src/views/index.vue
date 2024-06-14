@@ -22,24 +22,31 @@
           @setInitialState="setInitialState"
           :list="[
             {
-              name: '医生',
+              name: currentTab == '应矫预约率' ? '儿牙医生' : '医生',
               type: 'select',
               prop: 'doctorId',
               options: options,
               allowSearch: true
             },
             {
-              name: '风险等级',
-              type: currentTab == '面评矫正预约率' ? 'select' : undefined,
+              name: '预约状态',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
               prop: 'difficultyLevel',
               options: difficultyLevelList
             },
+
             {
-              name: '就诊日期',
-              dateType: currentTab == '面评矫正预约率' ? 'range' : undefined,
+              name: '预约日期',
+              dateType: currentTab == '应矫预约率' ? 'range' : undefined,
               type: 'date',
               prop: 'date',
-              defaultDate: currentTab == '面评矫正预约率' ? [firstDate, date] : date
+              defaultDate: currentTab == '应矫预约率' ? [firstDate, date] : date
+            },
+            {
+              name: '快筛/面评结果',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
+              prop: 'difficultyLevel',
+              options: difficultyLevelList
             }
           ]"
         ></filter-search>
@@ -107,6 +114,45 @@
                         ? '转三级面评'
                         : '未评估'
               }}
+            </div>
+          </template>
+          <template #orthStatus="{ row }">
+            <div class="flex items-center">
+              <img :src="`/src/assets/png/${statusStrategy[row.orthStatus]}.png`" /><span
+                class="ml-[8px] mr-[14px]"
+                >{{ row.orthStatus }}</span
+              >
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                content="点击查看快筛详情"
+                placement="top-start"
+              >
+                <span>
+                  <el-popover
+                    placement="bottom"
+                    :width="200"
+                    trigger="click"
+                    content="this is content, this is content, this is content"
+                  >
+                    <template #reference>
+                      <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
+                        <img src="../assets/svg/more.svg" />
+                      </div>
+                    </template>
+                    <div class="color-[#4E5969]">
+                      <div class="mb-[16px]">操作医生：华天赫</div>
+                      <div class="mb-[16px]">操作时间：华天赫</div>
+                      <div class="mb-[16px]">风险等级：华天赫</div>
+                      <div class="mb-[16px]">语音备注：<Audio /></div>
+                      <div class="mb-[16px]">文字备注：华天赫</div>
+                      <div>
+                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
+                      </div>
+                    </div>
+                  </el-popover>
+                </span>
+              </el-tooltip>
             </div>
           </template>
           <template #filterStatus="{ row }">
@@ -294,6 +340,7 @@ import datePicker from '../packages-js/date-picker/date-picker.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
+import Audio from '../components/list/audioVue.vue'
 
 import { useStore } from 'vuex'
 const store = useStore()
@@ -304,7 +351,7 @@ const aptmAble = ref(false)
 const orthoAble = ref(false)
 const evalAble = ref(false)
 const userInfo = ref()
-const currentTab = ref(sessionStorage.currentTab || '面评')
+const currentTab = ref(sessionStorage.currentTab || '应矫预约率')
 sessionStorage.setItem('currentTab', currentTab.value)
 const setInitialState = (val) => {
   requestAble.value[val] = true
@@ -338,7 +385,30 @@ watch(requestAble.value, (newVal) => {
   strategy[currentTab.value].firstReq = true
   // }
 })
+const statusStrategy = {
+  面评: 'evaluateStatus',
+  矫正: 'orthoStatus'
+}
+// 定义状态
+const status = ref('矫正')
+// 计算属性，根据状态动态加载图片路径
+const imageSrc = async () => {
+  const imageName = statusStrategy[status.value]
+  if (imageName) {
+    const imageModule = await import(`../assets/png/${imageName}.png`)
+    console.log('🚀 ~ imageSrc ~ imageModule:', imageModule)
+    return Promise.resolve(imageModule.default) // 返回图片的路径
+  }
+}
 const strategy = {
+  应矫预约率: {
+    config: columns_config_aptm,
+    storage: 'aptm',
+    page: 'aptmPage',
+    request: getAptmList,
+    stasCountRequest: getAptmCount,
+    firstReq: false
+  },
   面评: {
     config: columns_config_evaluate,
     storage: 'evaluate',
@@ -355,14 +425,6 @@ const strategy = {
     stasCountRequest: getOrthCount,
     firstReq: false
   }
-  // 面评矫正预约率: {
-  //   config: columns_config_aptm,
-  //   storage: 'aptm',
-  //   page: 'aptmPage',
-  //   request: getAptmList,
-  //   stasCountRequest: getAptmCount,
-  //   firstReq: false
-  // }
 }
 
 const total = ref(0)
@@ -481,7 +543,14 @@ async function getAptmList(val) {
       itemType: '--',
       orthItemType: '--'
     }))
-    patientList.value = orthoList.value
+    patientList.value = [
+      {
+        orthStatus: '矫正'
+      },
+      {
+        orthStatus: '面评'
+      }
+    ]
     total.value = res.total
   }
 }
@@ -783,7 +852,7 @@ onBeforeMount(() => {
   pagesStorage.value = strategy[val].page
   const jc_odos_user = JSON.parse(sessionStorage.getItem('jc_odos_user'))
   userInfo.value = jc_odos_user
-  const list = ['ortho', 'evaluate']
+  const list = ['ortho', 'evaluate', 'aptm']
   list.forEach((element) => {
     if (sessionStorage.getItem(element)) {
       return
@@ -843,14 +912,14 @@ async function getAptmCount(val) {
 }
 
 const tabData = ref([
-  // {
-  //   svg_name: 'cardSvg1',
-  //   name: '面评矫正预约率',
-  //   left_num: 0,
-  //   right_num: 0,
-  //   left_text: '已录入矫正方案人数',
-  //   right_text: '需要矫正人数'
-  // },
+  {
+    svg_name: 'cardSvg3',
+    name: '应矫预约率',
+    left_num: 0,
+    right_num: 0,
+    left_text: '已预约矫正人数',
+    right_text: '需要矫正人数'
+  },
   {
     svg_name: 'cardSvg2',
     name: '面评',

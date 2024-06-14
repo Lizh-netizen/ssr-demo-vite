@@ -10,12 +10,14 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "live": "live-server ./development"
+    "live": "live-server ./development",
+    "lint:fix": "npx eslint --fix --ext .js,.vue src"
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.55.0",
     "@element-plus/icons-vue": "^2.1.0",
     "@unocss/preset-wind": "^0.58.5",
+    "@vue/eslint-config-typescript": "^13.0.0",
     "animate.css": "^4.1.1",
     "axios": "^1.6.0",
     "dayjs": "^1.11.10",
@@ -26,6 +28,7 @@
     "mitt": "^3.0.1",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
+    "skip-formatting": "link:@vue/eslint-config-prettier/skip-formatting",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "vue-smooth-dnd": "^0.8.1",
@@ -58,5 +61,20 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
+  },
+  "lint-staged": {
+    "**/*.{js,vue}": [
+      "eslint --fix",
+      "git add"
+    ],
+    "**/*.{less,css,vue}": [
+      "stylelint --config  ./.stylelintrc --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

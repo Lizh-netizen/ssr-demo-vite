@@ -135,49 +135,44 @@ export const columns_config_aptm = [
   },
 
   {
-    type: 'state',
-    title: '快筛结果',
+    title: '快筛/面评结果',
     width: '90px',
-    stateOption: [
-      // { name: '未筛选', prop: 'filterStatus', color: 'NoColor', value: 0 },
-      { name: '矫正', prop: 'orth_status', color: 'Alarm', value: 1 },
-      { name: '不矫正', prop: 'orth_status', color: 'Success', value: 2 },
-      { name: '不确定', prop: 'orth_status', color: 'Neutral', value: 3 }
-    ]
+    prop: 'orthStatus',
+    slotName: 'orthStatus',
   },
-  { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },
-  { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel', width: '90px' },
-  { title: '预约医生', prop: 'toothDoctorName', type: 'text', width: '90px' },
-  { title: '预约时间', prop: 'StartTime', type: 'text', width: '120px' },
-
   {
-    title: '当天有正畸医生',
-    type: 'icon',
-    iconOption: {
-      secondName: 'success',
-      prop: 'isAttendence'
-    },
-    width: '130px'
-  },
-  { title: '正畸预约时间', prop: 'orthStartTime', type: 'text', width: '120px' },
-  {
-    title: '正畸预约医生',
+    title: '正畸预约',
     prop: 'orthDoctorName',
     slotName: 'orthDoctorName',
     width: '120px'
   },
+  { title: '儿牙预约日期', prop: 'orthStartTime', type: 'text', width: '120px' },
+  { prop: 'toothDoctorName', title: '儿牙医生', type: 'text', width: '120px' },
+  // { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },
+  // { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel', width: '90px' },
+  // { title: '预约医生', prop: 'toothDoctorName', type: 'text', width: '90px' },
+  // { title: '预约时间', prop: 'StartTime', type: 'text', width: '120px' },
 
-  // { prop: 'toothDoctorName', title: '儿牙医生' },
-  //  {prop: 'orthDoctorName', title: '正畸医生'},
+  // {
+  //   title: '当天有正畸医生',
+  //   type: 'icon',
+  //   iconOption: {
+  //     secondName: 'success',
+  //     prop: 'isAttendence'
+  //   },
+  //   width: '130px'
+  // },
 
-  {
-    title: '正畸责任医生',
-    prop: 'responsibleDoctor',
-    slotName: 'responsibleDoctor',
-    width: '120px'
-  },
-  { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
-  { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
+  // { prop: 'orthDoctorName', title: '正畸医生' },
+
+  // {
+  //   title: '正畸责任医生',
+  //   prop: 'responsibleDoctor',
+  //   slotName: 'responsibleDoctor',
+  //   width: '120px'
+  // },
+  // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
+  // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
   { title: '备注', prop: 'notes', slotName: 'notes', width: '90px' },
   // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
