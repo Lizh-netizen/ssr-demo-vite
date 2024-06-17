@@ -458,6 +458,7 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
       }
     })
   }
+  console.log('enter', title.titleName)
   if (title.titleName == '右侧后牙' || title.titleName == '左侧后牙') {
     updateOption(title.optionId, title, props.appId, classId, owningModule, null, props.mouthData)
   } else {
@@ -593,22 +594,22 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         })
         return
       } else {
-        obj = {
-          aptmId: props.appId,
-          titleId: title.id,
-          optionsIdStr: [],
-          otherContent: '',
-          cephalometricsContent: '',
-          optionSuffix: '牙位图',
-          fdiToothCode: '',
-          showPosition: '',
-          classId: classId,
-          owningModule: owningModule
-        }
-        Post('/prod-api/emr/facialAssessment/addFacialResult', obj).then(() => {
-          option.submitAble = false
-          title.submitAble = false
-          emit('refreshList', owningModule)
+        updateOption(
+          title.optionId,
+          title,
+          props.appId,
+          classId,
+          owningModule,
+          option,
+          props.mouthData
+        ).then(() => {
+          if (option) {
+            option.submitAble = false
+          }
+          if (title) {
+            title.submitAble = false
+          }
+          emit('refreshList', props.owningModule)
         })
         return
       }

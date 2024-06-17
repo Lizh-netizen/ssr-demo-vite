@@ -118,37 +118,45 @@
             frontBite: item.className === '正面咬合'
           }"
           ><template #img
-            ><template v-if="item.imageUrl"
-              ><img
-                @click="handlePreviewImage(item)"
-                :src="item.imageUrl"
-                :style="{
-                  height: '240px',
-                  width: '320px',
-                  'object-fit': 'contain'
-                }" /></template
+            ><template v-if="item.imageUrl">
+              <!-- <div :style="viewerStyle"> -->
+              <div :style="{ transform: `rotate(${item.imageRotationDegree}deg)` }">
+                <img
+                  @click="handlePreviewImage(item)"
+                  :src="item.imageUrl"
+                  :style="{
+                    height: '240px',
+                    width: '320px',
+                    'object-fit': 'contain'
+                  }"
+                />
+              </div>
+              <!-- </div> --> </template
             ><template v-else>
               <div class="imageItem__placeholder" @click="handleOpenImageDialogue(item.className)">
                 <img :src="imgUrl" class="addPic" />
               </div>
             </template>
             <template v-if="item.className == '正面咬合'">
-              <div :style="{ 'margin-top': '40px' }">
-                <template v-if="frontCover"
-                  ><img
-                    @click="handlePreviewImage(frontCoverItem)"
-                    :src="frontCover"
-                    :style="{
-                      height: '240px',
-                      width: '320px',
-                      'object-fit': 'contain'
-                    }" /></template
+              <div class="mt-[40px]">
+                <template v-if="frontCover">
+                  <div :style="{ transform: `rotate(${frontCoverItem.imageRotationDegree}deg)` }">
+                    <img
+                      @click="handlePreviewImage(frontCoverItem)"
+                      :src="frontCover"
+                      :style="{
+                        height: '240px',
+                        width: '320px',
+                        'object-fit': 'contain'
+                      }"
+                    />
+                  </div> </template
                 ><template v-else>
                   <div class="imageItem__placeholder" @click="handleOpenImageDialogue('前牙覆盖')">
                     <img :src="imgUrl" class="addPic" />
                   </div>
                 </template>
-                <div :style="{ 'margin-bottom': '10px' }" class="color-[#4E5969]">前牙覆盖</div>
+                <div class="color-[#4E5969] mb-[10px]">前牙覆盖</div>
               </div>
             </template> </template
           ><template #content>
@@ -747,12 +755,14 @@ const handlePreviewImage = (item) => {
   imageRotationDegree.value = item.imageRotationDegree % 360
   header.style.position = 'static'
 }
-const handleCloseViewer = () => {
+const handleCloseViewer = async () => {
+  await getOrthMouthList()
   const page = document.querySelector('.ortho-page')
   page.removeEventListener('mousewheel', preventDefault)
   header.style.position = 'sticky'
   showViewer.value = false
 }
+
 async function getPatientInfo() {
   const formData = new FormData()
   formData.append('aptmId', appId)
@@ -1401,7 +1411,6 @@ function handlePanoData(panoramicData) {
     item.orthTitleList.forEach((a) => {
       console.log(a)
       if (a.titleName !== '多生牙') {
-
         useFdiToothCodeEffect(a)
         a.showInput = false
         a.popVisible = false
@@ -1498,10 +1507,9 @@ async function getOrthPanoramicList() {
         }
       })
     } else {
-       handlePanoData(panoramicData)
+      handlePanoData(panoramicData)
     }
   })
-  
 }
 
 // 多生牙逻辑

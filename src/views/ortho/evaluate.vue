@@ -577,8 +577,9 @@ import updateOption from '@/effects/evaluateUpdateOption.ts'
 import {
   checkOrthOptions,
   checkImageUpload,
-  checkFugaiOptions,
-  checkOptions
+  checkFugaiOptionsEvaluate,
+  checkOptions,
+  checkEvaluatePano
 } from '../../effects/checkCompletion'
 import { useStore } from 'vuex'
 
@@ -670,15 +671,26 @@ const facialCompletionId = ref()
 const facialConclusion = ref(0)
 async function checkImageOptions() {
   await getFaceAccessList()
-  await checkOrthOptions(faceAccessData.value)
+  checkOrthOptions(faceAccessData.value)
   // 包含前牙覆盖选项的
-  checkFugaiOptions(mouthData.value)
-  checkOptions(panoramicData.value)
-  if (checkOrthOptions(faceAccessData.value) === '0' && checkFugaiOptions(mouthData.value) == '0') {
+  checkFugaiOptionsEvaluate(mouthData.value)
+  checkEvaluatePano(panoramicData.value)
+  console.log(
+    checkOrthOptions(faceAccessData.value),
+    // 包含前牙覆盖选项的
+    checkFugaiOptionsEvaluate(mouthData.value),
+    checkEvaluatePano(panoramicData.value)
+  )
+  if (
+    checkOrthOptions(faceAccessData.value) === '0' &&
+    checkFugaiOptionsEvaluate(mouthData.value) == '0' &&
+    checkEvaluatePano(panoramicData.value) == '0'
+  ) {
     return '0'
   } else if (
     checkOrthOptions(faceAccessData.value) === '1' &&
-    checkFugaiOptions(mouthData.value) == '1'
+    checkFugaiOptionsEvaluate(mouthData.value) == '1' &&
+    checkEvaluatePano(panoramicData.value) == '1'
   ) {
     return '1'
   } else {
