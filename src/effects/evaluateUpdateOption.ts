@@ -13,6 +13,7 @@ async function updateOption(
   let toothCodeInfo: any = {}
   if (title.type == 2 && mouthData) {
     const optionId = title.optionId
+    console.log('🚀 ~ optionId:', optionId)
     optionId.forEach((id: any) => {
       const filtered = mouthData.filter(
         (item: any) => item.className == '磨牙关系（左侧）' || item.className == '磨牙关系（右侧）'
@@ -49,7 +50,7 @@ async function updateOption(
     owningModule: owningModule,
     toothCodeInfo: toothCodeInfo
   }
-
+  console.log('hejej')
   await Post('/prod-api/emr/facialAssessment/addFacialResult', obj)
 }
 export default updateOption

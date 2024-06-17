@@ -24,9 +24,9 @@
     >
       <div class="flex justify-center">
         <div @click="rotateLeft" class="mr-[24px]">
-          <img src="../../assets/svg/leftRotate.svg" />
+          <img src="../../assets/svg/rightRotate.svg" />
         </div>
-        <div @click="rotateRight"><img src="../../assets/svg/rightRotate.svg" /></div>
+        <div @click="rotateRight"><img src="../../assets/svg/leftRotate.svg" /></div>
       </div>
     </div>
   </div>
@@ -42,9 +42,8 @@ const emit = defineEmits(['closeViewer'])
 const rotation = ref(props.degree || 0)
 const showBtn = ref(false)
 watch(props, (newVal) => {
-  if (newVal.degree) {
-    rotation.value = +newVal.degree
-  }
+  rotation.value = +newVal.degree
+
   if (newVal.owningModule == '口内照') {
     showBtn.value = true
   } else {

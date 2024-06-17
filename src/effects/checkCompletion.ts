@@ -35,6 +35,41 @@ export function checkFugaiOptions(jsonData: any) {
     return isChosen == 0 ? '0' : isChosen == 14 ? '1' : '9'
   }
 }
+export function checkFugaiOptionsEvaluate(jsonData: any) {
+  let isChosen = 0
+  let count = 0
+  // 遍历数据
+  let found
+  let itemChoosen = false
+  jsonData.forEach((item: any) => {
+    if (item.className == '正面咬合') {
+      found = item.orthTitleList.find((title: any) => title.titleName == '前牙覆合')
+      itemChoosen = found.orthOptionsList.some(
+        (option: any) => option.optionName === '前牙反覆合' && option.choosen
+      )
+
+      item.orthTitleList.forEach((title: any) => {
+        if (title.orthOptionsList.some((option: any) => option.choosen)) {
+          isChosen++
+        }
+        count++
+      })
+    } else {
+      item.orthTitleList.forEach((title: any) => {
+        if (title.orthOptionsList.some((option: any) => option.choosen)) {
+          isChosen++
+        }
+        count++
+      })
+    }
+  })
+  console.log(isChosen, itemChoosen)
+  if (itemChoosen) {
+    return isChosen == 0 ? '0' : isChosen == 19 ? '1' : '9'
+  } else {
+    return isChosen == 0 ? '0' : isChosen == 16 ? '1' : '9'
+  }
+}
 export function checkOrthOptions(data: any) {
   let allChoosen = 0
   let count = 0
@@ -95,6 +130,23 @@ export function checkOptions(data: any) {
 
   return allChoosen === 0 ? '0' : allChoosen === count ? '1' : '9'
 }
+// 检查面评全景片的选项是否完成
+export function checkEvaluatePano(data: any) {
+  let allChoosen = 0
+  let count = 0
+  data[0].orthTitleList.forEach((item: any) => {
+    if (
+      item.orthOptionsList &&
+      item.orthOptionsList.length > 0 &&
+      item.orthOptionsList.some((option: any) => option.choosen)
+    ) {
+      allChoosen++
+    }
+    count++
+  })
+
+  return allChoosen === 0 ? '0' : allChoosen === 3 ? '1' : '9'
+}
 export function checkPanoOptions(data: any) {
   let allChoosen = 0
   let count = 0
@@ -112,7 +164,6 @@ export function checkPanoOptions(data: any) {
       allChoosen++
     }
     count++
-    console.log(count, allChoosen)
   })
   return allChoosen === 0 ? '0' : allChoosen === 8 ? '1' : '9'
 }
