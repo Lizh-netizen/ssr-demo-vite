@@ -64,6 +64,7 @@ declare module 'vue' {
     ModelAnalysis: typeof import('./src/components/list/modelAnalysis.vue')['default']
     MouthOption: typeof import('./src/components/list/mouthOption.vue')['default']
     Option: typeof import('./src/components/list/option.vue')['default']
+    OptionWithTooth: typeof import('./src/components/list/OptionWithTooth.vue')['default']
     PreviewImage: typeof import('./src/components/list/previewImage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
