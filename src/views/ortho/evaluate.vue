@@ -158,7 +158,8 @@
                 <div>
                   <template v-for="title in item.orthTitleList" :key="title.id">
                     <form-item :label="title.titleName" width="120px">
-                      <Option
+                      <OptionWithTooth
+                        api="facialAssessment/addFacialResult"
                         :title="title"
                         :appId="appId"
                         @refreshList="refreshList"
@@ -168,7 +169,7 @@
                         :savedTitleList="savedTitleList"
                         :classId="item.id"
                         :className="item.className"
-                      ></Option>
+                      ></OptionWithTooth>
                     </form-item>
                   </template>
                 </div>
@@ -571,9 +572,9 @@ import img from '@/assets/svg/addPic.svg'
 import blueBgUrl from '@/assets/svg/blueBg.svg'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import emptyRadio from '@/effects/emptyRadio.ts'
-import Option from '@/components/list/evaluateOption.vue'
+import OptionWithTooth from '@/components/list/OptionWithTooth.vue'
 import useFdiToothCodeEffect from '@/effects/fdiToothCode.ts'
-import updateOption from '@/effects/evaluateUpdateOption.ts'
+import updateOption from '@/effects/optionWithTooth.ts'
 import {
   checkOrthOptions,
   checkImageUpload,
@@ -1253,7 +1254,15 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, mouthData.value[0].id, '口内照', val.option)
+  updateOption(
+    optionId,
+    title,
+    appId,
+    mouthData.value[0].id,
+    '口内照',
+    'facialAssessment/addFacialResult',
+    val.option
+  )
 }
 
 const panoImageUrl = ref()

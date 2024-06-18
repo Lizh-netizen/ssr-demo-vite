@@ -77,7 +77,7 @@
                       v-for="option in title.orthOptionsList"
                       :key="option.id"
                       :value="option.id"
-                      :disabled="disabled"
+                      :disabled="!item.hasImage"
                     >
                       {{ option.optionName }}
                       <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -164,9 +164,10 @@
             <div>
               <template v-for="title in item.orthTitleList" :key="title.id">
                 <form-item :label="title.titleName" width="120px">
-                  <MouthOption
+                  <OptionWithTooth
                     :title="title"
                     :appId="appId"
+                    api="orthPlan/addOrthInspectResult"
                     @refreshList="refreshList"
                     @syncOption="syncOption"
                     owningModule="口内照"
@@ -175,7 +176,7 @@
                     :savedTitleList="savedTitleList1"
                     :classId="item.id"
                     :className="item.className"
-                  ></MouthOption>
+                  ></OptionWithTooth>
                 </form-item>
               </template>
             </div>
@@ -728,8 +729,8 @@ import blueBgUrl from '@/assets/svg/blueBg.svg'
 import placeholderUrl from '@/assets/ortho/imagePlaceholder.png'
 import ImageDialog from '@/components/list/imageDialog.vue'
 import Option from '@/components/list/option.vue'
-import MouthOption from '@/components/list/mouthOption.vue'
-import updateOption from '@/effects/mouthOption.ts'
+import OptionWithTooth from '@/components/list/OptionWithTooth.vue'
+import updateOption from '@/effects/optionWithTooth.ts'
 import PreviewImage from '../../components/list/previewImage.vue'
 import elementResizeDetectorMaker from 'element-resize-detector'
 import { ElMessage } from 'element-plus'
@@ -1360,7 +1361,15 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
-  updateOption(optionId, title, appId, val.classId, mouthData.value[0].owningModule, val.option)
+  updateOption(
+    optionId,
+    title,
+    appId,
+    val.classId,
+    mouthData.value[0].owningModule,
+    'orthPlan/addOrthInspectResult',
+    val.option
+  )
 }
 function yieldNewTask() {
   return new Promise((resolve) => {
@@ -1409,7 +1418,6 @@ const codeTitleList = ref([])
 function handlePanoData(panoramicData) {
   panoramicData.value.forEach((item) => {
     item.orthTitleList.forEach((a) => {
-      console.log(a)
       if (a.titleName !== '多生牙') {
         useFdiToothCodeEffect(a)
         a.showInput = false

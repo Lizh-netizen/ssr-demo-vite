@@ -10,10 +10,10 @@
       <template v-if="!option.optionSuffix">
         <el-radio-button
           :class="{
-            serious: option.serious == '1'
+            serious: option.serious == '1',
+            checked: option.choosen === true
           }"
           :value="option.id"
-          :disabled="disabled"
         >
           {{ option.optionName }}
           <img
@@ -43,7 +43,6 @@
                   serious: option.serious == '1',
                   checked: option.choosen === true
                 }"
-                :disabled="disabled"
                 :value="option.id"
               >
                 {{ option.optionName }}
@@ -88,7 +87,7 @@
                   v-if="option.optionSuffix"
                   class="iconfont icon-warning"
                   :style="{
-                    color: option.clicked
+                    color: option.choosen
                       ? option.seriousColor
                       : option.hover
                         ? option.hoverColor
@@ -123,7 +122,6 @@
             checked: option.choosen === true
           }"
           :value="option.id"
-          :disabled="disabled"
         >
           {{ option.optionName }}
           <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
@@ -152,11 +150,9 @@
                 :value="option.id"
                 @mouseenter="option.hover = true"
                 @mouseleave="option.hover = false"
-                :disabled="disabled"
               >
                 {{ option.optionName }}
                 <span
-                  v-if="option.optionSuffix"
                   class="iconfont icon-warning"
                   :style="{
                     color: option.clicked
@@ -198,7 +194,6 @@
               >
                 {{ option.optionName }}
                 <span
-                  v-if="option.optionSuffix"
                   class="iconfont icon-warning"
                   :style="{
                     color: option.clicked
@@ -209,6 +204,7 @@
                     fontSize: '14px'
                   }"
                 ></span>
+
                 <img src="../../assets/svg/checked.svg" v-if="option.serious == '0'" /><img
                   src="../../assets/svg/abnormalChecked.svg"
                   v-else
@@ -223,9 +219,8 @@
               @toothClicked="handleToothClicked(option)"
             />
           </el-popover>
-        </template>
-      </template>
-    </template>
+        </template> </template
+    ></template>
   </el-checkbox-group>
 
   <el-input
@@ -241,11 +236,10 @@
 <script setup>
 import { GetSymptom } from '../../utils/tooth'
 import emptyRadio from '@/effects/emptyRadio.ts'
-import { Post } from '../../utils/request'
-import updateOption from '@/effects/mouthOption.ts'
+import { Post } from '../../utils/request.ts'
+import updateOption from '@/effects/optionWithTooth.ts'
 import ChooseTooth from '@/components/list/chooseTooth.vue'
 import { handleExclusiveOptions } from '@/effects/changeOption.ts'
-import { onMounted } from 'vue'
 const props = defineProps({
   title: {
     type: Object,
@@ -286,8 +280,13 @@ const props = defineProps({
   className: {
     type: String,
     default: ''
+  },
+  api: {
+    type: String,
+    default: ''
   }
 })
+// console.log(props.title)
 
 const symptomList = ref([])
 symptomList.value = GetSymptom()
@@ -301,7 +300,6 @@ const handleBeforeEnterPopover = (title) => {
     })
   })
 }
-
 const emit = defineEmits(['refreshList', 'syncOption'])
 async function handleEmptyRadio(optionId, title, classId, owningModule) {
   if (
@@ -310,7 +308,7 @@ async function handleEmptyRadio(optionId, title, classId, owningModule) {
     title.optionId == optionId
   ) {
     emptyRadio(optionId, title)
-    updateOption(null, title, props.appId, classId, owningModule)
+    updateOption(null, title, props.appId, classId, owningModule, props.api)
     // 重新请求数据
     emit('refreshList', props.owningModule)
   }
@@ -321,15 +319,18 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
   if (
     title.titleName == '前牙覆合' ||
     title.titleName == '前牙覆盖' ||
+    title.titleName == '后牙' ||
+    title.titleName == '锁HE' ||
     title.titleName == '反覆合程度' ||
     title.titleName == '反覆盖程度' ||
-    title.titleName == '凹面型表现' ||
+    title.titleName == '左侧后牙' ||
     title.titleName == '右侧后牙' ||
-    title.titleName == '左侧后牙'
+    title.titleName == '凹面型表现'
   ) {
     requestAgain.value = true
   }
-  const found = props.mouthData.find((item) => item.className == '前牙覆盖')
+
+  const found = props.mouthData.find((item) => item.className == '正面咬合')
   if (title.titleName == '前牙覆合') {
     if (title.orthOptionsList.find((a) => optionId == a.id).optionName == '前牙反覆合') {
       found.orthTitleList = props.savedTitleList.filter((t) => t.titleName !== '反覆盖程度')
@@ -341,27 +342,29 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
         // 反覆合如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId, owningModule)
+          updateOption(null, title1, props.appId, classId, owningModule, props.api)
         }
         if (title4Choose) {
-          updateOption(null, title4, props.appId, classId, owningModule)
+          updateOption(null, title4, props.appId, classId, owningModule, props.api)
         }
 
+        // 判断凹面型表现是否需要清空
         const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆盖')
 
         // 如果前牙覆盖中的反覆盖选项被选中，需要清空
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆盖')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
         if (option.choosen) {
-          updateOption(null, title2, props.appId, classId, owningModule)
+          updateOption(null, title2, props.appId, classId, owningModule, props.api)
         }
         if (option1.choosen) {
-          updateOption(null, title2, props.appId, classId, owningModule)
+          updateOption(null, title2, props.appId, classId, owningModule, props.api)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
         if (title3Choose) {
-          updateOption(null, title3, props.appId, classId, owningModule)
+          updateOption(null, title3, props.appId, classId, owningModule, props.api)
         }
       } else {
         const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
@@ -370,15 +373,16 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
         // 反覆合如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId, owningModule)
+          updateOption(null, title1, props.appId, classId, owningModule, props.api)
         }
         if (title4Choose) {
-          updateOption(null, title4, props.appId, classId, owningModule)
+          updateOption(null, title4, props.appId, classId, owningModule, props.api)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
         if (title3Choose) {
-          updateOption(null, title3, props.appId, classId, owningModule)
+          updateOption(null, title3, props.appId, classId, owningModule, props.api)
         }
       }
     }
@@ -391,29 +395,30 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         const title1 = props.savedTitleList.find((title) => title.titleName == '反覆盖程度')
         const title4 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
         const title1Choose = title1.orthOptionsList.some((item) => item.choosen)
-        // 反覆盖如果有选中的，需要取消
         const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
+        // 反覆盖如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId, owningModule)
+          updateOption(null, title1, props.appId, classId, owningModule, props.api)
         }
+        // 反覆合如果有选中的，需要取消
         if (title4Choose) {
-          updateOption(null, title4, props.appId, classId, owningModule)
+          updateOption(null, title4, props.appId, classId, owningModule, props.api)
         }
-
         // 判断凹面型表现是否需要清空
         const title2 = props.savedTitleList.find((title) => title.titleName == '前牙覆合')
+
         const option = title2.orthOptionsList.find((item) => item.optionName == '前牙反覆合')
         const option1 = title2.orthOptionsList.find((item) => item.optionName == '前牙对刃')
         if (option.choosen) {
-          updateOption(null, title2, props.appId, classId, owningModule)
+          updateOption(null, title2, props.appId, classId, owningModule, props.api)
         }
         if (option1.choosen) {
-          updateOption(null, title2, props.appId, classId, owningModule)
+          updateOption(null, title2, props.appId, classId, owningModule, props.api)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
         if (title3Choose) {
-          updateOption(null, title3, props.appId, classId, owningModule)
+          updateOption(null, title3, props.appId, classId, owningModule, props.api)
         }
       } else {
         const title1 = props.savedTitleList.find((title) => title.titleName == '反覆合程度')
@@ -422,15 +427,16 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
         const title4Choose = title4.orthOptionsList.some((item) => item.choosen)
         // 反覆合如果有选中的，需要取消
         if (title1Choose) {
-          updateOption(null, title1, props.appId, classId, owningModule)
+          updateOption(null, title1, props.appId, classId, owningModule, props.api)
         }
         if (title4Choose) {
-          updateOption(null, title4, props.appId, classId, owningModule)
+          updateOption(null, title4, props.appId, classId, owningModule, props.api)
         }
         const title3 = props.savedTitleList.find((title) => title.titleName == '凹面型表现')
         const title3Choose = title3.orthOptionsList.some((item) => item.choosen)
+
         if (title3Choose) {
-          updateOption(null, title3, props.appId, classId, owningModule)
+          updateOption(null, title3, props.appId, classId, owningModule, props.api)
         }
       }
     }
@@ -441,6 +447,13 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
     handleExclusiveOptions(title, 44)
     handleExclusiveOptions(title, 299)
     handleExclusiveOptions(title, 321)
+    title.orthOptionsList.forEach((option) => {
+      if (!title.optionId.includes(option.id)) {
+        option.choosen = false
+      } else {
+        option.choosen = true
+      }
+    })
   }
   if (title.type == 1) {
     title.orthOptionsList.forEach((option) => {
@@ -449,12 +462,20 @@ const handleChangeOption = (optionId, title, classId, owningModule) => {
       }
     })
   }
+  console.log('enter', title.titleName)
   if (title.titleName == '右侧后牙' || title.titleName == '左侧后牙') {
-    console.log(1)
-    updateOption(title.optionId, title, props.appId, classId, owningModule, null, props.mouthData)
+    updateOption(
+      title.optionId,
+      title,
+      props.appId,
+      classId,
+      owningModule,
+      props.api,
+      null,
+      props.mouthData
+    )
   } else {
-    console.log(2)
-    updateOption(title.optionId, title, props.appId, classId, owningModule)
+    updateOption(title.optionId, title, props.appId, classId, owningModule, props.api)
   }
 
   if (requestAgain.value) {
@@ -466,22 +487,19 @@ const handleToothClicked = (option) => {
 }
 // chooseTooth那里在里边选择牙齿，等到弹窗消失之后提交牙齿, 是标题和选项公用的
 const handleSubmitTooth = (option, title, classId, owningModule) => {
-  // console.log('🚀 ~ handleSubmitTooth ~ option:', option, props.mouthData)
   let obj
   if (option) {
     option.visible = false
-    if ((!option.toothClicked && option.toothCode.length > 0) || !option.clicked) {
+    if (!option.toothClicked && option.toothCode.length > 0) {
       return
     }
   }
-
   if (title) {
     title.visible = false
   }
   if (!option && !title.submitAble) {
     return
   }
-
   // 选项中的牙位
   if (option) {
     if (option.toothCode.length == 0) {
@@ -571,40 +589,41 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         obj3.titleId = title3?.id
         obj4.titleId = title4?.id
         if (obj1.titleId) {
-          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj1)
+          Post(`/prod-api/emr/${props.api}`, obj1)
         }
         if (obj2.titleId) {
-          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj2)
+          Post(`/prod-api/emr/${props.api}`, obj2)
         }
         if (obj3.titleId) {
-          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj3)
+          Post(`/prod-api/emr/${props.api}`, obj3)
         }
         if (obj4.titleId) {
-          Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj4)
+          Post(`/prod-api/emr/${props.api}`, obj4)
         }
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
+        Post(`/prod-api/emr/${props.api}`, obj).then(() => {
           option.submitAble = false
           title.submitAble = false
           emit('refreshList', owningModule)
         })
         return
       } else {
-        obj = {
-          aptmId: props.appId,
-          titleId: title.id,
-          optionsIdStr: [],
-          otherContent: '',
-          cephalometricsContent: '',
-          optionSuffix: '牙位图',
-          fdiToothCode: '',
-          showPosition: '',
-          classId: classId,
-          owningModule: owningModule
-        }
-        Post('/prod-api/emr/orthPlan/addOrthInspectResult', obj).then(() => {
-          option.submitAble = false
-          title.submitAble = false
-          emit('refreshList', owningModule)
+        updateOption(
+          title.optionId,
+          title,
+          props.appId,
+          classId,
+          owningModule,
+          props.api,
+          option,
+          props.mouthData
+        ).then(() => {
+          if (option) {
+            option.submitAble = false
+          }
+          if (title) {
+            title.submitAble = false
+          }
+          emit('refreshList', props.owningModule)
         })
         return
       }
@@ -615,15 +634,15 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    emit('syncOption', { option: option, titleName: title.titleName, classId: classId })
+    emit('syncOption', { option: option, titleName: title.titleName })
   }
-
   updateOption(
     title.optionId,
     title,
     props.appId,
     classId,
     owningModule,
+    props.api,
     option,
     props.mouthData
   ).then(() => {
@@ -638,7 +657,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
 }
 
 const handleSubmit = (optionId, title, classId, owningModule) => {
-  updateOption(optionId, title, props.appId, classId, owningModule)
+  updateOption(optionId, title, props.appId, classId, owningModule, props.api)
 }
 const handleClickOption = (option) => {
   option.visible = true
@@ -685,12 +704,4 @@ const handleMouseLeave = (option) => {
 }
 </script>
 
-<style lang="scss">
-:deep .el-radio-button {
-  .aiFlagImg {
-    position: absolute;
-    right: -6px;
-    top: -4px;
-  }
-}
-</style>
+<style scoped lang="scss"></style>
