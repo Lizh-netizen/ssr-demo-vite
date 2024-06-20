@@ -1361,6 +1361,15 @@ const syncOption = (val) => {
   }
 
   asyncOption.id = optionId
+  console.log(
+    optionId,
+    title,
+    appId,
+    val,
+    mouthData.value[0].owningModule,
+    'orthPlan/addOrthInspectResult',
+    val.option
+  )
   updateOption(
     optionId,
     title,

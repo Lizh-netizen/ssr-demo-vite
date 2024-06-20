@@ -502,7 +502,6 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
   }
   // 选项中的牙位
   if (option) {
-    console.log('enter')
     if (option.toothCode.length == 0) {
       if (props.className == '正面咬合') {
         let item1 = props.mouthData.find((item) => item.className == '正面咬合')
@@ -636,7 +635,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
     option.optionName == '前牙反覆盖' ||
     option.optionName == '前牙对刃'
   ) {
-    emit('syncOption', { option: option, titleName: title.titleName })
+    emit('syncOption', { option: option, titleName: title.titleName, classId: classId })
   }
   updateOption(
     title.optionId,
