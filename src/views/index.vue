@@ -91,14 +91,53 @@
                     : ''
             }}
           </template>
-          <template #orthDoctorName="{ row }">
-            <div>
-              <span
-                :style="{ padding: '4px 8px', display: 'inline-block' }"
-                :class="{ notHasAptm: row.orthDoctorName === '未预约' }"
+          <template #orthAppointmentStatus="{ row }">
+            <div class="flex items-center">
+              <div
+                class="w-[52px] flex justify-center text-center font-size-[12px] border-rd-[4px]"
+                :style="{ display: 'inline-block' }"
+                :class="{
+                  'bg-[#FFD9D9] color-[#F65B56]':
+                    row.orthAppointmentStatus === '未预约' || row.orthAppointmentStatus === '冲突',
+                  'color-[#FF9A2E] border-color-[#FF9A2E] border-width-[1px] border-solid':
+                    row.orthAppointmentStatus === '不匹配',
+                  'color-[#4E5969] bg-[#F2F3F5]': row.orthAppointmentStatus === '已预约',
+                  'color-[#2E6CE4] bg-[#EAF0FC]': row.orthAppointmentStatus === '可合并'
+                }"
               >
-                {{ row.orthDoctorName }}</span
+                {{ row.orthAppointmentStatus }}
+              </div>
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                content="点击查看正畸预约详情"
+                placement="top-start"
               >
+                <span>
+                  <el-popover
+                    placement="bottom"
+                    :width="200"
+                    trigger="click"
+                    content="this is content, this is content, this is content"
+                  >
+                    <template #reference>
+                      <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px] ml-[17px]">
+                        <img src="../assets/svg/more.svg" />
+                      </div>
+                    </template>
+                    <div class="color-[#4E5969]">
+                      <div class="mb-[16px]">操作医生：{{ item?.operationDoctorName || 123 }}</div>
+                      <div class="mb-[16px]">操作时间：华天赫</div>
+                      <div class="mb-[16px]">风险等级：华天赫</div>
+                      <div class="mb-[16px]">语音备注：</div>
+                      <div class="mb-[16px]">文字备注：华天赫</div>
+                      <div>
+                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
+                      </div>
+                    </div>
+                  </el-popover>
+                </span>
+              </el-tooltip>
             </div>
           </template>
           <template #facialAdvise="{ row }">
@@ -120,7 +159,7 @@
             <div class="flex items-center">
               <img :src="`/src/assets/png/${statusStrategy[row.orthStatus]}.png`" /><span
                 class="ml-[8px] mr-[24px]"
-                >{{ row.orthStatus
+                >{{ row.fromWhich
                 }}<img
                   class="position-absolute top-[4px] w-[24px]"
                   src="../assets/png/mianpingFlag.png"
@@ -134,7 +173,7 @@
                 <span>
                   <el-popover
                     placement="bottom"
-                    :width="200"
+                    :width="424"
                     trigger="click"
                     content="this is content, this is content, this is content"
                   >
@@ -146,12 +185,23 @@
                     <div class="color-[#4E5969]">
                       <div class="mb-[16px]">操作医生：华天赫</div>
                       <div class="mb-[16px]">操作时间：华天赫</div>
-                      <div class="mb-[16px]">风险等级：华天赫</div>
-                      <div class="mb-[16px]">语音备注：</div>
-                      <div class="mb-[16px]">文字备注：华天赫</div>
+                      <div class="mb-[16px] flex items-center">
+                        风险等级：
+
+                        <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
+                          class="ml-[4px]"
+                          >{{ item?.riskLevel || 123 }}</span
+                        >
+                      </div>
+                      <div class="mb-[16px]">
+                        <span class="w-[70px] text-right">备注：</span>
+                        <span>备注</span>
+                      </div>
+
                       <div>
                         历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
                       </div>
+                      <div></div>
                     </div>
                   </el-popover>
                 </span>
@@ -537,7 +587,6 @@ async function getAptmList(val) {
       patientName: item.patientName,
       age: item.age,
       orthStartTime: item.orthStartTime.replace('T', ' ').slice(5, 16),
-      orthDoctorName: item.orthDoctorName ? item.orthDoctorName : '未预约',
       // notes: '',
       noteList: [{ time: '', name: '', content: 'content' }],
       isPlaying: false,
@@ -546,10 +595,29 @@ async function getAptmList(val) {
     }))
     patientList.value = [
       {
-        orthStatus: '矫正'
+        orthFilterORFacialResult: '矫正',
+        fromWhich: '矫正',
+        orthAppointmentStatus: '不匹配'
       },
       {
-        orthStatus: '面评'
+        orthFilterORFacialResult: '面评',
+        fromWhich: '面评',
+        orthAppointmentStatus: '冲突'
+      },
+      {
+        orthFilterORFacialResult: '面评',
+        fromWhich: '面评',
+        orthAppointmentStatus: '已预约'
+      },
+      {
+        orthFilterORFacialResult: '面评',
+        fromWhich: '面评',
+        orthAppointmentStatus: '未预约'
+      },
+      {
+        orthFilterORFacialResult: '面评',
+        fromWhich: '面评',
+        orthAppointmentStatus: '可合并'
       }
     ]
     total.value = res.total

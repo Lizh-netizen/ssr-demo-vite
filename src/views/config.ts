@@ -138,12 +138,12 @@ export const columns_config_aptm = [
     title: '快筛/面评结果',
     width: '90px',
     prop: 'orthStatus',
-    slotName: 'orthStatus',
+    slotName: 'orthStatus'
   },
   {
     title: '正畸预约',
-    prop: 'orthDoctorName',
-    slotName: 'orthDoctorName',
+    prop: 'orthAppointmentStatus',
+    slotName: 'orthAppointmentStatus',
     width: '120px'
   },
   { title: '儿牙预约日期', prop: 'orthStartTime', type: 'text', width: '120px' },
