@@ -58,8 +58,11 @@
           </template>
           <template v-else-if="item.type === 'select'">
             <div class="select" :data-multiple="item.multiple" :data-prop="item.prop">
-              <div class="title">{{ item.name }}</div>
+              <div class="title" :class="{ 'w-[120px]!': item.name == '快筛/面评结果' }">
+                {{ item.name }}
+              </div>
               <ArcoSelect
+                :class="{ 'pl-[122px]!': item.name == '快筛/面评结果' }"
                 placeholder="请选择"
                 v-model="modelVal[item.prop]"
                 :options="item.options"
@@ -166,14 +169,13 @@
     <div class="btn" v-if="true">
       <ArcoSpace size="medium">
         <template v-if="isShowUnfold">
-          <ArcoButton type="text" @click="isspread = !isspread">
-            <span>展开</span>
-            <i class="iconfont icon-xiangshang" v-show="!isspread" />
-            <i class="iconfont icon-xiangxia" v-show="isspread" />
+          <div @click="isspread = !isspread">
+            <img src="../../assets/png/Fold.png" class="w-[20px]" v-if="isspread" />
+            <img src="../../assets/png/Unfold@3x.png" class="w-[20px]" v-else />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
-          </ArcoButton>
+          </div>
         </template>
-        <ArcoButton @click="reset">重置</ArcoButton>
+        <img src="../../assets/png/button 1@3x.png" class="w-[34px]" />
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
       </ArcoSpace>
     </div>

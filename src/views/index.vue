@@ -119,9 +119,12 @@
           <template #orthStatus="{ row }">
             <div class="flex items-center">
               <img :src="`/src/assets/png/${statusStrategy[row.orthStatus]}.png`" /><span
-                class="ml-[8px] mr-[14px]"
-                >{{ row.orthStatus }}</span
-              >
+                class="ml-[8px] mr-[24px]"
+                >{{ row.orthStatus
+                }}<img
+                  class="position-absolute top-[4px] w-[24px]"
+                  src="../assets/png/mianpingFlag.png"
+              /></span>
               <el-tooltip
                 class="box-item"
                 effect="dark"
@@ -144,7 +147,7 @@
                       <div class="mb-[16px]">操作医生：华天赫</div>
                       <div class="mb-[16px]">操作时间：华天赫</div>
                       <div class="mb-[16px]">风险等级：华天赫</div>
-                      <div class="mb-[16px]">语音备注：<Audio /></div>
+                      <div class="mb-[16px]">语音备注：</div>
                       <div class="mb-[16px]">文字备注：华天赫</div>
                       <div>
                         历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
@@ -339,7 +342,6 @@ import taskCard from '../packages-js/task-card/task-card.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
-import Audio from '../components/list/audioVue.vue'
 
 import { useStore } from 'vuex'
 const store = useStore()
