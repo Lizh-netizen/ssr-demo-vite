@@ -58,7 +58,7 @@
                         <img
                           class="aiFlagImg highZIndex"
                           :class="{ highZIndex: !showViewer }"
-                          src="@/assets/svg/AIFlagForFront.png"
+                          src="@/assets/svg/AIFlagForFront.svg"
                           v-show="title.aiFlag == '1' && option.choosen"
                         />
                       </el-radio-button>
