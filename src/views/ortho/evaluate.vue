@@ -993,7 +993,7 @@ onMounted(() => {
 })
 //
 const handleChangeOption = (optionId, title, classId) => {
-  updateOption(title.optionId, title, appId, classId)
+  updateOption(title.optionId, title, appId, classId, '全景片', 'facialAssessment/addFacialResult')
 }
 const imgUrl = ref()
 const handleClose = () => {
