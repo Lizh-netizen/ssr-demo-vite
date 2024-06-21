@@ -28,7 +28,6 @@
     "mitt": "^3.0.1",
     "moment": "^2.29.4",
     "normalize.css": "^8.0.1",
-    "skip-formatting": "link:@vue/eslint-config-prettier/skip-formatting",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "vue-smooth-dnd": "^0.8.1",
