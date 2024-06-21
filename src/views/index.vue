@@ -91,6 +91,62 @@
                     : ''
             }}
           </template>
+          <template #orthFilterORFacialResult="{ row }">
+            <div class="flex items-center">
+              <img
+                v-if="row.orthFilterORFacialResult !== '--'"
+                :src="`/src/assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
+              /><span class="ml-[8px] mr-[24px]"
+                >{{ row.orthFilterORFacialResult
+                }}<img
+                  v-if="row.fromWhich == '面评'"
+                  class="position-absolute top-[4px] w-[24px]"
+                  src="../assets/png/mianpingFlag.png"
+              /></span>
+              <el-tooltip
+                class="box-item"
+                effect="dark"
+                content="点击查看快筛详情"
+                placement="top-start"
+              >
+                <span>
+                  <el-popover
+                    placement="bottom"
+                    :width="424"
+                    trigger="click"
+                    content="this is content, this is content, this is content"
+                  >
+                    <template #reference>
+                      <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
+                        <img src="../assets/svg/more.svg" />
+                      </div>
+                    </template>
+                    <div class="color-[#4E5969]">
+                      <div class="mb-[16px]">操作医生：华天赫</div>
+                      <div class="mb-[16px]">操作时间：华天赫</div>
+                      <div class="mb-[16px] flex items-center">
+                        风险等级：
+
+                        <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
+                          class="ml-[4px]"
+                          >{{ item?.riskLevel || 123 }}</span
+                        >
+                      </div>
+                      <div class="mb-[16px]">
+                        <span class="w-[70px] text-right">备注：</span>
+                        <span>备注</span>
+                      </div>
+
+                      <div>
+                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
+                      </div>
+                      <div></div>
+                    </div>
+                  </el-popover>
+                </span>
+              </el-tooltip>
+            </div>
+          </template>
           <template #orthAppointmentStatus="{ row }">
             <div class="flex items-center">
               <div
@@ -155,59 +211,7 @@
               }}
             </div>
           </template>
-          <template #orthStatus="{ row }">
-            <div class="flex items-center">
-              <img :src="`/src/assets/png/${statusStrategy[row.orthStatus]}.png`" /><span
-                class="ml-[8px] mr-[24px]"
-                >{{ row.fromWhich
-                }}<img
-                  class="position-absolute top-[4px] w-[24px]"
-                  src="../assets/png/mianpingFlag.png"
-              /></span>
-              <el-tooltip
-                class="box-item"
-                effect="dark"
-                content="点击查看快筛详情"
-                placement="top-start"
-              >
-                <span>
-                  <el-popover
-                    placement="bottom"
-                    :width="424"
-                    trigger="click"
-                    content="this is content, this is content, this is content"
-                  >
-                    <template #reference>
-                      <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
-                        <img src="../assets/svg/more.svg" />
-                      </div>
-                    </template>
-                    <div class="color-[#4E5969]">
-                      <div class="mb-[16px]">操作医生：华天赫</div>
-                      <div class="mb-[16px]">操作时间：华天赫</div>
-                      <div class="mb-[16px] flex items-center">
-                        风险等级：
 
-                        <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
-                          class="ml-[4px]"
-                          >{{ item?.riskLevel || 123 }}</span
-                        >
-                      </div>
-                      <div class="mb-[16px]">
-                        <span class="w-[70px] text-right">备注：</span>
-                        <span>备注</span>
-                      </div>
-
-                      <div>
-                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
-                      </div>
-                      <div></div>
-                    </div>
-                  </el-popover>
-                </span>
-              </el-tooltip>
-            </div>
-          </template>
           <template #filterStatus="{ row }">
             <div>
               {{ row.filterStatus == 1 ? '已筛选' : '未筛选' }}
@@ -569,58 +573,25 @@ const aptmList = ref([])
 async function getAptmList(val) {
   let pageSizes = val?.pageSize || pageSize.value
   let pageNum = val?.page || page.value
-  const res = await Post(
-    `/prod-api/emr/public/api/v1/assessment/list?pageNum=${pageNum}&pageSize=${pageSizes}`,
-    {
-      startDate: val?.date?.[0] || date.value, //预约日期
-      endDate: val?.date?.[1] || date.value,
-      officeId: val?.officeId,
-      doctorId: val?.doctorId,
-      difficultyLevel: val?.difficultyLevel
-    }
-  )
+  const res = await Post(`/prod-api/emr/orthAppointments/selectOrthoAppointmentList`, {
+    // startDate: val?.date?.[0] || date.value, //预约日期
+    // endDate: val?.date?.[1] || date.value,
+    officeId: val?.officeId,
+
+    orthFilterORFacialResult: '',
+    difficultyLevel: val?.difficultyLevel,
+    orthAppointmentStatus: '',
+    pageNum: pageNum,
+    pageSize: pageSizes,
+    priorityLevel: ''
+  })
   if (res.code == 200) {
-    total.value = res.total
-    orthoList.value = res.rows.map((item) => ({
+    total.value = res.data.length
+    patientList.value = res.data.map((item) => ({
       ...item,
-      StartTime: item.StartTime.replace('T', ' ').slice(5, 16),
-      patientName: item.patientName,
-      age: item.age,
-      orthStartTime: item.orthStartTime.replace('T', ' ').slice(5, 16),
-      // notes: '',
-      noteList: [{ time: '', name: '', content: 'content' }],
-      isPlaying: false,
-      itemType: '--',
-      orthItemType: '--'
+      startTime: item.startTime?.replace('T', ' ').slice(5, 16),
+      noteList: [{ time: '', name: '', content: 'content' }]
     }))
-    patientList.value = [
-      {
-        orthFilterORFacialResult: '矫正',
-        fromWhich: '矫正',
-        orthAppointmentStatus: '不匹配'
-      },
-      {
-        orthFilterORFacialResult: '面评',
-        fromWhich: '面评',
-        orthAppointmentStatus: '冲突'
-      },
-      {
-        orthFilterORFacialResult: '面评',
-        fromWhich: '面评',
-        orthAppointmentStatus: '已预约'
-      },
-      {
-        orthFilterORFacialResult: '面评',
-        fromWhich: '面评',
-        orthAppointmentStatus: '未预约'
-      },
-      {
-        orthFilterORFacialResult: '面评',
-        fromWhich: '面评',
-        orthAppointmentStatus: '可合并'
-      }
-    ]
-    total.value = res.total
   }
 }
 

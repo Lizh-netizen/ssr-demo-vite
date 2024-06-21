@@ -128,7 +128,7 @@ export const columns_config_aptm = [
   },
 
   {
-    prop: 'age',
+    prop: 'patientAge',
     title: '年龄',
     type: 'leftIcon',
     width: '80px'
@@ -137,8 +137,8 @@ export const columns_config_aptm = [
   {
     title: '快筛/面评结果',
     width: '90px',
-    prop: 'orthStatus',
-    slotName: 'orthStatus'
+    prop: 'orthFilterORFacialResult',
+    slotName: 'orthFilterORFacialResult'
   },
   {
     title: '正畸预约',
