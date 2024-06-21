@@ -106,7 +106,7 @@
               <el-tooltip
                 class="box-item"
                 effect="dark"
-                content="点击查看快筛详情"
+                :content="`点击查看${row.fromWhich}详情`"
                 placement="top-start"
               >
                 <span>
@@ -118,7 +118,7 @@
                   >
                     <template #reference>
                       <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
-                        <img src="../assets/svg/more.svg" />
+                        <img src="../assets/svg/more.svg" @click.self="handleDetail(row)" />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
@@ -178,12 +178,11 @@
                   >
                     <template #reference>
                       <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px] ml-[17px]">
-                        <img src="../assets/svg/more.svg" />
+                        <img src="../assets/svg/more.svg" @click="handleOrthDetail(row)" />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
-                      <div class="mb-[16px]">操作医生：{{ item?.operationDoctorName || 123 }}</div>
-                      <div class="mb-[16px]">操作时间：华天赫</div>
+                      <div class="mb-[16px]">预约时间：{{ orthDetail.startTime }}</div>
                       <div class="mb-[16px]">风险等级：华天赫</div>
                       <div class="mb-[16px]">语音备注：</div>
                       <div class="mb-[16px]">文字备注：华天赫</div>
@@ -594,7 +593,25 @@ async function getAptmList(val) {
     }))
   }
 }
-
+// 快筛面评逻辑
+const handleDetail = async (item) => {
+  const res = await Post('/prod-api/emr/orthAppointments/selectOrthoFacialAndFilterDetail', {
+    patientId: item.patientId,
+    fromWhich: item.fromWhich
+  })
+  console.log(res)
+}
+const orthDetail = ref()
+const handleOrthDetail = async (item) => {
+  const res = await Post('/prod-api/emr/orthAppointments/selectOrthoAppointmentDetail', {
+    patientId: item.patientId, //患者id
+    startTime: item.startTime, //预约时间
+    difficultyLevel: item.difficultyLevel, //难度等级
+    orthAppointmentStatus: item.orthAppointmentStatus,
+    fromWhich: item.fromWhich
+  })
+  orthDetail.value = res.data[0]
+}
 const noteList = ref([])
 const empty = ref(false)
 const selected = ref()
