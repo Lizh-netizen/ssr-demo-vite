@@ -38,13 +38,14 @@
         <template v-for="title in checkData.orthTitleList" :key="title.id">
           <template v-if="title.titleName !== '关节弹响' && title.titleName !== '侧关节'">
             <form-item :label="title.titleName" width="100px">
-              <Option
+              <OptionWithTooth
                 :title="title"
                 :appId="appId"
                 @refreshList="refreshList"
                 :owningModule="checkData.owningModule"
                 :classId="checkData.id"
-              ></Option>
+                api="facialAssessment/addFacialResult"
+              ></OptionWithTooth>
             </form-item>
           </template>
         </template>
@@ -90,13 +91,14 @@
               ><template #content>
                 <template v-for="title in item.orthTitleList" :key="title.id">
                   <form-item :label="title.titleName" width="120px">
-                    <Option
+                    <OptionWithTooth
                       :title="title"
                       :appId="appId"
                       @refreshList="refreshList"
-                      owningModule="face"
+                      :owningModule="item.owningModule"
                       :classId="item.id"
-                    ></Option>
+                      api="facialAssessment/addFacialResult"
+                    ></OptionWithTooth>
                   </form-item>
                 </template>
               </template>
