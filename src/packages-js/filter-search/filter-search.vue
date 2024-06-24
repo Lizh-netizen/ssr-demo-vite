@@ -169,13 +169,13 @@
     <div class="btn" v-if="true">
       <ArcoSpace size="medium">
         <template v-if="isShowUnfold">
-          <div @click="isspread = !isspread">
+          <div @click="isspread = !isspread" class="position-relative">
             <img src="../../assets/png/Fold.png" class="w-[20px]" v-if="isspread" />
             <img src="../../assets/png/Unfold@3x.png" class="w-[20px]" v-else />
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </div>
         </template>
-        <img src="../../assets/png/button 1@3x.png" class="w-[34px]" />
+        <img src="../../assets/png/button 1@3x.png" class="w-[34px]" @click="reset"/>
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
       </ArcoSpace>
     </div>
@@ -349,6 +349,7 @@ const totalVal = () => {
     isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > p.offsetTop + 16)
     isShowUnfold.value &&
       (total.value = totalList.value.filter((item) => {
+        console.log(total.value, 'total')
         return modelVal.value[item] && JSON.stringify(modelVal.value[item]) !== '[]'
       }).length)
   }, 300)

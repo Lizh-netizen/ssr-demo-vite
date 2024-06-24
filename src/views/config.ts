@@ -146,8 +146,8 @@ export const columns_config_aptm = [
     slotName: 'orthAppointmentStatus',
     width: '120px'
   },
-  { title: '儿牙预约日期', prop: 'orthStartTime', type: 'text', width: '120px' },
-  { prop: 'toothDoctorName', title: '儿牙医生', type: 'text', width: '120px' },
+  { title: '儿牙预约日期', prop: 'appointmentDate', type: 'text', width: '120px' },
+  { prop: 'doctorName', title: '儿牙医生', type: 'text', width: '120px' },
   // { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },
   // { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel', width: '90px' },
   // { title: '预约医生', prop: 'toothDoctorName', type: 'text', width: '90px' },
@@ -173,12 +173,14 @@ export const columns_config_aptm = [
   // },
   // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
   // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
-  { title: '备注', prop: 'notes', slotName: 'notes', width: '90px' },
+  { title: '备注', prop: 'notes', type: 'text', width: '90px' },
   // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
     type: 'operation',
     title: '操作',
     fixed: 'right',
-    width: '110px'
+    width: '110px',
+    prop: 'operation',
+    slotName: 'operation'
   }
 ]

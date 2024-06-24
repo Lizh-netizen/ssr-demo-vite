@@ -25,14 +25,14 @@
               name: currentTab == '应矫预约率' ? '儿牙医生' : '医生',
               type: 'select',
               prop: 'doctorId',
-              options: options,
+              options: doctorList,
               allowSearch: true
             },
             {
               name: '预约状态',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
-              prop: 'difficultyLevel',
-              options: difficultyLevelList
+              prop: 'orthAppointmentStatus',
+              options:[{value: '不匹配', label: '不匹配'},{value: '已预约', label: '已预约'},{value: '未预约', label: '未预约'},{value: '冲突', label: '冲突'},{value: '可合并', label: '可合并'}]
             },
 
             {
@@ -45,8 +45,20 @@
             {
               name: '快筛/面评结果',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
-              prop: 'difficultyLevel',
-              options: difficultyLevelList
+              prop: 'orthFilterORFacialResult',
+              options: [{value: '快筛', label: '快筛'}, {value: '面评', label: '面评'},{value: '未做快筛/面评', label: '未做快筛/面评'}]
+            },
+            {
+              name: '优先级',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
+              prop: 'priorityLevel',
+              options: [{value: '高', label: '高优先'}, {value: '中', label: '中优先'},{value: '低', label: '低优先'},{value: '无', label: '无优先级'}]
+            },
+            {
+              name: '未来预约',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
+              prop: 'hasNextAppointment',
+              options: [{value: '有', label: '有未来预约'}, {value: '无', label: '无未来预约'}]
             }
           ]"
         ></filter-search>
@@ -61,6 +73,18 @@
           @change-page="changePage"
           @change-note="changeNote"
         >
+        <template #notes="{ row }">
+            <div
+              :style="{
+                color: '#2E6CE4',
+  cursor: 'pointer'
+                
+              }"
+              @click="handleNoteDrawer(row)"
+            >
+              点击查看
+            </div>
+          </template>
           <template #voice_text="{ row }">
             <div :style="{ display: 'flex', alignItems: 'center' }">
               <div :style="{ marginRight: '2px', width: '70px' }">
@@ -71,13 +95,7 @@
                 id="playPauseButton"
                 @click="togglePlayPause(row)"
                 v-if="row.voice_file_url"
-              >
-                <img
-                  src="@/assets/svg/play.svg"
-                  v-if="!row.isPlaying"
-                  :style="{ height: '16px' }"
-                /><img v-else src="@/assets/svg/pause.svg" :style="{ height: '16px' }" />
-              </div>
+              ></div>
             </div>
           </template>
           <template #difficultyLevel="{ row }">
@@ -94,7 +112,7 @@
           <template #orthFilterORFacialResult="{ row }">
             <div class="flex items-center">
               <img
-                v-if="row.orthFilterORFacialResult !== '--'"
+                v-if="row.orthFilterORFacialResult && row.orthFilterORFacialResult !== '--'"
                 :src="`/src/assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
               /><span class="ml-[8px] mr-[24px]"
                 >{{ row.orthFilterORFacialResult
@@ -118,29 +136,45 @@
                   >
                     <template #reference>
                       <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
-                        <img src="../assets/svg/more.svg" @click.self="handleDetail(row)" />
+                        <img src="../assets/svg/more.svg" v-if="row.orthFilterORFacialResult !== '--'"  @click.self="handleDetail(row)" />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
-                      <div class="mb-[16px]">操作医生：华天赫</div>
-                      <div class="mb-[16px]">操作时间：华天赫</div>
+                      <div class="mb-[16px]">操作医生：{{ detail?.facialReferralToDoctorName
+ }}</div>
+                      <div class="mb-[16px]">操作时间：{{ detail?.operationTime }}</div>
                       <div class="mb-[16px] flex items-center">
                         风险等级：
 
                         <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
                           class="ml-[4px]"
-                          >{{ item?.riskLevel || 123 }}</span
-                        >
+                        >{{ detail?.difficultyLevel
+ }}等级</span>
                       </div>
                       <div class="mb-[16px]">
                         <span class="w-[70px] text-right">备注：</span>
-                        <span>备注</span>
+                        <span>{{ detail?.
+remarks }}</span>
                       </div>
 
                       <div>
-                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
+                        历史记录：<span class="color-[#2E6CE4] cursor-pointer"><span @click="row.fold = !row.fold">点击查看</span></span>
                       </div>
-                      <div></div>
+                      <div v-if="!row.fold">
+                        <div class="item" v-for="item in noteList" :key="item">
+            <span class="circle"></span>
+            <div class="rightBox">
+              <div class="title">
+                <div class="time">{{ item.time }}</div>
+                <div class="name">{{ item.name }}</div>
+              </div>
+              <div class="content">
+                <span class="remarkType">{{ item.remarkTypeName }}</span
+                >{{ item.content }}
+              </div>
+            </div>
+          </div>
+                      </div>
                     </div>
                   </el-popover>
                 </span>
@@ -172,23 +206,66 @@
                 <span>
                   <el-popover
                     placement="bottom"
-                    :width="200"
+                    :width="310"
                     trigger="click"
                     content="this is content, this is content, this is content"
                   >
                     <template #reference>
                       <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px] ml-[17px]">
-                        <img src="../assets/svg/more.svg" @click="handleOrthDetail(row)" />
+                        <img src="../assets/svg/more.svg" 
+                        @click="handleOrthDetail(row)" />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
-                      <div class="mb-[16px]">预约时间：{{ orthDetail.startTime }}</div>
-                      <div class="mb-[16px]">风险等级：华天赫</div>
-                      <div class="mb-[16px]">语音备注：</div>
-                      <div class="mb-[16px]">文字备注：华天赫</div>
-                      <div>
-                        历史记录：<span class="color-[#2E6CE4] cursor-pointer">点击查看</span>
-                      </div>
+                      <template v-for="(orthDetail, index) in orthDetailList">
+                        <div class="flex items-center mb-[8px]">
+                          <img src="../assets/png/aptmFlag.png" class="h-[16px] mr-[10px]" /><span
+                            class="color-[#1D2129] font-500"
+                            >预约{{ index + 1 }}</span
+                          >
+                        </div>
+                        <div class="mb-[16px]">预约时间：{{ orthDetail?.startTime }}</div>
+                        <div class="mb-[16px]">
+                          风险等级：<img
+                            src="../assets/png/highRisk.png"
+                            v-if="orthDetail.difficultyLevel == '高风险'"
+                          /><img
+                            src="../assets/png/mediumRisk.png"
+                            v-if="orthDetail.difficultyLevel == '中风险'"
+                          />
+                          <img
+                            src="../assets/png/lowRisk.png"
+                            v-if="orthDetail.difficultyLevel == '低风险'"
+                          />
+                          {{ orthDetail.difficultyLevel }}
+                        </div>
+                        <template v-if="index == 0">
+                          <div class="mb-[16px] flex items-center">
+                            预约医生：<img
+                              src="../assets/png/一级@3x.png"
+                              v-if="orthDetail?.doctorLevel == 1"
+                            />
+                            <img
+                              src="../assets/png/二级@3x.png"
+                              v-if="orthDetail?.doctorLevel == 2"
+                            />
+                            <img
+                              src="../assets/png/三级@3x.png"
+                      
+                              v-if="orthDetail?.doctorLevel == 3"
+                            />
+                            {{ orthDetail?.doctorName }} <div class="flex items-center"><img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]"><span class="color-[#F76560] font-500">等级不匹配</span></div>
+                          </div>
+                          <div class="mb-[16px]">
+                            预约项目：{{ orthDetail?.appointmentItemStr }}
+                          </div>
+                          <div class="mb-[12px]">预约备注：{{ orthDetail?.appointmentNotes }}</div>
+                        </template>
+                        <div
+                          class="h-[1px] w-[286px] bg-[#E5E6EB] mb-[12px]"
+                          v-if="index !== orthDetailList.length - 1"
+                        ></div>
+                      </template>
                     </div>
                   </el-popover>
                 </span>
@@ -234,17 +311,7 @@
             </a-select>
           </template>
 
-          <template #notes="{ row }">
-            <div
-              :style="{
-                color: '#2E6CE4',
-                cursor: 'pointer'
-              }"
-              @click="handleNoteDrawer(row)"
-            >
-              点击查看
-            </div>
-          </template>
+          
           <template #operation="{ row }">
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
               >进入面评</el-button
@@ -259,8 +326,8 @@
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
               >对比面评报告</el-button
             > -->
-            <el-button @click="handleGoSche(row)" v-if="currentTab == '面评矫正预约率'"
-              >去预约</el-button
+            <div class="flex items-center" v-if="currentTab == '应矫预约率'" 
+              ><img src="../assets/png/Callender@3x.png" class="w-[16px]"/><span @click="handleGoSche(row)" class="color-[#2E6CE4] cursor-pointer ml-[12px]">去预约表</span></div
             >
           </template>
         </CustomTable>
@@ -401,9 +468,6 @@ const store = useStore()
 const route = useRoute()
 const params = route.query
 const requestAble = ref({})
-const aptmAble = ref(false)
-const orthoAble = ref(false)
-const evalAble = ref(false)
 const userInfo = ref()
 const currentTab = ref(sessionStorage.currentTab || '应矫预约率')
 sessionStorage.setItem('currentTab', currentTab.value)
@@ -569,39 +633,41 @@ async function getOrthoList(val) {
   }
 }
 const aptmList = ref([])
-async function getAptmList(val) {
+async function getAptmList (val) {
   let pageSizes = val?.pageSize || pageSize.value
   let pageNum = val?.page || page.value
-  const res = await Post(`/prod-api/emr/orthAppointments/selectOrthoAppointmentList`, {
-    // startDate: val?.date?.[0] || date.value, //预约日期
-    // endDate: val?.date?.[1] || date.value,
+  let obj = {
     officeId: val?.officeId,
-
-    orthFilterORFacialResult: '',
-    difficultyLevel: val?.difficultyLevel,
-    orthAppointmentStatus: '',
+    orthFilterORFacialResult: val?.orthFilterORFacialResult,
+    orthAppointmentStatus: val?.orthAppointmentStatus,
     pageNum: pageNum,
     pageSize: pageSizes,
-    priorityLevel: ''
-  })
+    priorityLevel: val?.priorityLevel
+  }
+  obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
+  obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
+  const res = await Post(`/prod-api/emr/orthAppointments/selectOrthoAppointmentList`, obj)
   if (res.code == 200) {
-    total.value = res.data.length
-    patientList.value = res.data.map((item) => ({
+    total.value = res.total
+    patientList.value = res.rows?.map((item) => ({
       ...item,
+      fold:true,
       startTime: item.startTime?.replace('T', ' ').slice(5, 16),
       noteList: [{ time: '', name: '', content: 'content' }]
     }))
+    
   }
 }
 // 快筛面评逻辑
+const detail = ref()
 const handleDetail = async (item) => {
   const res = await Post('/prod-api/emr/orthAppointments/selectOrthoFacialAndFilterDetail', {
     patientId: item.patientId,
     fromWhich: item.fromWhich
   })
-  console.log(res)
+  detail.value = res.data[0]
 }
-const orthDetail = ref()
+const orthDetailList = ref([])
 const handleOrthDetail = async (item) => {
   const res = await Post('/prod-api/emr/orthAppointments/selectOrthoAppointmentDetail', {
     patientId: item.patientId, //患者id
@@ -610,7 +676,7 @@ const handleOrthDetail = async (item) => {
     orthAppointmentStatus: item.orthAppointmentStatus,
     fromWhich: item.fromWhich
   })
-  orthDetail.value = res.data[0]
+  orthDetailList.value = res.data
 }
 const noteList = ref([])
 const empty = ref(false)
@@ -729,11 +795,7 @@ const remoteMethod = (query) => {
     options.value = allOptions.value.filter((option) => option.label.includes(query))
   }
 }
-const difficultyLevelList = [
-  { label: '低风险', value: 1 },
-  { label: '中风险', value: 2 },
-  { label: '高风险', value: 3 }
-]
+
 const allOptions1 = ref([])
 const tanent = ref()
 const options1 = ref([])
@@ -952,19 +1014,30 @@ async function getOrthCount(val) {
   tabData.value[1].left_num = orthCount.value.numerator
   tabData.value[1].right_num = orthCount.value.totalCount
 }
+const doctorList = ref()
+const getDoctorLists = async () => {
+  const res = await Get('prod-api/business/user/listNoPage?title=医生')
+  doctorList.value = res.rows.map(item => ({
+    label: item.userName,
+    value: item.ljProviderId
+  }))
+}
+getDoctorLists()
 const aptmCount = ref()
-async function getAptmCount(val) {
-  const res = await Post('/prod-api/emr/public/api/v1/assessment/statisticsCount', {
-    startDate: val?.date?.[0] || firstDate.value, //预约日期
-    endDate: val?.date?.[1] || date.value,
+async function getAptmCount (val) {
+  let obj = {
     officeId: val?.officeId,
-    doctorId: val?.doctorId,
-    difficultyLevel: val?.difficultyLevel
-  })
+    orthFilterORFacialResult: val?.orthFilterORFacialResult,
+    orthAppointmentStatus: val?.orthAppointmentStatus,
+    priorityLevel: val?.priorityLevel
+  }
+  obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
+  obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
+  const res = await Post('/prod-api/emr/orthAppointments/selectOrthoAppointmentRate', obj)
   if (res.code == 200) {
     aptmCount.value = res.data
-    tabData.value[0].left_num = aptmCount.value.aptmOrthItemCount
-    tabData.value[0].right_num = aptmCount.value.aptmCount
+    tabData.value[0].left_num = aptmCount.value.numerator
+    tabData.value[0].right_num = aptmCount.value.totalCount
   }
 }
 
