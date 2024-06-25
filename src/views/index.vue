@@ -15,10 +15,53 @@
       </task-card>
     </div>
     <div class="content-wrapper">
-      <el-button>有</el-button><el-button>无</el-button>
+      <template v-if="currentTab == '应矫预约率'"
+        ><a-button
+          :class="{ activeTab: currentTab1 == item.label }"
+          v-for="item in aptmLists"
+          @click="handleChangeTab1(item.label)"
+          >{{ item.label }}</a-button
+        ></template
+      >
       <div class="content">
         <filter-search
-          v-if="isChangeTab || isChangeTab2"
+          v-if="isChangeTab && currentTab1 == '无未来预约' && currentTab == '应矫预约率'"
+          @filter="filter"
+          :storageName="storageName"
+          @setInitialState="setInitialState"
+          :list="[
+            {
+              name: '末诊日期',
+              dateType: 'range',
+              type: 'date',
+              prop: 'date',
+              defaultDate: [firstDate, date]
+            },
+            {
+              name: '快筛/面评结果',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
+              prop: 'orthFilterORFacialResult',
+              options: [
+                { value: '快筛', label: '快筛' },
+                { value: '面评', label: '面评' },
+                { value: '未做快筛/面评', label: '未做快筛/面评' }
+              ]
+            },
+            {
+              name: '矫正优先级',
+              type: currentTab == '应矫预约率' ? 'select' : undefined,
+              prop: 'priorityLevel',
+              options: [
+                { value: '高', label: '高优先' },
+                { value: '中', label: '中优先' },
+                { value: '低', label: '低优先' },
+                { value: '无', label: '无优先级' }
+              ]
+            }
+          ]"
+        ></filter-search>
+        <filter-search
+          v-if="isChangeTab && currentTab1 == '有未来预约' && currentTab == '应矫预约率'"
           @filter="filter"
           :storageName="storageName"
           @setInitialState="setInitialState"
@@ -26,7 +69,7 @@
             {
               name: currentTab == '应矫预约率' ? '儿牙医生' : '医生',
               type: 'select',
-              prop: 'doctorId',
+              prop: currentTab == '应矫预约率' ? 'pediDentistId' : 'doctorId',
               options: doctorList,
               allowSearch: true
             },
@@ -45,10 +88,13 @@
 
             {
               name: '预约日期',
-              dateType: currentTab == '应矫预约率' ? 'range' : undefined,
+              dateType: 'range',
               type: 'date',
               prop: 'date',
-              defaultDate: currentTab == '应矫预约率' ? [firstDate, date] : date
+              defaultDate: [firstDate, date],
+              disabledDate: (date) => {
+                return dayjs(date).isBefore(dayjs().startOf('day'))
+              }
             },
             {
               name: '快筛/面评结果',
@@ -70,21 +116,34 @@
                 { value: '低', label: '低优先' },
                 { value: '无', label: '无优先级' }
               ]
-            },
-            {
-              name: '未来预约',
-              type: currentTab == '应矫预约率' ? 'select' : undefined,
-              prop: 'hasNextAppointment',
-              options: [
-                { value: '有', label: '有未来预约' },
-                { value: '无', label: '无未来预约' }
-              ]
             }
           ]"
         ></filter-search>
+        <filter-search
+          v-if="isChangeTab && currentTab !== '应矫预约率'"
+          @filter="filter"
+          :storageName="storageName"
+          @setInitialState="setInitialState"
+          :list="[
+            {
+              name: currentTab == '应矫预约率' ? '儿牙医生' : '医生',
+              type: 'select',
+              prop: currentTab == '应矫预约率' ? 'pediDentistId' : 'doctorId',
+              options: doctorList,
+              allowSearch: true
+            },
 
+            {
+              name: '预约日期',
+              dateType: currentTab == '应矫预约率' ? 'range' : undefined,
+              type: 'date',
+              prop: 'date',
+              defaultDate: currentTab == '应矫预约率' ? [firstDate, date] : date
+            }
+          ]"
+        ></filter-search>
         <CustomTable
-          v-if="isChangeTab || isChangeTab2"
+          v-if="isChangeTab"
           :data="patientList"
           :columns="columns"
           :pagination="true"
@@ -325,13 +384,15 @@
                     </template>
                     <div class="color-[#4E5969]">
                       <template v-for="(orthDetail, index) in orthDetailList">
-                        <div class="flex items-center mb-[8px]">
+                        <div class="flex items-center mb-[8px]" v-if="orthDetailList.length > 1">
                           <img src="../assets/png/aptmFlag.png" class="h-[16px] mr-[10px]" /><span
                             class="color-[#1D2129] font-500"
                             >预约{{ index + 1 }}</span
                           >
                         </div>
-                        <div class="mb-[16px]">预约时间：{{ orthDetail?.startTime }}</div>
+                        <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus !== '未预约'">
+                          预约时间：{{ orthDetail?.startTime }}
+                        </div>
                         <div class="mb-[16px]">
                           风险等级：<img
                             src="../assets/png/highRisk.png"
@@ -346,19 +407,27 @@
                           />
                           {{ orthDetail.difficultyLevel }}
                         </div>
+                        <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus == '未预约'">
+                          当日正畸医生：<template v-for="doctor in orthDetail?.orthDoctorList">
+                            <a-button>{{ doctor }}</a-button>
+                          </template>
+                        </div>
                         <template v-if="index == 0">
-                          <div class="mb-[16px] flex items-center">
+                          <div
+                            class="mb-[16px] flex items-center"
+                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
+                          >
                             预约医生：<img
                               src="../assets/png/一级@3x.png"
-                              v-if="orthDetail?.doctorLevel == 1"
+                              v-if="orthDetail?.orthLevel == 1"
                             />
                             <img
                               src="../assets/png/二级@3x.png"
-                              v-if="orthDetail?.doctorLevel == 2"
+                              v-if="orthDetail?.orthLevel == 2"
                             />
                             <img
                               src="../assets/png/三级@3x.png"
-                              v-if="orthDetail?.doctorLevel == 3"
+                              v-if="orthDetail?.orthLevel == 3"
                             />
                             {{ orthDetail?.doctorName }}
                             <div class="flex items-center">
@@ -368,10 +437,18 @@
                               >
                             </div>
                           </div>
-                          <div class="mb-[16px]">
+                          <div
+                            class="mb-[16px]"
+                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
+                          >
                             预约项目：{{ orthDetail?.appointmentItemStr }}
                           </div>
-                          <div class="mb-[12px]">预约备注：{{ orthDetail?.appointmentNotes }}</div>
+                          <div
+                            class="mb-[12px]"
+                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
+                          >
+                            预约备注：{{ orthDetail?.appointmentNotes }}
+                          </div>
                         </template>
                         <div
                           class="h-[1px] w-[286px] bg-[#E5E6EB] mb-[12px]"
@@ -566,9 +643,10 @@
 </template>
 <script setup>
 import { ref, watchEffect, watch, nextTick, onMounted, onBeforeMount } from 'vue'
+import dayjs from 'dayjs'
 import { Post, Get } from '../utils/request'
 import { useRouter, useRoute } from 'vue-router'
-import formatTime from '../utils/formatTime'
+import { formatAptmTime } from '../utils/formatTime'
 import { columns_config_evaluate, columns_config_ortho, columns_config_aptm } from './config'
 import CustomTable from '../packages-js/custom-table/custom-table.vue'
 import filterSearch from '../packages-js/filter-search/filter-search.vue'
@@ -595,7 +673,7 @@ if (params.token) {
 }
 // 切换卡片
 // 首次渲染的时候也执行了
-const isChangeTab2 = ref(true)
+
 const isChangeTab = ref(true)
 const changeTab = async (val) => {
   isChangeTab.value = await Promise.resolve(false)
@@ -667,8 +745,10 @@ const firstDate = ref('')
 // 默认是今天的日期
 // firstdate是上个月的1号
 
-firstDate.value = formatTime().firstDate
-date.value = formatTime().formattedToday
+firstDate.value = formatAptmTime().firstDate
+console.log('🚀 ~ firstDate.value:', firstDate.value)
+date.value = formatAptmTime().formattedToday
+console.log('🚀 ~ date.value :', date.value)
 
 const columns = ref([...columns_config_evaluate])
 
@@ -749,20 +829,18 @@ async function getOrthoList(val) {
   }
 }
 const aptmList = ref([])
-async function getAptmList(val) {
+async function getNoAptmList(val) {
   let pageSizes = val?.pageSize || pageSize.value
   let pageNum = val?.page || page.value
   let obj = {
-    officeId: val?.officeId,
     orthFilterORFacialResult: val?.orthFilterORFacialResult,
-    orthAppointmentStatus: val?.orthAppointmentStatus,
     pageNum: pageNum,
     pageSize: pageSizes,
     priorityLevel: val?.priorityLevel
   }
   obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
   obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
-  const res = await Post(`/prod-api/emr/orthAppointments/selectOrthoAppointmentList`, obj)
+  const res = await Post(`/prod-api/emr/orthAppointments/selectPatientsNotScheduledList`, obj)
   if (res.code == 200) {
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
@@ -773,7 +851,49 @@ async function getAptmList(val) {
     }))
   }
 }
+async function getAptmList(val) {
+  let pageSizes = val?.pageSize || pageSize.value
+  let pageNum = val?.page || page.value
+  let obj = {
+    orthFilterORFacialResult: val?.orthFilterORFacialResult,
+    orthAppointmentStatus: val?.orthAppointmentStatus,
+    pageNum: pageNum,
+    pageSize: pageSizes,
+    priorityLevel: val?.priorityLevel,
+    pediDentistId: val?.pediDentistId
+  }
+  obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
+  obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
+  const res = await Post(`/prod-api/emr/orthAppointments/selectPatientsScheduledList?`, obj)
+  if (res.code == 200) {
+    total.value = res.total
+    patientList.value = res.rows?.map((item) => ({
+      ...item,
+      fold: true,
+      startTime: item.startTime?.replace('T', ' ').slice(5, 16),
+      noteList: [{ time: '', name: '', content: 'content' }]
+    }))
+  }
+}
+const hasNextAppointment = ref(true)
 // 快筛面评逻辑
+const aptmLists = [{ label: '有未来预约' }, { label: '无未来预约' }]
+const currentTab1 = ref('有未来预约')
+const handleChangeTab1 = async (label) => {
+  const val = sessionStorage.getItem('currentTab')
+  storageName.value = strategy[val].storage
+  isChangeTab.value = await Promise.resolve(false)
+  setTimeout(() => {
+    isChangeTab.value = true
+  }, 500)
+  currentTab1.value = label
+  const args = getCache(currentTab)
+  if (label == '无未来预约') {
+    await getNoAptmList(args)
+  } else {
+    await getAptmList(args)
+  }
+}
 const circleStyle = (item) => ({
   '--circle-content': `'${item.slice(0, 1)}'`
 })
@@ -1280,6 +1400,11 @@ async function handleSaveOrthDoctor(item) {
 }
 </script>
 <style lang="scss" scoped>
+:deep .arco-btn.activeTab {
+  background: #eaf0fc;
+  color: #2e6ce4;
+  font-weight: 500;
+}
 :deep .arco-drawer-footer > .arco-btn {
   border-radius: 6px !important;
 }

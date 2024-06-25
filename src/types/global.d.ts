@@ -72,4 +72,5 @@ export type FilterList = {
   showBtn?: boolean
   radioOptions?: { value: string | number; label: string; disabled?: boolean }[]
   checkboxOptions?: { value: string | number; label: string; disabled?: boolean }[]
+  disabledDate: (current: Date) => boolean
 }[]

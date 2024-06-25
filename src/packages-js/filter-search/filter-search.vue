@@ -48,6 +48,7 @@
                   format="YYYY-MM-DD"
                   shortcuts-position="left"
                   :shortcuts="shortcuts"
+                  :disabledDate="(current) => disabledDate(current, item)"
                 >
                   <template #suffix-icon>
                     <i class="svg-icon iconfont icon-date_time" />
@@ -175,7 +176,7 @@
             <span class="total" v-if="!isspread && total !== 0">{{ total }}</span>
           </div>
         </template>
-        <img src="../../assets/png/button 1@3x.png" class="w-[34px]" @click="reset"/>
+        <img src="../../assets/png/button 1@3x.png" class="w-[34px]" @click="reset" />
         <ArcoButton type="primary" @click="filter">查询</ArcoButton>
       </ArcoSpace>
     </div>
@@ -213,6 +214,13 @@ const emit = defineEmits()
 // 展开
 const isspread = ref(false)
 let storageObj = ref({})
+const disabledDate = (date, item) => {
+  if (item.disabledDate) {
+    return item.disabledDate(date)
+  } else {
+    return false
+  }
+}
 onBeforeMount(() => {
   storageObj.value = {}
   if (storageName) {
@@ -229,6 +237,7 @@ onBeforeMount(() => {
       // emit('setInitialState', storageName)
     } else {
       modelVal.value = list.reduce((sum, item) => {
+        console.log(item)
         if (item.type === 'date' && item.defaultDate) {
           if (item.dateType === 'range') {
             sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
