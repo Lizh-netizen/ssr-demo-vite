@@ -15,9 +15,10 @@
       </task-card>
     </div>
     <div class="content-wrapper">
+      <el-button>有</el-button><el-button>无</el-button>
       <div class="content">
         <filter-search
-          v-if="isChangeTab"
+          v-if="isChangeTab || isChangeTab2"
           @filter="filter"
           :storageName="storageName"
           @setInitialState="setInitialState"
@@ -33,7 +34,13 @@
               name: '预约状态',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
               prop: 'orthAppointmentStatus',
-              options:[{value: '不匹配', label: '不匹配'},{value: '已预约', label: '已预约'},{value: '未预约', label: '未预约'},{value: '冲突', label: '冲突'},{value: '可合并', label: '可合并'}]
+              options: [
+                { value: '不匹配', label: '不匹配' },
+                { value: '已预约', label: '已预约' },
+                { value: '未预约', label: '未预约' },
+                { value: '冲突', label: '冲突' },
+                { value: '可合并', label: '可合并' }
+              ]
             },
 
             {
@@ -47,25 +54,37 @@
               name: '快筛/面评结果',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
               prop: 'orthFilterORFacialResult',
-              options: [{value: '快筛', label: '快筛'}, {value: '面评', label: '面评'},{value: '未做快筛/面评', label: '未做快筛/面评'}]
+              options: [
+                { value: '快筛', label: '快筛' },
+                { value: '面评', label: '面评' },
+                { value: '未做快筛/面评', label: '未做快筛/面评' }
+              ]
             },
             {
               name: '优先级',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
               prop: 'priorityLevel',
-              options: [{value: '高', label: '高优先'}, {value: '中', label: '中优先'},{value: '低', label: '低优先'},{value: '无', label: '无优先级'}]
+              options: [
+                { value: '高', label: '高优先' },
+                { value: '中', label: '中优先' },
+                { value: '低', label: '低优先' },
+                { value: '无', label: '无优先级' }
+              ]
             },
             {
               name: '未来预约',
               type: currentTab == '应矫预约率' ? 'select' : undefined,
               prop: 'hasNextAppointment',
-              options: [{value: '有', label: '有未来预约'}, {value: '无', label: '无未来预约'}]
+              options: [
+                { value: '有', label: '有未来预约' },
+                { value: '无', label: '无未来预约' }
+              ]
             }
           ]"
         ></filter-search>
 
         <CustomTable
-          v-if="isChangeTab"
+          v-if="isChangeTab || isChangeTab2"
           :data="patientList"
           :columns="columns"
           :pagination="true"
@@ -74,12 +93,11 @@
           @change-page="changePage"
           @change-note="changeNote"
         >
-        <template #notes="{ row }">
+          <template #notes="{ row }">
             <div
               :style="{
                 color: '#2E6CE4',
-  cursor: 'pointer'
-                
+                cursor: 'pointer'
               }"
               @click="handleNoteDrawer(row)"
             >
@@ -127,6 +145,7 @@
                 effect="dark"
                 :content="`点击查看${row.fromWhich}详情`"
                 placement="top-start"
+                v-if="row.fromWhich"
               >
                 <span>
                   <el-popover
@@ -134,47 +153,135 @@
                     :width="424"
                     trigger="click"
                     content="this is content, this is content, this is content"
+                    v-if="row.fromWhich"
                   >
                     <template #reference>
-                      <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]">
-                        <img src="../assets/svg/more.svg" v-if="row.orthFilterORFacialResult !== '--'"  @click.self="handleDetail(row)" />
+                      <div
+                        class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px]"
+                        v-if="row.fromWhich"
+                      >
+                        <img
+                          src="../assets/svg/more.svg"
+                          v-if="row.orthFilterORFacialResult !== '--'"
+                          @click.self="handleDetail(row)"
+                        />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
-                      <div class="mb-[16px]">操作医生：{{ detail?.facialReferralToDoctorName
- }}</div>
+                      <div class="mb-[16px]">操作医生：{{ detail?.operationDoctorName }}</div>
+
                       <div class="mb-[16px]">操作时间：{{ detail?.operationTime }}</div>
-                      <div class="mb-[16px] flex items-center">
+                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '矫正'">
+                        推荐医生：{{ detail?.recommendedDoctor }}
+                      </div>
+                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '转三级面评'">
+                        转诊至：{{ detail?.facialReferralToDoctorName }}
+                      </div>
+                      <div
+                        class="mb-[16px] flex items-center"
+                        v-if="row?.orthFilterORFacialResult == '矫正' && row.fromWhich == '快筛'"
+                      >
                         风险等级：
 
                         <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
                           class="ml-[4px]"
-                        >{{ detail?.difficultyLevel
- }}等级</span>
+                          >{{ detail?.difficultyLevel }}等级</span
+                        >
+                      </div>
+                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '矫正'">
+                        <span class="w-[70px] text-right">优先级：</span>
+                        <span v-if="detail?.priorityLevel && row.fromWhich == '快筛'"
+                          >{{ detail?.priorityLevel }}优先</span
+                        ><span v-else>--</span>
                       </div>
                       <div class="mb-[16px]">
                         <span class="w-[70px] text-right">备注：</span>
-                        <span>{{ detail?.
-remarks }}</span>
+                        <span>{{ detail?.remarks }}</span>
                       </div>
 
                       <div>
-                        历史记录：<span class="color-[#2E6CE4] cursor-pointer"><span @click="row.fold = !row.fold">点击查看</span></span>
+                        历史记录：<span class="color-[#2E6CE4] cursor-pointer"
+                          ><span @click="row.fold = !row.fold" v-if="row.fold === true"
+                            >点击查看</span
+                          >
+                          <span @click="row.fold = !row.fold" v-if="row.fold === false"
+                            >点击收起</span
+                          >
+                        </span>
                       </div>
-                      <div v-if="!row.fold">
-                        <div class="item" v-for="item in noteList" :key="item">
-            <span class="circle"></span>
-            <div class="rightBox">
-              <div class="title">
-                <div class="time">{{ item.time }}</div>
-                <div class="name">{{ item.name }}</div>
-              </div>
-              <div class="content">
-                <span class="remarkType">{{ item.remarkTypeName }}</span
-                >{{ item.content }}
-              </div>
-            </div>
-          </div>
+                      <div v-if="!row.fold" class="notesWrapper">
+                        <div class="item" v-for="item in recordList" :key="item">
+                          <span
+                            class="circle w-[18px] h-[18px] flex items-center justify-center font-size-[10px]"
+                            >{{ row.fromWhich?.slice(0, 1) }}</span
+                          >
+                          <div
+                            class="rightBox bg-[#F7F8FA]"
+                            @mouseenter="item.showFlag = true"
+                            @mouseleave="item.showFlag = false"
+                          >
+                            <div class="title flex">
+                              <div class="time flex items-center">
+                                <img
+                                  class="mr-[9px]"
+                                  :src="`/src/assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
+                                />{{ item.orthFilterORFacialResult }}
+                              </div>
+                              <span
+                                v-if="item.showFlag && !item.showDetail"
+                                class="color-[#2E6CE4] cursor-pointer"
+                                @click="item.showDetail = true"
+                                >展开</span
+                              >
+                              <span
+                                v-else-if="item.showFlag && item.showDetail"
+                                class="color-[#2E6CE4] cursor-pointer"
+                                @click="item.showDetail = false"
+                                >收起</span
+                              >
+                            </div>
+                            <div
+                              class="content flex justify-between color-[#4E5969] font-size-[12px]"
+                            >
+                              <div class="name" v-if="item.operationTime">
+                                {{ item.operationTime?.slice(0, 10) }}
+                              </div>
+                              <div class="remarkType">{{ item?.recommendedDoctor }}</div>
+                            </div>
+                            <div
+                              v-if="item.orthFilterORFacialResult == '后续面评' && item.showDetail"
+                            >
+                              后续时间：{{}}
+                            </div>
+                            <div
+                              v-if="item.orthFilterORFacialResult == '立即矫正' && item.showDetail"
+                            >
+                              <div class="mb-[8px]">
+                                推荐医生：
+                                {{ item.recommendedDoctor }}
+                              </div>
+                              <div class="mb-[8px]">
+                                患者依从性：{{
+                                  item.patientCompliance == '1'
+                                    ? '好'
+                                    : item.patientCompliance == '2'
+                                      ? '中'
+                                      : '差'
+                                }}
+                              </div>
+                              <div>备注：{{ item.remarks }}</div>
+                            </div>
+                            <div
+                              v-if="
+                                item.orthFilterORFacialResult == '转三级面评' && item.showDetail
+                              "
+                            >
+                              <div class="mb-[8px]">转诊至：{{ item.recommendedDoctor }}</div>
+
+                              <div class="mb-[8px]">备注：{{ item.remarks }}</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </el-popover>
@@ -213,8 +320,7 @@ remarks }}</span>
                   >
                     <template #reference>
                       <div class="hover:bg-[#E5E6EB] h-[16px] w-[16px] border-rd-[4px] ml-[17px]">
-                        <img src="../assets/svg/more.svg" 
-                        @click="handleOrthDetail(row)" />
+                        <img src="../assets/svg/more.svg" @click="handleOrthDetail(row)" />
                       </div>
                     </template>
                     <div class="color-[#4E5969]">
@@ -252,10 +358,15 @@ remarks }}</span>
                             />
                             <img
                               src="../assets/png/三级@3x.png"
-                      
                               v-if="orthDetail?.doctorLevel == 3"
                             />
-                            {{ orthDetail?.doctorName }} <div class="flex items-center"><img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]"><span class="color-[#F76560] font-500">等级不匹配</span></div>
+                            {{ orthDetail?.doctorName }}
+                            <div class="flex items-center">
+                              <img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]" /><span
+                                class="color-[#F76560] font-500"
+                                >等级不匹配</span
+                              >
+                            </div>
                           </div>
                           <div class="mb-[16px]">
                             预约项目：{{ orthDetail?.appointmentItemStr }}
@@ -312,7 +423,6 @@ remarks }}</span>
             </a-select>
           </template>
 
-          
           <template #operation="{ row }">
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
               >进入面评</el-button
@@ -327,9 +437,13 @@ remarks }}</span>
             <el-button @click="handleCompareOrth(row)" v-if="currentTab == '面评'"
               >对比面评报告</el-button
             > -->
-            <div class="flex items-center" v-if="currentTab == '应矫预约率'" 
-              ><img src="../assets/png/Callender@3x.png" class="w-[16px]"/><span @click="handleGoSche(row)" class="color-[#2E6CE4] cursor-pointer ml-[12px]">去预约表</span></div
-            >
+            <div class="flex items-center" v-if="currentTab == '应矫预约率'">
+              <img src="../assets/png/Callender@3x.png" class="w-[16px]" /><span
+                @click="handleGoSche(row)"
+                class="color-[#2E6CE4] cursor-pointer ml-[12px]"
+                >去预约表</span
+              >
+            </div>
           </template>
         </CustomTable>
         <audio
@@ -465,6 +579,7 @@ import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
 
 import { useStore } from 'vuex'
+import { Button } from '@arco-design/web-vue'
 const store = useStore()
 const route = useRoute()
 const params = route.query
@@ -480,6 +595,7 @@ if (params.token) {
 }
 // 切换卡片
 // 首次渲染的时候也执行了
+const isChangeTab2 = ref(true)
 const isChangeTab = ref(true)
 const changeTab = async (val) => {
   isChangeTab.value = await Promise.resolve(false)
@@ -492,7 +608,6 @@ const changeTab = async (val) => {
   const args = getCache(currentTab)
   strategy[val].request(args)
   // }
-  console.log(333)
   isChangeTab.value = await Promise.resolve(true)
 }
 
@@ -634,7 +749,7 @@ async function getOrthoList(val) {
   }
 }
 const aptmList = ref([])
-async function getAptmList (val) {
+async function getAptmList(val) {
   let pageSizes = val?.pageSize || pageSize.value
   let pageNum = val?.page || page.value
   let obj = {
@@ -652,21 +767,27 @@ async function getAptmList (val) {
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
       ...item,
-      fold:true,
+      fold: true,
       startTime: item.startTime?.replace('T', ' ').slice(5, 16),
       noteList: [{ time: '', name: '', content: 'content' }]
     }))
-    
   }
 }
 // 快筛面评逻辑
+const circleStyle = (item) => ({
+  '--circle-content': `'${item.slice(0, 1)}'`
+})
 const detail = ref()
+const recordList = ref()
 const handleDetail = async (item) => {
   const res = await Post('/prod-api/emr/orthAppointments/selectOrthoFacialAndFilterDetail', {
     patientId: item.patientId,
     fromWhich: item.fromWhich
   })
   detail.value = res.data[0]
+  console.log('🚀 ~ handleDetail ~ detail.value:', detail.value)
+  recordList.value = res.data.slice(1)
+  console.log('🚀 ~ handleDetail ~ recordList.value:', recordList.value)
 }
 const orthDetailList = ref([])
 const handleOrthDetail = async (item) => {
@@ -890,6 +1011,7 @@ const handleGoSche = (item) => {
 }
 
 const filter = (val) => {
+  console.log(val)
   const v = getCache(currentTab)
   // 改变时间的时候去重新执行请求就好了
   strategy[currentTab.value].request(v)
@@ -1018,14 +1140,14 @@ async function getOrthCount(val) {
 const doctorList = ref()
 const getDoctorLists = async () => {
   const res = await Get('prod-api/business/user/listNoPage?title=医生')
-  doctorList.value = res.rows.map(item => ({
+  doctorList.value = res.rows.map((item) => ({
     label: item.userName,
     value: item.ljProviderId
   }))
 }
 getDoctorLists()
 const aptmCount = ref()
-async function getAptmCount (val) {
+async function getAptmCount(val) {
   let obj = {
     officeId: val?.officeId,
     orthFilterORFacialResult: val?.orthFilterORFacialResult,
@@ -1321,23 +1443,24 @@ async function handleSaveOrthDoctor(item) {
     width: 376px;
     position: relative;
     display: flex;
-    .circle {
-      width: 8px;
-      height: 8px;
-      background: #c9cdd4;
-      margin: 7px 17px 0 4px;
-      border-radius: 50%;
-      &::before {
-        display: block;
-        content: '';
-        width: 1px;
-        height: calc(100% - 25px);
-        background-color: #c9cdd4;
-        position: absolute;
-        left: 7.5px;
-        bottom: 0;
-      }
-    }
+    // .circle {
+    //   width: 8px;
+    //   height: 8px;
+    //   background: #c9cdd4;
+    //   margin: 7px 17px 0 4px;
+    //   border-radius: 50%;
+    //   --circle-content: '';
+    //   &::before {
+    //     display: block;
+    //     content: var(--circle-content);
+    //     width: 1px;
+    //     height: calc(100% - 25px);
+    //     background-color: #c9cdd4;
+    //     position: absolute;
+    //     left: 7.5px;
+    //     bottom: 0;
+    //   }
+    // }
     &:last-child .cricle::before {
       opacity: 0;
     }
@@ -1381,7 +1504,6 @@ async function handleSaveOrthDoctor(item) {
 
 .content {
   padding: 2px 20px;
-  background: #fff;
   border-radius: 12px;
   // :deep .arco-select-view-single.arco-select-view-search {
   //   width: 100px;
@@ -1395,5 +1517,67 @@ async function handleSaveOrthDoctor(item) {
 
   border-radius: 4px;
   color: #f76560;
+}
+.notesWrapper {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+  .emptyImage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 240px;
+  }
+  .item {
+    width: 376px;
+    position: relative;
+    display: flex;
+    .circle {
+      min-width: 18px;
+      height: 18px;
+      margin: 4px 17px 0 0px;
+      border-radius: 50%;
+      background: #2e6ce4;
+      color: #fff;
+      font-size: 12px !important;
+      font-weight: 500;
+      &::before {
+        display: block;
+        content: '';
+        width: 1px;
+        height: calc(100% - 25px);
+        background-color: #c9cdd4;
+        position: absolute;
+        left: 7.5px;
+        bottom: 0;
+      }
+    }
+    &:last-child .cricle::before {
+      opacity: 0;
+    }
+    .rightBox {
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      .title {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        height: 24px;
+        color: #1d2129;
+        align-items: center;
+      }
+      .content {
+        width: 331px;
+        padding: 8px 0 12px 0;
+        line-height: 24px;
+        color: #1d2129;
+      }
+    }
+  }
 }
 </style>
