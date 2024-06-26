@@ -1082,12 +1082,15 @@ const handleDetail = async (item) => {
 }
 const orthDetailList = ref([])
 const handleOrthDetail = async (item) => {
+  console.log(item)
   const res = await Post('/prod-api/emr/orthAppointments/selectOrthoAppointmentDetail', {
     patientId: item.patientId, //患者id
     startTime: item.startTime, //预约时间
     difficultyLevel: item.difficultyLevel, //难度等级
     orthAppointmentStatus: item.orthAppointmentStatus,
-    fromWhich: item.fromWhich
+    fromWhich: item.fromWhich,
+    pediAppointmentDate: item.pediAppointmentDate,
+    officeId: item.pediAppointmentDate == '--' ? sessionStorage.getItem('officeId') : item.officeId
   })
   orthDetailList.value = res.data
 }
