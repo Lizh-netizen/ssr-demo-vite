@@ -47,8 +47,8 @@
                   v-model="modelVal[item.prop]"
                   format="YYYY-MM-DD"
                   shortcuts-position="left"
-                  :shortcuts="shortcuts"
                   :disabledDate="(current) => disabledDate(current, item)"
+                  :shortcuts="shortcuts"
                 >
                   <template #suffix-icon>
                     <i class="svg-icon iconfont icon-date_time" />
@@ -237,7 +237,6 @@ onBeforeMount(() => {
       // emit('setInitialState', storageName)
     } else {
       modelVal.value = list.reduce((sum, item) => {
-        console.log(item)
         if (item.type === 'date' && item.defaultDate) {
           if (item.dateType === 'range') {
             sum[item.prop] = item.defaultDate.map((item) => dayjs(item).format('YYYY-MM-DD'))
@@ -285,10 +284,12 @@ watch(
         storageObj.value[storageName] = storageObj.value[storageName] + 1
       }
       const storageList = JSON.parse(sessionStorage.getItem(storageName))
+
       // 刚开始只是传递一个name，并没有缓存
       if (storageList) {
         // 有缓存直接用缓存，没有的话最开始初始化一个新的
         modelVal.value = storageList
+
         emit('setInitialState', storageName)
       } else {
         modelVal.value = list.reduce((sum, item) => {
@@ -358,7 +359,6 @@ const totalVal = () => {
     isShowUnfold.value = [...htmlList].some((item) => item.offsetTop > p.offsetTop + 16)
     isShowUnfold.value &&
       (total.value = totalList.value.filter((item) => {
-        console.log(total.value, 'total')
         return modelVal.value[item] && JSON.stringify(modelVal.value[item]) !== '[]'
       }).length)
   }, 300)

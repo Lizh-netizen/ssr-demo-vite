@@ -123,7 +123,7 @@ export const columns_config_aptm = [
   {
     prop: 'patientName',
     title: '姓名',
-    type: 'text',
+    slotName: 'patientName',
     width: '80px'
   },
 
@@ -173,7 +173,72 @@ export const columns_config_aptm = [
   // },
   // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
   // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
-  { title: '备注', prop: 'notes', type: 'text', width: '90px' },
+  { title: '儿牙预约备注', prop: 'notes', type: 'text', width: '90px' },
+  // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
+  {
+    type: 'operation',
+    title: '操作',
+    fixed: 'right',
+    width: '110px',
+    prop: 'operation',
+    slotName: 'operation'
+  }
+]
+export const columns_config_aptmNo = [
+  {
+    prop: 'patientName',
+    title: '姓名',
+    slotName: 'patientName',
+    width: '80px'
+  },
+
+  {
+    prop: 'patientAge',
+    title: '年龄',
+    type: 'leftIcon',
+    width: '80px'
+  },
+
+  {
+    title: '快筛/面评结果',
+    width: '90px',
+    prop: 'orthFilterORFacialResult',
+    slotName: 'orthFilterORFacialResult'
+  },
+  {
+    title: '正畸预约',
+    prop: 'orthAppointmentStatus',
+    slotName: 'orthAppointmentStatus',
+    width: '120px'
+  },
+  { title: '末诊日期', prop: 'lastAdmissionTime', type: 'text', width: '120px' },
+  { prop: 'lastDoctorName', title: '末诊医生', type: 'text', width: '120px' },
+  // { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },
+  // { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel', width: '90px' },
+  // { title: '预约医生', prop: 'toothDoctorName', type: 'text', width: '90px' },
+  // { title: '预约时间', prop: 'StartTime', type: 'text', width: '120px' },
+
+  // {
+  //   title: '当天有正畸医生',
+  //   type: 'icon',
+  //   iconOption: {
+  //     secondName: 'success',
+  //     prop: 'isAttendence'
+  //   },
+  //   width: '130px'
+  // },
+
+  // { prop: 'orthDoctorName', title: '正畸医生' },
+
+  // {
+  //   title: '正畸责任医生',
+  //   prop: 'responsibleDoctor',
+  //   slotName: 'responsibleDoctor',
+  //   width: '120px'
+  // },
+  // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
+  // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
+  { title: '末次就诊备注', prop: 'lastAdmissionNote', type: 'text', width: '90px' },
   // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
     type: 'operation',
