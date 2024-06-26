@@ -44,8 +44,14 @@
                       currentTab == '应矫预约率' && currentTab1 == '无未来预约'
                         ? undefined
                         : 'select',
-                    prop: 'doctorId',
-                    options: options,
+                    prop:
+                      currentTab == '应矫预约率' && currentTab1 == '有未来预约'
+                        ? 'pediDentistId'
+                        : 'doctorId',
+                    options:
+                      currentTab == '应矫预约率' && currentTab1 == '有未来预约'
+                        ? doctorList
+                        : options,
                     allowSearch: true
                   },
                   {
@@ -176,7 +182,7 @@
                     type: 'date',
                     prop: 'date',
                     disabledDate: (date) => {
-                      return dayjs(date).isBefore(dayjs().startOf('day'))
+                      return !dayjs(date).isBefore(dayjs().startOf('day'))
                     },
                     defaultDate:
                       currentTab == '应矫预约率' && currentTab1 == '无未来预约'
@@ -496,7 +502,10 @@
                           v-if="orthDetail.orthAppointmentStatus == '未预约'"
                         >
                           当日正畸医生：
-                          <div class="flex flex-1 flex-wrap">
+                          <div
+                            class="flex flex-1 flex-wrap"
+                            v-if="orthDetail?.orthDoctorList.length > 0"
+                          >
                             <template v-for="doctor in orthDetail?.orthDoctorList">
                               <div
                                 class="h-[28px] px-[8px] py-[4px] bg-[#F2F3F5] border-[1px] border-solid border-color-[#C9CDD4] mr-[8px] mb-[8px] border-rd-[4px]"
@@ -505,6 +514,7 @@
                               </div>
                             </template>
                           </div>
+                          <div v-else>暂无排班医生</div>
                         </div>
                         <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus == '未预约'">
                           面评建议医生：{{ orthDetail?.recommendedDoctor }}
@@ -1089,7 +1099,7 @@ const handleOrthDetail = async (item) => {
     difficultyLevel: item.difficultyLevel, //难度等级
     orthAppointmentStatus: item.orthAppointmentStatus,
     fromWhich: item.fromWhich,
-    pediAppointmentDate: item.pediAppointmentDate,
+    pediAppointmentDate: item.pediAppointmentDate.slice(0, 10),
     officeId: item.pediAppointmentDate == '--' ? sessionStorage.getItem('officeId') : item.officeId
   })
   orthDetailList.value = res.data
