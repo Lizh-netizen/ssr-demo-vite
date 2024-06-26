@@ -275,7 +275,11 @@
             <div class="flex items-center">
               <img
                 v-if="row.orthFilterORFacialResult && row.orthFilterORFacialResult !== '--'"
-                :src="`../assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
+                :src="
+                  statusStrategy[row.orthFilterORFacialResult] == 'evaluateStatus'
+                    ? evaluateStatus
+                    : orthoStatus
+                "
               /><span class="ml-[8px] mr-[24px]"
                 >{{ row.orthFilterORFacialResult
                 }}<img
@@ -767,7 +771,8 @@ import taskCard from '../packages-js/task-card/task-card.vue'
 import Drawer from '../components/list/drawer.vue'
 import { ElTableColumn, ElMessage } from 'element-plus'
 import customList from '@/components/pdf/customList.vue'
-
+import evaluateStatus from '../assets/png/evaluateStatus.png'
+import orthoStatus from '../assets/png/orthoStatus.png'
 import { useStore } from 'vuex'
 import { Button } from '@arco-design/web-vue'
 const store = useStore()
