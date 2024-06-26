@@ -275,7 +275,7 @@
             <div class="flex items-center">
               <img
                 v-if="row.orthFilterORFacialResult && row.orthFilterORFacialResult !== '--'"
-                :src="`/src/assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
+                :src="`../assets/png/${statusStrategy[row.orthFilterORFacialResult]}.png`"
               /><span class="ml-[8px] mr-[24px]"
                 >{{ row.orthFilterORFacialResult
                 }}<img
