@@ -318,10 +318,10 @@
                       <div class="mb-[16px]">操作医生：{{ detail?.operationDoctorName }}</div>
 
                       <div class="mb-[16px]">操作时间：{{ detail?.operationTime }}</div>
-                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '矫正'">
+                      <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '立即矫正' && row.fromWhich == '面评'">
                         推荐医生：{{ detail?.recommendedDoctor }}
                       </div>
-                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '转三级面评'">
+                      <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '转三级面评'">
                         转诊至：{{ detail?.facialReferralToDoctorName }}
                       </div>
                       <div
@@ -523,44 +523,32 @@
                         <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus == '未预约'">
                           面评建议医生：{{ orthDetail?.recommendedDoctor }}
                         </div>
-                        <template v-if="index == 0">
-                          <div
-                            class="mb-[16px] flex items-center"
-                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
-                          >
-                            预约医生：<img
-                              src="../assets/png/一级@3x.png"
-                              v-if="orthDetail?.orthLevel == 1"
-                            />
-                            <img
-                              src="../assets/png/二级@3x.png"
-                              v-if="orthDetail?.orthLevel == 2"
-                            />
-                            <img
-                              src="../assets/png/三级@3x.png"
-                              v-if="orthDetail?.orthLevel == 3"
-                            />
-                            {{ orthDetail?.doctorName }}
-                            <div class="flex items-center" v-if="orthLevel == 1">
-                              <img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]" /><span
-                                class="color-[#F76560] font-500"
-                                >等级不匹配</span
-                              >
-                            </div>
+
+                        <div
+                          class="mb-[16px] flex items-center"
+                          v-if="orthDetail.orthAppointmentStatus !== '未预约'"
+                        >
+                          预约医生：<img
+                            src="../assets/png/一级@3x.png"
+                            v-if="orthDetail?.orthLevel == 1"
+                          />
+                          <img src="../assets/png/二级@3x.png" v-if="orthDetail?.orthLevel == 2" />
+                          <img src="../assets/png/三级@3x.png" v-if="orthDetail?.orthLevel == 3" />
+                          {{ orthDetail?.doctorName }}
+                          <div class="flex items-center" v-if="orthLevel == 1">
+                            <img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]" /><span
+                              class="color-[#F76560] font-500"
+                              >等级不匹配</span
+                            >
                           </div>
-                          <div
-                            class="mb-[16px]"
-                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
-                          >
-                            预约项目：{{ orthDetail?.appointmentItemStr }}
-                          </div>
-                          <div
-                            class="mb-[12px]"
-                            v-if="orthDetail.orthAppointmentStatus !== '未预约'"
-                          >
-                            预约备注：{{ orthDetail?.appointmentNotes }}
-                          </div>
-                        </template>
+                        </div>
+                        <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus !== '未预约'">
+                          预约项目：{{ orthDetail?.appointmentItemStr }}
+                        </div>
+                        <div class="mb-[12px]" v-if="orthDetail.orthAppointmentStatus !== '未预约'">
+                          预约备注：{{ orthDetail?.appointmentNotes }}
+                        </div>
+
                         <div
                           class="h-[1px] w-[286px] bg-[#E5E6EB] mb-[12px]"
                           v-if="index !== orthDetailList.length - 1"
@@ -610,7 +598,9 @@
               >
             </a-select>
           </template>
-
+          <template #pediAppointmentNotes="{ row }">
+            <div class="ellipsis">{{ row.pediAppointmentNotes }}</div>
+          </template>
           <template #operation="{ row }">
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
               >进入面评</el-button
@@ -950,14 +940,16 @@ async function getNoAptmList(val) {
   let pageNum = val?.page || page.value
   let obj = {
     orthFilterORFacialResult: val?.orthFilterORFacialResult,
-    pageNum: pageNum,
-    pageSize: pageSizes,
     priorityLevel: val?.priorityLevel
   }
   obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
   obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
-  const res = await Post(`/prod-api/emr/orthAppointments/selectPatientsNotScheduledList`, obj)
+  const res = await Post(
+    `/prod-api/emr/orthAppointments/selectPatientsNotScheduledList?pageNum=${pageNum}&pageSize=${pageSizes}`,
+    obj
+  )
   if (res.code == 200) {
+    if (currentTab.value !== '应矫预约率' && currentTab1.value !== '无未来预约') return
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
       ...item,
@@ -1032,15 +1024,17 @@ async function getAptmList(val) {
   let obj = {
     orthFilterORFacialResult: val?.orthFilterORFacialResult,
     orthAppointmentStatus: val?.orthAppointmentStatus,
-    pageNum: pageNum,
-    pageSize: pageSizes,
     priorityLevel: val?.priorityLevel,
     pediDentistId: val?.pediDentistId
   }
   obj.endTime = setEndTime(val)
   obj.startTime = setStartTime(val)
-  const res = await Post(`/prod-api/emr/orthAppointments/selectPatientsScheduledList?`, obj)
+  const res = await Post(
+    `/prod-api/emr/orthAppointments/selectPatientsScheduledList?pageNum=${pageNum}&pageSize=${pageSizes}`,
+    obj
+  )
   if (res.code == 200) {
+    if (currentTab.value !== '应矫预约率' && currentTab1.value !== '有未来预约') return
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
       ...item,
@@ -1599,7 +1593,15 @@ async function handleSaveOrthDoctor(item) {
   }
 }
 </script>
+
 <style lang="scss" scoped>
+.ellipsis {
+    
+            white-space: nowrap; /* 强制文本在一行显示 */
+            overflow: hidden; /* 隐藏溢出的部分 */
+            text-overflow: ellipsis; /* 溢出部分显示省略号 */
+      
+        }
 :deep .arco-btn.activeTab {
   background: #eaf0fc;
   color: #2e6ce4;

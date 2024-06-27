@@ -173,7 +173,12 @@ export const columns_config_aptm = [
   // },
   // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
   // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
-  { title: '儿牙预约备注', prop: 'pediAppointmentNotes', type: 'text', width: '90px' },
+  {
+    title: '儿牙预约备注',
+    prop: 'pediAppointmentNotes',
+    slotName: 'pediAppointmentNotes',
+    width: '90px'
+  },
   // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
     type: 'operation',
