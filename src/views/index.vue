@@ -1,6 +1,5 @@
 <template>
   <div class="contain">
-    测试
     <div class="taskCard">
       <task-card :default="currentTab" @changeTab="changeTab">
         <task-card-item
@@ -1134,11 +1133,6 @@ const handleChangeTab1 = async (label) => {
   currentTab1.value = label
   strategy.value['应矫预约率'].config =
     label == '有未来预约' ? columns_config_aptm : columns_config_aptmNo
-  console.log(
-    '🚀 ~ handleChangeTab1 ~ columns.value:',
-    strategy.value['应矫预约率'].config,
-    currentTab1.value
-  )
   const val = sessionStorage.getItem('currentTab')
   storageName.value = strategy.value[val].storage
   const value = sessionStorage.getItem(storageName.value)
@@ -1440,12 +1434,15 @@ watch(
     }
     columns.value = strategy.value[val].config
   },
+
   { immediate: true }
 )
 watch(
   currentTab1,
   (val) => {
-    columns.value = strategy.value['应矫预约率'].config
+    if (currentTab.value == '应矫预约率') {
+      columns.value = strategy.value['应矫预约率'].config
+    }
   },
   { immediate: true }
 )
