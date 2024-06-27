@@ -318,24 +318,26 @@
                       <div class="mb-[16px]">操作医生：{{ detail?.operationDoctorName }}</div>
 
                       <div class="mb-[16px]">操作时间：{{ detail?.operationTime }}</div>
+                       <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '后续面评' && row.fromWhich == '面评'">后续时间：{{ detail?.facialTime }}</div>
                       <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '立即矫正' && row.fromWhich == '面评'">
                         推荐医生：{{ detail?.recommendedDoctor }}
                       </div>
-                      <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '转三级面评'">
+                      <div class="mb-[16px]" v-if="detail?.orthFilterORFacialResult == '转三级面评' && row.fromWhich == '面评'">
                         转诊至：{{ detail?.facialReferralToDoctorName }}
                       </div>
                       <div
                         class="mb-[16px] flex items-center"
-                        v-if="row?.orthFilterORFacialResult == '矫正' && row.fromWhich == '快筛'"
+                        v-if="row.fromWhich == '快筛'"
                       >
                         风险等级：
-
-                        <img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
+<div v-if="detail?.difficultyLevel !== null"><img src="../assets/png/highRisk.png" class="w-[14px] h-[14px]" /><span
                           class="ml-[4px]"
                           >{{ detail?.difficultyLevel }}等级</span
-                        >
+                        ></div>
+                        <div v-else>--</div>
+                        
                       </div>
-                      <div class="mb-[16px]" v-if="row?.orthFilterORFacialResult == '矫正'">
+                      <div class="mb-[16px]" v-if="row?.fromWhich == '快筛'">
                         <span class="w-[70px] text-right">优先级：</span>
                         <span v-if="detail?.priorityLevel && row.fromWhich == '快筛'"
                           >{{ detail?.priorityLevel }}优先</span
@@ -426,7 +428,7 @@
                                 item.orthFilterORFacialResult == '转三级面评' && item.showDetail
                               "
                             >
-                              <div class="mb-[8px]">转诊至：{{ item.recommendedDoctor }}</div>
+                              <div class="mb-[8px]">转诊至：{{ item.facialReferralToDoctorName }}</div>
 
                               <div class="mb-[8px]">备注：{{ item.remarks }}</div>
                             </div>
@@ -599,7 +601,31 @@
             </a-select>
           </template>
           <template #pediAppointmentNotes="{ row }">
-            <div class="ellipsis">{{ row.pediAppointmentNotes }}</div>
+            <template v-if="row.pediAppointmentNotes !== '--'">
+            <a-popover  class="w-[300px]!">
+              <div class="ellipsis">
+              {{ row.pediAppointmentNotes }}
+            </div>
+            <template #content>
+      {{ row.pediAppointmentNotes }}
+    </template>
+            </a-popover></template>
+            <template v-else>--</template>
+            
+            
+          </template>
+           <template #lastAdmissionNote="{ row }">
+             <template v-if="row.lastAdmissionNote !== '--'">
+            <a-popover  class="w-[300px]!">
+              <div class="ellipsis">
+              {{ row.lastAdmissionNote }}
+            </div>
+            <template #content>
+      {{ row.lastAdmissionNote }}
+    </template>
+            </a-popover></template>
+            <template v-else>--</template>
+          
           </template>
           <template #operation="{ row }">
             <el-button @click="handleEvaluateOrth(row)" v-if="currentTab == '面评'"
@@ -949,7 +975,9 @@ async function getNoAptmList(val) {
     obj
   )
   if (res.code == 200) {
-    if (currentTab.value !== '应矫预约率' && currentTab1.value !== '无未来预约') return
+
+    if (currentTab.value == '应矫预约率' && currentTab1.value == '有未来预约') return
+
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
       ...item,
@@ -1034,7 +1062,9 @@ async function getAptmList(val) {
     obj
   )
   if (res.code == 200) {
-    if (currentTab.value !== '应矫预约率' && currentTab1.value !== '有未来预约') return
+
+    if (currentTab.value == '应矫预约率' && currentTab1.value == '无未来预约') return
+ 
     total.value = res.total
     patientList.value = res.rows?.map((item) => ({
       ...item,
@@ -1318,8 +1348,14 @@ const handleGoSche = (item) => {
 }
 
 const filter = (val) => {
-  console.log(val)
   const v = getCache(currentTab)
+  console.log(v)
+  console.log(currentTab1.value)
+  if (currentTab1.value == '无未来预约') {
+    getNoAptmList(val)
+    strategy.value[currentTab.value].stasCountRequest(v)
+    return
+  }
   // 改变时间的时候去重新执行请求就好了
   strategy.value[currentTab.value].request(v)
   strategy.value[currentTab.value].stasCountRequest(v)
@@ -1330,6 +1366,10 @@ const changePage = (page) => {
   const pages = sessionStorage.getItem(strategy.value[currentTab.value].page)
   const storage = sessionStorage.getItem(strategy.value[currentTab.value].storage)
   const val = { ...JSON.parse(pages), ...JSON.parse(storage) }
+  if (currentTab1.value == '无未来预约') {
+    getNoAptmList(val)
+    return
+  }
   strategy.value[currentTab.value].request(val)
 }
 watch(
