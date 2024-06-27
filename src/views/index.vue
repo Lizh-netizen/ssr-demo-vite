@@ -486,8 +486,8 @@
                         <div class="mb-[16px]" v-if="orthDetail.orthAppointmentStatus !== '未预约'">
                           预约时间：{{ orthDetail?.startTime }}
                         </div>
-                        <div class="mb-[16px]">
-                          风险等级：<img
+                        <div class="mb-[16px] flex items-center">
+                          风险等级：<div v-if="orthDetail?.difficultyLevel !== null" class="flex items-center"><img
                             class="h-[14px]"
                             src="../assets/png/highRisk.png"
                             v-if="orthDetail.difficultyLevel == '高'"
@@ -501,7 +501,8 @@
                             src="../assets/png/lowRisk.png"
                             v-if="orthDetail.difficultyLevel == '低'"
                           />
-                          {{ orthDetail.difficultyLevel }}风险
+                          {{ orthDetail.difficultyLevel }}风险</div>
+                          <div v-else>--</div>
                         </div>
                         <div
                           class="mb-[16px] flex"
@@ -836,15 +837,7 @@ const statusStrategy = {
 }
 // 定义状态
 const status = ref('矫正')
-// 计算属性，根据状态动态加载图片路径
-const imageSrc = async () => {
-  const imageName = statusStrategy.value[status.value]
-  if (imageName) {
-    const imageModule = await import(`../assets/png/${imageName}.png`)
-    console.log('🚀 ~ imageSrc ~ imageModule:', imageModule)
-    return Promise.resolve(imageModule.default) // 返回图片的路径
-  }
-}
+
 const currentTab1 = ref('有未来预约')
 const strategy = ref({
   应矫预约率: {
@@ -968,8 +961,8 @@ async function getNoAptmList(val) {
     orthFilterORFacialResult: val?.orthFilterORFacialResult,
     priorityLevel: val?.priorityLevel
   }
-  obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
-  obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
+   obj.endTime = setEndTime(val)
+  obj.startTime = setStartTime(val)
   const res = await Post(
     `/prod-api/emr/orthAppointments/selectPatientsNotScheduledList?pageNum=${pageNum}&pageSize=${pageSizes}`,
     obj
@@ -1349,16 +1342,16 @@ const handleGoSche = (item) => {
 
 const filter = (val) => {
   const v = getCache(currentTab)
-  console.log(v)
-  console.log(currentTab1.value)
   if (currentTab1.value == '无未来预约') {
     getNoAptmList(val)
-    strategy.value[currentTab.value].stasCountRequest(v)
     return
   }
   // 改变时间的时候去重新执行请求就好了
   strategy.value[currentTab.value].request(v)
-  strategy.value[currentTab.value].stasCountRequest(v)
+  if (currentTab.value !== '应矫预约率') {
+    strategy.value[currentTab.value].stasCountRequest(v)
+  }
+  
 }
 
 const pagesStorage = ref('evaluatePage')
@@ -1438,9 +1431,9 @@ onBeforeMount(() => {
         val.doctorId = doctorId
         val.officeId = officeId
         val.date = [firstDate.value, date.value]
-        strategy.value[key].stasCountRequest(val)
+      
       } else {
-        strategy.value[key].stasCountRequest(args)
+       
       }
     }
   }
@@ -1450,14 +1443,11 @@ onBeforeMount(() => {
   userInfo.value = jc_odos_user
   const list = ['ortho', 'evaluate', 'aptm']
   list.forEach((element) => {
-    if (sessionStorage.getItem(element)) {
-      return
-    }
     sessionStorage.setItem(
       [element],
       JSON.stringify({
         doctorId: jc_odos_user?.ljProviderId,
-        date: element == 'aptm' ? [firstDate.value, date.value] : firstDate.value
+        date: element == 'aptm' && currentTab1.value =='有未来预约' ? [firstDate.value, date.value] : element == 'aptm' && currentTab1.value =='无未来预约' ? [lastStartDate.value, lastEndDate.value] : firstDate.value
       })
     )
     sessionStorage.setItem('officeId', jc_odos_user?.ljOfficeId)
@@ -1508,8 +1498,8 @@ async function getAptmCount(val) {
     orthAppointmentStatus: val?.orthAppointmentStatus,
     priorityLevel: val?.priorityLevel
   }
-  obj.endTime = typeof val.date === 'string' ? val.date : val?.date?.[1]
-  obj.startTime = typeof val.date === 'string' ? '' : val?.date?.[0]
+ obj.endTime = setEndTime(val)
+  obj.startTime = setStartTime(val)
   const res = await Post('/prod-api/emr/orthAppointments/selectOrthoAppointmentRate', obj)
   if (res.code == 200) {
     aptmCount.value = res.data
