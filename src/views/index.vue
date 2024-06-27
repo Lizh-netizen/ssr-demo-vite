@@ -538,7 +538,7 @@
                           <img src="../assets/png/二级@3x.png" v-if="orthDetail?.orthLevel == 2" />
                           <img src="../assets/png/三级@3x.png" v-if="orthDetail?.orthLevel == 3" />
                           {{ orthDetail?.doctorName }}
-                          <div class="flex items-center" v-if="orthLevel == 1">
+                          <div class="flex items-center" v-if="orthDetail.orthAppointmentStatus == '不匹配'">
                             <img src="../assets/svg/serious.svg" class="ml-[4px] mr-[5px]" /><span
                               class="color-[#F76560] font-500"
                               >等级不匹配</span
