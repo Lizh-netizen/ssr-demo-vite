@@ -217,7 +217,12 @@ export const columns_config_aptmNo = [
     width: '120px'
   },
   { title: '末诊日期', prop: 'lastAdmissionTime', type: 'text', width: '120px' },
-  { prop: 'lastDoctorName', title: '末诊医生', type: 'text', width: '80px' },
+  {
+    prop: 'lastDoctorName',
+    title: '末诊医生',
+    slotName: 'lastDoctorName',
+    width: '80px'
+  },
   // { title: '快筛备注', prop: 'voice_text', slotName: 'voice_text', width: '120px' },
   // { title: '难度等级', prop: 'difficultyLevel', slotName: 'difficultyLevel', width: '90px' },
   // { title: '预约医生', prop: 'toothDoctorName', type: 'text', width: '90px' },
@@ -243,7 +248,12 @@ export const columns_config_aptmNo = [
   // },
   // { title: '预约项目类型', prop: 'itemType', type: 'text', width: '120px' },
   // { title: '正畸项目', prop: 'orthItemType', type: 'text', width: '90px' },
-  { title: '末次就诊备注', prop: 'lastAdmissionNote', slotName: 'lastAdmissionNote', width: '90px' },
+  {
+    title: '末次就诊备注',
+    prop: 'lastAdmissionNote',
+    slotName: 'lastAdmissionNote',
+    width: '90px'
+  },
   // { title: '备注测试', prop: 'note',slotName: 'note', type:'notes' },
   {
     type: 'operation',
