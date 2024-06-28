@@ -608,6 +608,7 @@ const handleSubmitTooth = (option, title, classId, owningModule) => {
         })
         return
       } else {
+        title.optionId = []
         updateOption(
           title.optionId,
           title,

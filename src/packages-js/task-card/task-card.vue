@@ -44,15 +44,51 @@ const renderTaskCardItem = (data) => {
     marginRight: slotLen < 3 || data.index !== slotLen - 1 ? '20px' : '0'
   }
   const isBefor = data.index !== slotLen - 1 || data.index < 2
+  if (data.name == '应矫预约率') {
+    return (
+      <div
+        class={
+          currntTab.value === data.name
+            ? style.taskCardItemActiveOrtho
+            : !isSmall.value
+              ? style.taskCardItemOrtho
+              : style.taskCardItemSmallOrtho
+        }
+        style={{ ...taskCardItem, justifyContent: data.num ? 'space-evenly' : 'space-between' }}
+        onClick={() => {
+          currntTab.value = data.name
+          emit('changeTab', data.name)
+        }}
+      >
+        {/* 图片和数量 */}
+        <div class="image">
+          <SvgIcon name={data.svg_name} />
+          {/* 显示title */}
+          <div class="title">{data.name}</div>
+        </div>
 
+        {currntTab.value === data.name && (
+          <>
+            {isBefor && (
+              <>
+                <div class="befor">
+                  <span />
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    )
+  }
   return (
     <div
       class={
         currntTab.value === data.name
           ? style.taskCardItemActive
           : !isSmall.value
-          ? style.taskCardItem
-          : style.taskCardItemSmall
+            ? style.taskCardItem
+            : style.taskCardItemSmall
       }
       style={{ ...taskCardItem, justifyContent: data.num ? 'space-evenly' : 'space-between' }}
       onClick={() => {

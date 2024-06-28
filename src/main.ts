@@ -8,7 +8,7 @@ window.parent.postMessage('done', '*')
 window.addEventListener('message', (event) => {
   if (
     event.origin == 'https://orangetest.aiorange.com' ||
-    event.origin == 'https://orangedev.aiorange.com' ||
+    event.origin == 'https://orangedev.aiorange.com:30001' ||
     event.origin == 'https://odos.aiorange.com'
   ) {
     // if (event.data.startsWith('clear')) {
@@ -27,7 +27,6 @@ import router from './router'
 import store from './store'
 import './assets/main.css'
 // import '@unocss/reset/tailwind.css'
-import { ElMessage } from 'element-plus'
 // main.ts
 import 'virtual:uno.css'
 import lazyPlugin from 'vue3-lazy'

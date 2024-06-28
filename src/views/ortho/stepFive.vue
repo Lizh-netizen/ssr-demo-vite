@@ -458,7 +458,7 @@
             <a-textarea
               :style="{ width: '400px', 'border-radius': '8px' }"
               allow-clear
-              :max-length="125"
+              :max-length="1000"
               :auto-size="{
                 minRows: 1,
                 maxRows: 5

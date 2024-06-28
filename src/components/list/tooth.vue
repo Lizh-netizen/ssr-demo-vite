@@ -111,7 +111,7 @@ const handleBeforeEnterPopover = (title) => {
   symptomList.value.forEach((row) => {
     row.forEach((a) => {
       a.active = false
-      if (title.toothCode?.includes(a.value + '')) {
+      if (title.toothCode && title.toothCode.includes(a.value + '')) {
         a.active = true
       }
     })
@@ -168,8 +168,8 @@ const handleSubmitTooth = (title) => {
 }
 const openPop = (title, item) => {
   // 如果没有图片，就不显示popover
-  if (item) {
-    item.orthTitleList?.forEach((t) => {
+  if (item && item.orthTitleList) {
+    item.orthTitleList.forEach((t) => {
       if (title !== t) {
         t.popVisible = false
       }
@@ -185,8 +185,13 @@ onMounted(() => {
     // 点击空白处，弹窗消失
     const popover = document.querySelector('.el-popper.el-popover')
     if (popover) {
-      if (e.target !== popover && !popover.contains(e.target) && data.value) {
-        const index = data.value.orthTitleList?.findIndex((title) => title.popVisible)
+      if (
+        e.target !== popover &&
+        !popover.contains(e.target) &&
+        data.value &&
+        data.value.orthTitleList
+      ) {
+        const index = data.value.orthTitleList.findIndex((title) => title.popVisible)
 
         if (index !== -1) {
           data.value.orthTitleList[index].popVisible = false

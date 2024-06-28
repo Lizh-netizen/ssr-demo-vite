@@ -2735,7 +2735,7 @@ function initCanvas(maxWidth, maxHeight, draw) {
   }
   const timestamp = new Date().getTime()
   image.crossOrigin = 'anonymous'
-  image.src = `${cephaImage.value}?t=${timestamp}` // 设置图片源地址
+  image.src = `${cephaImage.value}` // 设置图片源地址
 }
 
 onMounted(() => {

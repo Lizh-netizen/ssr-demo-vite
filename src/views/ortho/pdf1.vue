@@ -535,8 +535,8 @@ const faceImageList1 = [
   '45度侧面微笑像'
 ]
 const mouthImageList1 = ['正面咬合', '前牙覆盖']
-const mouthImageList2 = ['口内照（左侧）', '口内照（右侧）']
-const mouthImageList3 = ['磨牙关系（左侧）', '磨牙关系（右侧）']
+const mouthImageList2 = ['口内照（右侧）', '口内照（左侧）']
+const mouthImageList3 = ['磨牙关系（右侧）', '磨牙关系（左侧）']
 const mouthImageList4 = ['上颌', '下颌']
 async function getDataList() {
   const result = await Get(

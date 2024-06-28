@@ -4,7 +4,6 @@
   </ElConfigProvider>
 </template>
 <script setup>
-import { nextTick } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { ElConfigProvider } from 'element-plus'
 

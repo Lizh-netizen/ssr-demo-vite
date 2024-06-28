@@ -74,10 +74,15 @@
         margin-left: 4px;
         margin-top: 2px;
       }
-      .total {
+      
+    }
+  }
+}
+.total {
         background-color: rgba(247, 101, 96, 1);
         width: 20px;
         height: 20px;
+        top: -10px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -85,12 +90,8 @@
         position: absolute;
         font-weight: 500;
         color: #ffffff;
-        right: -5px;
+        right: -10px;
       }
-    }
-  }
-}
-
 .date-time {
   @include wrapper;
   :deep .arco-picker {

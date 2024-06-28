@@ -1,5 +1,6 @@
 build/*.js
 src/assets
+src/main.ts
 public
 dist
 dist-test

@@ -46,6 +46,39 @@
     }
   }
 }
+@mixin taskCardItemOrtho($color) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 179px;
+  flex: 1;
+  width: 0;
+  border-radius: 12px;
+  position: relative;
+  background: #ffffff;
+  box-sizing: border-box;
+  :global {
+    .title {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .image {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      margin-left: 24px;
+      .svg-icon {
+        width: 48px;
+        height: 48px;
+        margin-right: 20px;
+        border-radius: 50%;
+        background: #d6d6d6;
+      }
+    }
+  }
+}
 
 @mixin taskCardItem($color) {
   display: flex;
@@ -217,6 +250,51 @@
 // 未被选中内容被挤压状态
 .taskCardItemSmall {
   @include taskCardItem(rgba(46, 108, 228, 1));
+  border: 2px solid transparent;
+  background-color: #f2f3f5;
+  &:hover {
+    background-color: #eeeeee;
+  }
+}
+
+.taskCardItemActiveOrtho {
+  @include taskCardItemOrtho(rgba(46, 108, 228, 1));
+  border: 2px solid rgba(46, 108, 228, 1);
+  border-bottom-color: #ffffff;
+  height: 197px;
+  padding-bottom: 34px;
+  border-radius: 12px 12px 0 0;
+  min-width: 328px;
+  background: linear-gradient(180deg, #e8f0ff 0%, #ffffff);
+  :global {
+    .befor {
+      @include after_befor(30px, 0 0 0 17px);
+      bottom: -2px;
+      right: -16px;
+      span {
+        width: 20px;
+        left: 1px;
+        bottom: 1px;
+        border-bottom: 2px solid rgba(46, 108, 228, 1);
+        border-left: 2px solid rgba(46, 108, 228, 1);
+      }
+    }
+  }
+}
+// 未选中没挤压状态
+.taskCardItemOrtho {
+  @include taskCardItemOrtho(rgba(46, 108, 228, 1));
+  border: 2px solid transparent;
+  background-color: #f7f8fa;
+  &:hover {
+    background-color: #eeeeee;
+    border: 2px solid #eeeeee;
+  }
+}
+
+// 未被选中内容被挤压状态
+.taskCardItemSmallOrtho {
+  @include taskCardItemOrtho(rgba(46, 108, 228, 1));
   border: 2px solid transparent;
   background-color: #f2f3f5;
   &:hover {
