@@ -1,6 +1,18 @@
 <template>
   <ElConfigProvider :locale="EleZhCn">
-    <RouterView />
+    123
+    <nav>
+      <router-link :to="{ name: 'about' }">Go to about</router-link>
+      <router-link :to="{ name: 'user' }">Go to user</router-link>
+      <router-link :to="{ name: 'index' }">Go to Home</router-link>
+    </nav>
+    <div class="container pt-12px pb-12px">
+      <router-view v-slot="{ Component }">
+        <Suspense>
+          <component :is="Component" />
+        </Suspense>
+      </router-view>
+    </div>
   </ElConfigProvider>
 </template>
 <script setup>
